@@ -1,0 +1,52 @@
+package dev.creoii.dungeoneer.network;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
+import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
+import dev.creoii.dungeoneer.network.s2c.account.AllowLoginS2C;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+public class PacketSerializer extends Serializer<Object> {
+    private final BiConsumer<Output, Object> FAILED_WRITE_CONSUMER = (_, _) -> {};
+    private final Function<Input, ?> FAILED_READ_CONSUMER = (_) -> null;
+    private final Map<Class<?>, BiConsumer<Output, Object>> WRITE_SCHEMA = new HashMap<>();
+    private final Map<Class<?>, Function<Input, ?>> READ_SCHEMA = new HashMap<>();
+    public static final PacketSerializer INSTANCE = new PacketSerializer();
+
+    @SuppressWarnings("unchecked")
+    public <T> void register(Class<T> clazz, BiConsumer<Output, T> writer, Function<Input, T> reader) {
+        WRITE_SCHEMA.put(clazz, (BiConsumer<Output, Object>) writer);
+        READ_SCHEMA.put(clazz, reader);
+    }
+
+    @Override
+    public void write(Kryo kryo, Output output, Object o) {
+        WRITE_SCHEMA.getOrDefault(o.getClass(), FAILED_WRITE_CONSUMER).accept(output, o);
+    }
+
+    @Override
+    public Object read(Kryo kryo, Input input, Class<?> type) {
+        return READ_SCHEMA.getOrDefault(type, FAILED_READ_CONSUMER).apply(input);
+    }
+
+    public boolean isValidPacket(Object o) {
+        return READ_SCHEMA.containsKey(o.getClass()) && WRITE_SCHEMA.containsKey(o.getClass());
+    }
+
+    public static void registerDefault(Kryo kryo) {
+        kryo.register(LoginC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(RequestLoginC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(AllowLoginS2C.class, PacketSerializer.INSTANCE);
+
+        PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
+        PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
+        PacketSerializer.INSTANCE.register(AllowLoginS2C.class, AllowLoginS2C::write, AllowLoginS2C::read);
+    }
+}
