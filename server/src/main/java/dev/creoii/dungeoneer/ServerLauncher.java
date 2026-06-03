@@ -6,6 +6,7 @@ public class ServerLauncher {
     public static void main(String[] args) throws IOException {
         int tcpPort = 54555;
         int udpPort = 54777;
+        boolean debug = false;
 
         if (args.length > 0) {
             try {
@@ -17,15 +18,19 @@ public class ServerLauncher {
 
         if (args.length > 1) {
             try {
-                udpPort = Integer.parseInt(args[0]);
+                udpPort = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 DungeoneerServer.LOGGER.error("Invalid UDP port. Using default: " + udpPort);
             }
         }
 
+        if (args.length > 2 && "true".equalsIgnoreCase(args[2])) {
+            debug = true;
+        }
+
         if (tcpPort == udpPort)
             throw new IllegalArgumentException("TCP & UDP ports cannot be the same");
 
-        new DungeoneerServer(tcpPort, udpPort);
+        new DungeoneerServer(new ServerProperties(tcpPort, udpPort, debug));
     }
 }

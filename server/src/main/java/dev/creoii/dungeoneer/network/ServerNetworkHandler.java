@@ -3,10 +3,12 @@ package dev.creoii.dungeoneer.network;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.DungeoneerServer;
+import dev.creoii.dungeoneer.database.Database;
 import dev.creoii.dungeoneer.database.definitions.Account;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AllowLoginS2C;
+import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.util.Tickable;
 
 public class ServerNetworkHandler implements Listener, Tickable {
@@ -53,17 +55,19 @@ public class ServerNetworkHandler implements Listener, Tickable {
     }
 
     public void handlePacket(Connection connection, Object object) {
+        if (server.getProperties().debug())
+            DungeoneerServer.LOGGER.debug(connection.getRemoteAddressTCP() + " | Connection " + connection.getID() + " | " + object.getClass().getSimpleName());
+
         if (object instanceof RequestLoginC2S) {
             server.get().sendToUDP(connection.getID(), new AllowLoginS2C());
         } else if (object instanceof LoginC2S(String username, String password)) {
             Account account = server.getDatabase().getAccounts().findByUsername(username);
             if (account == null) {
                 account = server.getDatabase().getAccounts().create(username, password);
-                System.out.println("Created account: " + account.username());
-            } else {
-                System.out.println("Loaded account: " + account.username());
-            }
+                Database.LOGGER.info("Created account: " + account.username());
+            } else Database.LOGGER.info("Loaded account: " + account.username());
+
+            server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.SUCCESS));
         }
-        System.out.println(connection.getRemoteAddressTCP() + " | Connection " + connection.getID() + " | " + object.getClass().getSimpleName());
     }
 }

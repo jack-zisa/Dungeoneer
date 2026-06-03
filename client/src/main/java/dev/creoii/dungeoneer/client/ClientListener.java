@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AllowLoginS2C;
+import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 
 import java.util.Scanner;
 
@@ -26,6 +27,8 @@ public record ClientListener(Dungeoneer client) implements Listener {
             String password = scanner.nextLine();
 
             client.get().sendUDP(new LoginC2S(username, password));
+        } else if (object instanceof LoginResultS2C(int resultId)) {
+            System.out.print("Login result: " + LoginResultS2C.Result.values()[resultId]);
         }
     }
 }

@@ -16,17 +16,20 @@ public class DungeoneerServer {
     public static final Logger LOGGER = new Logger(ServerLauncher.class.getSimpleName());
     private volatile Status status;
     private final Thread gameThread;
+    private final ServerProperties properties;
 
-    public DungeoneerServer(int tcpPort, int udpPort) throws IOException {
+    public DungeoneerServer(ServerProperties properties) throws IOException {
+        this.properties = properties;
+
         Log.NONE();
 
         setStatus(Status.STARTING);
 
         server = new Server(256 * 1024, 256 * 1024, new CreoSerialization());
         server.start();
-        server.bind(tcpPort, udpPort);
+        server.bind(properties.tcpPort(), properties.udpPort());
 
-        LOGGER.info("Server started on ports: TCP " + tcpPort + " | UDP " + udpPort);
+        LOGGER.info("Server started on ports: TCP " + properties.tcpPort() + " | UDP " + properties.udpPort());
 
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
@@ -47,6 +50,10 @@ public class DungeoneerServer {
 
     public Status getStatus() {
         return status;
+    }
+
+    public ServerProperties getProperties() {
+        return properties;
     }
 
     public void setStatus(Status status) {

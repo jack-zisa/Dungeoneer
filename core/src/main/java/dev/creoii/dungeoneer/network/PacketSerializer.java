@@ -7,6 +7,7 @@ import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AllowLoginS2C;
+import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,9 +45,11 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(LoginC2S.class, PacketSerializer.INSTANCE);
         kryo.register(RequestLoginC2S.class, PacketSerializer.INSTANCE);
         kryo.register(AllowLoginS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
         PacketSerializer.INSTANCE.register(AllowLoginS2C.class, AllowLoginS2C::write, AllowLoginS2C::read);
+        PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);
     }
 }
