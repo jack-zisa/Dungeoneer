@@ -26,6 +26,7 @@ public class ServerLauncher {
 
         if (args.length > 2 && "true".equalsIgnoreCase(args[2])) {
             debug = true;
+            DungeoneerServer.LOGGER.debug("Set server to debug mode.");
         }
 
         if (tcpPort == udpPort)

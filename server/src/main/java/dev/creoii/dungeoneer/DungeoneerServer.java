@@ -8,16 +8,17 @@ import dev.creoii.dungeoneer.network.ServerNetworkHandler;
 import dev.creoii.dungeoneer.util.logging.Logger;
 
 import java.io.IOException;
+import java.util.Set;
 
 public class DungeoneerServer {
     private final Server server;
     private final ServerNetworkHandler networkHandler;
     private final Database database;
+    private final SessionManager sessionManager;
     public static final Logger LOGGER = new Logger(ServerLauncher.class.getSimpleName());
     private volatile Status status;
     private final Thread gameThread;
     private final ServerProperties properties;
-    private final SessionManager sessionManager;
 
     public DungeoneerServer(ServerProperties properties) throws IOException {
         this.properties = properties;
@@ -38,8 +39,14 @@ public class DungeoneerServer {
 
         setStatus(Status.PAUSED);
 
-        gameThread = new Thread(this::run, "Game Loop");
+        gameThread = new Thread(this::run, "Game");
         gameThread.start();
+
+        if (properties.debug()) {
+            Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+            LOGGER.info("Active Threads:");
+            threadSet.forEach(thread -> LOGGER.info("    " + thread.getName()));
+        }
     }
 
     public Server get() {
