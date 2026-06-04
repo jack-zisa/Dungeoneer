@@ -16,7 +16,7 @@ public class AccountRepository {
             CREATE TABLE IF NOT EXISTS accounts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username VARCHAR(32) UNIQUE NOT NULL,
-                password VARCHAR(128) NOT NULL
+                password_hash VARCHAR(128) NOT NULL
             )
         """)
         );
@@ -30,30 +30,30 @@ public class AccountRepository {
                 FROM accounts
                 WHERE username = :username
             """)
-            .bind("username", username)
-            .map((rs, _) -> new Account(
-                rs.getInt("id"),
-                rs.getString("username"),
-                rs.getString("password")
-            ))
-            .findOne()
-            .orElse(null)
+                .bind("username", username)
+                .map((rs, _) -> new Account(
+                    rs.getInt("id"),
+                    rs.getString("username"),
+                    rs.getString("password_hash")
+                ))
+                .findOne()
+                .orElse(null)
         );
     }
 
-    public Account create(String username, String password) {
+    public Account create(String username, String passwordHash) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO accounts(username, password)
-                VALUES(:username, :password)
+                INSERT INTO accounts(username, password_hash)
+                VALUES(:username, :password_hash)
             """)
             .bind("username", username)
-            .bind("password", password)
+            .bind("password_hash", passwordHash)
             .executeAndReturnGeneratedKeys("id")
             .mapTo(Long.class)
             .one()
         );
 
-        return new Account(id, username, password);
+        return new Account(id, username, passwordHash);
     }
 }

@@ -5,7 +5,7 @@ import os
 folder_path: str = "dump_output"
 os.makedirs(folder_path, exist_ok=True)
 
-connection = sqlite3.connect('dungeoneer.db')
+connection = sqlite3.connect('server/run/dungeoneer.db')
 
 accounts_df = pd.read_sql_query("SELECT * FROM accounts", connection)
 accounts_df.to_csv('dump_output/accounts.csv', index=False)

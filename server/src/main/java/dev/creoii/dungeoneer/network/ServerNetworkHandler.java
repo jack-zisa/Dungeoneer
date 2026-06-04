@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.network;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.password4j.Password;
 import dev.creoii.dungeoneer.DungeoneerServer;
 import dev.creoii.dungeoneer.database.Database;
 import dev.creoii.dungeoneer.database.definitions.Account;
@@ -58,7 +59,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
     }
 
     public void handlePacket(Connection connection, Object object) {
-        if (server.getProperties().debug())
+        if (server.isDebug())
             DungeoneerServer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
 
         if (object instanceof RequestLoginC2S) {
@@ -66,9 +67,15 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof LoginC2S(String username, String password)) {
             Account account = server.getDatabase().getAccounts().getByUsername(username);
             if (account == null) {
-                account = server.getDatabase().getAccounts().create(username, password);
+                account = server.getDatabase().getAccounts().create(username, Password.hash(password + server.getSecrets().pepper()).withArgon2().getResult());
                 Database.LOGGER.info("Created account: %s", account.username());
-            } else Database.LOGGER.info("Loaded account: %s", account.username());
+            } else if (Password.check(password + server.getSecrets().pepper(), account.passwordHash()).withArgon2()) {
+                Database.LOGGER.info("Loaded account: %s", account.username());
+            } else {
+                DungeoneerServer.LOGGER.error("Failed login for account: %s", account.username());
+                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.FAIL));
+                return;
+            }
 
             Session session = server.getSessionManager().startSession(connection, account.id());
             if (session != null) {

@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.Set;
 
 public class DungeoneerServer {
+    public static final int DEFAULT_TCP_PORT = 54555;
+    public static final int DEFAULT_UDP_PORT = 54777;
     private final Server server;
     private final ServerNetworkHandler networkHandler;
     private final Database database;
@@ -19,9 +21,13 @@ public class DungeoneerServer {
     private volatile Status status;
     private final Thread gameThread;
     private final ServerProperties properties;
+    private final ServerSecrets secrets;
+    private final boolean debug;
 
-    public DungeoneerServer(ServerProperties properties) throws IOException {
+    public DungeoneerServer(ServerProperties properties, ServerSecrets secrets, boolean debug) throws IOException {
         this.properties = properties;
+        this.secrets = secrets;
+        this.debug = debug;
 
         Log.NONE();
 
@@ -42,7 +48,7 @@ public class DungeoneerServer {
         gameThread = new Thread(this::run, "Game");
         gameThread.start();
 
-        if (properties.debug()) {
+        if (debug) {
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
             LOGGER.info("Active Threads:");
             threadSet.forEach(thread -> LOGGER.info("    " + thread.getName()));
@@ -61,17 +67,30 @@ public class DungeoneerServer {
         return sessionManager;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
     public ServerProperties getProperties() {
         return properties;
+    }
+
+    public ServerSecrets getSecrets() {
+        return secrets;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public void setStatus(Status status) {
         this.status = status;
         LOGGER.info("Server status set to: %s", status.name());
+
+        if (status == Status.PAUSED) {
+            properties.write(properties.runDirectory());
+            secrets.write(properties.runDirectory());
+        }
     }
 
     public void run() {
@@ -85,17 +104,31 @@ public class DungeoneerServer {
             try {
                 Thread.sleep(tickRate);
             } catch (InterruptedException e) {
+                finish();
                 break;
             }
         }
+
+        finish();
+    }
+
+    public void finish() {
+        properties.write(properties.runDirectory());
+        secrets.write(properties.runDirectory());
+
+        server.getConnections().forEach(connection -> {
+            if (connection.isConnected()) {
+                sessionManager.endSession(connection);
+            }
+        });
 
         server.close();
     }
 
     public enum Status {
-        STARTING(false),   // Server is setting up
-        PAUSED(false),     // Server is set up & ready for clients to connect
-        RUNNING(true);    // Server has clients connected
+        STARTING(false),    // Server is setting up
+        PAUSED(false),      // Server is set up & ready for clients to connect
+        RUNNING(true);      // Server has clients connected
 
         private final boolean shouldTick;
 

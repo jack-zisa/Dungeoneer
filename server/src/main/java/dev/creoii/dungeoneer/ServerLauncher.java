@@ -1,11 +1,20 @@
 package dev.creoii.dungeoneer;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class ServerLauncher {
     public static void main(String[] args) throws IOException {
-        int tcpPort = 54555;
-        int udpPort = 54777;
+        Path runDirectory = Path.of(System.getProperty("user.dir"));
+        ServerProperties properties = ServerProperties.read(runDirectory, runDirectory.resolve("server.properties"));
+        ServerSecrets secrets = ServerSecrets.read(runDirectory.resolve("secrets.properties"));
+        if (secrets == null) {
+            secrets = new ServerSecrets();
+            secrets.write(runDirectory.resolve("secrets.properties"));
+        }
+
+        int tcpPort = properties == null ? DungeoneerServer.DEFAULT_TCP_PORT : properties.tcpPort();
+        int udpPort = properties == null ? DungeoneerServer.DEFAULT_UDP_PORT : properties.udpPort();
         boolean debug = false;
 
         if (args.length > 0) {
@@ -32,6 +41,6 @@ public class ServerLauncher {
         if (tcpPort == udpPort)
             throw new IllegalArgumentException("TCP & UDP ports cannot be the same");
 
-        new DungeoneerServer(new ServerProperties(tcpPort, udpPort, debug));
+        new DungeoneerServer(new ServerProperties(tcpPort, udpPort, runDirectory), secrets, debug);
     }
 }
