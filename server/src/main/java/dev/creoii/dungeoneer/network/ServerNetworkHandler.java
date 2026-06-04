@@ -34,7 +34,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
 
     @Override
     public void connected(Connection connection) {
-        DungeoneerServer.LOGGER.info("Client connected: " + connection);
+        DungeoneerServer.LOGGER.info("Client connected: %s", connection);
 
         if (server.getStatus() == DungeoneerServer.Status.PAUSED && !server.get().getConnections().isEmpty()) {
             server.setStatus(DungeoneerServer.Status.RUNNING);
@@ -43,7 +43,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
 
     @Override
     public void disconnected(Connection connection) {
-        DungeoneerServer.LOGGER.info("Client disconnected: " + connection);
+        DungeoneerServer.LOGGER.info("Client disconnected: %s", connection);
 
         server.getSessionManager().endSession(connection);
 
@@ -59,7 +59,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
 
     public void handlePacket(Connection connection, Object object) {
         if (server.getProperties().debug())
-            DungeoneerServer.LOGGER.debug(connection.getRemoteAddressTCP() + " | Connection " + connection.getID() + " | " + object.getClass().getSimpleName());
+            DungeoneerServer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
 
         if (object instanceof RequestLoginC2S) {
             server.get().sendToUDP(connection.getID(), new AllowLoginS2C());
@@ -67,8 +67,8 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Account account = server.getDatabase().getAccounts().getByUsername(username);
             if (account == null) {
                 account = server.getDatabase().getAccounts().create(username, password);
-                Database.LOGGER.info("Created account: " + account.username());
-            } else Database.LOGGER.info("Loaded account: " + account.username());
+                Database.LOGGER.info("Created account: %s", account.username());
+            } else Database.LOGGER.info("Loaded account: %s", account.username());
 
             Session session = server.getSessionManager().startSession(connection, account.id());
             if (session != null) {

@@ -31,7 +31,7 @@ public class DungeoneerServer {
         server.start();
         server.bind(properties.tcpPort(), properties.udpPort());
 
-        LOGGER.info("Server started on ports: TCP " + properties.tcpPort() + " | UDP " + properties.udpPort());
+        LOGGER.info("Server started on ports: TCP %s | UDP %s", properties.tcpPort(), properties.udpPort());
 
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
@@ -71,7 +71,7 @@ public class DungeoneerServer {
 
     public void setStatus(Status status) {
         this.status = status;
-        LOGGER.info("Server status set to: " + status.name());
+        LOGGER.info("Server status set to: %s", status.name());
     }
 
     public void run() {

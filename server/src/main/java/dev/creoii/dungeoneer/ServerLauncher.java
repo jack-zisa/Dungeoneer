@@ -12,7 +12,7 @@ public class ServerLauncher {
             try {
                 tcpPort = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                DungeoneerServer.LOGGER.error("Invalid TCP port. Using default: " + tcpPort);
+                DungeoneerServer.LOGGER.error("Invalid TCP port. Using default: %s", tcpPort);
             }
         }
 
@@ -20,7 +20,7 @@ public class ServerLauncher {
             try {
                 udpPort = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                DungeoneerServer.LOGGER.error("Invalid UDP port. Using default: " + udpPort);
+                DungeoneerServer.LOGGER.error("Invalid UDP port. Using default: %s", udpPort);
             }
         }
 

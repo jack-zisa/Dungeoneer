@@ -21,20 +21,44 @@ public record Logger(String name) {
         }
     }
 
+    private void log(Level level, String message, Object... args) {
+        switch (level) {
+            case INFO, DEBUG -> System.out.printf("[" + level.name() + "] [" + name + "]: " + timestamp() + ": " + message + "%n", args);
+            case WARN -> System.out.printf("[" + level.name() + "] [" + name + "]: " + timestamp() + ": \u001B[33m" + YELLOW + message + "\u001B[0m", args);
+            case ERROR -> System.out.printf("[" + level.name() + "] [" + name + "]: " + timestamp() + ": \u001B[31m" + RED + message + "\u001B[0m", args);
+        }
+    }
+
     public void info(String message) {
         log(Level.INFO, message);
+    }
+
+    public void info(String message, Object... args) {
+        log(Level.INFO, message, args);
     }
 
     public void warn(String message) {
         log(Level.WARN, message);
     }
 
+    public void warn(String message, Object... args) {
+        log(Level.WARN, message, args);
+    }
+
     public void error(String message) {
         log(Level.ERROR, message);
     }
 
+    public void error(String message, Object... args) {
+        log(Level.ERROR, message, args);
+    }
+
     public void debug(String message) {
         log(Level.DEBUG, message);
+    }
+
+    public void debug(String message, Object... args) {
+        log(Level.DEBUG, message, args);
     }
 
     public void info(String message, int maxLength) {

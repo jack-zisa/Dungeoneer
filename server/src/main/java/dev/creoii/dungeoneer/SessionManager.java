@@ -33,10 +33,10 @@ public class SessionManager {
             Session session = server.getDatabase().getSessions().create(accountId, LocalDateTime.now());
             connectionSessions.put(connection.getID(), session);
             accountSessions.put(accountId, session);
-            DungeoneerServer.LOGGER.info("Session started for account id: " + accountId);
+            DungeoneerServer.LOGGER.info("Session started for account id: %s", accountId);
             return session;
         } else {
-            DungeoneerServer.LOGGER.error("Session or connection already active for account id: " + accountId);
+            DungeoneerServer.LOGGER.error("Session or connection already active for account id: %s", accountId);
             return null;
         }
     }
@@ -46,7 +46,7 @@ public class SessionManager {
         if (session != null) {
             accountSessions.remove(session.accountId());
             server.getDatabase().getSessions().updateEndTime(session.id(), LocalDateTime.now());
-            DungeoneerServer.LOGGER.info("Session ended for account id: " + session.accountId());
+            DungeoneerServer.LOGGER.info("Session ended for account id: %s", session.accountId());
         }
     }
 }

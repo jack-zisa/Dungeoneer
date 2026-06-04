@@ -15,7 +15,7 @@ public class Database {
         jdbi = Jdbi.create("jdbc:sqlite:dungeoneer.db");
         sessions = new SessionRepository(jdbi);
         accounts = new AccountRepository(jdbi);
-        LOGGER.info("Database initialized");
+        LOGGER.info("Database initialized.");
     }
 
     public AccountRepository getAccounts() {

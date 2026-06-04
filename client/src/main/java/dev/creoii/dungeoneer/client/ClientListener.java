@@ -24,7 +24,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
             if (result == LoginResultS2C.Result.SUCCESS) {
                 Gdx.app.postRunnable(() -> client.setScreen(new GameScreen()));
             }
-            Dungeoneer.LOGGER.info("Login result: " + result.name());
+            Dungeoneer.LOGGER.info("Login result: %s", result.name());
         }
     }
 }
