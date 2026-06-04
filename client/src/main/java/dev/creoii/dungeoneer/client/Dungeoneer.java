@@ -3,7 +3,7 @@ package dev.creoii.dungeoneer.client;
 import com.badlogic.gdx.Game;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
-import dev.creoii.dungeoneer.FirstScreen;
+import dev.creoii.dungeoneer.client.screen.LoadingScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 
@@ -30,6 +30,8 @@ public class Dungeoneer extends Game {
 
     @Override
     public void create() {
+        setScreen(new LoadingScreen());
+
         PacketSerializer.registerDefault(client.getKryo());
 
         client.addListener(listener);
@@ -40,7 +42,5 @@ public class Dungeoneer extends Game {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        setScreen(new FirstScreen());
     }
 }
