@@ -14,7 +14,7 @@ public class AccountRepository {
         jdbi.useHandle(handle ->
             handle.execute("""
             CREATE TABLE IF NOT EXISTS accounts (
-                id BIGSERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username VARCHAR(32) UNIQUE NOT NULL,
                 password VARCHAR(128) NOT NULL
             )
@@ -32,7 +32,7 @@ public class AccountRepository {
             """)
             .bind("username", username)
             .map((rs, _) -> new Account(
-                rs.getLong("id"),
+                rs.getInt("id"),
                 rs.getString("username"),
                 rs.getString("password")
             ))

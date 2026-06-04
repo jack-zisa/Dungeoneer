@@ -165,3 +165,4 @@ Thumbs.db
 /client/build
 .editorconfig
 dungeoneer.db
+/dump_output

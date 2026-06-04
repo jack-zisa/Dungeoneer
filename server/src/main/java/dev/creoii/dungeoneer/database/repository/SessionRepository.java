@@ -17,8 +17,8 @@ public class SessionRepository {
         jdbi.useHandle(handle ->
             handle.execute("""
             CREATE TABLE IF NOT EXISTS sessions (
-                id BIGSERIAL PRIMARY KEY,
-                account_id BIGSERIAL,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id INTEGER,
                 start_time DATETIME NOT NULL,
                 end_time DATETIME
             )
@@ -52,8 +52,8 @@ public class SessionRepository {
         """)
                 .bind("account_id", accountId)
                 .map((rs, _) -> new Session(
-                    rs.getLong("id"),
-                    rs.getLong("account_id"),
+                    rs.getInt("id"),
+                    rs.getInt("account_id"),
                     rs.getObject("start_time", LocalDateTime.class),
                     rs.getObject("end_time", LocalDateTime.class)
                 ))
@@ -72,8 +72,8 @@ public class SessionRepository {
             """)
                 .bind("id", id)
                 .map((rs, _) -> new Session(
-                    rs.getLong("id"),
-                    rs.getLong("account_id"),
+                    rs.getInt("id"),
+                    rs.getInt("account_id"),
                     LocalDateTime.parse(rs.getString("start_time")),
                     LocalDateTime.parse(rs.getString("end_time"))
                 ))
