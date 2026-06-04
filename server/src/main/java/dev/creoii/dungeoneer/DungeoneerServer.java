@@ -17,6 +17,7 @@ public class DungeoneerServer {
     private volatile Status status;
     private final Thread gameThread;
     private final ServerProperties properties;
+    private final SessionManager sessionManager;
 
     public DungeoneerServer(ServerProperties properties) throws IOException {
         this.properties = properties;
@@ -33,6 +34,7 @@ public class DungeoneerServer {
 
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
+        sessionManager = new SessionManager(this);
 
         setStatus(Status.PAUSED);
 
@@ -46,6 +48,10 @@ public class DungeoneerServer {
 
     public Database getDatabase() {
         return database;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
     }
 
     public Status getStatus() {
@@ -62,7 +68,7 @@ public class DungeoneerServer {
     }
 
     public void run() {
-        final long tickTime = 1000L / 20L; // 20 TPS
+        final long tickRate = 1000L / 20L; // 20 TPS
 
         while (true) {
             if (status.shouldTick()) {
@@ -70,7 +76,7 @@ public class DungeoneerServer {
             }
 
             try {
-                Thread.sleep(tickTime);
+                Thread.sleep(tickRate);
             } catch (InterruptedException e) {
                 break;
             }

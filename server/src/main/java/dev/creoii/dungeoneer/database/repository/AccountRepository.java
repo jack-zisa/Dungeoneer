@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.database.repository;
 
 import dev.creoii.dungeoneer.database.definitions.Account;
 import org.jdbi.v3.core.Jdbi;
+import org.jspecify.annotations.Nullable;
 
 public class AccountRepository {
     private final Jdbi jdbi;
@@ -21,7 +22,8 @@ public class AccountRepository {
         );
     }
 
-    public Account findByUsername(String username) {
+    @Nullable
+    public Account getByUsername(String username) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                 SELECT *
@@ -29,7 +31,7 @@ public class AccountRepository {
                 WHERE username = :username
             """)
             .bind("username", username)
-            .map((rs, ctx) -> new Account(
+            .map((rs, _) -> new Account(
                 rs.getLong("id"),
                 rs.getString("username"),
                 rs.getString("password")
