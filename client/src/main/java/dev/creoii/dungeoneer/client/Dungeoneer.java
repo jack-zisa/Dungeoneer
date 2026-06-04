@@ -6,11 +6,13 @@ import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.network.PacketSerializer;
+import dev.creoii.dungeoneer.util.logging.Logger;
 
 import java.io.IOException;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Dungeoneer extends Game {
+    public static final Logger LOGGER = new Logger(Dungeoneer.class.getSimpleName());
     private final Client client;
     private final Listener.QueuedListener listener;
 
@@ -42,5 +44,7 @@ public class Dungeoneer extends Game {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        Dungeoneer.LOGGER.info("Client initialized.");
     }
 }
