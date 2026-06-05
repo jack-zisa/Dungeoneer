@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.client;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
@@ -46,5 +47,11 @@ public class Dungeoneer extends Game {
         }
 
         Dungeoneer.LOGGER.info("Client initialized.");
+    }
+
+    @Override
+    public void render() {
+        ScreenUtils.clear(0, 0, 0, 1);
+        super.render();
     }
 }

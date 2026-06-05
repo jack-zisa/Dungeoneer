@@ -19,14 +19,6 @@ public class SessionManager {
         this.accountSessions = new HashMap<>();
     }
 
-    public Map<Integer, Session> getConnectionSessions() {
-        return connectionSessions;
-    }
-
-    public Map<Long, Session> getAccountSessions() {
-        return accountSessions;
-    }
-
     @Nullable
     public Session startSession(Connection connection, long accountId) {
         if (!accountSessions.containsKey(accountId) && !connectionSessions.containsKey(connection.getID())) {

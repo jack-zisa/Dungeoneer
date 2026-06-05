@@ -113,6 +113,8 @@ public class DungeoneerServer {
     }
 
     public void finish() {
+        setStatus(Status.STOPPING);
+
         properties.write(properties.runDirectory());
         secrets.write(properties.runDirectory());
 
@@ -128,7 +130,8 @@ public class DungeoneerServer {
     public enum Status {
         STARTING(false),    // Server is setting up
         PAUSED(false),      // Server is set up & ready for clients to connect
-        RUNNING(true);      // Server has clients connected
+        RUNNING(true),      // Server has clients connected
+        STOPPING(false);    // Server is shutting down
 
         private final boolean shouldTick;
 

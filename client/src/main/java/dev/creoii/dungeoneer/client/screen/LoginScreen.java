@@ -1,18 +1,14 @@
 package dev.creoii.dungeoneer.client.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 
-public class LoginScreen implements Screen {
+public class LoginScreen extends AbstractScreen {
     private final Dungeoneer client;
-    private Stage stage;
     private Skin skin;
 
     private TextField usernameField;
@@ -25,8 +21,6 @@ public class LoginScreen implements Screen {
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
-
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         Table root = new Table();
@@ -65,38 +59,14 @@ public class LoginScreen implements Screen {
         root.add(loginButton).width(300).height(40).padBottom(10).row();
         root.add(statusLabel);
 
-        stage.addActor(root);
+        getStage().addActor(root);
 
-        Gdx.input.setInputProcessor(stage);
-    }
-
-    @Override
-    public void render(float delta) {
-        stage.act(delta);
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        if (width <= 0 || height <= 0) return;
-        stage.getViewport().update(width, height, true);
-    }
-
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void hide() {
+        super.show();
     }
 
     @Override
     public void dispose() {
-        stage.dispose();
+        super.dispose();
         skin.dispose();
     }
 }

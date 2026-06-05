@@ -8,8 +8,8 @@ import dev.creoii.dungeoneer.database.Database;
 import dev.creoii.dungeoneer.database.definitions.Account;
 import dev.creoii.dungeoneer.database.definitions.Session;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
-import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
-import dev.creoii.dungeoneer.network.s2c.account.AllowLoginS2C;
+import dev.creoii.dungeoneer.network.c2s.account.AuthenticateC2S;
+import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.util.Tickable;
 
@@ -62,11 +62,12 @@ public class ServerNetworkHandler implements Listener, Tickable {
         if (server.isDebug())
             DungeoneerServer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
 
-        if (object instanceof RequestLoginC2S) {
-            server.get().sendToUDP(connection.getID(), new AllowLoginS2C());
+        if (object instanceof AuthenticateC2S) {
+            server.get().sendToUDP(connection.getID(), new AuthenticateS2C());
         } else if (object instanceof LoginC2S(String username, String password)) {
             Account account = server.getDatabase().getAccounts().getByUsername(username);
             if (account == null) {
+                // TODO: Implement password requirements
                 account = server.getDatabase().getAccounts().create(username, Password.hash(password + server.getSecrets().pepper()).withArgon2().getResult());
                 Database.LOGGER.info("Created account: %s", account.username());
             } else if (Password.check(password + server.getSecrets().pepper(), account.passwordHash()).withArgon2()) {

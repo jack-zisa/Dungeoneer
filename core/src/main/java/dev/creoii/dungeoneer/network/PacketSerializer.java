@@ -4,9 +4,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import dev.creoii.dungeoneer.network.c2s.account.AuthenticateC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
-import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
-import dev.creoii.dungeoneer.network.s2c.account.AllowLoginS2C;
+import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 
 import java.util.HashMap;
@@ -43,13 +43,13 @@ public class PacketSerializer extends Serializer<Object> {
 
     public static void registerDefault(Kryo kryo) {
         kryo.register(LoginC2S.class, PacketSerializer.INSTANCE);
-        kryo.register(RequestLoginC2S.class, PacketSerializer.INSTANCE);
-        kryo.register(AllowLoginS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(AuthenticateC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
-        PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
-        PacketSerializer.INSTANCE.register(AllowLoginS2C.class, AllowLoginS2C::write, AllowLoginS2C::read);
+        PacketSerializer.INSTANCE.register(AuthenticateC2S.class, AuthenticateC2S::write, AuthenticateC2S::read);
+        PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);
     }
 }

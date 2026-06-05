@@ -1,72 +1,32 @@
 package dev.creoii.dungeoneer.client.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 
-public class LoadingScreen implements Screen {
-    private SpriteBatch batch;
-    private BitmapFont font;
-    private OrthographicCamera camera;
-    private ScreenViewport viewport;
-    private GlyphLayout layout;
+public class LoadingScreen extends AbstractScreen {
+    private Skin skin;
 
     @Override
     public void show() {
-        batch = new SpriteBatch();
-        font = new BitmapFont();
-        camera = new OrthographicCamera();
-        viewport = new ScreenViewport(camera);
-        layout = new GlyphLayout();
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-    }
+        Table root = new Table();
+        root.setFillParent(true);
 
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Label title = new Label("Dungeoneer", skin);
+        Label loadingLabel = new Label("Loading...", skin);
 
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
+        root.add(title).padBottom(30).row();
+        root.add(loadingLabel);
 
-        String text = "Loading...";
-        layout.setText(font, text);
+        getStage().addActor(root);
 
-        float x = (viewport.getWorldWidth() - layout.width) / 2f;
-        float y = (viewport.getWorldHeight() + layout.height) / 2f;
-
-        batch.begin();
-        font.draw(batch, layout, x, y);
-        batch.end();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        if (width <= 0 || height <= 0) return;
-        viewport.update(width, height, true);
-    }
-
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void hide() {
+        super.show();
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
-        font.dispose();
+        super.dispose();
+        skin.dispose();
     }
 }
