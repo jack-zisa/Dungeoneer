@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 
 public class MainScreen extends AbstractScreen {
     private final TextureRegion marketTexture = new TextureRegion(new Texture("textures/ui/market.png"));
@@ -23,17 +24,39 @@ public class MainScreen extends AbstractScreen {
     private Skin skin;
     private Actor selected;
 
+    private Table tabBar;
+    private float tabWidth;
+    private float tabSelectedWidth;
+    private final Array<ImageButton> tabButtons;
+
     public MainScreen() {
+        tabButtons = new Array<>(5);
+
         tab.scale(4f, 4f);
         tabSelected.scale(4f, 4f);
     }
 
     @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+
+        float stageWidth = getStage().getWidth();
+        tabWidth = stageWidth / 6f;
+        tabSelectedWidth = stageWidth / 3f;
+
+        tabBar.clearChildren();
+
+        for (ImageButton button : tabButtons) {
+            tabBar.add(button).width(button == selected ? tabSelectedWidth : tabWidth).growY();
+        }
+    }
+
+    @Override
     public void show() {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
-        float width = getStage().getWidth();
-        float selectedWidth = width / 3f;
-        float otherWidth = width / 6f;
+        float stageWidth = getStage().getWidth();
+        tabWidth = stageWidth / 6f;
+        tabSelectedWidth = stageWidth / 3f;
 
         final NinePatchDrawable tabBackground = new NinePatchDrawable(tab);
         final NinePatchDrawable tabSelectedBackground = new NinePatchDrawable(tabSelected);
@@ -54,7 +77,7 @@ public class MainScreen extends AbstractScreen {
         content.addActor(dungeonGamesTab);
         root.add(content).expand().fill().row();
 
-        Table tabBar = new Table();
+        tabBar = new Table();
         root.add(tabBar).growX().height(60);
         tabBar.defaults().expandX().fillX().height(60);
         tabBar.add(shopTab.getTabButton()).expandX().fillX();
@@ -77,8 +100,16 @@ public class MainScreen extends AbstractScreen {
 
                 tabBar.clearChildren();
 
-                for (Button tab : new Button[]{shopTab.getTabButton(), vaultThroneTab.getTabButton(), playTab.getTabButton(), factionTab.getTabButton(), dungeonGamesTab.getTabButton()}) {
-                    tabBar.add(tab).width(tab == selected ? selectedWidth : otherWidth).growY();
+                for (ImageButton button : tabButtons) {
+                    if (button == selected) {
+                        tabBar.add(button).width(tabSelectedWidth).growY();
+                        button.getImageCell().size(56, 56);
+                        button.invalidateHierarchy();
+                    } else {
+                        tabBar.add(button).width(tabWidth).growY();
+                        button.getImageCell().size(42, 42);
+                        button.invalidateHierarchy();
+                    }
                 }
             }
         };
@@ -88,15 +119,18 @@ public class MainScreen extends AbstractScreen {
         factionTab.getTabButton().addListener(tabListener);
         dungeonGamesTab.getTabButton().addListener(tabListener);
 
+        tabButtons.add(shopTab.getTabButton());
+        tabButtons.add(vaultThroneTab.getTabButton());
+        tabButtons.add(playTab.getTabButton());
+        tabButtons.add(factionTab.getTabButton());
+        tabButtons.add(dungeonGamesTab.getTabButton());
+
         ButtonGroup<Button> tabs = new ButtonGroup<>();
-        tabs.setMinCheckCount(1);
         tabs.setMaxCheckCount(1);
 
-        tabs.add(shopTab.getTabButton());
-        tabs.add(vaultThroneTab.getTabButton());
-        tabs.add(playTab.getTabButton());
-        tabs.add(factionTab.getTabButton());
-        tabs.add(dungeonGamesTab.getTabButton());
+        for (int i = 0; i < tabButtons.size; ++i) { // We have to use this type of loop to avoid the error: #iterator() cannot be used nested
+            tabs.add(tabButtons.get(i));
+        }
 
         getStage().addActor(root);
 
