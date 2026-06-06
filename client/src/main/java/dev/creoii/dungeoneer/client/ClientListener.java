@@ -70,11 +70,17 @@ public record ClientListener(Dungeoneer client) implements Listener {
                 });
             }
         } else if (object instanceof CreateFactionResultS2C(PacketResult result, @Nullable Faction faction)) {
-
+            if (result == PacketResult.SUCCESS) {
+                client.getState().setFaction(faction);
+            }
         } else if (object instanceof JoinFactionResultS2C(PacketResult result, @Nullable Faction faction)) {
-
+            if (result == PacketResult.SUCCESS) {
+                client.getState().setFaction(faction);
+            }
         } else if (object instanceof LeaveFactionResultS2C(PacketResult result)) {
-
+            if (result == PacketResult.SUCCESS) {
+                client.getState().setFaction(null);
+            }
         }
     }
 }

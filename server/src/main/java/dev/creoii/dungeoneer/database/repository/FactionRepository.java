@@ -45,6 +45,26 @@ public class FactionRepository {
         );
     }
 
+    // TODO: Return entire result set to search before joining
+    @Nullable
+    public Faction getByName(String name) {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("""
+                SELECT *
+                FROM factions
+                WHERE name = :name
+            """)
+                .bind("name", name)
+                .map((rs, _) -> new Faction(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    NetworkUtils.parseIds(rs.getString("accounts"))
+                ))
+                .findOne()
+                .orElse(null)
+        );
+    }
+
     public void updateAccounts(Faction faction) {
         jdbi.useHandle(handle ->
             handle.createUpdate("""

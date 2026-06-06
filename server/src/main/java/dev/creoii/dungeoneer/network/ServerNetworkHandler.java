@@ -9,13 +9,13 @@ import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
+import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
+import dev.creoii.dungeoneer.network.s2c.*;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
-import dev.creoii.dungeoneer.network.s2c.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.SendCharactersS2C;
 import dev.creoii.dungeoneer.util.Tickable;
 
 public class ServerNetworkHandler implements Listener, Tickable {
@@ -119,11 +119,32 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 server.getDatabase().getAccounts().updateSettings(accountId, settings);
             }
         } else if (object instanceof CreateFactionC2S(long accountId, String factionName)) {
-
+            Faction faction = server.getDatabase().getFactions().create(accountId, factionName);
+            if (faction != null) {
+                server.get().sendToUDP(connection.getID(), new CreateFactionResultS2C(PacketResult.SUCCESS, faction));
+                return;
+            }
+            server.get().sendToUDP(connection.getID(), new CreateFactionResultS2C(PacketResult.FAIL, null));
         } else if (object instanceof JoinFactionC2S(long accountId, String factionName)) {
-
-        } else if (object instanceof LeaveFactionC2S(long accountId)) {
-
+            Faction faction = server.getDatabase().getFactions().getByName(factionName);
+            if (faction != null) {
+                faction.accounts().add(accountId);
+                server.getDatabase().getFactions().updateAccounts(faction);
+                server.get().sendToUDP(connection.getID(), new JoinFactionResultS2C(PacketResult.SUCCESS, faction));
+                return;
+            }
+            server.get().sendToUDP(connection.getID(), new JoinFactionResultS2C(PacketResult.FAIL, null));
+        } else if (object instanceof LeaveFactionC2S(Account account)) {
+            if (account.factionId() != -1L) {
+                Faction faction = server.getDatabase().getFactions().getById(account.factionId());
+                if (faction != null) {
+                    faction.accounts().remove(account.id());
+                    server.getDatabase().getFactions().updateAccounts(faction);
+                    server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.SUCCESS));
+                    return;
+                }
+            }
+            server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.FAIL));
         }
     }
 }
