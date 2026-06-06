@@ -356,6 +356,7 @@ public class MainScreen extends AbstractScreen {
             add(accountTable).width(96f).height(32f).top().expandX().fillX().row();
 
             Table mainSection = new Table();
+            mainSection.add(new TextButton("Raid", getSkin()));
             add(mainSection).expand().fill();
         }
     }
