@@ -9,10 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClientState {
+    private Status status;
     private Account account;
     private List<Character> characters = new ArrayList<>();
     private Character selectedCharacter;
     private @Nullable Faction faction;
+
+    public void setStatus(Status status) {
+        this.status = status;
+        Dungeoneer.LOGGER.info("Set status to: %s", status.name());
+    }
+
+    public Status getStatus() {
+        return status;
+    }
 
     public void setAccount(Account account) {
         this.account = account;
@@ -48,5 +58,13 @@ public class ClientState {
 
     public void setFaction(@Nullable Faction faction) {
         this.faction = faction;
+    }
+
+    public enum Status {
+        STARTING,
+        AUTHENTICATING,
+        LOBBY,
+        RAID_SEARCHING,
+        RAIDING
     }
 }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.screen.RaidLoadingScreen;
 import dev.creoii.dungeoneer.definitions.Character;
@@ -68,6 +69,7 @@ public class PlayTab extends Tab {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().setScreen(new RaidLoadingScreen(getClient()));
+                getClient().getState().setStatus(ClientState.Status.RAID_SEARCHING);
             }
         });
         mainSection.add(raidButton).size(120f, 80f);

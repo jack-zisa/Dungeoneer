@@ -44,6 +44,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
                 client.getState().setAccount(account);
                 Gdx.app.postRunnable(() -> client.setScreen(new MainScreen(client)));
+                client.getState().setStatus(ClientState.Status.LOBBY);
             }
             Dungeoneer.LOGGER.info("Login result: %s", result.name());
         } else if (object instanceof SendCharactersS2C(List<Character> characters)) {

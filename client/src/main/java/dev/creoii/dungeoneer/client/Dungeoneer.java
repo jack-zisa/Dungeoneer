@@ -21,6 +21,7 @@ public class Dungeoneer extends Game {
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
         state = new ClientState();
+        state.setStatus(ClientState.Status.STARTING);
         listener = new Listener.QueuedListener(new ClientListener(this)) {
             @Override
             protected void queue(Runnable runnable) {
@@ -53,6 +54,7 @@ public class Dungeoneer extends Game {
         }
 
         Dungeoneer.LOGGER.info("Client initialized.");
+        state.setStatus(ClientState.Status.AUTHENTICATING);
     }
 
     @Override
