@@ -4,14 +4,15 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import dev.creoii.dungeoneer.network.c2s.account.CreateCharacterC2S;
-import dev.creoii.dungeoneer.network.c2s.account.RequestCharactersC2S;
+import dev.creoii.dungeoneer.network.c2s.ApplySettingsC2S;
+import dev.creoii.dungeoneer.network.c2s.CreateCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
-import dev.creoii.dungeoneer.network.s2c.account.CreateCharacterResultS2C;
+import dev.creoii.dungeoneer.network.s2c.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.account.SendCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.SendCharactersS2C;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(RequestLoginC2S.class, PacketSerializer.INSTANCE);
         kryo.register(RequestCharactersC2S.class, PacketSerializer.INSTANCE);
         kryo.register(CreateCharacterC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(ApplySettingsC2S.class, PacketSerializer.INSTANCE);
         kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
         kryo.register(SendCharactersS2C.class, PacketSerializer.INSTANCE);
@@ -59,6 +61,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestCharactersC2S.class, RequestCharactersC2S::write, RequestCharactersC2S::read);
         PacketSerializer.INSTANCE.register(CreateCharacterC2S.class, CreateCharacterC2S::write, CreateCharacterC2S::read);
+        PacketSerializer.INSTANCE.register(ApplySettingsC2S.class, ApplySettingsC2S::write, ApplySettingsC2S::read);
         PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);
         PacketSerializer.INSTANCE.register(SendCharactersS2C.class, SendCharactersS2C::write, SendCharactersS2C::read);

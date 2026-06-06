@@ -3,13 +3,17 @@ package dev.creoii.dungeoneer.definitions;
 import java.util.ArrayList;
 import java.util.List;
 
-public record Account(long id, String username, String passwordHash, List<Long> characters) {
+public record Account(long id, String username, String passwordHash, List<Long> characters, String settings) {
     public Account(long id, String username, String passwordHash) {
-        this(id, username, passwordHash, new ArrayList<>());
+        this(id, username, passwordHash, new ArrayList<>(), "");
     }
 
     public Account(long id, String username, String passwordHash, String characters) {
-        this(id, username, passwordHash, parseCharacterIds(characters));
+        this(id, username, passwordHash, parseCharacterIds(characters), "");
+    }
+
+    public Account(long id, String username, String passwordHash, String characters, String settings) {
+        this(id, username, passwordHash, parseCharacterIds(characters), settings);
     }
 
     private static List<Long> parseCharacterIds(String s) {

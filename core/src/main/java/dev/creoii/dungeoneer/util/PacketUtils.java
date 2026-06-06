@@ -44,7 +44,7 @@ public final class PacketUtils {
         for (int i = 0; i < size; ++i) {
             characterIds.add(input.readLong());
         }
-        return new Account(id, username, "Nuh-uh!", characterIds);
+        return new Account(id, username, "Nuh-uh!", characterIds, input.readString());
     }
 
     public static void writeAccount(Output output, @Nullable Account account) {
@@ -56,10 +56,12 @@ public final class PacketUtils {
             for (int i = 0; i < size; ++i) {
                 output.writeLong(account.characters().get(i));
             }
+            output.writeString(account.settings());
         } else {
             output.writeLong(-1L);
             output.writeString("");
             output.writeInt(0);
+            output.writeString("");
         }
     }
 }

@@ -4,9 +4,6 @@ import dev.creoii.dungeoneer.definitions.Account;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 public class AccountRepository {
     private final Jdbi jdbi;
 
@@ -20,7 +17,8 @@ public class AccountRepository {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username VARCHAR(32) UNIQUE NOT NULL,
                 password_hash VARCHAR(128) NOT NULL,
-                characters TEXT
+                characters TEXT,
+                settings TEXT
             )
         """)
         );
@@ -38,7 +36,9 @@ public class AccountRepository {
                 .map((rs, _) -> new Account(
                     rs.getInt("id"),
                     rs.getString("username"),
-                    rs.getString("password_hash")
+                    rs.getString("password_hash"),
+                    rs.getString("characters"),
+                    rs.getString("settings")
                 ))
                 .findOne()
                 .orElse(null)
@@ -58,7 +58,8 @@ public class AccountRepository {
                     rs.getInt("id"),
                     rs.getString("username"),
                     rs.getString("password_hash"),
-                    rs.getString("characters")
+                    rs.getString("characters"),
+                    rs.getString("settings")
                 ))
                 .findOne()
                 .orElse(null)
@@ -74,6 +75,19 @@ public class AccountRepository {
         """)
                 .bind("id", account.id())
                 .bind("characters", Account.compressCharacterIds(account.characters()))
+                .execute()
+        );
+    }
+
+    public void updateSettings(long accountId, String settings) {
+        jdbi.useHandle(handle ->
+            handle.createUpdate("""
+            UPDATE accounts
+            SET settings = :settings
+            WHERE id = :id
+        """)
+                .bind("id", accountId)
+                .bind("settings", settings)
                 .execute()
         );
     }

@@ -8,12 +8,12 @@ import dev.creoii.dungeoneer.client.screen.LoginScreen;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.network.PacketSerializer;
-import dev.creoii.dungeoneer.network.c2s.account.RequestCharactersC2S;
+import dev.creoii.dungeoneer.network.c2s.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
-import dev.creoii.dungeoneer.network.s2c.account.CreateCharacterResultS2C;
+import dev.creoii.dungeoneer.network.s2c.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.account.SendCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.SendCharactersS2C;
 
 import java.util.List;
 

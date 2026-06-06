@@ -11,8 +11,6 @@ import com.badlogic.gdx.utils.Array;
 import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.network.c2s.account.CreateCharacterC2S;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -253,7 +251,7 @@ public class MainScreen extends AbstractScreen {
             button.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    getClient().get().sendUDP(new CreateCharacterC2S(getClient().getState().getAccount().id(), CharacterClass.random()));
+                    new CreateCharacterDialog(getClient(), getSkin()).show(getStage());
                 }
             });
             add(button);
@@ -346,6 +344,12 @@ public class MainScreen extends AbstractScreen {
             accountTable.add(new Label(getClient().getState().getAccount().username(), getSkin())).left().pad(10f);
 
             TextButton settingsButton = new TextButton("Settings", getSkin());
+            settingsButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    new SettingsDialog(getClient(), getSkin()).show(getStage());
+                }
+            });
             accountTable.add(settingsButton).pad(10f);
 
             add(statsTable).width(96f).height(32f).top().expandX().fillX().row();

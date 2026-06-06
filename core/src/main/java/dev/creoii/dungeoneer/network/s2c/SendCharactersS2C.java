@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.network.s2c.account;
+package dev.creoii.dungeoneer.network.s2c;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;

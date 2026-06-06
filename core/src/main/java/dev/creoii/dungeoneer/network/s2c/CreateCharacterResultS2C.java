@@ -1,8 +1,9 @@
-package dev.creoii.dungeoneer.network.s2c.account;
+package dev.creoii.dungeoneer.network.s2c;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.util.PacketUtils;
 import org.jspecify.annotations.Nullable;
 

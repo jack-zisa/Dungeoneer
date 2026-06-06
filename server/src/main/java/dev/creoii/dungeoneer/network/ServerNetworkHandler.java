@@ -9,14 +9,15 @@ import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.network.c2s.account.CreateCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.ApplySettingsC2S;
+import dev.creoii.dungeoneer.network.c2s.CreateCharacterC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
-import dev.creoii.dungeoneer.network.c2s.account.RequestCharactersC2S;
+import dev.creoii.dungeoneer.network.c2s.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
-import dev.creoii.dungeoneer.network.s2c.account.CreateCharacterResultS2C;
+import dev.creoii.dungeoneer.network.s2c.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.account.SendCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.SendCharactersS2C;
 import dev.creoii.dungeoneer.util.Tickable;
 
 public class ServerNetworkHandler implements Listener, Tickable {
@@ -114,6 +115,11 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
 
             server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(LoginResultS2C.Result.FAIL, null));
+        } else if (object instanceof ApplySettingsC2S(long accountId, String settings)) {
+            Account account = server.getDatabase().getAccounts().getById(accountId);
+            if (account != null) {
+                server.getDatabase().getAccounts().updateSettings(accountId, settings);
+            }
         }
     }
 }

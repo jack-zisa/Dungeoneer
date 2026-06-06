@@ -1,11 +1,8 @@
 package dev.creoii.dungeoneer.definitions;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public record CharacterClass(String id) {
-    private static final Random RANDOM = new Random();
     public static final CharacterClass KNIGHT = new CharacterClass("knight");
     public static final CharacterClass WIZARD = new CharacterClass("wizard");
     public static final CharacterClass ROGUE = new CharacterClass("rogue");
@@ -13,10 +10,7 @@ public record CharacterClass(String id) {
     public static final CharacterClass NINJA = new CharacterClass("ninja");
     public static final CharacterClass ARCHER = new CharacterClass("archer");
 
-    public static CharacterClass random() {
-        List<CharacterClass> classes = List.of(KNIGHT, WIZARD, ROGUE, PRIEST, NINJA, ARCHER);
-        return classes.get(RANDOM.nextInt(classes.size()));
-    }
+    public static final CharacterClass[] VALUES = new CharacterClass[]{KNIGHT, WIZARD, ROGUE, PRIEST, NINJA, ARCHER};
 
     public static CharacterClass parse(String s) {
         return switch (s.toLowerCase(Locale.ROOT)) {
@@ -28,5 +22,10 @@ public record CharacterClass(String id) {
             case "ninja" -> CharacterClass.NINJA;
             default -> null;
         };
+    }
+
+    @Override
+    public String toString() {
+        return id;
     }
 }
