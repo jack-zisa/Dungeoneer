@@ -4,5 +4,5 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 
-public record Session(long id, long accountId, LocalDateTime startTime, @Nullable LocalDateTime endTime) {
+public record ClientSession(long id, long accountId, LocalDateTime startTime, @Nullable LocalDateTime endTime) {
 }

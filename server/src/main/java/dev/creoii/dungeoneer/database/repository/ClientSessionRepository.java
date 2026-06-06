@@ -1,21 +1,21 @@
 package dev.creoii.dungeoneer.database.repository;
 
-import dev.creoii.dungeoneer.database.definitions.Session;
+import dev.creoii.dungeoneer.database.definitions.ClientSession;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 
-public class SessionRepository {
+public class ClientSessionRepository {
     private final Jdbi jdbi;
 
-    public SessionRepository(Jdbi jdbi) {
+    public ClientSessionRepository(Jdbi jdbi) {
         this.jdbi = jdbi;
 
         // Initialize schema
         jdbi.useHandle(handle ->
             handle.execute("""
-            CREATE TABLE IF NOT EXISTS sessions (
+            CREATE TABLE IF NOT EXISTS client_sessions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 account_id INTEGER,
                 start_time DATETIME NOT NULL,
@@ -28,7 +28,7 @@ public class SessionRepository {
     public void updateEndTime(long sessionId, LocalDateTime endTime) {
         jdbi.useHandle(handle ->
             handle.createUpdate("""
-            UPDATE sessions
+            UPDATE client_sessions
             SET end_time = :end_time
             WHERE id = :id
         """)
@@ -39,18 +39,18 @@ public class SessionRepository {
     }
 
     @Nullable
-    public Session getCurrentSession(long accountId) {
+    public ClientSession getCurrentSession(long accountId) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
             SELECT *
-            FROM sessions
+            FROM client_sessions
             WHERE account_id = :account_id
               AND end_time IS NULL
             ORDER BY start_time DESC
             LIMIT 1
         """)
                 .bind("account_id", accountId)
-                .map((rs, _) -> new Session(
+                .map((rs, _) -> new ClientSession(
                     rs.getInt("id"),
                     rs.getInt("account_id"),
                     rs.getObject("start_time", LocalDateTime.class),
@@ -62,15 +62,15 @@ public class SessionRepository {
     }
 
     @Nullable
-    public Session getById(long id) {
+    public ClientSession getById(long id) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                 SELECT *
-                FROM sessions
+                FROM client_sessions
                 WHERE id = :id
             """)
                 .bind("id", id)
-                .map((rs, _) -> new Session(
+                .map((rs, _) -> new ClientSession(
                     rs.getInt("id"),
                     rs.getInt("account_id"),
                     LocalDateTime.parse(rs.getString("start_time")),
@@ -81,10 +81,10 @@ public class SessionRepository {
         );
     }
 
-    public Session create(long accountId, LocalDateTime startTime) {
+    public ClientSession create(long accountId, LocalDateTime startTime) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO sessions(account_id, start_time)
+                INSERT INTO client_sessions(account_id, start_time)
                 VALUES(:account_id, :start_time)
             """)
                 .bind("account_id", accountId)
@@ -94,6 +94,6 @@ public class SessionRepository {
             .one()
         );
 
-        return new Session(id, accountId, startTime, null);
+        return new ClientSession(id, accountId, startTime, null);
     }
 }

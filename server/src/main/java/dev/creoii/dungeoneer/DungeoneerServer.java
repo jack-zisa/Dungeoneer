@@ -19,6 +19,7 @@ public class DungeoneerServer {
     private final SessionManager sessionManager;
     public static final Logger LOGGER = new Logger(ServerLauncher.class.getSimpleName());
     private volatile Status status;
+    private volatile boolean running = true;
     private final Thread gameThread;
     private final ServerProperties properties;
     private final ServerSecrets secrets;
@@ -96,7 +97,7 @@ public class DungeoneerServer {
     public void run() {
         final long tickRate = 1000L / 20L; // 20 TPS
 
-        while (true) {
+        while (running) {
             if (status.shouldTick()) {
                 networkHandler.tick();
             }
@@ -104,7 +105,7 @@ public class DungeoneerServer {
             try {
                 Thread.sleep(tickRate);
             } catch (InterruptedException e) {
-                finish();
+                running = false;
                 break;
             }
         }
@@ -112,18 +113,20 @@ public class DungeoneerServer {
         finish();
     }
 
-    public void finish() {
+    public void stop() {
         setStatus(Status.STOPPING);
+        System.out.println("Stopping!");
+        running = false;
+        gameThread.interrupt();
+    }
+
+    public void finish() {
+        setStatus(Status.FINISHED);
 
         properties.write(properties.runDirectory());
         secrets.write(properties.runDirectory());
 
-        server.getConnections().forEach(connection -> {
-            if (connection.isConnected()) {
-                sessionManager.endSession(connection);
-            }
-        });
-
+        sessionManager.endSessions();
         server.close();
     }
 
@@ -131,7 +134,8 @@ public class DungeoneerServer {
         STARTING(false),    // Server is setting up
         PAUSED(false),      // Server is set up & ready for clients to connect
         RUNNING(true),      // Server has clients connected
-        STOPPING(false);    // Server is shutting down
+        STOPPING(false),    // Server is shutting down
+        FINISHED(false);    // Server has stopped
 
         private final boolean shouldTick;
 

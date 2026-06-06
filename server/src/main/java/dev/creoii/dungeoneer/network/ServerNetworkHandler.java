@@ -6,7 +6,7 @@ import com.password4j.Password;
 import dev.creoii.dungeoneer.DungeoneerServer;
 import dev.creoii.dungeoneer.database.Database;
 import dev.creoii.dungeoneer.database.definitions.Account;
-import dev.creoii.dungeoneer.database.definitions.Session;
+import dev.creoii.dungeoneer.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.AuthenticateC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
@@ -46,7 +46,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
     public void disconnected(Connection connection) {
         DungeoneerServer.LOGGER.info("Client disconnected: %s", connection);
 
-        server.getSessionManager().endSession(connection);
+        server.getSessionManager().endClientSession(connection);
 
         if (server.getStatus() == DungeoneerServer.Status.RUNNING && server.get().getConnections().isEmpty()) {
             server.setStatus(DungeoneerServer.Status.PAUSED);
@@ -78,8 +78,8 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 return;
             }
 
-            Session session = server.getSessionManager().startSession(connection, account.id());
-            if (session != null) {
+            ClientSession clientSession = server.getSessionManager().startClientSession(connection, account.id());
+            if (clientSession != null) {
                 server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.SUCCESS));
             } else {
                 connection.close();

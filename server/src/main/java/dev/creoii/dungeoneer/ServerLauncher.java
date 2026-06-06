@@ -41,6 +41,7 @@ public class ServerLauncher {
         if (tcpPort == udpPort)
             throw new IllegalArgumentException("TCP & UDP ports cannot be the same");
 
-        new DungeoneerServer(new ServerProperties(tcpPort, udpPort, runDirectory), secrets, debug);
+        DungeoneerServer server = new DungeoneerServer(new ServerProperties(tcpPort, udpPort, runDirectory), secrets, debug);
+        Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
     }
 }
