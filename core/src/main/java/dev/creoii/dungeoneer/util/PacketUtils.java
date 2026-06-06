@@ -5,8 +5,10 @@ import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
+import dev.creoii.dungeoneer.definitions.Faction;
 import org.jspecify.annotations.Nullable;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -39,12 +41,13 @@ public final class PacketUtils {
     public static Account readAccount(Input input) {
         long id = input.readLong();
         String username = input.readString();
+
         List<Long> characterIds = new ArrayList<>();
         int size = input.readInt();
         for (int i = 0; i < size; ++i) {
             characterIds.add(input.readLong());
         }
-        return new Account(id, username, "Nuh-uh!", characterIds, input.readString());
+        return new Account(id, username, "", characterIds, input.readLong(), LocalDateTime.parse(input.readString()), input.readString());
     }
 
     public static void writeAccount(Output output, @Nullable Account account) {
@@ -56,12 +59,38 @@ public final class PacketUtils {
             for (int i = 0; i < size; ++i) {
                 output.writeLong(account.characters().get(i));
             }
+            output.writeLong(account.factionId());
+            output.writeString(account.factionJoinDate() == null ? "" : account.factionJoinDate().toString());
             output.writeString(account.settings());
         } else {
             output.writeLong(-1L);
             output.writeString("");
             output.writeInt(0);
+            output.writeLong(-1L);
             output.writeString("");
+            output.writeString("");
+        }
+    }
+
+    public static Faction readFaction(Input input) {
+        long id = input.readLong();
+        String name = input.readString();
+
+        List<Long> accountIds = new ArrayList<>();
+        long size = input.readInt();
+        for (int i = 0; i < size; ++i) {
+            accountIds.add(input.readLong());
+        }
+        return new Faction(id, name, accountIds);
+    }
+
+    public static void writeFaction(Output output, Faction faction) {
+        output.writeLong(faction.id());
+        output.writeString(faction.name());
+        int size = faction.accounts().size();
+        output.writeInt(size);
+        for (int i = 0; i < size; ++i) {
+            output.writeLong(faction.accounts().get(i));
         }
     }
 }
