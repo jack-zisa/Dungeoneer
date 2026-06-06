@@ -1,9 +1,6 @@
 package dev.creoii.dungeoneer.database;
 
-import dev.creoii.dungeoneer.database.repository.AccountRepository;
-import dev.creoii.dungeoneer.database.repository.CharacterRepository;
-import dev.creoii.dungeoneer.database.repository.ClientSessionRepository;
-import dev.creoii.dungeoneer.database.repository.ServerSessionRepository;
+import dev.creoii.dungeoneer.database.repository.*;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import org.jdbi.v3.core.Jdbi;
 
@@ -12,6 +9,7 @@ public class Database {
     private final Jdbi jdbi;
     private final ServerSessionRepository serverSessions;
     private final ClientSessionRepository clientSessions;
+    private final FactionRepository factions;
     private final AccountRepository accounts;
     private final CharacterRepository characters;
 
@@ -20,6 +18,7 @@ public class Database {
 
         clientSessions = new ClientSessionRepository(jdbi);
         serverSessions = new ServerSessionRepository(jdbi);
+        factions = new FactionRepository(jdbi);
         accounts = new AccountRepository(jdbi);
         characters = new CharacterRepository(jdbi);
         LOGGER.info("Database initialized.");
@@ -31,6 +30,10 @@ public class Database {
 
     public ClientSessionRepository getClientSessions() {
         return clientSessions;
+    }
+
+    public FactionRepository getFactions() {
+        return factions;
     }
 
     public AccountRepository getAccounts() {

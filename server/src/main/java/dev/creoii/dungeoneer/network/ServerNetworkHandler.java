@@ -9,10 +9,8 @@ import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.network.c2s.ApplySettingsC2S;
-import dev.creoii.dungeoneer.network.c2s.CreateCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
-import dev.creoii.dungeoneer.network.c2s.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.CreateCharacterResultS2C;
@@ -81,16 +79,16 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 Database.LOGGER.info("Loaded account: %s", account.username());
             } else {
                 DungeoneerServer.LOGGER.error("Failed login for account: %s", account.username());
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.FAIL, null));
+                server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.FAIL, null));
                 return;
             }
 
             ClientSession clientSession = server.getSessionManager().startClientSession(connection, account.id());
             if (clientSession != null) {
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.SUCCESS, account));
+                server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.SUCCESS, account));
             } else {
                 connection.close();
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.FAIL, null));
+                server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.FAIL, null));
             }
         } else if (object instanceof RequestCharactersC2S) {
             ClientSession clientSession = server.getSessionManager().getConnectionSessions().get(connection.getID());
@@ -109,17 +107,23 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     server.getDatabase().getAccounts().updateCharacters(account);
 
                     DungeoneerServer.LOGGER.info("Created character of class '%s' for account: %s", characterClass.id(), accountId);
-                    server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(LoginResultS2C.Result.SUCCESS, character));
+                    server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(PacketResult.SUCCESS, character));
                     return;
                 }
             }
 
-            server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(LoginResultS2C.Result.FAIL, null));
+            server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(PacketResult.FAIL, null));
         } else if (object instanceof ApplySettingsC2S(long accountId, String settings)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
                 server.getDatabase().getAccounts().updateSettings(accountId, settings);
             }
+        } else if (object instanceof CreateFactionC2S(long accountId, String factionName)) {
+
+        } else if (object instanceof JoinFactionC2S(long accountId, String factionName)) {
+
+        } else if (object instanceof LeaveFactionC2S(long accountId)) {
+
         }
     }
 }

@@ -7,13 +7,15 @@ import dev.creoii.dungeoneer.client.screen.MainScreen;
 import dev.creoii.dungeoneer.client.screen.LoginScreen;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
+import dev.creoii.dungeoneer.network.s2c.*;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
-import dev.creoii.dungeoneer.network.s2c.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.SendCharactersS2C;
+import dev.creoii.dungeoneer.network.PacketResult;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -32,16 +34,15 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
         if (object instanceof AuthenticateS2C) {
             Gdx.app.postRunnable(() -> client.setScreen(new LoginScreen(client)));
-        } else if (object instanceof LoginResultS2C(int resultId, Account account)) {
-            LoginResultS2C.Result result = LoginResultS2C.Result.values()[resultId];
-            if (result == LoginResultS2C.Result.SUCCESS) {
+        } else if (object instanceof LoginResultS2C(PacketResult result, @Nullable Account account)) {
+            if (result == PacketResult.SUCCESS) {
                 client.get().sendUDP(new RequestCharactersC2S());
 
                 client.getState().setAccount(account);
                 Gdx.app.postRunnable(() -> client.setScreen(new MainScreen(client)));
             }
             Dungeoneer.LOGGER.info("Login result: %s", result.name());
-        } else if (object instanceof SendCharactersS2C(List<dev.creoii.dungeoneer.definitions.Character> characters)) {
+        } else if (object instanceof SendCharactersS2C(List<Character> characters)) {
             client.getState().setCharacters(characters);
             client.getState().setSelectedCharacter(characters.getFirst());
 
@@ -54,9 +55,8 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     }
                 }
             });
-        } else if (object instanceof CreateCharacterResultS2C(int resultId, Character character)) {
-            CreateCharacterResultS2C.Result result = CreateCharacterResultS2C.Result.values()[resultId];
-            if (result == CreateCharacterResultS2C.Result.SUCCESS) {
+        } else if (object instanceof CreateCharacterResultS2C(PacketResult result, @Nullable Character character)) {
+            if (result == PacketResult.SUCCESS) {
                 client.getState().addCharacter(character);
 
                 Dungeoneer.LOGGER.info("Created new character of class: %s", character.characterClass().id());
@@ -69,6 +69,12 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     }
                 });
             }
+        } else if (object instanceof CreateFactionResultS2C(PacketResult result, @Nullable Faction faction)) {
+
+        } else if (object instanceof JoinFactionResultS2C(PacketResult result, @Nullable Faction faction)) {
+
+        } else if (object instanceof LeaveFactionResultS2C(PacketResult result)) {
+
         }
     }
 }

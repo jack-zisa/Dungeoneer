@@ -1,8 +1,11 @@
 package dev.creoii.dungeoneer.database.repository;
 
 import dev.creoii.dungeoneer.definitions.Account;
+import dev.creoii.dungeoneer.util.NetworkUtils;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
+
+import java.time.LocalDateTime;
 
 public class AccountRepository {
     private final Jdbi jdbi;
@@ -18,6 +21,8 @@ public class AccountRepository {
                 username VARCHAR(32) UNIQUE NOT NULL,
                 password_hash VARCHAR(128) NOT NULL,
                 characters TEXT,
+                faction_id INTEGER,
+                faction_join_date DATETIME,
                 settings TEXT
             )
         """)
@@ -37,7 +42,9 @@ public class AccountRepository {
                     rs.getInt("id"),
                     rs.getString("username"),
                     rs.getString("password_hash"),
-                    rs.getString("characters"),
+                    NetworkUtils.parseIds(rs.getString("characters")),
+                    rs.getInt("faction_id"),
+                    LocalDateTime.parse(rs.getString("faction_join_date")),
                     rs.getString("settings")
                 ))
                 .findOne()
@@ -58,7 +65,9 @@ public class AccountRepository {
                     rs.getInt("id"),
                     rs.getString("username"),
                     rs.getString("password_hash"),
-                    rs.getString("characters"),
+                    NetworkUtils.parseIds(rs.getString("characters")),
+                    rs.getInt("faction_id"),
+                    LocalDateTime.parse(rs.getString("faction_join_date")),
                     rs.getString("settings")
                 ))
                 .findOne()
@@ -74,7 +83,22 @@ public class AccountRepository {
             WHERE id = :id
         """)
                 .bind("id", account.id())
-                .bind("characters", Account.compressCharacterIds(account.characters()))
+                .bind("characters", NetworkUtils.compressIds(account.characters()))
+                .execute()
+        );
+    }
+
+    public void updateFaction(Account account, long factionId) {
+        jdbi.useHandle(handle ->
+            handle.createUpdate("""
+            UPDATE accounts
+            SET faction_id = :faction_id,
+                faction_join_date = :faction_join_date
+            WHERE id = :id
+        """)
+                .bind("id", account.id())
+                .bind("faction_id", factionId)
+                .bind("faction_join_date", factionId == -1 ? "" : LocalDateTime.now().toString())
                 .execute()
         );
     }

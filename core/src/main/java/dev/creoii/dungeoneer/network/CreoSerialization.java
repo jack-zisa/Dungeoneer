@@ -34,7 +34,6 @@ public class CreoSerialization extends KryoSerialization {
             getKryo().writeClassAndObject(out, object);
             out.flush();
         }
-
     }
 
     @Override
