@@ -15,6 +15,10 @@ print('Dumping client sessions...')
 sessions_df = pd.read_sql_query("SELECT * FROM client_sessions", connection)
 sessions_df.to_csv('dump_output/client_sessions.csv', index=False)
 
+print('Dumping factions...')
+accounts_df = pd.read_sql_query("SELECT * FROM factions", connection)
+accounts_df.to_csv('dump_output/factions.csv', index=False)
+
 print('Dumping accounts...')
 accounts_df = pd.read_sql_query("SELECT * FROM accounts", connection)
 accounts_df.to_csv('dump_output/accounts.csv', index=False)
