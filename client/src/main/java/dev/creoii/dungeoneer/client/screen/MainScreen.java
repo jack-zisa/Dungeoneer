@@ -1,16 +1,14 @@
 package dev.creoii.dungeoneer.client.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
@@ -21,31 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainScreen extends AbstractScreen {
-    private static final TextureRegion marketTexture = new TextureRegion(new Texture("textures/ui/market.png"));
-    private static final TextureRegion throneTexture = new TextureRegion(new Texture("textures/ui/throne.png"));
-    private static final TextureRegion chestTexture = new TextureRegion(new Texture("textures/ui/chest.png"));
-    private static final TextureRegion towerTexture = new TextureRegion(new Texture("textures/ui/tower.png"));
-    private static final TextureRegion skullTexture = new TextureRegion(new Texture("textures/ui/skull.png"));
-
-    private static final TextureRegion wizardTexture = new TextureRegion(new Texture("textures/character/wizard.png"));
-    private static final TextureRegion knightTexture = new TextureRegion(new Texture("textures/character/knight.png"));
-    private static final TextureRegion archerTexture = new TextureRegion(new Texture("textures/character/archer.png"));
-    private static final TextureRegion rogueTexture = new TextureRegion(new Texture("textures/character/rogue.png"));
-    private static final TextureRegion priestTexture = new TextureRegion(new Texture("textures/character/priest.png"));
-    private static final TextureRegion ninjaTexture = new TextureRegion(new Texture("textures/character/ninja.png"));
-
-    private static final TextureRegion missingTexture = new TextureRegion(new Texture("textures/misc/missing.png"));
-
-    private final NinePatch tab = new NinePatch(new Texture("textures/ui/tab.png"), 2, 2, 2 ,2);
-    private final NinePatch tabSelected = new NinePatch(new Texture("textures/ui/tab_selected.png"), 2, 2, 2 ,2);
+    private static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(AssetManager.TAB_9PATCH);
+    private static final NinePatchDrawable TAB_SELECTED_BACKGROUND = new NinePatchDrawable(AssetManager.TAB_SELECTED_9PATCH);
+    private static final Skin SKIN = new Skin(Gdx.files.internal("uiskin.json"));
 
     private final Dungeoneer client;
-
-    private Skin skin;
-
     private final Map<ImageButton, Tab> buttonToTab;
     private Tab selectedTab;
-
     private Table tabBar;
     private float tabWidth;
     private float tabSelectedWidth;
@@ -55,10 +35,10 @@ public class MainScreen extends AbstractScreen {
         this.client = client;
         tabButtons = new Array<>(5);
 
-        tab.scale(4f, 4f);
-        tabSelected.scale(4f, 4f);
+        AssetManager.TAB_9PATCH.scale(4f, 4f);
+        AssetManager.TAB_SELECTED_9PATCH.scale(4f, 4f);
 
-        buttonToTab = new HashMap<>();
+        buttonToTab = new HashMap<>(5);
     }
 
     public Tab getSelectedTab() {
@@ -82,23 +62,19 @@ public class MainScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
         float stageWidth = getStage().getWidth();
         tabWidth = stageWidth / 6f;
         tabSelectedWidth = stageWidth / 3f;
-
-        final NinePatchDrawable tabBackground = new NinePatchDrawable(tab);
-        final NinePatchDrawable tabSelectedBackground = new NinePatchDrawable(tabSelected);
 
         Table root = new Table();
         root.setFillParent(true);
 
         Stack content = new Stack();
-        final ShopTab shopTab = new ShopTab(client, skin, tabBackground, tabSelectedBackground, marketTexture);
-        final VaultThroneTab vaultThroneTab = new VaultThroneTab(client, skin, tabBackground, tabSelectedBackground, throneTexture);
-        final PlayTab playTab = new PlayTab(client, skin, tabBackground, tabSelectedBackground, chestTexture);
-        final FactionTab factionTab = new FactionTab(client, skin, tabBackground, tabSelectedBackground, towerTexture);
-        final DungeonGamesTab dungeonGamesTab = new DungeonGamesTab(client, skin, tabBackground, tabSelectedBackground, skullTexture);
+        final ShopTab shopTab = new ShopTab(client, AssetManager.MARKET_TEXTURE);
+        final VaultThroneTab vaultThroneTab = new VaultThroneTab(client, AssetManager.THRONE_TEXTURE);
+        final PlayTab playTab = new PlayTab(client, AssetManager.CHEST_TEXTURE);
+        final FactionTab factionTab = new FactionTab(client, AssetManager.TOWER_TEXTURE);
+        final DungeonGamesTab dungeonGamesTab = new DungeonGamesTab(client, AssetManager.SKULL_TEXTURE);
         content.addActor(shopTab);
         content.addActor(vaultThroneTab);
         content.addActor(playTab);
@@ -178,17 +154,17 @@ public class MainScreen extends AbstractScreen {
     @Override
     public void dispose() {
         super.dispose();
-        skin.dispose();
+        SKIN.dispose();
     }
 
     public static class ShopTab extends Tab {
-        protected ShopTab(Dungeoneer client, Skin skin, Drawable tabBackground, Drawable tabSelectedBackground, TextureRegion tabTexture) {
-            super(client, skin, tabBackground, tabSelectedBackground, tabTexture);
+        protected ShopTab(Dungeoneer client, TextureRegion tabTexture) {
+            super(client, tabTexture);
         }
 
         @Override
         protected void build() {
-            add(new Label("Shop", getSkin())).pad(20).row();
+            add(new Label("Shop", getSkin()));
         }
     }
 
@@ -196,11 +172,11 @@ public class MainScreen extends AbstractScreen {
         private int classIndex = 0;
         private java.util.List<Character> characters;
         private Label classLabel;
-        private Image[] classIcons;
+        private Stack[] classIcons;
         private Table carousel;
 
-        protected VaultThroneTab(Dungeoneer client, Skin skin, Drawable tabBackground, Drawable tabSelectedBackground, TextureRegion tabTexture) {
-            super(client, skin, tabBackground, tabSelectedBackground, tabTexture);
+        protected VaultThroneTab(Dungeoneer client, TextureRegion tabTexture) {
+            super(client, tabTexture);
         }
 
         @Override
@@ -212,14 +188,16 @@ public class MainScreen extends AbstractScreen {
         protected void build() {
             add(new Label("Vault & Throne", getSkin())).pad(20).row();
 
-            classIcons = new Image[]{null, null, null};
+            classIcons = new Stack[]{null, null, null};
             carousel = new Table();
 
             characters.addAll(getClient().getState().getCharacters());
 
             classLabel = new Label("", getSkin());
             for (int i = 0; i < 3; i++) {
-                classIcons[i] = new Image(new TextureRegionDrawable(missingTexture));
+                classIcons[i] = new Stack();
+                classIcons[i].add(new Image(new NinePatchDrawable(AssetManager.TAB_9PATCH)));
+                classIcons[i].add(new Image(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
             }
 
             TextButton previous = new TextButton("<", getSkin());
@@ -260,13 +238,13 @@ public class MainScreen extends AbstractScreen {
             });
 
             Table center = new Table();
-            center.add(classIcons[1]).size(72).row();
+            center.add(classIcons[1]).size(120).row();
             center.add(classLabel).padTop(10);
 
             carousel.add(previous).width(40);
-            carousel.add(classIcons[0]).size(48).expandX().pad(10);
+            carousel.add(classIcons[0]).size(96).expandX().pad(10);
             carousel.add(center).expandX().pad(20);
-            carousel.add(classIcons[2]).size(48).expandX().pad(10);
+            carousel.add(classIcons[2]).size(96).expandX().pad(10);
             carousel.add(next).width(40);
 
             add(carousel).growX().height(200).padBottom(20).row();
@@ -302,68 +280,101 @@ public class MainScreen extends AbstractScreen {
             if (characters.isEmpty()) {
                 classLabel.setText("");
                 for (int i = 0; i < 3; i++) {
-                    classIcons[i].setDrawable(new TextureRegionDrawable(missingTexture));
+                    classIcons[i].removeActorAt(1, true);
+                    Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
+                    container.size(48f);
+                    classIcons[i].add(container);
                 }
                 return;
             }
 
             int size = characters.size();
 
-            int left = (classIndex - 1 + size) % size;
+            int left = size > 2 ? (classIndex - 1 + size) % size : -1;
             int center = classIndex;
-            int right = (classIndex + 1) % size;
+            int right = size > 1 ? (classIndex + 1) % size : -1;
 
             int[] indices = {left, center, right};
 
-            classLabel.setText(characters.get(indices[1]).characterClass().id());
+            classLabel.setText(characters.get(center).characterClass().id());
             for (int i = 0; i < 3; i++) {
-                classIcons[i].setDrawable(new TextureRegionDrawable(getClassTexture(characters.get(indices[i]).characterClass().id())));
+                if (indices[i] == -1)
+                    continue;
+                classIcons[i].removeActorAt(1, true);
+                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(getClassTexture(characters.get(indices[i]).characterClass().id()))));
+                container.size(48f);
+                classIcons[i].add(container);
+
+                classIcons[i].add(container);
             }
+
+            classIcons[0].setVisible(characters.size() > 2);
+            classIcons[2].setVisible(characters.size() > 1);
         }
 
         private TextureRegion getClassTexture(String classId) {
             return switch (classId) {
-                case "wizard" -> wizardTexture;
-                case "knight" -> knightTexture;
-                case "ninja" -> ninjaTexture;
-                case "priest" -> priestTexture;
-                case "rogue" -> rogueTexture;
-                case "archer" -> archerTexture;
-                default -> missingTexture;
+                case "wizard" -> AssetManager.WIZARD_TEXTURE;
+                case "knight" -> AssetManager.KNIGHT_TEXTURE;
+                case "ninja" -> AssetManager.NINJA_TEXTURE;
+                case "priest" -> AssetManager.PRIEST_TEXTURE;
+                case "rogue" -> AssetManager.ROGUE_TEXTURE;
+                case "archer" -> AssetManager.ARCHER_TEXTURE;
+                default -> AssetManager.MISSING_TEXTURE;
             };
         }
     }
 
     public static class PlayTab extends Tab {
-        protected PlayTab(Dungeoneer client, Skin skin, Drawable tabBackground, Drawable tabSelectedBackground, TextureRegion tabTexture) {
-            super(client, skin, tabBackground, tabSelectedBackground, tabTexture);
+        protected PlayTab(Dungeoneer client, TextureRegion tabTexture) {
+            super(client, tabTexture);
         }
 
         @Override
         protected void build() {
-            add(new Label("Play", getSkin())).pad(20).row();
+            Table statsTable = new Table();
+
+            Label powerLabel = new Label(String.format("Power: %s", 0), getSkin());
+            Label goldLabel = new Label(String.format("Gold: %s", 0), getSkin());
+            Label gemsLabel = new Label(String.format("Gems: %s", 0), getSkin());
+
+            statsTable.add(powerLabel).left().pad(10f);
+            statsTable.add(goldLabel).left().pad(10f);
+            statsTable.add(gemsLabel).left().pad(10f);
+
+            Table accountTable = new Table();
+            accountTable.add(new Label(getClient().getState().getAccount().username(), getSkin())).left().pad(10f);
+
+            TextButton settingsButton = new TextButton("Settings", getSkin());
+            accountTable.add(settingsButton).pad(10f);
+
+            add(statsTable).width(96f).height(32f).top().expandX().fillX().row();
+            add(accountTable).width(96f).height(32f).top().expandX().fillX().row();
+
+            Table mainSection = new Table();
+            add(mainSection).expand().fill();
         }
     }
 
     public static class FactionTab extends Tab {
-        protected FactionTab(Dungeoneer client, Skin skin, Drawable tabBackground, Drawable tabSelectedBackground, TextureRegion tabTexture) {
-            super(client, skin, tabBackground, tabSelectedBackground, tabTexture);
+        protected FactionTab(Dungeoneer client, TextureRegion tabTexture) {
+            super(client, tabTexture);
         }
 
         @Override
         protected void build() {
-            add(new Label("Faction", getSkin())).pad(20).row();
+            add(new Label("Faction", getSkin()));
         }
     }
 
     public static class DungeonGamesTab extends Tab {
-        public DungeonGamesTab(Dungeoneer client, Skin skin, Drawable tabBackground, Drawable tabSelectedBackground, TextureRegion tabTexture) {
-            super(client, skin, tabBackground, tabSelectedBackground, tabTexture);
+        public DungeonGamesTab(Dungeoneer client, TextureRegion tabTexture) {
+            super(client, tabTexture);
         }
 
         @Override
         protected void build() {
-            add(new Label("Dungeon Games", getSkin())).pad(20).row();
+            add(new Label("Dungeon Games", getSkin()));
         }
     }
 
@@ -371,20 +382,31 @@ public class MainScreen extends AbstractScreen {
         private final Dungeoneer client;
         private final ImageButton tabButton;
 
-        protected Tab(Dungeoneer client, Skin skin, Drawable tabBackground, Drawable tabSelectedBackground, TextureRegion tabTexture) {
-            super(skin);
+        protected Tab(Dungeoneer client, TextureRegion tabTexture) {
+            super(SKIN);
             this.client = client;
 
             setFillParent(true);
             init();
             build();
 
+            Image leftArrow = new Image(new TextureRegionDrawable(AssetManager.TAB_ARROW_TEXTURE));
+            Image rightArrow = new Image(new TextureRegionDrawable(AssetManager.TAB_ARROW_TEXTURE));
+            rightArrow.setScaleX(-1f); // TODO: Replace with TextureRegion#flip
+
             ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-            style.up = tabBackground;
-            style.checked = tabSelectedBackground;
+            style.up = TAB_BACKGROUND;
+            style.checked = TAB_SELECTED_BACKGROUND;
             style.imageUp = new TextureRegionDrawable(tabTexture);
             tabButton = new ImageButton(style);
-            tabButton.getImageCell().size(48, 48);
+            tabButton.getImageCell().size(48f, 48f);
+
+            Image image = tabButton.getImage();
+            tabButton.clearChildren();
+
+            tabButton.add(leftArrow).size(16f);
+            tabButton.add(image).size(48f);
+            tabButton.add(rightArrow).padLeft(15f).size(16f);
         }
 
         public Dungeoneer getClient() {
