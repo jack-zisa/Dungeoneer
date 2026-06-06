@@ -12,6 +12,8 @@ public class AssetManager {
     public static final TextureRegion SKULL_TEXTURE = new TextureRegion(new Texture("textures/ui/skull.png"));
     public static final TextureRegion TAB_ARROW_TEXTURE = new TextureRegion(new Texture("textures/ui/tab_arrow.png"));
 
+    public static final TextureRegion BACKGROUND_BRICK_TEXTURE = new TextureRegion(new Texture("textures/ui/background_brick.png"));
+
     public static final TextureRegion WIZARD_TEXTURE = new TextureRegion(new Texture("textures/character/wizard.png"));
     public static final TextureRegion KNIGHT_TEXTURE = new TextureRegion(new Texture("textures/character/knight.png"));
     public static final TextureRegion ARCHER_TEXTURE = new TextureRegion(new Texture("textures/character/archer.png"));
@@ -23,4 +25,16 @@ public class AssetManager {
 
     public static final NinePatch TAB_9PATCH = new NinePatch(new Texture("textures/ui/tab.png"), 2, 2, 2 ,2);
     public static final NinePatch TAB_SELECTED_9PATCH = new NinePatch(new Texture("textures/ui/tab_selected.png"), 2, 2, 2 ,2);
+
+    public static TextureRegion getClassTexture(String classId) {
+        return switch (classId) {
+            case "wizard" -> AssetManager.WIZARD_TEXTURE;
+            case "knight" -> AssetManager.KNIGHT_TEXTURE;
+            case "ninja" -> AssetManager.NINJA_TEXTURE;
+            case "priest" -> AssetManager.PRIEST_TEXTURE;
+            case "rogue" -> AssetManager.ROGUE_TEXTURE;
+            case "archer" -> AssetManager.ARCHER_TEXTURE;
+            default -> AssetManager.MISSING_TEXTURE;
+        };
+    }
 }

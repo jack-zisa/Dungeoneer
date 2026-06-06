@@ -4,9 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
 import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -213,7 +211,9 @@ public class MainScreen extends AbstractScreen {
                         classIndex = characters.size() - 1;
                     }
 
-                    classLabel.setText(classIndex + ": " + characters.get(classIndex).characterClass().id());
+                    Character selected = characters.get(classIndex);
+                    getClient().getState().setSelectedCharacter(selected);
+                    classLabel.setText(classIndex + ": " + selected.characterClass().id());
 
                     updateCharacterDisplay();
                 }
@@ -230,7 +230,9 @@ public class MainScreen extends AbstractScreen {
                         classIndex = 0;
                     }
 
-                    classLabel.setText(classIndex + ": " + characters.get(classIndex).characterClass().id());
+                    Character selected = characters.get(classIndex);
+                    getClient().getState().setSelectedCharacter(selected);
+                    classLabel.setText(classIndex + ": " + selected.characterClass().id());
                     updateCharacterDisplay();
                 }
             });
@@ -259,11 +261,6 @@ public class MainScreen extends AbstractScreen {
 
         @Override
         public void select() {
-            refreshCharacters();
-            updateCharacterDisplay();
-        }
-
-        public void refreshCharacters() {
             characters.clear();
             characters.addAll(getClient().getState().getCharacters());
 
@@ -272,6 +269,8 @@ public class MainScreen extends AbstractScreen {
             if (!characters.isEmpty()) {
                 classLabel.setText(classIndex + ": " + characters.get(classIndex).characterClass().id());
             }
+
+            updateCharacterDisplay();
         }
 
         private void updateCharacterDisplay() {
@@ -299,37 +298,33 @@ public class MainScreen extends AbstractScreen {
                 if (indices[i] == -1)
                     continue;
                 classIcons[i].removeActorAt(1, true);
-                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(getClassTexture(characters.get(indices[i]).characterClass().id()))));
+                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(AssetManager.getClassTexture(characters.get(indices[i]).characterClass().id()))));
                 container.size(48f);
-                classIcons[i].add(container);
-
                 classIcons[i].add(container);
             }
 
             classIcons[0].setVisible(characters.size() > 2);
             classIcons[2].setVisible(characters.size() > 1);
         }
-
-        private TextureRegion getClassTexture(String classId) {
-            return switch (classId) {
-                case "wizard" -> AssetManager.WIZARD_TEXTURE;
-                case "knight" -> AssetManager.KNIGHT_TEXTURE;
-                case "ninja" -> AssetManager.NINJA_TEXTURE;
-                case "priest" -> AssetManager.PRIEST_TEXTURE;
-                case "rogue" -> AssetManager.ROGUE_TEXTURE;
-                case "archer" -> AssetManager.ARCHER_TEXTURE;
-                default -> AssetManager.MISSING_TEXTURE;
-            };
-        }
     }
 
     public static class PlayTab extends Tab {
+        private Character selected;
+        private Image selectedImage;
+        private TextTooltip characterTooltip;
+        private TextTooltip.TextTooltipStyle tooltipStyle;
+
         protected PlayTab(Dungeoneer client, TextureRegion tabTexture) {
             super(client, tabTexture);
         }
 
         @Override
         protected void build() {
+            selected = getClient().getState().getSelectedCharacter();
+            tooltipStyle = new TextTooltip.TextTooltipStyle();
+            tooltipStyle.label = getSkin().get(Label.LabelStyle.class);
+            tooltipStyle.background = TAB_BACKGROUND;
+
             Table statsTable = new Table();
 
             Label powerLabel = new Label(String.format("Power: %s", 0), getSkin());
@@ -341,6 +336,13 @@ public class MainScreen extends AbstractScreen {
             statsTable.add(gemsLabel).left().pad(10f);
 
             Table accountTable = new Table();
+            String classId = selected == null ? "" : selected.characterClass().id();
+            selectedImage = new Image(AssetManager.getClassTexture(classId));
+            characterTooltip = new TextTooltip(classId, tooltipStyle);
+            characterTooltip.setInstant(true);
+            selectedImage.addListener(characterTooltip);
+
+            accountTable.add(selectedImage).size(32f).pad(10f);
             accountTable.add(new Label(getClient().getState().getAccount().username(), getSkin())).left().pad(10f);
 
             TextButton settingsButton = new TextButton("Settings", getSkin());
@@ -358,6 +360,14 @@ public class MainScreen extends AbstractScreen {
             Table mainSection = new Table();
             mainSection.add(new TextButton("Raid", getSkin()));
             add(mainSection).expand().fill();
+        }
+
+        @Override
+        public void select() {
+            selected = getClient().getState().getSelectedCharacter();
+            String classId = selected == null ? "" : selected.characterClass().id();
+            selectedImage.setDrawable(new TextureRegionDrawable(AssetManager.getClassTexture(classId)));
+            characterTooltip.getActor().setText(classId);
         }
     }
 
@@ -412,6 +422,10 @@ public class MainScreen extends AbstractScreen {
             tabButton.add(leftArrow).size(16f);
             tabButton.add(image).size(48f);
             tabButton.add(rightArrow).padLeft(15f).size(16f);
+
+            TiledDrawable background = new TiledDrawable(AssetManager.BACKGROUND_BRICK_TEXTURE);
+            background.setScale(3f);
+            setBackground(background);
         }
 
         public Dungeoneer getClient() {

@@ -43,10 +43,15 @@ public record ClientListener(Dungeoneer client) implements Listener {
             Dungeoneer.LOGGER.info("Login result: %s", result.name());
         } else if (object instanceof SendCharactersS2C(List<dev.creoii.dungeoneer.definitions.Character> characters)) {
             client.getState().setCharacters(characters);
+            client.getState().setSelectedCharacter(characters.getFirst());
 
             Gdx.app.postRunnable(() -> {
-                if (client.getScreen() instanceof MainScreen screen && screen.getSelectedTab() instanceof MainScreen.VaultThroneTab vaultThroneTab) {
-                    vaultThroneTab.select();
+                if (client.getScreen() instanceof MainScreen screen) {
+                    if (screen.getSelectedTab() instanceof MainScreen.VaultThroneTab vaultThroneTab) {
+                        vaultThroneTab.select();
+                    } else if (screen.getSelectedTab() instanceof MainScreen.PlayTab playTab) {
+                        playTab.select();
+                    }
                 }
             });
         } else if (object instanceof CreateCharacterResultS2C(int resultId, Character character)) {
