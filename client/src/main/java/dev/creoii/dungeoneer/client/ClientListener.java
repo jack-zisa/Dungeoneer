@@ -17,6 +17,7 @@ import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.PacketResult;
 import org.jspecify.annotations.Nullable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ClientListener(Dungeoneer client) implements Listener {
@@ -43,6 +44,9 @@ public record ClientListener(Dungeoneer client) implements Listener {
             }
             Dungeoneer.LOGGER.info("Login result: %s", result.name());
         } else if (object instanceof SendCharactersS2C(List<Character> characters)) {
+            if (characters.isEmpty())
+                return;
+
             client.getState().setCharacters(characters);
             client.getState().setSelectedCharacter(characters.getFirst());
 
@@ -72,14 +76,41 @@ public record ClientListener(Dungeoneer client) implements Listener {
         } else if (object instanceof CreateFactionResultS2C(PacketResult result, @Nullable Faction faction)) {
             if (result == PacketResult.SUCCESS) {
                 client.getState().setFaction(faction);
+                client.getState().setAccount(client.getState().getAccount().copyWithFaction(faction.id(), LocalDateTime.now()));
+
+                Gdx.app.postRunnable(() -> {
+                    if (client.getScreen() instanceof MainScreen screen) {
+                        if (screen.getSelectedTab() instanceof MainScreen.FactionTab factionTab) {
+                            factionTab.select();
+                        }
+                    }
+                });
             }
         } else if (object instanceof JoinFactionResultS2C(PacketResult result, @Nullable Faction faction)) {
             if (result == PacketResult.SUCCESS) {
                 client.getState().setFaction(faction);
+                client.getState().setAccount(client.getState().getAccount().copyWithFaction(faction.id(), LocalDateTime.now()));
+
+                Gdx.app.postRunnable(() -> {
+                    if (client.getScreen() instanceof MainScreen screen) {
+                        if (screen.getSelectedTab() instanceof MainScreen.FactionTab factionTab) {
+                            factionTab.select();
+                        }
+                    }
+                });
             }
         } else if (object instanceof LeaveFactionResultS2C(PacketResult result)) {
             if (result == PacketResult.SUCCESS) {
                 client.getState().setFaction(null);
+                client.getState().setAccount(client.getState().getAccount().copyWithFaction(-1L, null));
+
+                Gdx.app.postRunnable(() -> {
+                    if (client.getScreen() instanceof MainScreen screen) {
+                        if (screen.getSelectedTab() instanceof MainScreen.FactionTab factionTab) {
+                            factionTab.select();
+                        }
+                    }
+                });
             }
         }
     }

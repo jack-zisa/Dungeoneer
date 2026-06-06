@@ -44,7 +44,7 @@ public class AccountRepository {
                     rs.getString("password_hash"),
                     NetworkUtils.parseIds(rs.getString("characters")),
                     rs.getInt("faction_id"),
-                    LocalDateTime.parse(rs.getString("faction_join_date")),
+                    rs.getString("faction_join_date"),
                     rs.getString("settings")
                 ))
                 .findOne()
@@ -67,7 +67,7 @@ public class AccountRepository {
                     rs.getString("password_hash"),
                     NetworkUtils.parseIds(rs.getString("characters")),
                     rs.getInt("faction_id"),
-                    LocalDateTime.parse(rs.getString("faction_join_date")),
+                    rs.getString("faction_join_date"),
                     rs.getString("settings")
                 ))
                 .findOne()

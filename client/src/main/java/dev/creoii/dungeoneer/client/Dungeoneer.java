@@ -47,7 +47,7 @@ public class Dungeoneer extends Game {
         client.start();
 
         try {
-            client.connect(5000, "localhost", 54556, 54778);
+            client.connect(5000, "localhost", 54555, 54777);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

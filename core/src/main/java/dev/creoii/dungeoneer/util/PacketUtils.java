@@ -47,7 +47,10 @@ public final class PacketUtils {
         for (int i = 0; i < size; ++i) {
             characterIds.add(input.readLong());
         }
-        return new Account(id, username, "", characterIds, input.readLong(), LocalDateTime.parse(input.readString()), input.readString());
+
+        long factionId = input.readLong();
+        String factionJoinDate = input.readString();
+        return new Account(id, username, "", characterIds, factionId, factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate), input.readString());
     }
 
     public static void writeAccount(Output output, @Nullable Account account) {

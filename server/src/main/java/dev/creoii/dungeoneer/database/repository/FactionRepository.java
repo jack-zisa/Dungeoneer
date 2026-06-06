@@ -60,7 +60,7 @@ public class FactionRepository {
                     rs.getString("name"),
                     NetworkUtils.parseIds(rs.getString("accounts"))
                 ))
-                .findOne()
+                .findFirst()
                 .orElse(null)
         );
     }
@@ -68,8 +68,8 @@ public class FactionRepository {
     public void updateAccounts(Faction faction) {
         jdbi.useHandle(handle ->
             handle.createUpdate("""
-            UPDATE accounts
-            SET characters = :characters
+            UPDATE factions
+            SET accounts = :accounts
             WHERE id = :id
         """)
                 .bind("id", faction.id())

@@ -118,17 +118,20 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (account != null) {
                 server.getDatabase().getAccounts().updateSettings(accountId, settings);
             }
-        } else if (object instanceof CreateFactionC2S(long accountId, String factionName)) {
-            Faction faction = server.getDatabase().getFactions().create(accountId, factionName);
+        } else if (object instanceof CreateFactionC2S(Account account, String factionName)) {
+            Faction faction = server.getDatabase().getFactions().create(account.id(), factionName);
             if (faction != null) {
+                server.getDatabase().getAccounts().updateFaction(account, faction.id());
+                server.getDatabase().getFactions().updateAccounts(faction);
                 server.get().sendToUDP(connection.getID(), new CreateFactionResultS2C(PacketResult.SUCCESS, faction));
                 return;
             }
             server.get().sendToUDP(connection.getID(), new CreateFactionResultS2C(PacketResult.FAIL, null));
-        } else if (object instanceof JoinFactionC2S(long accountId, String factionName)) {
+        } else if (object instanceof JoinFactionC2S(Account account, String factionName)) {
             Faction faction = server.getDatabase().getFactions().getByName(factionName);
             if (faction != null) {
-                faction.accounts().add(accountId);
+                    faction.accounts().add(account.id());
+                server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
                 server.get().sendToUDP(connection.getID(), new JoinFactionResultS2C(PacketResult.SUCCESS, faction));
                 return;
@@ -139,6 +142,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 Faction faction = server.getDatabase().getFactions().getById(account.factionId());
                 if (faction != null) {
                     faction.accounts().remove(account.id());
+                    server.getDatabase().getAccounts().updateFaction(account, faction.id());
                     server.getDatabase().getFactions().updateAccounts(faction);
                     server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.SUCCESS));
                     return;
