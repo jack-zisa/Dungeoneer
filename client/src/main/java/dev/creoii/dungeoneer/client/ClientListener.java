@@ -3,8 +3,11 @@ package dev.creoii.dungeoneer.client;
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import dev.creoii.dungeoneer.client.screen.MainScreen;
+import dev.creoii.dungeoneer.client.screen.main.FactionTab;
+import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.client.screen.LoginScreen;
+import dev.creoii.dungeoneer.client.screen.main.PlayTab;
+import dev.creoii.dungeoneer.client.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.Faction;
@@ -52,9 +55,9 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
             Gdx.app.postRunnable(() -> {
                 if (client.getScreen() instanceof MainScreen screen) {
-                    if (screen.getSelectedTab() instanceof MainScreen.VaultThroneTab vaultThroneTab) {
+                    if (screen.getSelectedTab() instanceof VaultThroneTab vaultThroneTab) {
                         vaultThroneTab.select();
-                    } else if (screen.getSelectedTab() instanceof MainScreen.PlayTab playTab) {
+                    } else if (screen.getSelectedTab() instanceof PlayTab playTab) {
                         playTab.select();
                     }
                 }
@@ -67,7 +70,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof MainScreen screen) {
-                        if (screen.getSelectedTab() instanceof MainScreen.VaultThroneTab vaultThroneTab) {
+                        if (screen.getSelectedTab() instanceof VaultThroneTab vaultThroneTab) {
                             vaultThroneTab.select();
                         }
                     }
@@ -80,7 +83,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof MainScreen screen) {
-                        if (screen.getSelectedTab() instanceof MainScreen.FactionTab factionTab) {
+                        if (screen.getSelectedTab() instanceof FactionTab factionTab) {
                             factionTab.select();
                         }
                     }
@@ -93,7 +96,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof MainScreen screen) {
-                        if (screen.getSelectedTab() instanceof MainScreen.FactionTab factionTab) {
+                        if (screen.getSelectedTab() instanceof FactionTab factionTab) {
                             factionTab.select();
                         }
                     }
@@ -106,7 +109,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof MainScreen screen) {
-                        if (screen.getSelectedTab() instanceof MainScreen.FactionTab factionTab) {
+                        if (screen.getSelectedTab() instanceof FactionTab factionTab) {
                             factionTab.select();
                         }
                     }

@@ -11,6 +11,8 @@ public class AssetManager {
     public static final TextureRegion TOWER_TEXTURE = new TextureRegion(new Texture("textures/ui/tower.png"));
     public static final TextureRegion SKULL_TEXTURE = new TextureRegion(new Texture("textures/ui/skull.png"));
     public static final TextureRegion TAB_ARROW_TEXTURE = new TextureRegion(new Texture("textures/ui/tab_arrow.png"));
+    public static final TextureRegion GOLD_TEXTURE = new TextureRegion(new Texture("textures/ui/gold.png"));
+    public static final TextureRegion GEM_TEXTURE = new TextureRegion(new Texture("textures/ui/gem.png"));
 
     public static final TextureRegion BACKGROUND_BRICK_TEXTURE = new TextureRegion(new Texture("textures/ui/background_brick.png"));
 
@@ -36,5 +38,10 @@ public class AssetManager {
             case "archer" -> AssetManager.ARCHER_TEXTURE;
             default -> AssetManager.MISSING_TEXTURE;
         };
+    }
+
+    static {
+        TAB_9PATCH.scale(4f, 4f);
+        TAB_SELECTED_9PATCH.scale(4f, 4f);
     }
 }

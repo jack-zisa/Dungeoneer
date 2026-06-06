@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.screen;
+package dev.creoii.dungeoneer.client.screen.main;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
