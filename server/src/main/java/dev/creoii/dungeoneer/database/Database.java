@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.database;
 
 import dev.creoii.dungeoneer.database.repository.AccountRepository;
+import dev.creoii.dungeoneer.database.repository.CharacterRepository;
 import dev.creoii.dungeoneer.database.repository.ClientSessionRepository;
 import dev.creoii.dungeoneer.database.repository.ServerSessionRepository;
 import dev.creoii.dungeoneer.util.logging.Logger;
@@ -12,17 +13,16 @@ public class Database {
     private final ServerSessionRepository serverSessions;
     private final ClientSessionRepository clientSessions;
     private final AccountRepository accounts;
+    private final CharacterRepository characters;
 
     public Database() {
         jdbi = Jdbi.create("jdbc:sqlite:dungeoneer.db");
+
         clientSessions = new ClientSessionRepository(jdbi);
         serverSessions = new ServerSessionRepository(jdbi);
         accounts = new AccountRepository(jdbi);
+        characters = new CharacterRepository(jdbi);
         LOGGER.info("Database initialized.");
-    }
-
-    public AccountRepository getAccounts() {
-        return accounts;
     }
 
     public ServerSessionRepository getServerSessions() {
@@ -31,5 +31,13 @@ public class Database {
 
     public ClientSessionRepository getClientSessions() {
         return clientSessions;
+    }
+
+    public AccountRepository getAccounts() {
+        return accounts;
+    }
+
+    public CharacterRepository getCharacters() {
+        return characters;
     }
 }

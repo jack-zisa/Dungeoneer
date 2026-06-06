@@ -1,8 +1,11 @@
 package dev.creoii.dungeoneer.database.repository;
 
-import dev.creoii.dungeoneer.database.definitions.Account;
+import dev.creoii.dungeoneer.definitions.Account;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class AccountRepository {
     private final Jdbi jdbi;
@@ -16,7 +19,8 @@ public class AccountRepository {
             CREATE TABLE IF NOT EXISTS accounts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username VARCHAR(32) UNIQUE NOT NULL,
-                password_hash VARCHAR(128) NOT NULL
+                password_hash VARCHAR(128) NOT NULL,
+                characters TEXT
             )
         """)
         );
@@ -38,6 +42,39 @@ public class AccountRepository {
                 ))
                 .findOne()
                 .orElse(null)
+        );
+    }
+
+    @Nullable
+    public Account getById(long id) {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("""
+                SELECT *
+                FROM accounts
+                WHERE id = :id
+            """)
+                .bind("id", id)
+                .map((rs, _) -> new Account(
+                    rs.getInt("id"),
+                    rs.getString("username"),
+                    rs.getString("password_hash"),
+                    rs.getString("characters")
+                ))
+                .findOne()
+                .orElse(null)
+        );
+    }
+
+    public void updateCharacters(Account account) {
+        jdbi.useHandle(handle ->
+            handle.createUpdate("""
+            UPDATE accounts
+            SET characters = :characters
+            WHERE id = :id
+        """)
+                .bind("id", account.id())
+                .bind("characters", Account.compressCharacterIds(account.characters()))
+                .execute()
         );
     }
 

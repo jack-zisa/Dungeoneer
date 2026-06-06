@@ -11,13 +11,13 @@ import java.io.IOException;
 import java.util.Set;
 
 public class DungeoneerServer {
-    public static final int DEFAULT_TCP_PORT = 54555;
-    public static final int DEFAULT_UDP_PORT = 54777;
+    public static final int DEFAULT_TCP_PORT = 54556;
+    public static final int DEFAULT_UDP_PORT = 54778;
     private final Server server;
     private final ServerNetworkHandler networkHandler;
     private final Database database;
     private final SessionManager sessionManager;
-    public static final Logger LOGGER = new Logger(ServerLauncher.class.getSimpleName());
+    public static final Logger LOGGER = new Logger(DungeoneerServer.class.getSimpleName());
     private volatile Status status;
     private volatile boolean running = true;
     private final Thread gameThread;
@@ -34,11 +34,11 @@ public class DungeoneerServer {
 
         setStatus(Status.STARTING);
 
+        LOGGER.info("Server starting on ports: TCP %s | UDP %s", properties.tcpPort(), properties.udpPort());
+
         server = new Server(256 * 1024, 256 * 1024, new CreoSerialization());
         server.start();
         server.bind(properties.tcpPort(), properties.udpPort());
-
-        LOGGER.info("Server started on ports: TCP %s | UDP %s", properties.tcpPort(), properties.udpPort());
 
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
@@ -115,7 +115,6 @@ public class DungeoneerServer {
 
     public void stop() {
         setStatus(Status.STOPPING);
-        System.out.println("Stopping!");
         running = false;
         gameThread.interrupt();
     }

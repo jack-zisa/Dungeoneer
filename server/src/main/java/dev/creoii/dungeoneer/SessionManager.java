@@ -23,8 +23,12 @@ public class SessionManager {
         DungeoneerServer.LOGGER.info("Server session started");
     }
 
-    public ServerSession getSession() {
-        return session;
+    public Map<Integer, ClientSession> getConnectionSessions() {
+        return connectionSessions;
+    }
+
+    public Map<Long, ClientSession> getAccountSessions() {
+        return accountSessions;
     }
 
     @Nullable

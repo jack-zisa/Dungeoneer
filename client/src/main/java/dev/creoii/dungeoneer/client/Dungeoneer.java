@@ -15,10 +15,12 @@ import java.io.IOException;
 public class Dungeoneer extends Game {
     public static final Logger LOGGER = new Logger(Dungeoneer.class.getSimpleName());
     private final Client client;
+    private final ClientState state;
     private final Listener.QueuedListener listener;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
+        state = new ClientState();
         listener = new Listener.QueuedListener(new ClientListener(this)) {
             @Override
             protected void queue(Runnable runnable) {
@@ -31,6 +33,10 @@ public class Dungeoneer extends Game {
         return client;
     }
 
+    public ClientState getState() {
+        return state;
+    }
+
     @Override
     public void create() {
         setScreen(new LoadingScreen());
@@ -41,7 +47,7 @@ public class Dungeoneer extends Game {
         client.start();
 
         try {
-            client.connect(5000, "localhost", 54555, 54777);
+            client.connect(5000, "localhost", 54556, 54778);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

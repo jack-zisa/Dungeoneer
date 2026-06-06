@@ -5,12 +5,18 @@ import com.esotericsoftware.kryonet.Listener;
 import com.password4j.Password;
 import dev.creoii.dungeoneer.DungeoneerServer;
 import dev.creoii.dungeoneer.database.Database;
-import dev.creoii.dungeoneer.database.definitions.Account;
+import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.database.definitions.ClientSession;
+import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.CharacterClass;
+import dev.creoii.dungeoneer.network.c2s.account.CreateCharacterC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
-import dev.creoii.dungeoneer.network.c2s.account.AuthenticateC2S;
+import dev.creoii.dungeoneer.network.c2s.account.RequestCharactersC2S;
+import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
+import dev.creoii.dungeoneer.network.s2c.account.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
+import dev.creoii.dungeoneer.network.s2c.account.SendCharactersS2C;
 import dev.creoii.dungeoneer.util.Tickable;
 
 public class ServerNetworkHandler implements Listener, Tickable {
@@ -62,7 +68,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
         if (server.isDebug())
             DungeoneerServer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
 
-        if (object instanceof AuthenticateC2S) {
+        if (object instanceof RequestLoginC2S) {
             server.get().sendToUDP(connection.getID(), new AuthenticateS2C());
         } else if (object instanceof LoginC2S(String username, String password)) {
             Account account = server.getDatabase().getAccounts().getByUsername(username);
@@ -74,17 +80,40 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 Database.LOGGER.info("Loaded account: %s", account.username());
             } else {
                 DungeoneerServer.LOGGER.error("Failed login for account: %s", account.username());
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.FAIL));
+                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.FAIL, null));
                 return;
             }
 
             ClientSession clientSession = server.getSessionManager().startClientSession(connection, account.id());
             if (clientSession != null) {
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.SUCCESS));
+                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.SUCCESS, account));
             } else {
                 connection.close();
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.FAIL));
+                server.get().sendToUDP(connection.getID(), new LoginResultS2C(LoginResultS2C.Result.FAIL, null));
             }
+        } else if (object instanceof RequestCharactersC2S) {
+            ClientSession clientSession = server.getSessionManager().getConnectionSessions().get(connection.getID());
+            if (clientSession == null) return;
+
+            Account account = server.getDatabase().getAccounts().getById(clientSession.accountId());
+            if (account == null) return;
+
+            server.get().sendToUDP(connection.getID(), new SendCharactersS2C(account.characters().stream().map(integer -> server.getDatabase().getCharacters().getById(integer)).toList()));
+        } else if (object instanceof CreateCharacterC2S(long accountId, CharacterClass characterClass)) {
+            Account account = server.getDatabase().getAccounts().getById(accountId);
+            if (account != null) {
+                Character character = server.getDatabase().getCharacters().create(account, characterClass);
+                if (character != null) {
+                    account.characters().add(character.id());
+                    server.getDatabase().getAccounts().updateCharacters(account);
+
+                    DungeoneerServer.LOGGER.info("Created character of class '%s' for account: %s", characterClass.id(), accountId);
+                    server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(LoginResultS2C.Result.SUCCESS, character));
+                    return;
+                }
+            }
+
+            server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(LoginResultS2C.Result.FAIL, null));
         }
     }
 }

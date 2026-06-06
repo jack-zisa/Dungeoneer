@@ -2,26 +2,22 @@ package dev.creoii.dungeoneer.network.s2c.account;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.creoii.dungeoneer.definitions.Account;
+import dev.creoii.dungeoneer.util.PacketUtils;
+import org.jspecify.annotations.Nullable;
 
-public record LoginResultS2C(int resultId) {
-    public static final Codec<LoginResultS2C> CODEC = RecordCodecBuilder.create(instance -> {
-        return instance.group(
-            Codec.INT.fieldOf("username").forGetter(LoginResultS2C::resultId)
-        ).apply(instance, LoginResultS2C::new);
-    });
-
-    public LoginResultS2C(Result result) {
-        this(result.ordinal());
+public record LoginResultS2C(int resultId, @Nullable Account account) {
+    public LoginResultS2C(Result result, @Nullable Account account) {
+        this(result.ordinal(), account);
     }
 
     public static void write(Output output, LoginResultS2C o) {
         output.writeInt(o.resultId);
+        PacketUtils.writeAccount(output, o.account);
     }
 
     public static LoginResultS2C read(Input input) {
-        return new LoginResultS2C(input.readInt());
+        return new LoginResultS2C(input.readInt(), PacketUtils.readAccount(input));
     }
 
     public enum Result {
