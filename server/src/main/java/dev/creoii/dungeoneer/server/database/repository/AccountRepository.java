@@ -22,6 +22,7 @@ public class AccountRepository {
                 password_hash VARCHAR(128) NOT NULL,
                 character_slots INTEGER NOT NULL,
                 characters TEXT,
+                active_character_id INTEGER,
                 faction_id INTEGER,
                 faction_join_date DATETIME,
                 last_login_date DATETIME NOT NULL,
@@ -49,6 +50,7 @@ public class AccountRepository {
                         rs.getString("password_hash"),
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
+                        rs.getInt("active_character_id"),
                         rs.getInt("faction_id"),
                         factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
                         lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
@@ -78,6 +80,7 @@ public class AccountRepository {
                         rs.getString("password_hash"),
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
+                        rs.getInt("active_character_id"),
                         rs.getInt("faction_id"),
                         factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
                         lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
@@ -109,6 +112,7 @@ public class AccountRepository {
                         rs.getString("password_hash"),
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
+                        rs.getInt("active_character_id"),
                         rs.getInt("faction_id"),
                         factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
                         lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
@@ -129,6 +133,19 @@ public class AccountRepository {
         """)
                 .bind("id", account.id())
                 .bind("characters", NetworkUtils.compressIds(account.characters()))
+                .execute()
+        );
+    }
+
+    public void updateActiveCharacter(long accountId, long activeCharacterId) {
+        jdbi.useHandle(handle ->
+            handle.createUpdate("""
+            UPDATE accounts
+            SET active_character_id = :active_character_id
+            WHERE id = :id
+        """)
+                .bind("id", accountId)
+                .bind("active_character_id", activeCharacterId)
                 .execute()
         );
     }

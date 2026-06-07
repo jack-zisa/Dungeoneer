@@ -52,10 +52,11 @@ public final class PacketUtils {
             characterIds.add(input.readLong());
         }
 
+        long activeCharacterId = input.readLong();
         long factionId = input.readLong();
         String factionJoinDate = input.readString();
         String lastLoginDate = input.readString();
-        return new Account(id, username, "", characterSlots, characterIds, factionId,
+        return new Account(id, username, "", characterSlots, characterIds, activeCharacterId, factionId,
             factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
             lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
             input.readString());
@@ -70,6 +71,7 @@ public final class PacketUtils {
             for (Long id : account.characters()) {
                 output.writeLong(id);
             }
+            output.writeLong(account.activeCharacterId());
             output.writeLong(account.factionId());
             output.writeString(account.factionJoinDate() == null ? "" : account.factionJoinDate().toString());
             output.writeString(account.lastLoginDate() == null ? "" : account.lastLoginDate().toString());
@@ -79,6 +81,7 @@ public final class PacketUtils {
             output.writeString(""); // username
             output.writeInt(0); // character slots
             output.writeInt(0); // characters size
+            output.writeLong(-1L); // active character id
             output.writeLong(-1L); // faction id
             output.writeString(""); // faction join date
             output.writeString(""); // last login date
@@ -91,10 +94,10 @@ public final class PacketUtils {
         String name = input.readString();
         String description = input.readString();
 
-        List<Long> accountIds = new ArrayList<>();
+        List<Account> accountIds = new ArrayList<>();
         long size = input.readInt();
         for (int i = 0; i < size; ++i) {
-            accountIds.add(input.readLong());
+            accountIds.add(readAccount(input));
         }
         return new Faction(id, name, description, accountIds);
     }
@@ -106,7 +109,7 @@ public final class PacketUtils {
         int size = faction.accounts().size();
         output.writeInt(size);
         for (int i = 0; i < size; ++i) {
-            output.writeLong(faction.accounts().get(i));
+            writeAccount(output, faction.accounts().get(i));
         }
     }
 

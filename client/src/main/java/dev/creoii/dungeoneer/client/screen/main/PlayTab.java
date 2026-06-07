@@ -23,7 +23,7 @@ public class PlayTab extends Tab {
 
     @Override
     protected void build() {
-        selected = getClient().getState().getSelectedCharacter();
+        selected = getClient().getState().getActiveCharacter();
         TextTooltip.TextTooltipStyle tooltipStyle = new TextTooltip.TextTooltipStyle();
         tooltipStyle.label = getSkin().get(Label.LabelStyle.class);
         tooltipStyle.background = TAB_BACKGROUND;
@@ -80,7 +80,7 @@ public class PlayTab extends Tab {
 
     @Override
     public void select() {
-        selected = getClient().getState().getSelectedCharacter();
+        selected = getClient().getState().getActiveCharacter();
         String classId = selected == null ? "" : selected.characterClass().id();
         selectedImage.setDrawable(new TextureRegionDrawable(AssetManager.getClassTexture(classId)));
         characterTooltip.getActor().setText(classId);

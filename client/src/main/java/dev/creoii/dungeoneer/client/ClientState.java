@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.client;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.Faction;
+import dev.creoii.dungeoneer.network.c2s.character.SelectActiveCharacterC2S;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class ClientState {
     private Status status;
     private Account account;
     private List<Character> characters = new ArrayList<>();
-    private Character selectedCharacter;
+    private Character activeCharacter;
     private @Nullable Faction faction;
 
     public void setStatus(Status status) {
@@ -44,12 +45,13 @@ public class ClientState {
         characters.add(character);
     }
 
-    public Character getSelectedCharacter() {
-        return selectedCharacter;
+    public Character getActiveCharacter() {
+        return activeCharacter;
     }
 
-    public void setSelectedCharacter(Character selectedCharacter) {
-        this.selectedCharacter = selectedCharacter;
+    public void setActiveCharacter(Dungeoneer client, @Nullable Character activeCharacter) {
+        this.activeCharacter = activeCharacter;
+        client.get().sendUDP(new SelectActiveCharacterC2S(account.id(), activeCharacter == null ? -1L : activeCharacter.id()));
     }
 
     public @Nullable Faction getFaction() {

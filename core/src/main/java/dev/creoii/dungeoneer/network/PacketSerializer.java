@@ -7,10 +7,7 @@ import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
-import dev.creoii.dungeoneer.network.c2s.character.CreateCharacterC2S;
-import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
-import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
-import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.character.*;
 import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
@@ -74,6 +71,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(DeleteCharacterC2S.class, PacketSerializer.INSTANCE);
         kryo.register(SearchFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(RequestFactionC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(SelectActiveCharacterC2S.class, PacketSerializer.INSTANCE);
 
         kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
@@ -99,6 +97,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(DeleteCharacterC2S.class, DeleteCharacterC2S::write, DeleteCharacterC2S::read);
         PacketSerializer.INSTANCE.register(SearchFactionC2S.class, SearchFactionC2S::write, SearchFactionC2S::read);
         PacketSerializer.INSTANCE.register(RequestFactionC2S.class, RequestFactionC2S::write, RequestFactionC2S::read);
+        PacketSerializer.INSTANCE.register(SelectActiveCharacterC2S.class, SelectActiveCharacterC2S::write, SelectActiveCharacterC2S::read);
 
         PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);

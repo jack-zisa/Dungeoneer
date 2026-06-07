@@ -65,7 +65,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     return;
 
                 client.getState().setCharacters(characters);
-                client.getState().setSelectedCharacter(characters.getFirst());
+                client.getState().setActiveCharacter(client, characters.getFirst());
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof MainScreen screen) {
@@ -94,7 +94,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
             case CreateCharacterResultS2C(PacketResult result, int index, @Nullable Character character) -> {
                 if (result == PacketResult.SUCCESS) {
                     client.getState().getCharacters().set(index, character);
-                    client.getState().setSelectedCharacter(character);
+                    client.getState().setActiveCharacter(client, character);
 
                     Dungeoneer.LOGGER.info("Created new character of class: %s", character.characterClass().id());
 

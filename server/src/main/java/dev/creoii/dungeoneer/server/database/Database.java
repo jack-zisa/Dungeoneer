@@ -20,7 +20,7 @@ public class Database {
 
         clientSessions = new ClientSessionRepository(jdbi);
         serverSessions = new ServerSessionRepository(jdbi);
-        factions = new FactionRepository(jdbi);
+        factions = new FactionRepository(this, jdbi);
         accounts = new AccountRepository(jdbi);
         characters = new CharacterRepository(jdbi);
         raids = new RaidRepository(this, jdbi);

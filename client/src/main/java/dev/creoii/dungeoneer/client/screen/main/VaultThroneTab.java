@@ -65,7 +65,7 @@ public class VaultThroneTab extends Tab {
                 }
 
                 Character selected = characters.get(classIndex);
-                getClient().getState().setSelectedCharacter(selected);
+                getClient().getState().setActiveCharacter(getClient(), selected);
                 if (selected != null) {
                     classLabel.setText(classIndex + ": " + selected.characterClass().id());
                 } else classLabel.setText(classIndex + ": Empty");
@@ -86,7 +86,7 @@ public class VaultThroneTab extends Tab {
                 }
 
                 Character selected = characters.get(classIndex);
-                getClient().getState().setSelectedCharacter(selected);
+                getClient().getState().setActiveCharacter(getClient(), selected);
                 if (selected != null) {
                     classLabel.setText(classIndex + ": " + selected.characterClass().id());
                 } else classLabel.setText(classIndex + ": Empty");

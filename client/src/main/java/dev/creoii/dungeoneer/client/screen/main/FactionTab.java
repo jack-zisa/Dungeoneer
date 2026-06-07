@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
@@ -123,10 +124,10 @@ public class FactionTab extends Tab {
 
     public void refreshMembers(Faction faction) {
         membersTable.clearChildren();
-        for (long accountId : faction.accounts()) {
+        for (Account account : faction.accounts()) {
             Table row = new Table();
 
-            row.add(new Label("" + accountId, getSkin()));
+            row.add(new Label(account.username(), getSkin()));
 
             membersTable.add(row).growX().pad(5f).row();
         }

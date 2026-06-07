@@ -1,17 +1,22 @@
 package dev.creoii.dungeoneer.server.database.repository;
 
+import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Faction;
+import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.util.NetworkUtils;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FactionRepository {
+    private final Database database;
     private final Jdbi jdbi;
 
-    public FactionRepository(Jdbi jdbi) {
+    public FactionRepository(Database database, Jdbi jdbi) {
+        this.database = database;
         this.jdbi = jdbi;
 
         // Initialize schema
@@ -40,7 +45,7 @@ public class FactionRepository {
                     rs.getInt("id"),
                     rs.getString("name"),
                     rs.getString("description"),
-                    NetworkUtils.parseIds(rs.getString("accounts"))
+                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList())
                 ))
                 .findOne()
                 .orElse(null)
@@ -59,7 +64,7 @@ public class FactionRepository {
                     rs.getInt("id"),
                     rs.getString("name"),
                     rs.getString("description"),
-                    NetworkUtils.parseIds(rs.getString("accounts"))
+                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList())
                 ))
                 .list()
         );
@@ -73,7 +78,7 @@ public class FactionRepository {
             WHERE id = :id
         """)
                 .bind("id", faction.id())
-                .bind("accounts", NetworkUtils.compressIds(faction.accounts()))
+                .bind("accounts", NetworkUtils.compressIds(faction.accounts().stream().map(Account::id).collect(Collectors.toList())))
                 .execute()
         );
     }
@@ -92,8 +97,8 @@ public class FactionRepository {
                 .one()
         );
 
-        List<Long> accounts = new ArrayList<>();
-        accounts.add(accountId);
+        List<Account> accounts = new ArrayList<>();
+        accounts.add(database.getAccounts().getById(accountId));
         return new Faction(id, name, description, accounts);
     }
 }
