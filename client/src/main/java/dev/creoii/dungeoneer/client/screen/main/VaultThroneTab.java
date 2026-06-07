@@ -125,14 +125,17 @@ public class VaultThroneTab extends Tab {
         characters.clear();
         characters.addAll(getClient().getState().getCharacters());
 
-        createCharacterButton.setText(characters.get(classIndex) == null ? "Create Character" : "Delete Character");
-
         carousel.setVisible(!characters.isEmpty());
 
         if (!characters.isEmpty()) {
             Character character = characters.get(classIndex);
-            if (character != null) classLabel.setText(classIndex + ": " + character.characterClass().id());
-            else classLabel.setText(classIndex + ": Empty");
+            if (character != null) {
+                createCharacterButton.setText("Delete Character");
+                classLabel.setText(classIndex + ": " + character.characterClass().id());
+            } else {
+                createCharacterButton.setText("Create Character");
+                classLabel.setText(classIndex + ": Empty");
+            }
         }
 
         updateCharacterDisplay();
@@ -158,6 +161,7 @@ public class VaultThroneTab extends Tab {
 
         Character selected = getCharacterForSlot(center);
 
+        createCharacterButton.setText(characters.get(classIndex) == null ? "Create Character" : "Delete Character");
         classLabel.setText(selected == null ? "Empty" : selected.characterClass().id());
 
         for (int i = 0; i < 3; i++) {
