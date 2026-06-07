@@ -14,17 +14,22 @@ import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.CreateCharacterC2S;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
+import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.SearchFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
-import dev.creoii.dungeoneer.network.s2c.*;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
+import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
+import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.CreateFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.SearchFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.util.Tickable;
 
@@ -113,6 +118,16 @@ public class ServerNetworkHandler implements Listener, Tickable {
 
             List<Character> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
             server.get().sendToUDP(connection.getID(), new SendCharactersS2C(characters));
+        } else if (object instanceof RequestFactionC2S(long accountId)) {
+            Account account = server.getDatabase().getAccounts().getById(accountId);
+            if (account == null) {
+                System.out.println("null account");
+                server.get().sendToUDP(connection.getID(), new SendFactionS2C(null));
+                return;
+            }
+
+            Faction faction = server.getDatabase().getFactions().getById(account.factionId());
+            if (faction != null) server.get().sendToUDP(connection.getID(), new SendFactionS2C(faction));
         } else if (object instanceof CreateCharacterC2S(long accountId, int index, CharacterClass characterClass)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
@@ -141,10 +156,9 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 return;
             }
             server.get().sendToUDP(connection.getID(), new CreateFactionResultS2C(PacketResult.FAIL, null));
-        } else if (object instanceof JoinFactionC2S(Account account, String factionName)) {
-            List<Faction> factions = server.getDatabase().getFactions().getByName(factionName);
-            if (!factions.isEmpty()) {
-                Faction faction = factions.getFirst();
+        } else if (object instanceof JoinFactionC2S(Account account, long factionId)) {
+            Faction faction = server.getDatabase().getFactions().getById(factionId);
+            if (faction != null) {
                 faction.accounts().add(account.id());
                 server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
@@ -153,11 +167,12 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
             server.get().sendToUDP(connection.getID(), new JoinFactionResultS2C(PacketResult.FAIL, null));
         } else if (object instanceof LeaveFactionC2S(Account account)) {
+            System.out.println(account.factionId());
             if (account.factionId() != -1L) {
                 Faction faction = server.getDatabase().getFactions().getById(account.factionId());
                 if (faction != null) {
                     faction.accounts().remove(account.id());
-                    server.getDatabase().getAccounts().updateFaction(account, faction.id());
+                    server.getDatabase().getAccounts().updateFaction(account, -1L);
                     server.getDatabase().getFactions().updateAccounts(faction);
                     server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.SUCCESS));
                     return;
@@ -185,6 +200,13 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 List<Character> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
                 server.get().sendToUDP(connection.getID(), new SendCharactersS2C(characters));
             }
+        } else if (object instanceof SearchFactionC2S(String search)) {
+            List<Faction> factions = server.getDatabase().getFactions().search(search);
+            if (!factions.isEmpty()) {
+                server.get().sendToUDP(connection.getID(), new SearchFactionResultS2C(PacketResult.SUCCESS, factions));
+                return;
+            }
+            server.get().sendToUDP(connection.getID(), new SearchFactionResultS2C(PacketResult.FAIL, factions));
         }
     }
 }

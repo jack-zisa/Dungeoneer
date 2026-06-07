@@ -16,13 +16,17 @@ import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
-import dev.creoii.dungeoneer.network.s2c.*;
+import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.PacketResult;
+import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
+import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.CreateFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.SearchFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import org.jspecify.annotations.Nullable;
 
@@ -50,6 +54,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     client.getState().setAccount(account);
                     client.getState().fillCharacters(account.characterSlots());
                     client.get().sendUDP(new RequestCharactersC2S(account.id()));
+                    client.get().sendUDP(new RequestFactionC2S(account.id()));
                     Gdx.app.postRunnable(() -> client.setScreen(new MainScreen(client)));
                     client.getState().setStatus(ClientState.Status.LOBBY);
                 }
@@ -68,6 +73,20 @@ public record ClientListener(Dungeoneer client) implements Listener {
                             vaultThroneTab.select();
                         } else if (screen.getSelectedTab() instanceof PlayTab playTab) {
                             playTab.select();
+                        }
+                    }
+                });
+            }
+            case SendFactionS2C(Faction faction) -> {
+                if (faction == null)
+                    return;
+
+                client.getState().setFaction(faction);
+
+                Gdx.app.postRunnable(() -> {
+                    if (client.getScreen() instanceof MainScreen screen) {
+                        if (screen.getSelectedTab() instanceof FactionTab factionTab) {
+                            factionTab.select();
                         }
                     }
                 });
@@ -138,6 +157,18 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     client.getState().setStatus(ClientState.Status.RAIDING);
                     client.setScreen(new GameScreen(client));
                 });
+            }
+            case SearchFactionResultS2C(PacketResult result, List<Faction> factions) -> {
+                if (result == PacketResult.SUCCESS) {
+                    Gdx.app.postRunnable(() -> {
+                        if (client.getScreen() instanceof MainScreen screen) {
+                            if (screen.getSelectedTab() instanceof FactionTab factionTab) {
+                                factionTab.showSearchResults(factions);
+                                factionTab.select();
+                            }
+                        }
+                    });
+                }
             }
             default -> {
             }

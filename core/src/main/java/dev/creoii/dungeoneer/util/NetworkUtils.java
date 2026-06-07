@@ -9,7 +9,9 @@ public final class NetworkUtils {
         if (s != null && !s.isBlank()) {
             for (String id : s.split(",")) {
                 try {
-                    list.add(Long.parseLong(id));
+                    Long l = Long.parseLong(id);
+                    if (l == -1L || !list.contains(l))
+                        list.add(l);
                 } catch (NumberFormatException e) {
                     throw new RuntimeException(e);
                 }

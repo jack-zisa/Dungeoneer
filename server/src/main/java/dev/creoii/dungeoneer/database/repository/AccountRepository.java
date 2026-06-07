@@ -50,8 +50,8 @@ public class AccountRepository {
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("faction_id"),
-                        factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
-                        lastLoginDate == null ? null : LocalDateTime.parse(lastLoginDate),
+                        factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
+                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
                         rs.getString("settings")
                     );
                 })
@@ -79,8 +79,8 @@ public class AccountRepository {
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("faction_id"),
-                        factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
-                        lastLoginDate == null ? null : LocalDateTime.parse(lastLoginDate),
+                        factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
+                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
                         rs.getString("settings")
                     );
                 })
@@ -110,8 +110,8 @@ public class AccountRepository {
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("faction_id"),
-                        factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
-                        lastLoginDate == null ? null : LocalDateTime.parse(lastLoginDate),
+                        factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
+                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
                         rs.getString("settings")
                     );
                 })

@@ -2,21 +2,27 @@ package dev.creoii.dungeoneer.client.screen.main;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.SearchFactionC2S;
+
+import java.util.List;
 
 public class FactionTab extends Tab {
     private Label factionNameLabel;
     private Label factionDescriptionLabel;
     private TextField factionField;
-    private TextButton joinButton;
+
+    private ScrollPane resultsScrollPane;
+    private Table resultsTable;
+    private TextButton clearResultsButton;
+    private TextButton searchButton;
+
     private TextButton createButton;
     private TextButton leaveButton;
 
@@ -35,15 +41,33 @@ public class FactionTab extends Tab {
         factionField = new TextField("", getSkin());
         add(factionField).pad(10f).row();
 
-        joinButton = new TextButton("Join", getSkin());
-        joinButton.addListener(new ChangeListener() {
+        searchButton = new TextButton("Search", getSkin());
+
+        searchButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (getClient().getState().getFaction() == null)
-                    getClient().get().sendUDP(new JoinFactionC2S(getClient().getState().getAccount(), factionField.getText()));
+                getClient().get().sendUDP(new SearchFactionC2S(factionField.getText()));
             }
         });
-        add(joinButton);
+
+        add(searchButton);
+
+        resultsTable = new Table();
+
+        resultsScrollPane = new ScrollPane(resultsTable, getSkin());
+        resultsScrollPane.setFadeScrollBars(false);
+
+        add(resultsScrollPane).grow().pad(10f).row();
+
+        clearResultsButton = new TextButton("Clear Results", getSkin());
+        clearResultsButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                resultsTable.clearChildren();
+            }
+        });
+
+        add(clearResultsButton).pad(10f).row();
 
         createButton = new TextButton("Create", getSkin());
         createButton.addListener(new ChangeListener() {
@@ -55,7 +79,7 @@ public class FactionTab extends Tab {
         });
         add(createButton).row();
 
-        leaveButton = new TextButton("leave", getSkin());
+        leaveButton = new TextButton("Leave", getSkin());
         leaveButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -66,6 +90,34 @@ public class FactionTab extends Tab {
         add(leaveButton);
     }
 
+    public void showSearchResults(List<Faction> factions) {
+        resultsTable.clearChildren();
+
+        if (factions.isEmpty()) {
+            resultsTable.add(new Label("No factions found.", getSkin()));
+            return;
+        }
+
+        for (Faction faction : factions) {
+            Table row = new Table();
+
+            row.add(new Label(faction.name(), getSkin())).width(150).left();
+            row.add(new Label(faction.description(), getSkin())).width(300).left();
+            row.add(new Label(faction.accounts().size() + " members", getSkin())).width(100);
+
+            TextButton joinButton = new TextButton("Join", getSkin());
+            joinButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    getClient().get().sendUDP(new JoinFactionC2S(getClient().getState().getAccount(), faction.id()));
+                }
+            });
+            row.add(joinButton).padLeft(10f);
+
+            resultsTable.add(row).growX().pad(5f).row();
+        }
+    }
+
     @Override
     public void select() {
         Faction faction = getClient().getState().getFaction();
@@ -74,17 +126,26 @@ public class FactionTab extends Tab {
             factionDescriptionLabel.setText(faction.description());
             factionDescriptionLabel.setVisible(true);
             factionField.setVisible(false);
-            joinButton.setVisible(false);
             leaveButton.setVisible(true);
             createButton.setVisible(false);
+
+            searchButton.setVisible(false);
+            resultsTable.clearChildren();
+            resultsTable.setVisible(false);
+            clearResultsButton.setVisible(false);
+            resultsScrollPane.setVisible(false);
         } else {
             factionNameLabel.setText("Join a Faction!");
             factionDescriptionLabel.setText("");
             factionDescriptionLabel.setVisible(false);
             factionField.setVisible(true);
-            joinButton.setVisible(true);
             leaveButton.setVisible(false);
             createButton.setVisible(true);
+
+            searchButton.setVisible(true);
+            resultsTable.setVisible(true);
+            clearResultsButton.setVisible(true);
+            resultsScrollPane.setVisible(true);
         }
     }
 }

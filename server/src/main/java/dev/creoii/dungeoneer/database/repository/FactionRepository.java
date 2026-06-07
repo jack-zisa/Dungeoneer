@@ -3,7 +3,6 @@ package dev.creoii.dungeoneer.database.repository;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.util.NetworkUtils;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.result.ResultIterable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -48,14 +47,14 @@ public class FactionRepository {
         );
     }
 
-    public List<Faction> getByName(String name) {
+    public List<Faction> search(String search) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                 SELECT *
                 FROM factions
-                WHERE name = :name
+                WHERE LOWER(name) like LOWER(:search)
             """)
-                .bind("name", name)
+                .bind("search", "%" + search + "%")
                 .map((rs, _) -> new Faction(
                     rs.getInt("id"),
                     rs.getString("name"),

@@ -56,7 +56,7 @@ public class ClientSessionRepository {
                         rs.getInt("id"),
                         rs.getInt("account_id"),
                         LocalDateTime.parse(rs.getString("start_time")),
-                        endTime == null ? null : LocalDateTime.parse(endTime)
+                        endTime == null || endTime.isBlank() ? null : LocalDateTime.parse(endTime)
                     );
                 })
                 .findOne()
@@ -79,7 +79,7 @@ public class ClientSessionRepository {
                         rs.getInt("id"),
                         rs.getInt("account_id"),
                         LocalDateTime.parse(rs.getString("start_time")),
-                        endTime == null ? null : LocalDateTime.parse(endTime)
+                        endTime == null || endTime.isBlank() ? null : LocalDateTime.parse(endTime)
                     );
                 })
                 .findOne()

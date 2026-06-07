@@ -44,33 +44,6 @@ public class RaidRepository {
     }
 
     @Nullable
-    public Raid getCurrentSession(long raidId) {
-        return jdbi.withHandle(handle ->
-            handle.createQuery("""
-            SELECT *
-            FROM raids
-            WHERE id = :id
-              AND end_time IS NULL
-            ORDER BY start_time DESC
-            LIMIT 1
-        """)
-                .bind("id", raidId)
-                .map((rs, _) -> {
-                    String endTime = rs.getString("end_time");
-                    return new Raid(
-                        rs.getInt("id"),
-                        database.getAccounts().getById(rs.getInt("attacker_id")),
-                        database.getAccounts().getById(rs.getInt("target_id")),
-                        LocalDateTime.parse(rs.getString("start_time")),
-                        endTime == null ? null : LocalDateTime.parse(endTime)
-                    );
-                })
-                .findOne()
-                .orElse(null)
-        );
-    }
-
-    @Nullable
     public Raid getById(long id) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
@@ -86,7 +59,7 @@ public class RaidRepository {
                         database.getAccounts().getById(rs.getInt("attacker_id")),
                         database.getAccounts().getById(rs.getInt("target_id")),
                         LocalDateTime.parse(rs.getString("start_time")),
-                        endTime == null ? null : LocalDateTime.parse(endTime)
+                        endTime == null || endTime.isBlank() ? null : LocalDateTime.parse(endTime)
                     );
                 })
                 .findOne()
