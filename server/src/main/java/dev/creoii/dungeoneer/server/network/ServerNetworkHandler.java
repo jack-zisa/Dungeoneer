@@ -6,6 +6,7 @@ import com.password4j.Password;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.character.*;
+import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
@@ -30,6 +31,8 @@ import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.SearchFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
+import dev.creoii.dungeoneer.server.game.ServerCharacter;
+import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Tickable;
 
 import java.time.LocalDateTime;
@@ -48,7 +51,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
     }
 
     @Override
-    public void tick() {
+    public void tick(float dt) {
         ServerNetworkQueue.QueuedPacket packet;
         while ((packet = networkQueue.queue().poll()) != null && PacketSerializer.INSTANCE.isValidPacket(packet.data())) {
             handlePacket(packet.connection(), packet.data());
@@ -195,13 +198,14 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
             if (target != null) {
                 Raid raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
-                if (raid != null) {
-                    server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid));
-                }
+                if (raid != null) server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid));
             }
+        } else if (object instanceof StartRaidC2S(long raidId, Character character)) {
+            server.getState().getRaids().put(raidId, new ServerRaid(server, connection.getID(), null, new ServerCharacter(character)));
         } else if (object instanceof EndRaidC2S(long raidId)) {
             Raid raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
+                server.getState().getRaids().remove(raidId);
                 server.getDatabase().getRaids().updateEndTime(raidId, LocalDateTime.now());
             }
         } else if (object instanceof DeleteCharacterC2S(long accountId, int index)) {
@@ -223,6 +227,24 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
                 server.getDatabase().getAccounts().updateActiveCharacter(accountId, activeCharacterId);
+            }
+        } else if (object instanceof CharacterMoveStartC2S(long raidId, long characterId, boolean axis, boolean positive)) {
+            Character character = server.getDatabase().getCharacters().getById(characterId);
+            if (character != null && server.getState().getRaids().containsKey(raidId)) {
+                ServerRaid raid = server.getState().getRaids().get(raidId);
+                if (raid.getCharacter().get().id() != characterId)
+                    return;
+
+                raid.getCharacter().updateMovement(axis, positive);
+            }
+        } else if (object instanceof CharacterMoveEndC2S(long raidId, long characterId, boolean axis, boolean positive)) {
+            Character character = server.getDatabase().getCharacters().getById(characterId);
+            if (character != null && server.getState().getRaids().containsKey(raidId)) {
+                ServerRaid raid = server.getState().getRaids().get(raidId);
+                if (raid.getCharacter().get().id() != characterId)
+                    return;
+
+                raid.getCharacter().stopMovement(axis, positive);
             }
         }
     }

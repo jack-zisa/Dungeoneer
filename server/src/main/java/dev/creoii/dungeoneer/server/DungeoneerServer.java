@@ -13,11 +13,13 @@ import java.util.Set;
 public class DungeoneerServer {
     public static final int DEFAULT_TCP_PORT = 54556;
     public static final int DEFAULT_UDP_PORT = 54778;
+    public static final Logger LOGGER = new Logger(DungeoneerServer.class.getSimpleName());
+    private static final float DT = 1f / 20f;
     private final Server server;
     private final ServerNetworkHandler networkHandler;
     private final Database database;
     private final SessionManager sessionManager;
-    public static final Logger LOGGER = new Logger(DungeoneerServer.class.getSimpleName());
+    private final ServerState state;
     private volatile Status status;
     private volatile boolean running = true;
     private final Thread gameThread;
@@ -43,6 +45,7 @@ public class DungeoneerServer {
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
         sessionManager = new SessionManager(this);
+        state = new ServerState(this);
 
         setStatus(Status.PAUSED);
 
@@ -66,6 +69,10 @@ public class DungeoneerServer {
 
     public SessionManager getSessionManager() {
         return sessionManager;
+    }
+
+    public ServerState getState() {
+        return state;
     }
 
     public ServerProperties getProperties() {
@@ -99,14 +106,22 @@ public class DungeoneerServer {
 
         while (running) {
             if (status.shouldTick()) {
-                networkHandler.tick();
-            }
+                long start = System.currentTimeMillis();
+                networkHandler.tick(DT);
 
-            try {
-                Thread.sleep(tickRate);
-            } catch (InterruptedException e) {
-                running = false;
-                break;
+                state.getRaids().values().forEach(serverRaid -> serverRaid.tick(DT));
+
+                long elapsed = System.currentTimeMillis() - start;
+                long sleep = tickRate - elapsed;
+
+                if (sleep > 0) {
+                    try {
+                        Thread.sleep(tickRate);
+                    } catch (InterruptedException e) {
+                        running = false;
+                        break;
+                    }
+                }
             }
         }
 

@@ -1,5 +1,5 @@
 package dev.creoii.dungeoneer.util;
 
 public interface Tickable {
-    void tick();
+    void tick(float dt);
 }

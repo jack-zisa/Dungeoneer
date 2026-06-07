@@ -14,6 +14,8 @@ public class AssetManager {
     public static final TextureRegion GOLD_TEXTURE = new TextureRegion(new Texture("textures/ui/gold.png"));
     public static final TextureRegion GEM_TEXTURE = new TextureRegion(new Texture("textures/ui/gem.png"));
 
+    public static final TextureRegion STONE_TEXTURE = new TextureRegion(new Texture("textures/tile/stone.png"));
+
     public static final TextureRegion BACKGROUND_BRICK_TEXTURE = new TextureRegion(new Texture("textures/ui/background_brick.png"));
 
     public static final TextureRegion WIZARD_TEXTURE = new TextureRegion(new Texture("textures/character/wizard.png"));

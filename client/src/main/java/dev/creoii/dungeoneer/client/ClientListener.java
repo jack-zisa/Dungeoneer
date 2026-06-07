@@ -17,9 +17,11 @@ import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.PacketResult;
+import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
@@ -65,7 +67,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     return;
 
                 client.getState().setCharacters(characters);
-                client.getState().setActiveCharacter(client, characters.getFirst());
+                client.getState().setActiveCharacter(characters.getFirst());
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof MainScreen screen) {
@@ -94,7 +96,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
             case CreateCharacterResultS2C(PacketResult result, int index, @Nullable Character character) -> {
                 if (result == PacketResult.SUCCESS) {
                     client.getState().getCharacters().set(index, character);
-                    client.getState().setActiveCharacter(client, character);
+                    client.getState().setActiveCharacter(character);
 
                     Dungeoneer.LOGGER.info("Created new character of class: %s", character.characterClass().id());
 
@@ -152,11 +154,12 @@ public record ClientListener(Dungeoneer client) implements Listener {
                 }
             }
             case SendRaidS2C(Raid raid) -> {
-                client.setCurrentRaid(raid);
+                client.getState().setCurrentRaid(raid);
                 Gdx.app.postRunnable(() -> {
                     client.getState().setStatus(ClientState.Status.RAIDING);
                     client.setScreen(new GameScreen(client));
                 });
+                client.get().sendUDP(new StartRaidC2S(raid.id(), client.getState().getActiveCharacter().get()));
             }
             case SearchFactionResultS2C(PacketResult result, List<Faction> factions) -> {
                 if (result == PacketResult.SUCCESS) {
@@ -168,6 +171,12 @@ public record ClientListener(Dungeoneer client) implements Listener {
                             }
                         }
                     });
+                }
+            }
+            case CharacterMoveS2C(long characterId, float x, float y, float xv, float yv) -> {
+                if (!client.getState().getActiveCharacter().isNull() && characterId == client.getState().getActiveCharacter().get().id()) {
+                    client.getState().getActiveCharacter().getPos().set(x, y);
+                    client.getState().getActiveCharacter().getVelocity().set(xv, yv);
                 }
             }
             default -> {

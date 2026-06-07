@@ -4,12 +4,11 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
-import dev.creoii.dungeoneer.definitions.Raid;
+import dev.creoii.dungeoneer.client.control.CharacterController;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.util.logging.Logger;
-import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -18,20 +17,19 @@ public class Dungeoneer extends Game {
     public static final Logger LOGGER = new Logger(Dungeoneer.class.getSimpleName());
     private final Client client;
     private final ClientState state;
+    private final CharacterController controller;
     private final Listener.QueuedListener listener;
-    @Nullable Raid currentRaid;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
-        state = new ClientState();
-        state.setStatus(ClientState.Status.STARTING);
+        state = new ClientState(this);
+        controller = new CharacterController(this);
         listener = new Listener.QueuedListener(new ClientListener(this)) {
             @Override
             protected void queue(Runnable runnable) {
                 runnable.run();
             }
         };
-        currentRaid = null;
     }
 
     public Client get() {
@@ -42,12 +40,8 @@ public class Dungeoneer extends Game {
         return state;
     }
 
-    public @Nullable Raid getCurrentRaid() {
-        return currentRaid;
-    }
-
-    public void setCurrentRaid(@Nullable Raid currentRaid) {
-        this.currentRaid = currentRaid;
+    public CharacterController getController() {
+        return controller;
     }
 
     @Override

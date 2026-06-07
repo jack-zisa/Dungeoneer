@@ -8,12 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.screen.RaidLoadingScreen;
-import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
 
 public class PlayTab extends Tab {
-    private Character selected;
+    private ClientCharacter selected;
     private Image selectedImage;
     private TextTooltip characterTooltip;
 
@@ -43,7 +43,7 @@ public class PlayTab extends Tab {
         statsTable.add(gemsLabel).left().pad(10f);
 
         Table accountTable = new Table();
-        String classId = selected == null ? "" : selected.characterClass().id();
+        String classId = selected.isNull() ? "" : selected.get().characterClass().id();
         selectedImage = new Image(AssetManager.getClassTexture(classId));
         characterTooltip = new TextTooltip(classId, tooltipStyle);
         characterTooltip.setInstant(true);
@@ -81,7 +81,7 @@ public class PlayTab extends Tab {
     @Override
     public void select() {
         selected = getClient().getState().getActiveCharacter();
-        String classId = selected == null ? "" : selected.characterClass().id();
+        String classId = selected.isNull() ? "" : selected.get().characterClass().id();
         selectedImage.setDrawable(new TextureRegionDrawable(AssetManager.getClassTexture(classId)));
         characterTooltip.getActor().setText(classId);
     }
