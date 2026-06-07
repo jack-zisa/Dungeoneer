@@ -11,6 +11,9 @@ import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
+import dev.creoii.dungeoneer.network.c2s.character.CreateCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
@@ -173,6 +176,14 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Raid raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
                 server.getDatabase().getRaids().updateEndTime(raidId, LocalDateTime.now());
+            }
+        } else if (object instanceof DeleteCharacterC2S(long accountId, int index)) {
+            Account account = server.getDatabase().getAccounts().getById(accountId);
+            if (account != null) {
+                account.characters().set(index, -1L);
+                server.getDatabase().getAccounts().updateCharacters(account);
+                List<Character> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
+                server.get().sendToUDP(connection.getID(), new SendCharactersS2C(characters));
             }
         }
     }

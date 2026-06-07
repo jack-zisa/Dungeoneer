@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
 
 import java.util.ArrayList;
 
@@ -19,6 +20,7 @@ public class VaultThroneTab extends Tab {
     private Label classLabel;
     private Stack[] classIcons;
     private Table carousel;
+    private TextButton createCharacterButton;
 
     protected VaultThroneTab(Dungeoneer client, TextureRegion tabTexture) {
         super(client, tabTexture);
@@ -105,15 +107,15 @@ public class VaultThroneTab extends Tab {
 
         add(carousel).growX().height(200).padBottom(20).row();
 
-        TextButton button = new TextButton("Create Character", getSkin());
-        button.addListener(new ChangeListener() {
+        createCharacterButton = new TextButton("Create Character", getSkin());
+        createCharacterButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (characters.get(classIndex) == null)
-                    new CreateCharacterDialog(getClient(), classIndex, getSkin()).show(getStage());
+                if (characters.get(classIndex) == null) new CreateCharacterDialog(getClient(), classIndex, getSkin()).show(getStage());
+                else getClient().get().sendUDP(new DeleteCharacterC2S(getClient().getState().getAccount().id(), classIndex));
             }
         });
-        add(button);
+        add(createCharacterButton);
     }
 
     @Override
@@ -122,6 +124,8 @@ public class VaultThroneTab extends Tab {
 
         characters.clear();
         characters.addAll(getClient().getState().getCharacters());
+
+        createCharacterButton.setText(characters.get(classIndex) == null ? "Create Character" : "Delete Character");
 
         carousel.setVisible(!characters.isEmpty());
 

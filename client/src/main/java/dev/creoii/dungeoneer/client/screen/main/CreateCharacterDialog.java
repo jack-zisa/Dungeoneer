@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.network.c2s.CreateCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.character.CreateCharacterC2S;
 
 public class CreateCharacterDialog extends Dialog {
     private final Dungeoneer client;

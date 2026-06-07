@@ -1,8 +1,7 @@
-package dev.creoii.dungeoneer.network.c2s;
+package dev.creoii.dungeoneer.network.c2s.character;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
 import dev.creoii.dungeoneer.util.PacketUtils;
 

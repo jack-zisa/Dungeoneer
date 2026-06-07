@@ -7,6 +7,9 @@ import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
+import dev.creoii.dungeoneer.network.c2s.character.CreateCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
+import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
@@ -63,6 +66,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(LeaveFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(RequestRaidTargetC2S.class, PacketSerializer.INSTANCE);
         kryo.register(EndRaidC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(DeleteCharacterC2S.class, PacketSerializer.INSTANCE);
 
         kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
@@ -83,6 +87,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(LeaveFactionC2S.class, LeaveFactionC2S::write, LeaveFactionC2S::read);
         PacketSerializer.INSTANCE.register(RequestRaidTargetC2S.class, RequestRaidTargetC2S::write, RequestRaidTargetC2S::read);
         PacketSerializer.INSTANCE.register(EndRaidC2S.class, EndRaidC2S::write, EndRaidC2S::read);
+        PacketSerializer.INSTANCE.register(DeleteCharacterC2S.class, DeleteCharacterC2S::write, DeleteCharacterC2S::read);
 
         PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);

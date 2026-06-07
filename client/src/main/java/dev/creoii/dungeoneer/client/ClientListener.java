@@ -14,7 +14,7 @@ import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.PacketSerializer;
-import dev.creoii.dungeoneer.network.c2s.RequestCharactersC2S;
+import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.s2c.*;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
