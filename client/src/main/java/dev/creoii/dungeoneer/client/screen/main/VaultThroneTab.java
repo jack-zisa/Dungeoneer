@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 public class VaultThroneTab extends Tab {
     private int classIndex = 0;
+    private int characterSlots;
     private java.util.List<Character> characters;
     private Label classLabel;
     private Stack[] classIcons;
@@ -25,7 +26,8 @@ public class VaultThroneTab extends Tab {
 
     @Override
     public void init() {
-        characters = new ArrayList<>();
+        characterSlots = 1;
+        characters = new ArrayList<>(characterSlots);
     }
 
     @Override
@@ -35,6 +37,7 @@ public class VaultThroneTab extends Tab {
         classIcons = new Stack[]{null, null, null};
         carousel = new Table();
 
+        characterSlots = getClient().getState().getAccount().characterSlots();
         characters.addAll(getClient().getState().getCharacters());
 
         classLabel = new Label("", getSkin());
@@ -50,18 +53,20 @@ public class VaultThroneTab extends Tab {
         previous.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if (characters.isEmpty())
+                if (characterSlots < 1)
                     return;
 
                 classIndex--;
 
                 if (classIndex < 0) {
-                    classIndex = characters.size() - 1;
+                    classIndex = characterSlots - 1;
                 }
 
                 Character selected = characters.get(classIndex);
                 getClient().getState().setSelectedCharacter(selected);
-                classLabel.setText(classIndex + ": " + selected.characterClass().id());
+                if (selected != null) {
+                    classLabel.setText(classIndex + ": " + selected.characterClass().id());
+                } else classLabel.setText(classIndex + ": Empty");
 
                 updateCharacterDisplay();
             }
@@ -70,17 +75,20 @@ public class VaultThroneTab extends Tab {
         next.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (characters.isEmpty())
+                if (characterSlots < 1)
                     return;
                 classIndex++;
 
-                if (classIndex >= characters.size()) {
+                if (classIndex >= characterSlots) {
                     classIndex = 0;
                 }
 
                 Character selected = characters.get(classIndex);
                 getClient().getState().setSelectedCharacter(selected);
-                classLabel.setText(classIndex + ": " + selected.characterClass().id());
+                if (selected != null) {
+                    classLabel.setText(classIndex + ": " + selected.characterClass().id());
+                } else classLabel.setText(classIndex + ": Empty");
+
                 updateCharacterDisplay();
             }
         });
@@ -101,7 +109,8 @@ public class VaultThroneTab extends Tab {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                new CreateCharacterDialog(getClient(), getSkin()).show(getStage());
+                if (characters.get(classIndex) == null)
+                    new CreateCharacterDialog(getClient(), classIndex, getSkin()).show(getStage());
             }
         });
         add(button);
@@ -109,13 +118,17 @@ public class VaultThroneTab extends Tab {
 
     @Override
     public void select() {
+        characterSlots = getClient().getState().getAccount().characterSlots();
+
         characters.clear();
         characters.addAll(getClient().getState().getCharacters());
 
         carousel.setVisible(!characters.isEmpty());
 
         if (!characters.isEmpty()) {
-            classLabel.setText(classIndex + ": " + characters.get(classIndex).characterClass().id());
+            Character character = characters.get(classIndex);
+            if (character != null) classLabel.setText(classIndex + ": " + character.characterClass().id());
+            else classLabel.setText(classIndex + ": Empty");
         }
 
         updateCharacterDisplay();
@@ -133,25 +146,30 @@ public class VaultThroneTab extends Tab {
             return;
         }
 
-        int size = characters.size();
-
-        int left = size > 2 ? (classIndex - 1 + size) % size : -1;
+        int left = characterSlots > 2 ? (classIndex - 1 + characterSlots) % characterSlots : -1;
         int center = classIndex;
-        int right = size > 1 ? (classIndex + 1) % size : -1;
+        int right = characterSlots > 1 ? (classIndex + 1) % characterSlots : -1;
 
         int[] indices = {left, center, right};
 
-        classLabel.setText(characters.get(center).characterClass().id());
+        Character selected = getCharacterForSlot(center);
+
+        classLabel.setText(selected == null ? "Empty" : selected.characterClass().id());
+
         for (int i = 0; i < 3; i++) {
-            if (indices[i] == -1)
-                continue;
+            Character character = getCharacterForSlot(indices[i]);
             classIcons[i].removeActorAt(1, true);
-            Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(AssetManager.getClassTexture(characters.get(indices[i]).characterClass().id()))));
+            TextureRegion texture = character == null ? AssetManager.CLASS_SILHOUETTE_TEXTURE : AssetManager.getClassTexture(character.characterClass().id());
+            Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(texture)));
             container.size(48f);
             classIcons[i].add(container);
         }
 
         classIcons[0].setVisible(characters.size() > 2);
         classIcons[2].setVisible(characters.size() > 1);
+    }
+
+    private Character getCharacterForSlot(int slot) {
+        return slot < characters.size() ? characters.get(slot) : null;
     }
 }

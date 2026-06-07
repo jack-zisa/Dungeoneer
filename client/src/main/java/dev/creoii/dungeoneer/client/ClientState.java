@@ -60,6 +60,11 @@ public class ClientState {
         this.faction = faction;
     }
 
+    public void fillCharacters(int characterSlots) {
+        for (int i = 0; i < characterSlots; ++i)
+            characters.add(null);
+    }
+
     public enum Status {
         STARTING,
         AUTHENTICATING,

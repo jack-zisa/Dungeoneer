@@ -6,7 +6,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 public class AccountRepository {
     private final Jdbi jdbi;
@@ -21,6 +20,7 @@ public class AccountRepository {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username VARCHAR(32) UNIQUE NOT NULL,
                 password_hash VARCHAR(128) NOT NULL,
+                character_slots INTEGER NOT NULL,
                 characters TEXT,
                 faction_id INTEGER,
                 faction_join_date DATETIME,
@@ -47,6 +47,7 @@ public class AccountRepository {
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
+                        rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("faction_id"),
                         factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
@@ -75,6 +76,7 @@ public class AccountRepository {
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
+                        rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("faction_id"),
                         factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
@@ -105,6 +107,7 @@ public class AccountRepository {
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
+                        rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("faction_id"),
                         factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
@@ -174,17 +177,18 @@ public class AccountRepository {
     public Account create(String username, String passwordHash, LocalDateTime lastLoginDate) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO accounts(username, password_hash, last_login_date)
-                VALUES(:username, :password_hash, :last_login_date)
+                INSERT INTO accounts(username, password_hash, character_slots, characters, last_login_date)
+                VALUES(:username, :password_hash, 6, :characters, :last_login_date)
             """)
             .bind("username", username)
             .bind("password_hash", passwordHash)
+            .bind("characters", "-1,-1,-1,-1,-1,-1")
             .bind("last_login_date", lastLoginDate.toString())
             .executeAndReturnGeneratedKeys("id")
             .mapTo(Long.class)
             .one()
         );
 
-        return new Account(id, username, passwordHash, lastLoginDate);
+        return new Account(id, username, passwordHash, 6, lastLoginDate);
     }
 }

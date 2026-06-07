@@ -8,7 +8,6 @@ import dev.creoii.dungeoneer.network.PacketResult;
 import org.jspecify.annotations.Nullable;
 
 public record LoginResultS2C(PacketResult result, @Nullable Account account) {
-
     public static void write(Output output, LoginResultS2C o) {
         output.writeInt(o.result.ordinal());
         PacketUtils.writeAccount(output, o.account);

@@ -10,11 +10,13 @@ import dev.creoii.dungeoneer.network.c2s.CreateCharacterC2S;
 
 public class CreateCharacterDialog extends Dialog {
     private final Dungeoneer client;
+    private final int classIndex;
     private final SelectBox<CharacterClass> classBox;
 
-    public CreateCharacterDialog(Dungeoneer client, Skin skin) {
+    public CreateCharacterDialog(Dungeoneer client, int classIndex, Skin skin) {
         super("Create Character", skin);
         this.client = client;
+        this.classIndex = classIndex;
         classBox = new SelectBox<>(skin);
         classBox.setItems(CharacterClass.VALUES);
 
@@ -31,7 +33,7 @@ public class CreateCharacterDialog extends Dialog {
     protected void result(Object object) {
         if (Boolean.TRUE.equals(object)) {
             CharacterClass selected = classBox.getSelected();
-            client.get().sendUDP(new CreateCharacterC2S(client.getState().getAccount().id(), selected));
+            client.get().sendUDP(new CreateCharacterC2S(client.getState().getAccount().id(), classIndex, selected));
         }
     }
 }

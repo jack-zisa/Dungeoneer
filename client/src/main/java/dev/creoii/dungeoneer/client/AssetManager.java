@@ -22,6 +22,7 @@ public class AssetManager {
     public static final TextureRegion ROGUE_TEXTURE = new TextureRegion(new Texture("textures/character/rogue.png"));
     public static final TextureRegion PRIEST_TEXTURE = new TextureRegion(new Texture("textures/character/priest.png"));
     public static final TextureRegion NINJA_TEXTURE = new TextureRegion(new Texture("textures/character/ninja.png"));
+    public static final TextureRegion CLASS_SILHOUETTE_TEXTURE = new TextureRegion(new Texture("textures/character/silhouette.png"));
 
     public static final TextureRegion MISSING_TEXTURE = new TextureRegion(new Texture("textures/misc/missing.png"));
 
@@ -36,7 +37,7 @@ public class AssetManager {
             case "priest" -> AssetManager.PRIEST_TEXTURE;
             case "rogue" -> AssetManager.ROGUE_TEXTURE;
             case "archer" -> AssetManager.ARCHER_TEXTURE;
-            default -> AssetManager.MISSING_TEXTURE;
+            default -> AssetManager.CLASS_SILHOUETTE_TEXTURE;
         };
     }
 

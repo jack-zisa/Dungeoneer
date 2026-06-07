@@ -24,13 +24,18 @@ public final class PacketUtils {
     @Nullable
     public static Character readCharacter(Input input) {
         long id = input.readLong();
+        if (id == -1L) return null;
         long accountId = input.readLong();
         CharacterClass characterClass = readCharacterClass(input);
         if (characterClass == null) return null;
         return new Character(id, accountId, characterClass);
     }
 
-    public static void writeCharacter(Output output, Character character) {
+    public static void writeCharacter(Output output, @Nullable Character character) {
+        if (character == null) {
+            output.writeLong(-1L);
+            return;
+        }
         output.writeLong(character.id());
         output.writeLong(character.accountId());
         writeCharacterClass(output, character.characterClass());
@@ -39,17 +44,18 @@ public final class PacketUtils {
     public static Account readAccount(Input input) {
         long id = input.readLong();
         String username = input.readString();
+        int characterSlots = input.readInt();
 
-        List<Long> characterIds = new ArrayList<>();
         int size = input.readInt();
-        for (int i = 0; i < size; ++i) {
+        List<Long> characterIds = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
             characterIds.add(input.readLong());
         }
 
         long factionId = input.readLong();
         String factionJoinDate = input.readString();
         String lastLoginDate = input.readString();
-        return new Account(id, username, "", characterIds, factionId,
+        return new Account(id, username, "", characterSlots, characterIds, factionId,
             factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
             lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
             input.readString());
@@ -59,23 +65,24 @@ public final class PacketUtils {
         if (account != null) {
             output.writeLong(account.id());
             output.writeString(account.username());
-            int size = account.characters().size();
-            output.writeInt(size);
-            for (int i = 0; i < size; ++i) {
-                output.writeLong(account.characters().get(i));
+            output.writeInt(account.characterSlots());
+            output.writeInt(account.characters().size());
+            for (Long id : account.characters()) {
+                output.writeLong(id);
             }
             output.writeLong(account.factionId());
             output.writeString(account.factionJoinDate() == null ? "" : account.factionJoinDate().toString());
             output.writeString(account.lastLoginDate() == null ? "" : account.lastLoginDate().toString());
             output.writeString(account.settings());
         } else {
-            output.writeLong(-1L);
-            output.writeString("");
-            output.writeInt(0);
-            output.writeLong(-1L);
-            output.writeString("");
-            output.writeString("");
-            output.writeString("");
+            output.writeLong(-1L); // account id
+            output.writeString(""); // username
+            output.writeInt(0); // character slots
+            output.writeInt(0); // characters size
+            output.writeLong(-1L); // faction id
+            output.writeString(""); // faction join date
+            output.writeString(""); // last login date
+            output.writeString(""); // settings
         }
     }
 

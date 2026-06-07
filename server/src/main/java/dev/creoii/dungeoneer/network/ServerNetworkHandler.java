@@ -26,6 +26,7 @@ import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.util.Tickable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ServerNetworkHandler implements Listener, Tickable {
     private final DungeoneerServer server;
@@ -103,29 +104,26 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.FAIL, null));
                 }
             }
-        } else if (object instanceof RequestCharactersC2S) {
-            ClientSession clientSession = server.getSessionManager().getConnectionSessions().get(connection.getID());
-            if (clientSession == null) return;
-
-            Account account = server.getDatabase().getAccounts().getById(clientSession.accountId());
+        } else if (object instanceof RequestCharactersC2S(long accountId)) {
+            Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account == null) return;
 
-            server.get().sendToUDP(connection.getID(), new SendCharactersS2C(account.characters().stream().map(integer -> server.getDatabase().getCharacters().getById(integer)).toList()));
-        } else if (object instanceof CreateCharacterC2S(long accountId, CharacterClass characterClass)) {
+            List<Character> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
+            server.get().sendToUDP(connection.getID(), new SendCharactersS2C(characters));
+        } else if (object instanceof CreateCharacterC2S(long accountId, int index, CharacterClass characterClass)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
                 Character character = server.getDatabase().getCharacters().create(account, characterClass);
                 if (character != null) {
-                    account.characters().add(character.id());
+                    account.characters().set(index, character.id());
                     server.getDatabase().getAccounts().updateCharacters(account);
 
-                    DungeoneerServer.LOGGER.info("Created character of class '%s' for account: %s", characterClass.id(), accountId);
-                    server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(PacketResult.SUCCESS, character));
+                    DungeoneerServer.LOGGER.info("Created character of class '%s' for account: %s", characterClass.id(), account.id());
+                    server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(PacketResult.SUCCESS, index, character));
                     return;
                 }
             }
-
-            server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(PacketResult.FAIL, null));
+            server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(PacketResult.FAIL, -1, null));
         } else if (object instanceof ApplySettingsC2S(long accountId, String settings)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
@@ -141,8 +139,9 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
             server.get().sendToUDP(connection.getID(), new CreateFactionResultS2C(PacketResult.FAIL, null));
         } else if (object instanceof JoinFactionC2S(Account account, String factionName)) {
-            Faction faction = server.getDatabase().getFactions().getByName(factionName).getFirst();
-            if (faction != null) {
+            List<Faction> factions = server.getDatabase().getFactions().getByName(factionName);
+            if (!factions.isEmpty()) {
+                Faction faction = factions.getFirst();
                 faction.accounts().add(account.id());
                 server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
