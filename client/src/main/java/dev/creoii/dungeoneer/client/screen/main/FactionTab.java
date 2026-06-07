@@ -14,6 +14,7 @@ import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
 
 public class FactionTab extends Tab {
     private Label factionNameLabel;
+    private Label factionDescriptionLabel;
     private TextField factionField;
     private TextButton joinButton;
     private TextButton createButton;
@@ -28,6 +29,8 @@ public class FactionTab extends Tab {
         Faction faction = getClient().getState().getFaction();
         factionNameLabel = new Label(faction == null ? "Join a Faction!" : faction.name(), getSkin());
         add(factionNameLabel).pad(10f).row();
+        factionDescriptionLabel = new Label(faction == null ? "" : faction.description(), getSkin());
+        add(factionDescriptionLabel).pad(10f).row();
 
         factionField = new TextField("", getSkin());
         add(factionField).pad(10f).row();
@@ -47,7 +50,7 @@ public class FactionTab extends Tab {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (getClient().getState().getFaction() == null)
-                    getClient().get().sendUDP(new CreateFactionC2S(getClient().getState().getAccount(), factionField.getText()));
+                    new CreateFactionDialog(getClient(), getSkin()).show(getStage());
             }
         });
         add(createButton).row();
@@ -68,12 +71,16 @@ public class FactionTab extends Tab {
         Faction faction = getClient().getState().getFaction();
         if (faction != null) {
             factionNameLabel.setText(faction.name());
+            factionDescriptionLabel.setText(faction.description());
+            factionDescriptionLabel.setVisible(true);
             factionField.setVisible(false);
             joinButton.setVisible(false);
             leaveButton.setVisible(true);
             createButton.setVisible(false);
         } else {
             factionNameLabel.setText("Join a Faction!");
+            factionDescriptionLabel.setText("");
+            factionDescriptionLabel.setVisible(false);
             factionField.setVisible(true);
             joinButton.setVisible(true);
             leaveButton.setVisible(false);

@@ -131,8 +131,8 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (account != null) {
                 server.getDatabase().getAccounts().updateSettings(accountId, settings);
             }
-        } else if (object instanceof CreateFactionC2S(Account account, String factionName)) {
-            Faction faction = server.getDatabase().getFactions().create(account.id(), factionName);
+        } else if (object instanceof CreateFactionC2S(Account account, String name, String description)) {
+            Faction faction = server.getDatabase().getFactions().create(account.id(), name, description);
             if (faction != null) {
                 server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
@@ -141,9 +141,9 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
             server.get().sendToUDP(connection.getID(), new CreateFactionResultS2C(PacketResult.FAIL, null));
         } else if (object instanceof JoinFactionC2S(Account account, String factionName)) {
-            Faction faction = server.getDatabase().getFactions().getByName(factionName);
+            Faction faction = server.getDatabase().getFactions().getByName(factionName).getFirst();
             if (faction != null) {
-                    faction.accounts().add(account.id());
+                faction.accounts().add(account.id());
                 server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
                 server.get().sendToUDP(connection.getID(), new JoinFactionResultS2C(PacketResult.SUCCESS, faction));

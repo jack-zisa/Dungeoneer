@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.database.repository;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.util.NetworkUtils;
 import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.result.ResultIterable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class FactionRepository {
             CREATE TABLE IF NOT EXISTS factions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name VARCHAR(32) NOT NULL,
+                description VARCHAR(255) NOT NULL,
                 accounts TEXT
             )
         """)
@@ -38,6 +40,7 @@ public class FactionRepository {
                 .map((rs, _) -> new Faction(
                     rs.getInt("id"),
                     rs.getString("name"),
+                    rs.getString("description"),
                     NetworkUtils.parseIds(rs.getString("accounts"))
                 ))
                 .findOne()
@@ -45,9 +48,7 @@ public class FactionRepository {
         );
     }
 
-    // TODO: Return entire result set to search before joining
-    @Nullable
-    public Faction getByName(String name) {
+    public List<Faction> getByName(String name) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                 SELECT *
@@ -58,10 +59,10 @@ public class FactionRepository {
                 .map((rs, _) -> new Faction(
                     rs.getInt("id"),
                     rs.getString("name"),
+                    rs.getString("description"),
                     NetworkUtils.parseIds(rs.getString("accounts"))
                 ))
-                .findFirst()
-                .orElse(null)
+                .list()
         );
     }
 
@@ -78,21 +79,22 @@ public class FactionRepository {
         );
     }
 
-    public Faction create(long accountId, String name) {
+    public Faction create(long accountId, String name, String description) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO factions(name, accounts)
-                VALUES(:name, :accounts)
+                INSERT INTO factions(name, description, accounts)
+                VALUES(:name, :description, :accounts)
             """)
-            .bind("name", name)
-            .bind("accounts", accountId)
-            .executeAndReturnGeneratedKeys("id")
-            .mapTo(Long.class)
-            .one()
+                .bind("name", name)
+                .bind("description", description)
+                .bind("accounts", accountId)
+                .executeAndReturnGeneratedKeys("id")
+                .mapTo(Long.class)
+                .one()
         );
 
         List<Long> accounts = new ArrayList<>();
         accounts.add(accountId);
-        return new Faction(id, name, accounts);
+        return new Faction(id, name, description, accounts);
     }
 }

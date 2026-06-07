@@ -82,18 +82,20 @@ public final class PacketUtils {
     public static Faction readFaction(Input input) {
         long id = input.readLong();
         String name = input.readString();
+        String description = input.readString();
 
         List<Long> accountIds = new ArrayList<>();
         long size = input.readInt();
         for (int i = 0; i < size; ++i) {
             accountIds.add(input.readLong());
         }
-        return new Faction(id, name, accountIds);
+        return new Faction(id, name, description, accountIds);
     }
 
     public static void writeFaction(Output output, Faction faction) {
         output.writeLong(faction.id());
         output.writeString(faction.name());
+        output.writeString(faction.description());
         int size = faction.accounts().size();
         output.writeInt(size);
         for (int i = 0; i < size; ++i) {
