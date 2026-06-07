@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer;
+package dev.creoii.dungeoneer.server;
 
 import java.io.IOException;
 import java.nio.file.Path;

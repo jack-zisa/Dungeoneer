@@ -1,6 +1,6 @@
-package dev.creoii.dungeoneer.database.repository;
+package dev.creoii.dungeoneer.server.database.repository;
 
-import dev.creoii.dungeoneer.database.definitions.ClientSession;
+import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 

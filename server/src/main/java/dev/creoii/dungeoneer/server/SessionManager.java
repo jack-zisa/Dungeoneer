@@ -1,8 +1,10 @@
-package dev.creoii.dungeoneer;
+package dev.creoii.dungeoneer.server;
 
 import com.esotericsoftware.kryonet.Connection;
-import dev.creoii.dungeoneer.database.definitions.ClientSession;
-import dev.creoii.dungeoneer.database.definitions.ServerSession;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
+import dev.creoii.dungeoneer.server.database.definitions.ServerSession;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -14,11 +16,13 @@ public class SessionManager {
     private final ServerSession session;
     private final Map<Integer, ClientSession> connectionSessions;
     private final Map<Long, ClientSession> accountSessions;
+    private final BiMap<Long, Integer> accountConnections;
 
     public SessionManager(DungeoneerServer server) {
         this.server = server;
-        this.connectionSessions = new HashMap<>();
-        this.accountSessions = new HashMap<>();
+        connectionSessions = new HashMap<>();
+        accountSessions = new HashMap<>();
+        accountConnections = HashBiMap.create();
         session = server.getDatabase().getServerSessions().create(LocalDateTime.now());
         DungeoneerServer.LOGGER.info("Server session started");
     }
@@ -31,12 +35,17 @@ public class SessionManager {
         return accountSessions;
     }
 
+    public BiMap<Long, Integer> getAccountConnections() {
+        return accountConnections;
+    }
+
     @Nullable
     public ClientSession startClientSession(Connection connection, long accountId) {
         if (!accountSessions.containsKey(accountId) && !connectionSessions.containsKey(connection.getID())) {
             ClientSession clientSession = server.getDatabase().getClientSessions().create(accountId, LocalDateTime.now());
             connectionSessions.put(connection.getID(), clientSession);
             accountSessions.put(accountId, clientSession);
+            accountConnections.put(accountId, connection.getID());
             DungeoneerServer.LOGGER.info("Client session started for account id: %s", accountId);
             return clientSession;
         } else {
@@ -49,6 +58,7 @@ public class SessionManager {
         ClientSession clientSession = connectionSessions.remove(connection.getID());
         if (clientSession != null) {
             accountSessions.remove(clientSession.accountId());
+            accountConnections.remove(clientSession.accountId());
             server.getDatabase().getClientSessions().updateEndTime(clientSession.id(), LocalDateTime.now());
             DungeoneerServer.LOGGER.info("Client session ended for account id: %s", clientSession.accountId());
         }

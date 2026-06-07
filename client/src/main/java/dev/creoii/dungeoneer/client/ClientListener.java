@@ -163,7 +163,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     Gdx.app.postRunnable(() -> {
                         if (client.getScreen() instanceof MainScreen screen) {
                             if (screen.getSelectedTab() instanceof FactionTab factionTab) {
-                                factionTab.showSearchResults(factions);
+                                factionTab.refreshSearchResults(factions);
                                 factionTab.select();
                             }
                         }

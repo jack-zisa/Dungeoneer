@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.database.definitions;
+package dev.creoii.dungeoneer.server.database.definitions;
 
 import org.jspecify.annotations.Nullable;
 

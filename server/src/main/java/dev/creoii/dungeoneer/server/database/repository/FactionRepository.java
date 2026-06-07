@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.database.repository;
+package dev.creoii.dungeoneer.server.database.repository;
 
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.util.NetworkUtils;

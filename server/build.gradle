@@ -12,4 +12,5 @@ dependencies {
   implementation("org.xerial:sqlite-jdbc:3.50.3.0")
 
   implementation("com.password4j:password4j:1.8.2")
+  implementation "com.google.guava:guava:33.6.0-jre"
 }

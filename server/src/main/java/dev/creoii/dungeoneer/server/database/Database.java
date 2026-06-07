@@ -1,6 +1,7 @@
-package dev.creoii.dungeoneer.database;
+package dev.creoii.dungeoneer.server.database;
 
-import dev.creoii.dungeoneer.database.repository.*;
+import dev.creoii.dungeoneer.server.database.repository.*;
+import dev.creoii.dungeoneer.server.database.repository.*;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import org.jdbi.v3.core.Jdbi;
 

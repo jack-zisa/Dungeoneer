@@ -1,6 +1,6 @@
-package dev.creoii.dungeoneer.database.repository;
+package dev.creoii.dungeoneer.server.database.repository;
 
-import dev.creoii.dungeoneer.database.definitions.ServerSession;
+import dev.creoii.dungeoneer.server.database.definitions.ServerSession;
 import org.jdbi.v3.core.Jdbi;
 
 import java.time.LocalDateTime;

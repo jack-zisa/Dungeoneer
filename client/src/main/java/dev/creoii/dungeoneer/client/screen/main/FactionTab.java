@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Faction;
-import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.SearchFactionC2S;
@@ -17,6 +16,8 @@ public class FactionTab extends Tab {
     private Label factionNameLabel;
     private Label factionDescriptionLabel;
     private TextField factionField;
+    private Table membersTable;
+    private ScrollPane membersScrollPane;
 
     private ScrollPane resultsScrollPane;
     private Table resultsTable;
@@ -39,24 +40,27 @@ public class FactionTab extends Tab {
         add(factionDescriptionLabel).pad(10f).row();
 
         factionField = new TextField("", getSkin());
-        add(factionField).pad(10f).row();
+        add(factionField).pad(10f);
+
+        membersTable = new Table();
+        membersScrollPane = new ScrollPane(membersTable, getSkin());
+        membersScrollPane.setFadeScrollBars(false);
+        if (faction != null)
+            refreshMembers(faction);
+        add(membersScrollPane).grow().pad(10f).row();
 
         searchButton = new TextButton("Search", getSkin());
-
         searchButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().get().sendUDP(new SearchFactionC2S(factionField.getText()));
             }
         });
-
         add(searchButton);
 
         resultsTable = new Table();
-
         resultsScrollPane = new ScrollPane(resultsTable, getSkin());
         resultsScrollPane.setFadeScrollBars(false);
-
         add(resultsScrollPane).grow().pad(10f).row();
 
         clearResultsButton = new TextButton("Clear Results", getSkin());
@@ -66,7 +70,6 @@ public class FactionTab extends Tab {
                 resultsTable.clearChildren();
             }
         });
-
         add(clearResultsButton).pad(10f).row();
 
         createButton = new TextButton("Create", getSkin());
@@ -90,7 +93,7 @@ public class FactionTab extends Tab {
         add(leaveButton);
     }
 
-    public void showSearchResults(List<Faction> factions) {
+    public void refreshSearchResults(List<Faction> factions) {
         resultsTable.clearChildren();
 
         if (factions.isEmpty()) {
@@ -118,6 +121,17 @@ public class FactionTab extends Tab {
         }
     }
 
+    public void refreshMembers(Faction faction) {
+        membersTable.clearChildren();
+        for (long accountId : faction.accounts()) {
+            Table row = new Table();
+
+            row.add(new Label("" + accountId, getSkin()));
+
+            membersTable.add(row).growX().pad(5f).row();
+        }
+    }
+
     @Override
     public void select() {
         Faction faction = getClient().getState().getFaction();
@@ -126,6 +140,10 @@ public class FactionTab extends Tab {
             factionDescriptionLabel.setText(faction.description());
             factionDescriptionLabel.setVisible(true);
             factionField.setVisible(false);
+
+            refreshMembers(faction);
+            membersTable.setVisible(true);
+            membersScrollPane.setVisible(true);
             leaveButton.setVisible(true);
             createButton.setVisible(false);
 
@@ -139,6 +157,8 @@ public class FactionTab extends Tab {
             factionDescriptionLabel.setText("");
             factionDescriptionLabel.setVisible(false);
             factionField.setVisible(true);
+            membersTable.setVisible(false);
+            membersScrollPane.setVisible(false);
             leaveButton.setVisible(false);
             createButton.setVisible(true);
 

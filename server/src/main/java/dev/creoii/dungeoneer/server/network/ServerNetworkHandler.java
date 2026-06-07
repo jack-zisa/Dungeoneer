@@ -1,12 +1,14 @@
-package dev.creoii.dungeoneer.network;
+package dev.creoii.dungeoneer.server.network;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.password4j.Password;
-import dev.creoii.dungeoneer.DungeoneerServer;
-import dev.creoii.dungeoneer.database.Database;
+import dev.creoii.dungeoneer.network.PacketResult;
+import dev.creoii.dungeoneer.network.PacketSerializer;
+import dev.creoii.dungeoneer.server.DungeoneerServer;
+import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
-import dev.creoii.dungeoneer.database.definitions.ClientSession;
+import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
@@ -162,18 +164,31 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 faction.accounts().add(account.id());
                 server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
+
+                faction.accounts().forEach(aLong -> {
+                    if (aLong != account.id() && server.getSessionManager().getAccountConnections().containsKey(aLong)) {
+                        server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(aLong), new SendFactionS2C(faction));
+                    }
+                });
+
                 server.get().sendToUDP(connection.getID(), new JoinFactionResultS2C(PacketResult.SUCCESS, faction));
                 return;
             }
             server.get().sendToUDP(connection.getID(), new JoinFactionResultS2C(PacketResult.FAIL, null));
         } else if (object instanceof LeaveFactionC2S(Account account)) {
-            System.out.println(account.factionId());
             if (account.factionId() != -1L) {
                 Faction faction = server.getDatabase().getFactions().getById(account.factionId());
                 if (faction != null) {
                     faction.accounts().remove(account.id());
                     server.getDatabase().getAccounts().updateFaction(account, -1L);
                     server.getDatabase().getFactions().updateAccounts(faction);
+
+                    faction.accounts().forEach(aLong -> {
+                        if (aLong != account.id() && server.getSessionManager().getAccountConnections().containsKey(aLong)) {
+                            server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(aLong), new SendFactionS2C(faction));
+                        }
+                    });
+
                     server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.SUCCESS));
                     return;
                 }

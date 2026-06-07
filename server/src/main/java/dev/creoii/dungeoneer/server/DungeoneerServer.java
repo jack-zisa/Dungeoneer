@@ -1,10 +1,10 @@
-package dev.creoii.dungeoneer;
+package dev.creoii.dungeoneer.server;
 
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
-import dev.creoii.dungeoneer.database.Database;
+import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
-import dev.creoii.dungeoneer.network.ServerNetworkHandler;
+import dev.creoii.dungeoneer.server.network.ServerNetworkHandler;
 import dev.creoii.dungeoneer.util.logging.Logger;
 
 import java.io.IOException;

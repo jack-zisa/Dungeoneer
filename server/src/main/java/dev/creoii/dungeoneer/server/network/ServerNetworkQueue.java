@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.network;
+package dev.creoii.dungeoneer.server.network;
 
 import com.esotericsoftware.kryonet.Connection;
 
