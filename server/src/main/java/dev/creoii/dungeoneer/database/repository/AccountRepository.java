@@ -75,6 +75,31 @@ public class AccountRepository {
         );
     }
 
+    @Nullable
+    public Account getRandomExcluding(long excludedId) {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("""
+            SELECT *
+            FROM accounts
+            WHERE id != :exclude
+            ORDER BY RANDOM()
+            LIMIT 1
+        """)
+                .bind("exclude", excludedId)
+                .map((rs, _) -> new Account(
+                    rs.getLong("id"),
+                    rs.getString("username"),
+                    rs.getString("password_hash"),
+                    NetworkUtils.parseIds(rs.getString("characters")),
+                    rs.getInt("faction_id"),
+                    rs.getString("faction_join_date"),
+                    rs.getString("settings")
+                ))
+                .findOne()
+                .orElse(null)
+        );
+    }
+
     public void updateCharacters(Account account) {
         jdbi.useHandle(handle ->
             handle.createUpdate("""

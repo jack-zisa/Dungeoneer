@@ -3,6 +3,8 @@ package dev.creoii.dungeoneer.client;
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import dev.creoii.dungeoneer.definitions.Raid;
+import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.client.screen.LoginScreen;
@@ -18,6 +20,10 @@ import dev.creoii.dungeoneer.network.s2c.*;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.PacketResult;
+import dev.creoii.dungeoneer.network.s2c.faction.CreateFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -116,6 +122,12 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     }
                 });
             }
+        } else if (object instanceof SendRaidS2C(Raid raid)) {
+            client.setCurrentRaid(raid);
+            Gdx.app.postRunnable(() -> {
+                client.getState().setStatus(ClientState.Status.RAIDING);
+                client.setScreen(new GameScreen(client));
+            });
         }
     }
 }

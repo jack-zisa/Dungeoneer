@@ -30,7 +30,7 @@ public class ServerSessionRepository {
             SET end_time = :end_time
             WHERE id = :id
         """)
-                .bind("end_time", endTime)
+                .bind("end_time", endTime.toString())
                 .bind("id", sessionId)
                 .execute()
         );
@@ -42,7 +42,7 @@ public class ServerSessionRepository {
                 INSERT INTO server_sessions(start_time)
                 VALUES(:start_time)
             """)
-                .bind("start_time", startTime)
+                .bind("start_time", startTime.toString())
             .executeAndReturnGeneratedKeys("id")
             .mapTo(Long.class)
             .one()

@@ -8,9 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Faction;
-import dev.creoii.dungeoneer.network.c2s.CreateFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.JoinFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.LeaveFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
 
 public class FactionTab extends Tab {
     private Label factionNameLabel;

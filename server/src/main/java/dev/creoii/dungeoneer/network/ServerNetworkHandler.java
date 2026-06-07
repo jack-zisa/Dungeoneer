@@ -5,18 +5,27 @@ import com.esotericsoftware.kryonet.Listener;
 import com.password4j.Password;
 import dev.creoii.dungeoneer.DungeoneerServer;
 import dev.creoii.dungeoneer.database.Database;
-import dev.creoii.dungeoneer.definitions.Account;
+import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
 import dev.creoii.dungeoneer.network.s2c.*;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.CreateFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.util.Tickable;
+
+import java.time.LocalDateTime;
 
 public class ServerNetworkHandler implements Listener, Tickable {
     private final DungeoneerServer server;
@@ -149,6 +158,17 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 }
             }
             server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.FAIL));
+        } else if (object instanceof RequestRaidTargetC2S(Account account)) {
+            Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
+            if (target != null) {
+                Raid raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
+                if (raid != null) server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid));
+            }
+        } else if (object instanceof EndRaidC2S(long raidId)) {
+            Raid raid = server.getDatabase().getRaids().getById(raidId);
+            if (raid != null) {
+                server.getDatabase().getRaids().updateEndTime(raidId, LocalDateTime.now());
+            }
         }
     }
 }

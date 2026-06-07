@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.network.s2c;
+package dev.creoii.dungeoneer.network.s2c.faction;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -7,14 +7,14 @@ import dev.creoii.dungeoneer.util.PacketUtils;
 import dev.creoii.dungeoneer.network.PacketResult;
 import org.jspecify.annotations.Nullable;
 
-public record CreateFactionResultS2C(PacketResult result, @Nullable Faction faction) {
-    public static void write(Output output, CreateFactionResultS2C o) {
+public record JoinFactionResultS2C(PacketResult result, @Nullable Faction faction) {
+    public static void write(Output output, JoinFactionResultS2C o) {
         output.writeInt(o.result.ordinal());
         output.writeBoolean(o.faction != null);
         if (o.faction != null) PacketUtils.writeFaction(output, o.faction);
     }
 
-    public static CreateFactionResultS2C read(Input input) {
+    public static JoinFactionResultS2C read(Input input) {
         PacketResult result = PacketResult.values()[input.readInt()];
 
         Faction faction = null;
@@ -22,6 +22,6 @@ public record CreateFactionResultS2C(PacketResult result, @Nullable Faction fact
             faction = PacketUtils.readFaction(input);
         }
 
-        return new CreateFactionResultS2C(result, faction);
+        return new JoinFactionResultS2C(result, faction);
     }
 }

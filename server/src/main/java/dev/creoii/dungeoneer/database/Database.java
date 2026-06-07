@@ -12,6 +12,7 @@ public class Database {
     private final FactionRepository factions;
     private final AccountRepository accounts;
     private final CharacterRepository characters;
+    private final RaidRepository raids;
 
     public Database() {
         jdbi = Jdbi.create("jdbc:sqlite:dungeoneer.db");
@@ -21,6 +22,7 @@ public class Database {
         factions = new FactionRepository(jdbi);
         accounts = new AccountRepository(jdbi);
         characters = new CharacterRepository(jdbi);
+        raids = new RaidRepository(this, jdbi);
         LOGGER.info("Database initialized.");
     }
 
@@ -42,5 +44,9 @@ public class Database {
 
     public CharacterRepository getCharacters() {
         return characters;
+    }
+
+    public RaidRepository getRaids() {
+        return raids;
     }
 }

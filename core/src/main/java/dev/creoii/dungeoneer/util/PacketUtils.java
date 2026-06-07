@@ -2,10 +2,8 @@ package dev.creoii.dungeoneer.util;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import dev.creoii.dungeoneer.definitions.Account;
+import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.definitions.Faction;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -95,5 +93,22 @@ public final class PacketUtils {
         for (int i = 0; i < size; ++i) {
             output.writeLong(faction.accounts().get(i));
         }
+    }
+
+    public static Raid readRaid(Input input) {
+        long id = input.readLong();
+        Account attacker = readAccount(input);
+        Account target = readAccount(input);
+        String startTime = input.readString();
+        String endTime = input.readString();
+        return new Raid(id, attacker, target, startTime.isBlank() ? null : LocalDateTime.parse(startTime), endTime.isBlank() ? null : LocalDateTime.parse(endTime));
+    }
+
+    public static void writeRaid(Output output, Raid raid) {
+        output.writeLong(raid.id());
+        writeAccount(output, raid.attacker());
+        writeAccount(output, raid.target());
+        output.writeString(raid.startTime().toString());
+        output.writeString(raid.endTime() == null ? "" : raid.endTime().toString());
     }
 }

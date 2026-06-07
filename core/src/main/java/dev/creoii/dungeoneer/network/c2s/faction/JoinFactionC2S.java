@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.network.c2s;
+package dev.creoii.dungeoneer.network.c2s.faction;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;

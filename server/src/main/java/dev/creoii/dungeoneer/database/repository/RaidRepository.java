@@ -1,23 +1,28 @@
 package dev.creoii.dungeoneer.database.repository;
 
-import dev.creoii.dungeoneer.database.definitions.ClientSession;
+import dev.creoii.dungeoneer.database.Database;
+import dev.creoii.dungeoneer.definitions.Account;
+import dev.creoii.dungeoneer.definitions.Raid;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 
-public class ClientSessionRepository {
+public class RaidRepository {
+    private final Database database;
     private final Jdbi jdbi;
 
-    public ClientSessionRepository(Jdbi jdbi) {
+    public RaidRepository(Database database, Jdbi jdbi) {
+        this.database = database;
         this.jdbi = jdbi;
 
         // Initialize schema
         jdbi.useHandle(handle ->
             handle.execute("""
-            CREATE TABLE IF NOT EXISTS client_sessions (
+            CREATE TABLE IF NOT EXISTS raids (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                account_id INTEGER,
+                attacker_id INTEGER NOT NULL,
+                target_id INTEGER NOT NULL,
                 start_time DATETIME NOT NULL,
                 end_time DATETIME
             )
@@ -25,36 +30,37 @@ public class ClientSessionRepository {
         );
     }
 
-    public void updateEndTime(long sessionId, LocalDateTime endTime) {
+    public void updateEndTime(long raidId, LocalDateTime endTime) {
         jdbi.useHandle(handle ->
             handle.createUpdate("""
-            UPDATE client_sessions
+            UPDATE raids
             SET end_time = :end_time
             WHERE id = :id
         """)
-                .bind("id", sessionId)
+                .bind("id", raidId)
                 .bind("end_time", endTime.toString())
                 .execute()
         );
     }
 
     @Nullable
-    public ClientSession getCurrentSession(long accountId) {
+    public Raid getCurrentSession(long raidId) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
             SELECT *
-            FROM client_sessions
-            WHERE account_id = :account_id
+            FROM raids
+            WHERE id = :id
               AND end_time IS NULL
             ORDER BY start_time DESC
             LIMIT 1
         """)
-                .bind("account_id", accountId)
+                .bind("id", raidId)
                 .map((rs, _) -> {
                     String endTime = rs.getString("end_time");
-                    return new ClientSession(
+                    return new Raid(
                         rs.getInt("id"),
-                        rs.getInt("account_id"),
+                        database.getAccounts().getById(rs.getInt("attacker_id")),
+                        database.getAccounts().getById(rs.getInt("target_id")),
                         LocalDateTime.parse(rs.getString("start_time")),
                         endTime == null ? null : LocalDateTime.parse(endTime)
                     );
@@ -65,19 +71,20 @@ public class ClientSessionRepository {
     }
 
     @Nullable
-    public ClientSession getById(long id) {
+    public Raid getById(long id) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                 SELECT *
-                FROM client_sessions
+                FROM raids
                 WHERE id = :id
             """)
                 .bind("id", id)
                 .map((rs, _) -> {
                     String endTime = rs.getString("end_time");
-                    return new ClientSession(
+                    return new Raid(
                         rs.getInt("id"),
-                        rs.getInt("account_id"),
+                        database.getAccounts().getById(rs.getInt("attacker_id")),
+                        database.getAccounts().getById(rs.getInt("target_id")),
                         LocalDateTime.parse(rs.getString("start_time")),
                         endTime == null ? null : LocalDateTime.parse(endTime)
                     );
@@ -87,19 +94,20 @@ public class ClientSessionRepository {
         );
     }
 
-    public ClientSession create(long accountId, LocalDateTime startTime) {
+    public Raid create(Account attacker, Account target, LocalDateTime startTime) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO client_sessions(account_id, start_time)
-                VALUES(:account_id, :start_time)
+                INSERT INTO raids(attacker_id, target_id, start_time)
+                VALUES(:attacker_id, :target_id, :start_time)
             """)
-                .bind("account_id", accountId)
+                .bind("attacker_id", attacker.id())
+                .bind("target_id", target.id())
                 .bind("start_time", startTime.toString())
-            .executeAndReturnGeneratedKeys("id")
-            .mapTo(Long.class)
-            .one()
+                .executeAndReturnGeneratedKeys("id")
+                .mapTo(Long.class)
+                .one()
         );
 
-        return new ClientSession(id, accountId, startTime, null);
+        return new Raid(id, attacker, target, startTime, null);
     }
 }
