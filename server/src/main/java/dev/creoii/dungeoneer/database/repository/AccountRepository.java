@@ -6,6 +6,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class AccountRepository {
     private final Jdbi jdbi;
@@ -23,6 +24,7 @@ public class AccountRepository {
                 characters TEXT,
                 faction_id INTEGER,
                 faction_join_date DATETIME,
+                last_login_date DATETIME NOT NULL,
                 settings TEXT
             )
         """)
@@ -33,20 +35,25 @@ public class AccountRepository {
     public Account getByUsername(String username) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
-                SELECT *
-                FROM accounts
-                WHERE username = :username
-            """)
+                        SELECT *
+                        FROM accounts
+                        WHERE username = :username
+                    """)
                 .bind("username", username)
-                .map((rs, _) -> new Account(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    rs.getString("password_hash"),
-                    NetworkUtils.parseIds(rs.getString("characters")),
-                    rs.getInt("faction_id"),
-                    rs.getString("faction_join_date"),
-                    rs.getString("settings")
-                ))
+                .map((rs, _) -> {
+                    String factionJoinDate = rs.getString("faction_join_date");
+                    String lastLoginDate = rs.getString("last_login_date");
+                    return new Account(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        NetworkUtils.parseIds(rs.getString("characters")),
+                        rs.getInt("faction_id"),
+                        factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
+                        lastLoginDate == null ? null : LocalDateTime.parse(lastLoginDate),
+                        rs.getString("settings")
+                    );
+                })
                 .findOne()
                 .orElse(null)
         );
@@ -56,20 +63,25 @@ public class AccountRepository {
     public Account getById(long id) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
-                SELECT *
-                FROM accounts
-                WHERE id = :id
-            """)
+                        SELECT *
+                        FROM accounts
+                        WHERE id = :id
+                    """)
                 .bind("id", id)
-                .map((rs, _) -> new Account(
-                    rs.getInt("id"),
-                    rs.getString("username"),
-                    rs.getString("password_hash"),
-                    NetworkUtils.parseIds(rs.getString("characters")),
-                    rs.getInt("faction_id"),
-                    rs.getString("faction_join_date"),
-                    rs.getString("settings")
-                ))
+                .map((rs, _) -> {
+                    String factionJoinDate = rs.getString("faction_join_date");
+                    String lastLoginDate = rs.getString("last_login_date");
+                    return new Account(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        NetworkUtils.parseIds(rs.getString("characters")),
+                        rs.getInt("faction_id"),
+                        factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
+                        lastLoginDate == null ? null : LocalDateTime.parse(lastLoginDate),
+                        rs.getString("settings")
+                    );
+                })
                 .findOne()
                 .orElse(null)
         );
@@ -79,22 +91,27 @@ public class AccountRepository {
     public Account getRandomExcluding(long excludedId) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
-            SELECT *
-            FROM accounts
-            WHERE id != :exclude
-            ORDER BY RANDOM()
-            LIMIT 1
-        """)
+                        SELECT *
+                        FROM accounts
+                        WHERE id != :exclude
+                        ORDER BY RANDOM()
+                        LIMIT 1
+                    """)
                 .bind("exclude", excludedId)
-                .map((rs, _) -> new Account(
-                    rs.getLong("id"),
-                    rs.getString("username"),
-                    rs.getString("password_hash"),
-                    NetworkUtils.parseIds(rs.getString("characters")),
-                    rs.getInt("faction_id"),
-                    rs.getString("faction_join_date"),
-                    rs.getString("settings")
-                ))
+                .map((rs, _) -> {
+                    String factionJoinDate = rs.getString("faction_join_date");
+                    String lastLoginDate = rs.getString("last_login_date");
+                    return new Account(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        NetworkUtils.parseIds(rs.getString("characters")),
+                        rs.getInt("faction_id"),
+                        factionJoinDate == null ? null : LocalDateTime.parse(factionJoinDate),
+                        lastLoginDate == null ? null : LocalDateTime.parse(lastLoginDate),
+                        rs.getString("settings")
+                    );
+                })
                 .findOne()
                 .orElse(null)
         );
@@ -128,6 +145,19 @@ public class AccountRepository {
         );
     }
 
+    public void updateLastLoginTime(long accountId, LocalDateTime lastLoginTime) {
+        jdbi.useHandle(handle ->
+            handle.createUpdate("""
+            UPDATE accounts
+            SET last_login_date = :last_login_date
+            WHERE id = :id
+        """)
+                .bind("id", accountId)
+                .bind("last_login_date", lastLoginTime.toString())
+                .execute()
+        );
+    }
+
     public void updateSettings(long accountId, String settings) {
         jdbi.useHandle(handle ->
             handle.createUpdate("""
@@ -141,19 +171,20 @@ public class AccountRepository {
         );
     }
 
-    public Account create(String username, String passwordHash) {
+    public Account create(String username, String passwordHash, LocalDateTime lastLoginDate) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO accounts(username, password_hash)
-                VALUES(:username, :password_hash)
+                INSERT INTO accounts(username, password_hash, last_login_date)
+                VALUES(:username, :password_hash, :last_login_date)
             """)
             .bind("username", username)
             .bind("password_hash", passwordHash)
+            .bind("last_login_date", lastLoginDate.toString())
             .executeAndReturnGeneratedKeys("id")
             .mapTo(Long.class)
             .one()
         );
 
-        return new Account(id, username, passwordHash);
+        return new Account(id, username, passwordHash, lastLoginDate);
     }
 }

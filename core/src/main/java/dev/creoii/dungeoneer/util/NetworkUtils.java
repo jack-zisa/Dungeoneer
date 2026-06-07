@@ -19,6 +19,6 @@ public final class NetworkUtils {
     }
 
     public static String compressIds(List<Long> characterIds) {
-        return String.join("|", characterIds.stream().map(String::valueOf).toList());
+        return String.join(",", characterIds.stream().map(String::valueOf).toList());
     }
 }

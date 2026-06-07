@@ -12,25 +12,22 @@ public record Account(
     List<Long> characters,
     long factionId,
     @Nullable LocalDateTime factionJoinDate,
+    LocalDateTime lastLoginDate,
     String settings
 ) {
-    public Account(long id, String username, String passwordHash) {
-        this(id, username, passwordHash, new ArrayList<>(), -1L, "", "");
+    public Account(long id, String username, String passwordHash, LocalDateTime lastLoginDate) {
+        this(id, username, passwordHash, new ArrayList<>(), -1L, null, lastLoginDate, "");
     }
 
-    public Account(long id, String username, String passwordHash, List<Long> characters) {
-        this(id, username, passwordHash, characters, -1L, "", "");
+    public Account(long id, String username, String passwordHash, LocalDateTime lastLoginDate, List<Long> characters) {
+        this(id, username, passwordHash, characters, -1L, null, lastLoginDate, "");
     }
 
-    public Account(long id, String username, String passwordHash, List<Long> characters, String settings) {
-        this(id, username, passwordHash, characters, -1L, "", settings);
-    }
-
-    public Account(long id, String username, String passwordHash, List<Long> characters, long factionId, String factionJoinDate, String settings) {
-        this(id, username, passwordHash, characters, factionId, factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate), settings);
+    public Account(long id, String username, String passwordHash, LocalDateTime lastLoginDate, List<Long> characters, String settings) {
+        this(id, username, passwordHash, characters, -1L, null, lastLoginDate, settings);
     }
 
     public Account copyWithFaction(long factionId, @Nullable LocalDateTime factionJoinDate) {
-        return new Account(id, username, passwordHash, characters, factionId, factionJoinDate, settings);
+        return new Account(id, username, passwordHash, characters, factionId, factionJoinDate, lastLoginDate, settings);
     }
 }

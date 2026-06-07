@@ -48,7 +48,11 @@ public final class PacketUtils {
 
         long factionId = input.readLong();
         String factionJoinDate = input.readString();
-        return new Account(id, username, "", characterIds, factionId, factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate), input.readString());
+        String lastLoginDate = input.readString();
+        return new Account(id, username, "", characterIds, factionId,
+            factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
+            lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
+            input.readString());
     }
 
     public static void writeAccount(Output output, @Nullable Account account) {
@@ -62,12 +66,14 @@ public final class PacketUtils {
             }
             output.writeLong(account.factionId());
             output.writeString(account.factionJoinDate() == null ? "" : account.factionJoinDate().toString());
+            output.writeString(account.lastLoginDate() == null ? "" : account.lastLoginDate().toString());
             output.writeString(account.settings());
         } else {
             output.writeLong(-1L);
             output.writeString("");
             output.writeInt(0);
             output.writeLong(-1L);
+            output.writeString("");
             output.writeString("");
             output.writeString("");
         }

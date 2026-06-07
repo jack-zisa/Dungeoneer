@@ -82,22 +82,26 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Account account = server.getDatabase().getAccounts().getByUsername(username);
             if (account == null) {
                 // TODO: Implement password requirements
-                account = server.getDatabase().getAccounts().create(username, Password.hash(password + server.getSecrets().pepper()).withArgon2().getResult());
+                account = server.getDatabase().getAccounts().create(username, Password.hash(password + server.getSecrets().pepper()).withArgon2().getResult(), LocalDateTime.now());
                 Database.LOGGER.info("Created account: %s", account.username());
             } else if (Password.check(password + server.getSecrets().pepper(), account.passwordHash()).withArgon2()) {
                 Database.LOGGER.info("Loaded account: %s", account.username());
+                server.getDatabase().getAccounts().updateLastLoginTime(account.id(), LocalDateTime.now());
+                account = server.getDatabase().getAccounts().getByUsername(username);
             } else {
                 DungeoneerServer.LOGGER.error("Failed login for account: %s", account.username());
                 server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.FAIL, null));
                 return;
             }
 
-            ClientSession clientSession = server.getSessionManager().startClientSession(connection, account.id());
-            if (clientSession != null) {
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.SUCCESS, account));
-            } else {
-                connection.close();
-                server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.FAIL, null));
+            if (account != null) {
+                ClientSession clientSession = server.getSessionManager().startClientSession(connection, account.id());
+                if (clientSession != null) {
+                    server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.SUCCESS, account));
+                } else {
+                    connection.close();
+                    server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.FAIL, null));
+                }
             }
         } else if (object instanceof RequestCharactersC2S) {
             ClientSession clientSession = server.getSessionManager().getConnectionSessions().get(connection.getID());
@@ -162,7 +166,9 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
             if (target != null) {
                 Raid raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
-                if (raid != null) server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid));
+                if (raid != null) {
+                    server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid));
+                }
             }
         } else if (object instanceof EndRaidC2S(long raidId)) {
             Raid raid = server.getDatabase().getRaids().getById(raidId);
