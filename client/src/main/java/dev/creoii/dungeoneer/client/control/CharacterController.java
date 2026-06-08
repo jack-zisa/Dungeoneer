@@ -3,7 +3,6 @@ package dev.creoii.dungeoneer.client.control;
 import com.badlogic.gdx.InputAdapter;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.option.OptionsManager;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveEndC2S;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveStartC2S;
 
@@ -25,13 +24,13 @@ public class CharacterController extends InputAdapter {
             float dx = 0f;
             float dy = 0f;
 
-            if (keycode == OptionsManager.LEFT_KEY.value())
+            if (keycode == client.getSettings().leftKey().value())
                 dx -= 1;
-            if (keycode == OptionsManager.RIGHT_KEY.value())
+            if (keycode == client.getSettings().rightKey().value())
                 dx += 1;
-            if (keycode == OptionsManager.UP_KEY.value())
+            if (keycode == client.getSettings().upKey().value())
                 dy += 1;
-            if (keycode == OptionsManager.DOWN_KEY.value())
+            if (keycode == client.getSettings().downKey().value())
                 dy -= 1;
 
             if (dx != 0f || dy != 0f) {
@@ -57,20 +56,20 @@ public class CharacterController extends InputAdapter {
         if (character.isNull())
             return false;
 
-        if (character.isMoving() && OptionsManager.isMovementKey(keycode)) {
+        if (character.isMoving() && client.getSettings().isMovementKey(keycode)) {
             boolean axis;
             boolean positive;
 
-            if (keycode == OptionsManager.LEFT_KEY.value()) {
+            if (keycode == client.getSettings().leftKey().value()) {
                 axis = true;
                 positive = false;
-            } else if (keycode == OptionsManager.RIGHT_KEY.value()) {
+            } else if (keycode == client.getSettings().rightKey().value()) {
                 axis = true;
                 positive = true;
-            } else if (keycode == OptionsManager.UP_KEY.value()) {
+            } else if (keycode == client.getSettings().upKey().value()) {
                 axis = false;
                 positive = true;
-            } else if (keycode == OptionsManager.DOWN_KEY.value()) {
+            } else if (keycode == client.getSettings().downKey().value()) {
                 axis = false;
                 positive = false;
             } else return false;

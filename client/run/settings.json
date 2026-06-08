@@ -1,0 +1,18 @@
+{
+  "upKey": {
+    "key": "up_key",
+    "value": 51
+  },
+  "downKey": {
+    "key": "down_key",
+    "value": 47
+  },
+  "leftKey": {
+    "key": "left_key",
+    "value": 29
+  },
+  "rightKey": {
+    "key": "right_key",
+    "value": 32
+  }
+}

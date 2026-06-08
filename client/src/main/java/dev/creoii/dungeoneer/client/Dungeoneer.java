@@ -1,10 +1,18 @@
 package dev.creoii.dungeoneer.client;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import dev.creoii.dungeoneer.client.control.CharacterController;
+import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.network.PacketSerializer;
@@ -15,15 +23,18 @@ import java.io.IOException;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Dungeoneer extends Game {
     public static final Logger LOGGER = new Logger(Dungeoneer.class.getSimpleName());
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final Client client;
     private final ClientState state;
     private final CharacterController controller;
+    private final Settings settings;
     private final Listener.QueuedListener listener;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
         state = new ClientState(this);
         controller = new CharacterController(this);
+        settings = Settings.DEFAULT;
         listener = new Listener.QueuedListener(new ClientListener(this)) {
             @Override
             protected void queue(Runnable runnable) {
@@ -44,9 +55,15 @@ public class Dungeoneer extends Game {
         return controller;
     }
 
+    public Settings getSettings() {
+        return settings;
+    }
+
     @Override
     public void create() {
         setScreen(new LoadingScreen());
+
+        settings.load();
 
         PacketSerializer.registerDefault(client.getKryo());
 

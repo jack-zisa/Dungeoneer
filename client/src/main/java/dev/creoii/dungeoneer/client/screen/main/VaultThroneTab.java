@@ -2,8 +2,10 @@ package dev.creoii.dungeoneer.client.screen.main;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.AssetManager;
@@ -45,16 +47,13 @@ public class VaultThroneTab extends Tab {
         classLabel = new Label("", getSkin());
         for (int i = 0; i < 3; i++) {
             classIcons[i] = new Stack();
-            classIcons[i].add(new Image(new NinePatchDrawable(AssetManager.TAB_9PATCH)));
-            classIcons[i].add(new Image(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
+            classIcons[i].add(new ImageButton(new NinePatchDrawable(AssetManager.TAB_9PATCH)));
+            classIcons[i].add(new ImageButton(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
         }
 
-        TextButton previous = new TextButton("<", getSkin());
-        TextButton next = new TextButton(">", getSkin());
-
-        previous.addListener(new ChangeListener() {
+        classIcons[0].addListener(new ClickListener() {
             @Override
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+            public void clicked(InputEvent event, float x, float y) {
                 if (characterSlots < 1)
                     return;
 
@@ -64,19 +63,13 @@ public class VaultThroneTab extends Tab {
                     classIndex = characterSlots - 1;
                 }
 
-                Character selected = characters.get(classIndex);
-                getClient().getState().setActiveCharacter(selected);
-                if (selected != null) {
-                    classLabel.setText(classIndex + ": " + selected.characterClass().id());
-                } else classLabel.setText(classIndex + ": Empty");
-
-                updateCharacterDisplay();
+                updateSelectedCharacter();
             }
         });
 
-        next.addListener(new ChangeListener() {
+        classIcons[2].addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void clicked(InputEvent event, float x, float y) {
                 if (characterSlots < 1)
                     return;
                 classIndex++;
@@ -85,13 +78,7 @@ public class VaultThroneTab extends Tab {
                     classIndex = 0;
                 }
 
-                Character selected = characters.get(classIndex);
-                getClient().getState().setActiveCharacter(selected);
-                if (selected != null) {
-                    classLabel.setText(classIndex + ": " + selected.characterClass().id());
-                } else classLabel.setText(classIndex + ": Empty");
-
-                updateCharacterDisplay();
+                updateSelectedCharacter();
             }
         });
 
@@ -99,11 +86,9 @@ public class VaultThroneTab extends Tab {
         center.add(classIcons[1]).size(120).row();
         center.add(classLabel).padTop(10);
 
-        carousel.add(previous).width(40);
         carousel.add(classIcons[0]).size(96).expandX().pad(10);
         carousel.add(center).expandX().pad(20);
         carousel.add(classIcons[2]).size(96).expandX().pad(10);
-        carousel.add(next).width(40);
 
         add(carousel).growX().height(200).padBottom(20).row();
 
@@ -136,6 +121,20 @@ public class VaultThroneTab extends Tab {
                 createCharacterButton.setText("Create Character");
                 classLabel.setText(classIndex + ": Empty");
             }
+        }
+
+        updateCharacterDisplay();
+    }
+
+    private void updateSelectedCharacter() {
+        Character selected = characters.get(classIndex);
+
+        getClient().getState().setActiveCharacter(selected);
+
+        if (selected != null) {
+            classLabel.setText(classIndex + ": " + selected.characterClass().id());
+        } else {
+            classLabel.setText(classIndex + ": Empty");
         }
 
         updateCharacterDisplay();

@@ -25,8 +25,7 @@ public class AccountRepository {
                 active_character_id INTEGER,
                 faction_id INTEGER,
                 faction_join_date DATETIME,
-                last_login_date DATETIME NOT NULL,
-                settings TEXT
+                last_login_date DATETIME NOT NULL
             )
         """)
         );
@@ -53,8 +52,7 @@ public class AccountRepository {
                         rs.getInt("active_character_id"),
                         rs.getInt("faction_id"),
                         factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
-                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
-                        rs.getString("settings")
+                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate)
                     );
                 })
                 .findOne()
@@ -83,8 +81,7 @@ public class AccountRepository {
                         rs.getInt("active_character_id"),
                         rs.getInt("faction_id"),
                         factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
-                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
-                        rs.getString("settings")
+                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate)
                     );
                 })
                 .findOne()
@@ -115,8 +112,7 @@ public class AccountRepository {
                         rs.getInt("active_character_id"),
                         rs.getInt("faction_id"),
                         factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
-                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
-                        rs.getString("settings")
+                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate)
                     );
                 })
                 .findOne()
@@ -174,19 +170,6 @@ public class AccountRepository {
         """)
                 .bind("id", accountId)
                 .bind("last_login_date", lastLoginTime.toString())
-                .execute()
-        );
-    }
-
-    public void updateSettings(long accountId, String settings) {
-        jdbi.useHandle(handle ->
-            handle.createUpdate("""
-            UPDATE accounts
-            SET settings = :settings
-            WHERE id = :id
-        """)
-                .bind("id", accountId)
-                .bind("settings", settings)
                 .execute()
         );
     }

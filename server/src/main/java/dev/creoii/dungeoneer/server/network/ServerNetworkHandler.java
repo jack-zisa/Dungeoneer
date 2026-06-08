@@ -12,7 +12,6 @@ import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.network.c2s.*;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
@@ -144,11 +143,6 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 }
             }
             server.get().sendToUDP(connection.getID(), new CreateCharacterResultS2C(PacketResult.FAIL, -1, null));
-        } else if (object instanceof ApplySettingsC2S(long accountId, String settings)) {
-            Account account = server.getDatabase().getAccounts().getById(accountId);
-            if (account != null) {
-                server.getDatabase().getAccounts().updateSettings(accountId, settings);
-            }
         } else if (object instanceof CreateFactionC2S(Account account, String name, String description)) {
             Faction faction = server.getDatabase().getFactions().create(account.id(), name, description);
             if (faction != null) {

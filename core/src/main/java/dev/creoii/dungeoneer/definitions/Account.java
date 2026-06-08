@@ -14,15 +14,14 @@ public record Account(
     long activeCharacterId,
     long factionId,
     @Nullable LocalDateTime factionJoinDate,
-    LocalDateTime lastLoginDate,
-    String settings
+    LocalDateTime lastLoginDate
 ) {
     public Account(long id, String username, String passwordHash, int characterSlots, LocalDateTime lastLoginDate) {
-        this(id, username, passwordHash, characterSlots, createEmptyCharacters(characterSlots), -1L, -1L, null, lastLoginDate, "");
+        this(id, username, passwordHash, characterSlots, createEmptyCharacters(characterSlots), -1L, -1L, null, lastLoginDate);
     }
 
     public Account copyWithFaction(long factionId, @Nullable LocalDateTime factionJoinDate) {
-        return new Account(id, username, passwordHash, characterSlots, characters, activeCharacterId, factionId, factionJoinDate, lastLoginDate, settings);
+        return new Account(id, username, passwordHash, characterSlots, characters, activeCharacterId, factionId, factionJoinDate, lastLoginDate);
     }
 
     public static List<Long> createEmptyCharacters(int characterSlots) {

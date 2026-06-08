@@ -58,8 +58,7 @@ public final class PacketUtils {
         String lastLoginDate = input.readString();
         return new Account(id, username, "", characterSlots, characterIds, activeCharacterId, factionId,
             factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
-            lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate),
-            input.readString());
+            lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate));
     }
 
     public static void writeAccount(Output output, @Nullable Account account) {
@@ -75,7 +74,6 @@ public final class PacketUtils {
             output.writeLong(account.factionId());
             output.writeString(account.factionJoinDate() == null ? "" : account.factionJoinDate().toString());
             output.writeString(account.lastLoginDate() == null ? "" : account.lastLoginDate().toString());
-            output.writeString(account.settings());
         } else {
             output.writeLong(-1L); // account id
             output.writeString(""); // username
@@ -85,7 +83,6 @@ public final class PacketUtils {
             output.writeLong(-1L); // faction id
             output.writeString(""); // faction join date
             output.writeString(""); // last login date
-            output.writeString(""); // settings
         }
     }
 
