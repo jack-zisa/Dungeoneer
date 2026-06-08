@@ -186,7 +186,6 @@ public class FactionTab extends Tab {
             if (account.isPresent()) {
                  username = account.get().username();
             } else username = "Unknown";
-            System.out.println(username + ": " + message.text());
             chatTable.add(new Label(username + ": " + message.text(), getSkin())).left().growX().row();
         }
 
