@@ -1,10 +1,13 @@
 package dev.creoii.dungeoneer.client.screen;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -17,10 +20,14 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.DungeonEditorInputListener;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 
+import javax.annotation.Nullable;
+import java.awt.*;
+
 public class DungeonEditorScreen extends AbstractScreen {
     private final Dungeoneer client;
     private OrthographicCamera camera;
     private OrthogonalTiledMapRenderer mapRenderer;
+    private ShapeRenderer shapeRenderer;
 
     public DungeonEditorScreen(Dungeoneer client) {
         this.client = client;
@@ -28,6 +35,10 @@ public class DungeonEditorScreen extends AbstractScreen {
 
     public Dungeoneer getClient() {
         return client;
+    }
+
+    public OrthographicCamera getCamera() {
+        return camera;
     }
 
     public TiledMap buildTestMap() {
@@ -52,9 +63,11 @@ public class DungeonEditorScreen extends AbstractScreen {
     public void show() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        camera.zoom = .4f;
+        camera.zoom = 1f;
 
         mapRenderer = new OrthogonalTiledMapRenderer(buildTestMap());
+        shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
 
         Table root = new Table();
         root.setFillParent(true);
@@ -80,7 +93,7 @@ public class DungeonEditorScreen extends AbstractScreen {
         root.add(cancelButton).bottom();
 
         getStage().addActor(root);
-        getStage().addListener(new DungeonEditorInputListener(client, camera));
+        getStage().addListener(new DungeonEditorInputListener(this));
         super.show();
     }
 
@@ -89,6 +102,16 @@ public class DungeonEditorScreen extends AbstractScreen {
         mapRenderer.setView(camera);
         mapRenderer.render();
 
+        Point hover = getHoveredPos();
+        TiledMapTileLayer.Cell cell = getCellAt(hover);
+        if (cell != null) {
+            shapeRenderer.setProjectionMatrix(camera.combined);
+
+            shapeRenderer.begin();
+            shapeRenderer.rect(hover.x * 8f, hover.y * 8f, 8f, 8f);
+            shapeRenderer.end();
+        }
+
         super.render(delta);
     }
 
@@ -96,6 +119,22 @@ public class DungeonEditorScreen extends AbstractScreen {
     public void dispose() {
         super.dispose();
         SKIN.dispose();
+    }
+
+    public Point getHoveredPos() {
+        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(mouse);
+
+        int tileX = (int)(mouse.x / 8f);
+        int tileY = (int)(mouse.y / 8f);
+
+        return new Point(tileX, tileY);
+    }
+
+    @Nullable
+    public TiledMapTileLayer.Cell getCellAt(Point point) {
+        TiledMapTileLayer layer = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get("ground");
+        return layer.getCell(point.x, point.y);
     }
 
     public static class DungeonEditor extends Table {
