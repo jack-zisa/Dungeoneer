@@ -4,12 +4,9 @@ import com.badlogic.gdx.InputAdapter;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
+import dev.creoii.dungeoneer.util.Constants;
 
 public class CharacterController extends InputAdapter {
-    public static final int LEFT = 1;
-    public static final int RIGHT = 2;
-    public static final int UP = 4;
-    public static final int DOWN = 8;
     private final Dungeoneer client;
     private int movementFlags;
 
@@ -26,23 +23,23 @@ public class CharacterController extends InputAdapter {
 
         if (character.canMove()) {
             if (keycode == client.getSettings().leftKey().value()) {
-                movementFlags &= ~RIGHT;
-                movementFlags |= LEFT;
+                movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_RIGHT;
+                movementFlags |= Constants.CHARACTER_MOVEMENT_FLAG_LEFT;
             }
 
             if (keycode == client.getSettings().rightKey().value()) {
-                movementFlags &= ~LEFT;
-                movementFlags |= RIGHT;
+                movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_LEFT;
+                movementFlags |= Constants.CHARACTER_MOVEMENT_FLAG_RIGHT;
             }
 
             if (keycode == client.getSettings().upKey().value()) {
-                movementFlags &= ~DOWN;
-                movementFlags |= UP;
+                movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_DOWN;
+                movementFlags |= Constants.CHARACTER_MOVEMENT_FLAG_UP;
             }
 
             if (keycode == client.getSettings().downKey().value()) {
-                movementFlags &= ~UP;
-                movementFlags |= DOWN;
+                movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_UP;
+                movementFlags |= Constants.CHARACTER_MOVEMENT_FLAG_DOWN;
             }
             updateMovement();
             return true;
@@ -59,10 +56,10 @@ public class CharacterController extends InputAdapter {
             return false;
 
         if (character.canMove()) {
-            if (keycode == client.getSettings().leftKey().value()) movementFlags &= ~LEFT;
-            if (keycode == client.getSettings().rightKey().value()) movementFlags &= ~RIGHT;
-            if (keycode == client.getSettings().upKey().value()) movementFlags &= ~UP;
-            if (keycode == client.getSettings().downKey().value()) movementFlags &= ~DOWN;
+            if (keycode == client.getSettings().leftKey().value()) movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_LEFT;
+            if (keycode == client.getSettings().rightKey().value()) movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_RIGHT;
+            if (keycode == client.getSettings().upKey().value()) movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_UP;
+            if (keycode == client.getSettings().downKey().value()) movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_DOWN;
             updateMovement();
             return true;
         }
@@ -74,10 +71,10 @@ public class CharacterController extends InputAdapter {
         float dx = 0;
         float dy = 0;
 
-        if ((movementFlags & LEFT) != 0) --dx;
-        if ((movementFlags & RIGHT) != 0) ++dx;
-        if ((movementFlags & UP) != 0) ++dy;
-        if ((movementFlags & DOWN) != 0) --dy;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_LEFT) != 0) --dx;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_RIGHT) != 0) ++dx;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_UP) != 0) ++dy;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_DOWN) != 0) --dy;
 
         ClientCharacter character = client.getState().getActiveCharacter();
         if (character.isNull())

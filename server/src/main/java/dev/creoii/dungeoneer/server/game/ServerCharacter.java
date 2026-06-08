@@ -3,14 +3,10 @@ package dev.creoii.dungeoneer.server.game;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
 public class ServerCharacter implements SidedCharacter {
-    public static final int LEFT = 1;
-    public static final int RIGHT = 2;
-    public static final int UP = 4;
-    public static final int DOWN = 8;
-
     private final Character character;
     private final Vector2 pos;
     private final Vector2 velocity;
@@ -46,10 +42,10 @@ public class ServerCharacter implements SidedCharacter {
         float dx = 0;
         float dy = 0;
 
-        if ((movementFlags & LEFT) != 0) dx -= 1f;
-        if ((movementFlags & RIGHT) != 0) dx += 1f;
-        if ((movementFlags & UP) != 0) dy += 1f;
-        if ((movementFlags & DOWN) != 0) dy -= 1f;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_LEFT) != 0) dx -= 1f;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_RIGHT) != 0) dx += 1f;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_UP) != 0) dy += 1f;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_DOWN) != 0) dy -= 1f;
 
         velocity.set(dx, dy);
 
