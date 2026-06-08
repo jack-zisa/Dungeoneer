@@ -20,6 +20,8 @@ public class AccountRepository {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username VARCHAR(32) UNIQUE NOT NULL,
                 password_hash VARCHAR(128) NOT NULL,
+                gold INTEGER NOT NULL,
+                gems INTEGER NOT NULL,
                 character_slots INTEGER NOT NULL,
                 characters TEXT,
                 active_character_id INTEGER,
@@ -47,6 +49,8 @@ public class AccountRepository {
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
+                        rs.getInt("gold"),
+                        rs.getInt("gems"),
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("active_character_id"),
@@ -76,6 +80,8 @@ public class AccountRepository {
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
+                        rs.getInt("gold"),
+                        rs.getInt("gems"),
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("active_character_id"),
@@ -107,6 +113,8 @@ public class AccountRepository {
                         rs.getInt("id"),
                         rs.getString("username"),
                         rs.getString("password_hash"),
+                        rs.getInt("gold"),
+                        rs.getInt("gems"),
                         rs.getInt("character_slots"),
                         NetworkUtils.parseIds(rs.getString("characters")),
                         rs.getInt("active_character_id"),
@@ -177,11 +185,13 @@ public class AccountRepository {
     public Account create(String username, String passwordHash, LocalDateTime lastLoginDate) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO accounts(username, password_hash, character_slots, characters, last_login_date)
-                VALUES(:username, :password_hash, 6, :characters, :last_login_date)
+                INSERT INTO accounts(username, password_hash, gold, gems, character_slots, characters, last_login_date)
+                VALUES(:username, :password_hash, 6, :gold, :gems, :characters, :last_login_date)
             """)
             .bind("username", username)
             .bind("password_hash", passwordHash)
+            .bind("gold", 1000)
+            .bind("gems", 100)
             .bind("characters", "-1,-1,-1,-1,-1,-1")
             .bind("last_login_date", lastLoginDate.toString())
             .executeAndReturnGeneratedKeys("id")
@@ -189,6 +199,6 @@ public class AccountRepository {
             .one()
         );
 
-        return new Account(id, username, passwordHash, 6, lastLoginDate);
+        return new Account(id, username, passwordHash, 1000, 100, 6, lastLoginDate);
     }
 }

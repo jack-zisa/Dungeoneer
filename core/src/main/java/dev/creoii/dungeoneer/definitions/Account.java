@@ -9,6 +9,7 @@ import java.util.List;
 public record Account(
     long id,
     String username, String passwordHash,
+    int gold, int gems,
     int characterSlots,
     List<Long> characters,
     long activeCharacterId,
@@ -16,12 +17,12 @@ public record Account(
     @Nullable LocalDateTime factionJoinDate,
     LocalDateTime lastLoginDate
 ) {
-    public Account(long id, String username, String passwordHash, int characterSlots, LocalDateTime lastLoginDate) {
-        this(id, username, passwordHash, characterSlots, createEmptyCharacters(characterSlots), -1L, -1L, null, lastLoginDate);
+    public Account(long id, String username, String passwordHash, int gold, int gems, int characterSlots, LocalDateTime lastLoginDate) {
+        this(id, username, passwordHash, gold, gems, characterSlots, createEmptyCharacters(characterSlots), -1L, -1L, null, lastLoginDate);
     }
 
     public Account copyWithFaction(long factionId, @Nullable LocalDateTime factionJoinDate) {
-        return new Account(id, username, passwordHash, characterSlots, characters, activeCharacterId, factionId, factionJoinDate, lastLoginDate);
+        return new Account(id, username, passwordHash, gold, gems, characterSlots, characters, activeCharacterId, factionId, factionJoinDate, lastLoginDate);
     }
 
     public static List<Long> createEmptyCharacters(int characterSlots) {

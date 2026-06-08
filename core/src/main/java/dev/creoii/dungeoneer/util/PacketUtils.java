@@ -44,6 +44,8 @@ public final class PacketUtils {
     public static Account readAccount(Input input) {
         long id = input.readLong();
         String username = input.readString();
+        int gold = input.readInt();
+        int gems = input.readInt();
         int characterSlots = input.readInt();
 
         int size = input.readInt();
@@ -56,7 +58,7 @@ public final class PacketUtils {
         long factionId = input.readLong();
         String factionJoinDate = input.readString();
         String lastLoginDate = input.readString();
-        return new Account(id, username, "", characterSlots, characterIds, activeCharacterId, factionId,
+        return new Account(id, username, "", gold, gems, characterSlots, characterIds, activeCharacterId, factionId,
             factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
             lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate));
     }
@@ -65,6 +67,8 @@ public final class PacketUtils {
         if (account != null) {
             output.writeLong(account.id());
             output.writeString(account.username());
+            output.writeInt(account.gold());
+            output.writeInt(account.gems());
             output.writeInt(account.characterSlots());
             output.writeInt(account.characters().size());
             for (Long id : account.characters()) {
@@ -77,6 +81,8 @@ public final class PacketUtils {
         } else {
             output.writeLong(-1L); // account id
             output.writeString(""); // username
+            output.writeInt(0); // gold
+            output.writeInt(0); // gems
             output.writeInt(0); // character slots
             output.writeInt(0); // characters size
             output.writeLong(-1L); // active character id

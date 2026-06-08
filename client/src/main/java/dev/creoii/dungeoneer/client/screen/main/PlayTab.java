@@ -31,17 +31,15 @@ public class PlayTab extends Tab {
 
         Table statsTable = new Table();
 
-        Label powerLabel = new Label(String.format("Power: %s", 0), getSkin());
         Image goldImage = new Image(AssetManager.GOLD_TEXTURE);
-        Label goldLabel = new Label(String.format("%s", 0), getSkin());
+        Label goldLabel = new Label(String.format("%s", getClient().getState().getAccount().gold()), getSkin());
         Image gemImage = new Image(AssetManager.GEM_TEXTURE);
-        Label gemsLabel = new Label(String.format("%s", 0), getSkin());
+        Label gemsLabel = new Label(String.format("%s", getClient().getState().getAccount().gems()), getSkin());
 
-        statsTable.add(powerLabel).left().pad(10f);
-        statsTable.add(goldImage).size(24f).left().pad(10f);
-        statsTable.add(goldLabel).left().pad(10f);
-        statsTable.add(gemImage).size(24f).left().pad(10f);
-        statsTable.add(gemsLabel).left().pad(10f);
+        statsTable.add(goldImage).size(24f).left();
+        statsTable.add(goldLabel).left().padLeft(5f).padRight(30f);
+        statsTable.add(gemImage).size(24f).left();
+        statsTable.add(gemsLabel).left().padLeft(5f);
 
         Table accountTable = new Table();
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
