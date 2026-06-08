@@ -20,7 +20,7 @@ public class ServerCharacter implements SidedCharacter {
         this.character = character;
         pos = new Vector2();
         velocity = new Vector2();
-        stats = new StatContainer(character.characterClass().stats().speed().value());
+        stats = new StatContainer(character.characterClass().baseStats().speed().value());
     }
 
     public Character get() {

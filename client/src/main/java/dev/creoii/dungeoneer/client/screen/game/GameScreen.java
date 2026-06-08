@@ -20,6 +20,7 @@ import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
+import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class GameScreen extends AbstractScreen {
     private final Dungeoneer client;
@@ -85,7 +86,7 @@ public class GameScreen extends AbstractScreen {
     public void render(float delta) {
         ClientCharacter character = client.getState().getActiveCharacter();
 
-        character.getRenderPos().mulAdd(character.getVelocity(), character.getStats().speed().value() * delta);
+        character.getRenderPos().mulAdd(character.getVelocity(), StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta);
 
         Vector2 correction = character.getCorrection();
         float error = correction.len();

@@ -130,7 +130,7 @@ public class VaultThroneTab extends Tab {
         Character selected = characters.get(classIndex);
 
         statsTable.clearChildren();
-        statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().stats().speed()), getSkin()));
+        statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().baseStats().speed()), getSkin()));
     }
 
     private void updateSelectedCharacter() {

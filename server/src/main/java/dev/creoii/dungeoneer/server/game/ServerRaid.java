@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.server.game;
 
 import dev.creoii.dungeoneer.util.Tickable;
+import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class ServerRaid implements Tickable {
     private final ServerDungeon dungeon;
@@ -21,6 +22,6 @@ public class ServerRaid implements Tickable {
 
     @Override
     public void tick(float dt) {
-        character.getPos().mulAdd(character.getVelocity(), character.getStats().speed().value() * dt);
+        character.getPos().mulAdd(character.getVelocity(), StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * dt);
     }
 }

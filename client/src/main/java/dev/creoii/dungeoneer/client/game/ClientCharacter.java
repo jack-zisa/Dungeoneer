@@ -27,7 +27,7 @@ public class ClientCharacter implements SidedCharacter {
         pos = new Vector2();
         renderPos = new Vector2();
         velocity = new Vector2();
-        stats = new StatContainer(character == null ? 0 : character.characterClass().stats().speed().value());
+        stats = new StatContainer(character == null ? 0 : character.characterClass().baseStats().speed().value());
         correction = new Vector2();
     }
 
@@ -42,7 +42,7 @@ public class ClientCharacter implements SidedCharacter {
             stats.setSpeed(0);
         } else {
             sprite = new Sprite(AssetManager.getClassTexture(character.characterClass().id()));
-            stats.setSpeed(character.characterClass().stats().speed().value());
+            stats.setSpeed(character.characterClass().baseStats().speed().value());
         }
     }
 
