@@ -186,7 +186,7 @@ public class AccountRepository {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
                 INSERT INTO accounts(username, password_hash, gold, gems, character_slots, characters, last_login_date)
-                VALUES(:username, :password_hash, 6, :gold, :gems, :characters, :last_login_date)
+                VALUES(:username, :password_hash, :gold, :gems, 6, :characters, :last_login_date)
             """)
             .bind("username", username)
             .bind("password_hash", passwordHash)

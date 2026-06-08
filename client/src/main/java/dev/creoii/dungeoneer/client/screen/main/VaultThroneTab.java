@@ -107,6 +107,7 @@ public class VaultThroneTab extends Tab {
         });
 
         Table center = new Table();
+        center.setBackground(new NinePatchDrawable(AssetManager.TAB_9PATCH));
         center.add(classIcons[2]).size(120).row();
         center.add(classLabel).padTop(10).row();
         center.add(statsTable).padTop(10);

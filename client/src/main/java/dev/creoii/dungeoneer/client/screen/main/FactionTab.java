@@ -20,8 +20,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class FactionTab extends Tab {
-    private Table factionSearchTable;
+    private Table activeTable;
     private Table factionTable;
+    private Table factionSearchTable;
 
     private Label factionNameLabel;
     private Label factionDescriptionLabel;
@@ -41,9 +42,15 @@ public class FactionTab extends Tab {
 
     @Override
     protected void build() {
-        Faction faction = getClient().getState().getFaction();
+        activeTable = new Table();
+        add(activeTable).grow();
 
-        factionSearchTable = new Table();
+        factionTable = buildFactionTable();
+        factionSearchTable = buildFactionSearchTable();
+    }
+
+    private Table buildFactionSearchTable() {
+        Table factionSearchTable = new Table();
         factionSearchTable.defaults().pad(5f);
 
         factionSearchTable.add(new Label("Join a Faction!", getSkin())).row();
@@ -84,7 +91,11 @@ public class FactionTab extends Tab {
         });
         factionSearchTable.add(createButton);
 
-        factionTable = new Table();
+        return factionSearchTable;
+    }
+
+    private Table buildFactionTable() {
+        Table factionTable = new Table();
         factionTable.defaults().pad(5f);
 
         factionNameLabel = new Label("", getSkin());
@@ -130,8 +141,7 @@ public class FactionTab extends Tab {
         });
         factionTable.add(leaveButton);
 
-        add(factionSearchTable).grow();
-        add(factionTable).grow();
+        return factionTable;
     }
 
     public void refreshSearchResults(List<Faction> factions) {
@@ -193,19 +203,31 @@ public class FactionTab extends Tab {
         chatScrollPane.setScrollPercentY(1f);
     }
 
+    private void showFactionSearch() {
+        activeTable.clearChildren();
+        activeTable.add(factionSearchTable).grow();
+    }
+
+    private void showFaction(Faction faction) {
+        activeTable.clearChildren();
+        activeTable.add(factionTable).grow();
+
+        factionNameLabel.setText(faction.name());
+        factionDescriptionLabel.setText(faction.description());
+
+        refreshMembers(faction);
+        refreshChat();
+    }
+
     @Override
     public void select() {
+        activeTable.clearChildren();
+
         Faction faction = getClient().getState().getFaction();
-        boolean inFaction = faction != null;
-
-        factionSearchTable.setVisible(!inFaction);
-        factionTable.setVisible(inFaction);
-
-        if (inFaction) {
-            factionNameLabel.setText(faction.name());
-            factionDescriptionLabel.setText(faction.description());
-            refreshMembers(faction);
-            refreshChat();
+        if (faction != null) {
+            showFaction(faction);
+        } else {
+            showFactionSearch();
         }
     }
 }

@@ -1,16 +1,12 @@
 package dev.creoii.dungeoneer.client;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import dev.creoii.dungeoneer.client.control.CharacterController;
 import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
@@ -61,6 +57,11 @@ public class Dungeoneer extends Game {
 
     @Override
     public void create() {
+        TooltipManager.getInstance().animations = false;
+        TooltipManager.getInstance().resetTime = 0f;
+        TooltipManager.getInstance().initialTime = 0f;
+        TooltipManager.getInstance().offsetX = 0f;
+        TooltipManager.getInstance().offsetY = 0f;
         setScreen(new LoadingScreen());
 
         settings.load();
