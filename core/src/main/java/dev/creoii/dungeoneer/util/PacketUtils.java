@@ -9,9 +9,7 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public final class PacketUtils {
     @Nullable
@@ -98,7 +96,7 @@ public final class PacketUtils {
         for (int i = 0; i < size; ++i) {
             accountIds.add(readAccount(input));
         }
-        return new Faction(id, name, description, accountIds);
+        return new Faction(id, name, description, accountIds, new LinkedHashMap<>());
     }
 
     public static void writeFaction(Output output, Faction faction) {
@@ -152,5 +150,16 @@ public final class PacketUtils {
 
     public static StatContainer readStatContainerFast(Input input) {
         return new StatContainer(input.readInt());
+    }
+
+    public static Message readMessage(Input input) {
+        return new Message(input.readLong(), input.readLong(), input.readLong(), input.readString());
+    }
+
+    public static void writeMessage(Output output, Message message) {
+        output.writeLong(message.messageId());
+        output.writeLong(message.factionId());
+        output.writeLong(message.accountId());
+        output.writeString(message.text());
     }
 }

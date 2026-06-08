@@ -16,6 +16,7 @@ public class PlayTab extends Tab {
     private ClientCharacter selected;
     private Image selectedImage;
     private TextTooltip characterTooltip;
+    private TextButton raidButton;
 
     protected PlayTab(Dungeoneer client, TextureRegion tabTexture) {
         super(client, tabTexture);
@@ -65,7 +66,7 @@ public class PlayTab extends Tab {
         add(accountTable).width(96f).height(32f).top().expandX().fillX().row();
 
         Table mainSection = new Table();
-        TextButton raidButton = new TextButton("Raid", getSkin());
+        raidButton = new TextButton("Raid", getSkin());
         raidButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -84,5 +85,6 @@ public class PlayTab extends Tab {
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
         selectedImage.setDrawable(new TextureRegionDrawable(AssetManager.getClassTexture(classId)));
         characterTooltip.getActor().setText(classId);
+        raidButton.setDisabled(selected.isNull());
     }
 }

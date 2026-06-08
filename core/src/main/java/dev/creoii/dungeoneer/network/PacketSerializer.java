@@ -7,10 +7,7 @@ import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.*;
-import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.faction.SearchFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.faction.*;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
@@ -20,10 +17,7 @@ import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.CreateFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.SearchFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 
 import java.util.HashMap;
@@ -74,6 +68,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(RequestFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(SelectActiveCharacterC2S.class, PacketSerializer.INSTANCE);
         kryo.register(CharacterMoveC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(ChatMessageC2S.class, PacketSerializer.INSTANCE);
 
         kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
@@ -86,6 +81,8 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(SearchFactionResultS2C.class, PacketSerializer.INSTANCE);
         kryo.register(SendFactionS2C.class, PacketSerializer.INSTANCE);
         kryo.register(CharacterMoveS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(FlagChatMessageS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(ChatMessageS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
@@ -102,6 +99,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(RequestFactionC2S.class, RequestFactionC2S::write, RequestFactionC2S::read);
         PacketSerializer.INSTANCE.register(SelectActiveCharacterC2S.class, SelectActiveCharacterC2S::write, SelectActiveCharacterC2S::read);
         PacketSerializer.INSTANCE.register(CharacterMoveC2S.class, CharacterMoveC2S::write, CharacterMoveC2S::read);
+        PacketSerializer.INSTANCE.register(ChatMessageC2S.class, ChatMessageC2S::write, ChatMessageC2S::read);
 
         PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);
@@ -114,5 +112,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(SearchFactionResultS2C.class, SearchFactionResultS2C::write, SearchFactionResultS2C::read);
         PacketSerializer.INSTANCE.register(SendFactionS2C.class, SendFactionS2C::write, SendFactionS2C::read);
         PacketSerializer.INSTANCE.register(CharacterMoveS2C.class, CharacterMoveS2C::write, CharacterMoveS2C::read);
+        PacketSerializer.INSTANCE.register(FlagChatMessageS2C.class, FlagChatMessageS2C::write, FlagChatMessageS2C::read);
+        PacketSerializer.INSTANCE.register(ChatMessageS2C.class, ChatMessageS2C::write, ChatMessageS2C::read);
     }
 }

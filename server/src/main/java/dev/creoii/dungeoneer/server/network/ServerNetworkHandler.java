@@ -6,7 +6,9 @@ import com.password4j.Password;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.character.*;
+import dev.creoii.dungeoneer.network.c2s.faction.*;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
+import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
@@ -14,10 +16,6 @@ import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
-import dev.creoii.dungeoneer.network.c2s.faction.CreateFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.faction.JoinFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.faction.LeaveFactionC2S;
-import dev.creoii.dungeoneer.network.c2s.faction.SearchFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
@@ -25,10 +23,6 @@ import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.CreateFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.SearchFactionResultS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
@@ -229,6 +223,35 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     return;
 
                 raid.getCharacter().updateMovement(movementFlags);
+            }
+        } else if (object instanceof ChatMessageC2S(long localId, Message message)) {
+            Faction faction = server.getDatabase().getFactions().getById(message.factionId());
+            if (faction != null) {
+                Message message1 = server.getDatabase().getChatMessages().create(message);
+                faction.recentMessages().put(message1.messageId(), message1);
+
+                if ("bad".equals(message.text())) { // TODO: Implement actual chat filtering
+                    server.get().sendToTCP(connection.getID(), new FlagChatMessageS2C(localId, message1));
+
+                    Message flagged = new Message(message1.messageId(), message1.factionId(), message1.accountId(), "*****");
+                    faction.accounts().forEach(account -> {
+                        if (account.id() == message.accountId())
+                            return;
+                        int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
+                        if (connectionId != -1) {
+                            server.get().sendToTCP(connectionId, new ChatMessageS2C(flagged));
+                        }
+                    });
+                } else {
+                    faction.accounts().forEach(account -> {
+                        if (account.id() == message.accountId())
+                            return;
+                        int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
+                        if (connectionId != -1) {
+                            server.get().sendToTCP(connectionId, new ChatMessageS2C(message1));
+                        }
+                    });
+                }
             }
         }
     }

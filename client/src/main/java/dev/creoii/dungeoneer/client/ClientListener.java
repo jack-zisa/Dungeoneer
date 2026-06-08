@@ -4,16 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.definitions.Raid;
+import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.client.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.screen.main.PlayTab;
 import dev.creoii.dungeoneer.client.screen.main.VaultThroneTab;
-import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
@@ -26,14 +24,12 @@ import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.CreateFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.JoinFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.LeaveFactionResultS2C;
-import dev.creoii.dungeoneer.network.s2c.faction.SearchFactionResultS2C;
+import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public record ClientListener(Dungeoneer client) implements Listener {
@@ -179,6 +175,27 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     ClientCharacter character = client.getState().getActiveCharacter();
                     character.getPos().set(x, y);
                     character.getCorrection().set(character.getPos()).sub(character.getRenderPos());
+                }
+            }
+            case ChatMessageS2C(Message message) -> {
+                LinkedHashMap<Long, Message> messages = client.getState().getFaction().recentMessages();
+                messages.put(message.messageId(), message);
+
+                if (client.getScreen() instanceof MainScreen mainScreen && mainScreen.getSelectedTab() instanceof FactionTab factionTab) {
+                    factionTab.refreshChat();
+                }
+            }
+            case FlagChatMessageS2C(long localId, Message message) -> {
+                LinkedHashMap<Long, Message> messages = client.getState().getFaction().recentMessages();
+
+                Message message1 = messages.get(localId);
+                if (message1 != null) {
+                    messages.remove(localId);
+                    messages.put(message.messageId(), new Message(message.messageId(), message1.factionId(), message1.accountId(), "*****"));
+
+                    if (client.getScreen() instanceof MainScreen mainScreen && mainScreen.getSelectedTab() instanceof FactionTab factionTab) {
+                        factionTab.refreshChat();
+                    }
                 }
             }
             default -> {

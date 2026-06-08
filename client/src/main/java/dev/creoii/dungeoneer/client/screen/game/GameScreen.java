@@ -70,6 +70,8 @@ public class GameScreen extends AbstractScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().get().sendUDP(new EndRaidC2S(client.getState().getCurrentRaid().get().id()));
                 getClient().setScreen(new MainScreen(client));
+                getClient().getState().getActiveCharacter().getPos().setZero();
+                getClient().getState().getActiveCharacter().getRenderPos().setZero();
             }
         });
         root.add(surrenderButton).left();
@@ -85,6 +87,8 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void render(float delta) {
         ClientCharacter character = client.getState().getActiveCharacter();
+        if (character.isNull())
+            return;
 
         character.getRenderPos().mulAdd(character.getVelocity(), StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta);
 

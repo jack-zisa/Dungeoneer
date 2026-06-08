@@ -8,6 +8,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,8 @@ public class FactionRepository {
                     rs.getInt("id"),
                     rs.getString("name"),
                     rs.getString("description"),
-                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList())
+                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList()),
+                    new LinkedHashMap<>()
                 ))
                 .findOne()
                 .orElse(null)
@@ -64,7 +66,8 @@ public class FactionRepository {
                     rs.getInt("id"),
                     rs.getString("name"),
                     rs.getString("description"),
-                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList())
+                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList()),
+                    new LinkedHashMap<>()
                 ))
                 .list()
         );
@@ -99,6 +102,6 @@ public class FactionRepository {
 
         List<Account> accounts = new ArrayList<>();
         accounts.add(database.getAccounts().getById(accountId));
-        return new Faction(id, name, description, accounts);
+        return new Faction(id, name, description, accounts, new LinkedHashMap<>());
     }
 }

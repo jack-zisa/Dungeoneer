@@ -74,7 +74,7 @@ public class VaultThroneTab extends Tab {
                     return;
 
                 classIndex = (classIndex - 1 + characterSlots) % characterSlots;
-                
+
                 getClient().getState().setActiveCharacter(characters.get(classIndex));
                 updateSelectedCharacter();
             }
@@ -147,9 +147,11 @@ public class VaultThroneTab extends Tab {
 
     private void updateStatsTable() {
         Character selected = characters.get(classIndex);
-
         statsTable.clearChildren();
-        statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().baseStats().speed()), getSkin()));
+
+        if (selected != null) {
+            statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().baseStats().speed()), getSkin()));
+        }
     }
 
     private void updateSelectedCharacter() {

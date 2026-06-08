@@ -7,16 +7,16 @@ import org.jdbi.v3.core.Jdbi;
 
 public class Database {
     public static final Logger LOGGER = new Logger(Database.class.getSimpleName());
-    private final Jdbi jdbi;
     private final ServerSessionRepository serverSessions;
     private final ClientSessionRepository clientSessions;
     private final FactionRepository factions;
     private final AccountRepository accounts;
     private final CharacterRepository characters;
     private final RaidRepository raids;
+    private final ChatMessageRepository chatMessages;
 
     public Database() {
-        jdbi = Jdbi.create("jdbc:sqlite:dungeoneer.db");
+        Jdbi jdbi = Jdbi.create("jdbc:sqlite:dungeoneer.db");
 
         clientSessions = new ClientSessionRepository(jdbi);
         serverSessions = new ServerSessionRepository(jdbi);
@@ -24,6 +24,7 @@ public class Database {
         accounts = new AccountRepository(jdbi);
         characters = new CharacterRepository(jdbi);
         raids = new RaidRepository(this, jdbi);
+        chatMessages = new ChatMessageRepository(jdbi);
         LOGGER.info("Database initialized.");
     }
 
@@ -49,5 +50,9 @@ public class Database {
 
     public RaidRepository getRaids() {
         return raids;
+    }
+
+    public ChatMessageRepository getChatMessages() {
+        return chatMessages;
     }
 }
