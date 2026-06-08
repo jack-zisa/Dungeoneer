@@ -19,6 +19,10 @@ print('Dumping factions...')
 df = pd.read_sql_query("SELECT * FROM factions", connection)
 df.to_csv('dump_output/factions.csv', index=False, sep='|')
 
+print('Dumping chat messages...')
+df = pd.read_sql_query("SELECT * FROM chat_messages", connection)
+df.to_csv('dump_output/chat_messages.csv', index=False, sep='|')
+
 print('Dumping accounts...')
 df = pd.read_sql_query("SELECT * FROM accounts", connection)
 df.to_csv('dump_output/accounts.csv', index=False, sep='|')

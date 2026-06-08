@@ -153,7 +153,7 @@ public final class PacketUtils {
     }
 
     public static Message readMessage(Input input) {
-        return new Message(input.readLong(), input.readLong(), input.readLong(), input.readString());
+        return new Message(input.readLong(), input.readLong(), input.readLong(), input.readString(), input.readBoolean());
     }
 
     public static void writeMessage(Output output, Message message) {
@@ -161,5 +161,6 @@ public final class PacketUtils {
         output.writeLong(message.factionId());
         output.writeLong(message.accountId());
         output.writeString(message.text());
+        output.writeBoolean(message.flagged());
     }
 }

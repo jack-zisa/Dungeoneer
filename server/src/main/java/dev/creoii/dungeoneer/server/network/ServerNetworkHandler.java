@@ -226,33 +226,32 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
         } else if (object instanceof ChatMessageC2S(long localId, Message message)) {
             Faction faction = server.getDatabase().getFactions().getById(message.factionId());
-            if (faction != null) {
-                Message message1 = server.getDatabase().getChatMessages().create(message);
-                faction.recentMessages().put(message1.messageId(), message1);
+            if (faction == null)
+                return;
 
-                if ("bad".equals(message.text())) { // TODO: Implement actual chat filtering
-                    server.get().sendToTCP(connection.getID(), new FlagChatMessageS2C(localId, message1));
+            Message stored = server.getDatabase().getChatMessages().create(message);
 
-                    Message flagged = new Message(message1.messageId(), message1.factionId(), message1.accountId(), "*****");
-                    faction.accounts().forEach(account -> {
-                        if (account.id() == message.accountId())
-                            return;
-                        int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
-                        if (connectionId != -1) {
-                            server.get().sendToTCP(connectionId, new ChatMessageS2C(flagged));
-                        }
-                    });
-                } else {
-                    faction.accounts().forEach(account -> {
-                        if (account.id() == message.accountId())
-                            return;
-                        int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
-                        if (connectionId != -1) {
-                            server.get().sendToTCP(connectionId, new ChatMessageS2C(message1));
-                        }
-                    });
-                }
+            boolean flagged = "bad".equalsIgnoreCase(stored.text());
+
+            Message finalMessage = flagged ? new Message(stored.messageId(), stored.factionId(), stored.accountId(), "*****", true) : stored;
+            if (flagged) {
+                server.getDatabase().getChatMessages().setFlagged(stored.messageId());
             }
+
+            faction.recentMessages().put(finalMessage.messageId(), finalMessage);
+            if (flagged) {
+                server.get().sendToTCP(connection.getID(), new FlagChatMessageS2C(localId, finalMessage));
+            }
+
+            faction.accounts().forEach(account -> {
+                if (account.id() == finalMessage.accountId())
+                    return;
+
+                int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
+                if (connectionId != -1) {
+                    server.get().sendToTCP(connectionId, new ChatMessageS2C(finalMessage));
+                }
+            });
         }
     }
 }

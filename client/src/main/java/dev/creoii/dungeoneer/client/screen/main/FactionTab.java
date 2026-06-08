@@ -108,7 +108,7 @@ public class FactionTab extends Tab {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if ((keycode == Input.Keys.ENTER || keycode == Input.Keys.NUMPAD_ENTER) && !chatField.getText().isBlank()) {
-                    Message message = new Message(nextMessageId, getClient().getState().getFaction().id(), getClient().getState().getAccount().id(), chatField.getText());
+                    Message message = new Message(nextMessageId, getClient().getState().getFaction().id(), getClient().getState().getAccount().id(), chatField.getText(), false);
                     getClient().getState().getFaction().recentMessages().put(nextMessageId, message);
                     refreshChat();
                     getClient().get().sendTCP(new ChatMessageC2S(nextMessageId++, message));

@@ -191,7 +191,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
                 Message message1 = messages.get(localId);
                 if (message1 != null) {
                     messages.remove(localId);
-                    messages.put(message.messageId(), new Message(message.messageId(), message1.factionId(), message1.accountId(), "*****"));
+                    messages.put(message.messageId(), new Message(message.messageId(), message1.factionId(), message1.accountId(), "*****", true));
 
                     if (client.getScreen() instanceof MainScreen mainScreen && mainScreen.getSelectedTab() instanceof FactionTab factionTab) {
                         factionTab.refreshChat();
