@@ -73,8 +73,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(SearchFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(RequestFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(SelectActiveCharacterC2S.class, PacketSerializer.INSTANCE);
-        kryo.register(CharacterMoveStartC2S.class, PacketSerializer.INSTANCE);
-        kryo.register(CharacterMoveEndC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(CharacterMoveC2S.class, PacketSerializer.INSTANCE);
 
         kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
@@ -102,8 +101,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(SearchFactionC2S.class, SearchFactionC2S::write, SearchFactionC2S::read);
         PacketSerializer.INSTANCE.register(RequestFactionC2S.class, RequestFactionC2S::write, RequestFactionC2S::read);
         PacketSerializer.INSTANCE.register(SelectActiveCharacterC2S.class, SelectActiveCharacterC2S::write, SelectActiveCharacterC2S::read);
-        PacketSerializer.INSTANCE.register(CharacterMoveStartC2S.class, CharacterMoveStartC2S::write, CharacterMoveStartC2S::read);
-        PacketSerializer.INSTANCE.register(CharacterMoveEndC2S.class, CharacterMoveEndC2S::write, CharacterMoveEndC2S::read);
+        PacketSerializer.INSTANCE.register(CharacterMoveC2S.class, CharacterMoveC2S::write, CharacterMoveC2S::read);
 
         PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);

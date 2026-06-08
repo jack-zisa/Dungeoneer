@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.server;
 
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
+import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.server.network.ServerNetworkHandler;
@@ -107,16 +108,25 @@ public class DungeoneerServer {
         while (running) {
             if (status.shouldTick()) {
                 long start = System.currentTimeMillis();
+
                 networkHandler.tick(DT);
 
                 state.getRaids().values().forEach(serverRaid -> serverRaid.tick(DT));
 
-                long elapsed = System.currentTimeMillis() - start;
-                long sleep = tickRate - elapsed;
+                getState().getRaids().values().forEach(serverRaid -> {
+                    if (!serverRaid.getCharacter().isMoving())
+                        return;
+                    int connectionId = getSessionManager().getAccountConnections().getOrDefault(serverRaid.getCharacter().get().accountId(), -1);
+                    if (connectionId != -1L) {
+                        get().sendToUDP(connectionId, new CharacterMoveS2C(serverRaid.getCharacter().get().id(), serverRaid.getCharacter().getPos().x, serverRaid.getCharacter().getPos().y));
+                    }
+                });
+
+                long sleep = tickRate - (System.currentTimeMillis() - start);
 
                 if (sleep > 0) {
                     try {
-                        Thread.sleep(tickRate);
+                        Thread.sleep(sleep);
                     } catch (InterruptedException e) {
                         running = false;
                         break;

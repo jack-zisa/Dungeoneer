@@ -12,8 +12,10 @@ public class ClientCharacter implements SidedCharacter {
     private Character character;
     private Sprite sprite;
     private final Vector2 pos;
+    private final Vector2 renderPos;
     private final Vector2 velocity;
     private float speed;
+    private final Vector2 correction;
 
     public ClientCharacter(@Nullable Character character) {
         this.character = character;
@@ -21,9 +23,11 @@ public class ClientCharacter implements SidedCharacter {
         if (character == null) sprite = null;
         else sprite = new Sprite(AssetManager.getClassTexture(character.characterClass().id()));
 
-        pos = Vector2.Zero.cpy();
-        velocity = Vector2.Zero.cpy();
+        pos = new Vector2();
+        renderPos = new Vector2();
+        velocity = new Vector2();
         speed = 100f;
+        correction = new Vector2();
     }
 
     public @Nullable Character get() {
@@ -45,6 +49,10 @@ public class ClientCharacter implements SidedCharacter {
         return pos;
     }
 
+    public Vector2 getRenderPos() {
+        return renderPos;
+    }
+
     @Override
     public Vector2 getVelocity() {
         return velocity;
@@ -53,6 +61,10 @@ public class ClientCharacter implements SidedCharacter {
     @Override
     public float getSpeed() {
         return speed;
+    }
+
+    public Vector2 getCorrection() {
+        return correction;
     }
 
     public boolean isNull() {

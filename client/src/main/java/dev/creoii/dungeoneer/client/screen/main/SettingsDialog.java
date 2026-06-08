@@ -34,16 +34,16 @@ public class SettingsDialog extends Dialog {
         rightButton = createKeyButton(client.getSettings().rightKey(), skin);
 
         content.add("Move Up");
-        content.add(upButton).row();
+        content.add(upButton).padTop(5f).row();
 
         content.add("Move Left");
-        content.add(leftButton).row();
+        content.add(leftButton).padTop(5f).row();
 
         content.add("Move Down");
-        content.add(downButton).row();
+        content.add(downButton).padTop(5f).row();
 
         content.add("Move Right");
-        content.add(rightButton).row();
+        content.add(rightButton).padTop(5f).row();
 
         button("Apply", true);
         button("Cancel", false);

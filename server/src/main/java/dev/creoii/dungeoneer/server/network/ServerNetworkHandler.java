@@ -122,7 +122,6 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof RequestFactionC2S(long accountId)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account == null) {
-                System.out.println("null account");
                 server.get().sendToUDP(connection.getID(), new SendFactionS2C(null));
                 return;
             }
@@ -195,7 +194,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 if (raid != null) server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid));
             }
         } else if (object instanceof StartRaidC2S(long raidId, Character character)) {
-            server.getState().getRaids().put(raidId, new ServerRaid(server, connection.getID(), null, new ServerCharacter(character)));
+            server.getState().getRaids().put(raidId, new ServerRaid(null, new ServerCharacter(character)));
         } else if (object instanceof EndRaidC2S(long raidId)) {
             Raid raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
@@ -222,23 +221,14 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (account != null) {
                 server.getDatabase().getAccounts().updateActiveCharacter(accountId, activeCharacterId);
             }
-        } else if (object instanceof CharacterMoveStartC2S(long raidId, long characterId, boolean axis, boolean positive)) {
+        } else if (object instanceof CharacterMoveC2S(long raidId, long characterId, int movementFlags)) {
             Character character = server.getDatabase().getCharacters().getById(characterId);
             if (character != null && server.getState().getRaids().containsKey(raidId)) {
                 ServerRaid raid = server.getState().getRaids().get(raidId);
                 if (raid.getCharacter().get().id() != characterId)
                     return;
 
-                raid.getCharacter().updateMovement(axis, positive);
-            }
-        } else if (object instanceof CharacterMoveEndC2S(long raidId, long characterId, boolean axis, boolean positive)) {
-            Character character = server.getDatabase().getCharacters().getById(characterId);
-            if (character != null && server.getState().getRaids().containsKey(raidId)) {
-                ServerRaid raid = server.getState().getRaids().get(raidId);
-                if (raid.getCharacter().get().id() != characterId)
-                    return;
-
-                raid.getCharacter().stopMovement(axis, positive);
+                raid.getCharacter().updateMovement(movementFlags);
             }
         }
     }

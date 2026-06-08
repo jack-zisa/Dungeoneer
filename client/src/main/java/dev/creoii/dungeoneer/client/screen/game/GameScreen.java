@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -83,8 +84,23 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void render(float delta) {
         ClientCharacter character = client.getState().getActiveCharacter();
-        camera.position.x = character.getPos().x + character.getSprite().getWidth() * .5f;
-        camera.position.y = character.getPos().y + character.getSprite().getHeight() * .5f;
+
+        character.getRenderPos().mulAdd(character.getVelocity(), character.getSpeed() * delta);
+
+        Vector2 correction = character.getCorrection();
+        float error = correction.len();
+        if (error > 30f) {
+            character.getRenderPos().set(character.getPos());
+            correction.setZero();
+        } else if (error > 5f) {
+            float amount = Math.min(correction.len(), 15f * delta);
+            correction.nor();
+            character.getRenderPos().mulAdd(correction, amount);
+            correction.scl(Math.max(0f, 1f - amount / error));
+        }
+
+        camera.position.x = character.getRenderPos().x + character.getSprite().getWidth() * .5f;
+        camera.position.y = character.getRenderPos().y + character.getSprite().getHeight() * .5f;
         camera.update();
 
         mapRenderer.setView(camera);
@@ -94,7 +110,7 @@ public class GameScreen extends AbstractScreen {
 
         batch.begin();
         Sprite sprite = character.getSprite();
-        sprite.setPosition(character.getPos().x, character.getPos().y);
+        sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
         sprite.draw(batch);
         batch.end();
 

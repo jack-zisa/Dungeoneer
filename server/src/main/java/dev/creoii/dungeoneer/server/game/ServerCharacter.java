@@ -5,21 +5,20 @@ import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 
 public class ServerCharacter implements SidedCharacter {
-    public static final int LEFT  = 1;
+    public static final int LEFT = 1;
     public static final int RIGHT = 2;
-    public static final int UP    = 4;
-    public static final int DOWN  = 8;
+    public static final int UP = 4;
+    public static final int DOWN = 8;
 
     private final Character character;
     private final Vector2 pos;
     private final Vector2 velocity;
     private float speed;
-    private int movementFlags;
 
     public ServerCharacter(Character character) {
         this.character = character;
-        pos = Vector2.Zero.cpy();
-        velocity = Vector2.Zero.cpy();
+        pos = new Vector2();
+        velocity = new Vector2();
         speed = 100f;
     }
 
@@ -42,32 +41,17 @@ public class ServerCharacter implements SidedCharacter {
         return speed;
     }
 
-    public int getMovementFlags() {
-        return movementFlags;
-    }
+    public void updateMovement(int movementFlags) {
+        float dx = 0;
+        float dy = 0;
 
-    public void stopMovement(boolean axis, boolean positive) {
-        if (axis) {
-            if (positive) movementFlags &= ~RIGHT;
-            else movementFlags &= ~LEFT;
-        } else {
-            if (positive) movementFlags &= ~UP;
-            else movementFlags &= ~DOWN;
-        }
-    }
+        if ((movementFlags & LEFT) != 0) dx -= 1f;
+        if ((movementFlags & RIGHT) != 0) dx += 1f;
+        if ((movementFlags & UP) != 0) dy += 1f;
+        if ((movementFlags & DOWN) != 0) dy -= 1f;
 
-    public void updateMovement(boolean axis, boolean positive) {
-        if (axis) {
-            if (positive) movementFlags |= RIGHT;
-            else movementFlags |= LEFT;
-        } else {
-            if (positive) movementFlags |= UP;
-            else movementFlags |= DOWN;
-        }
-    }
+        velocity.set(dx, dy);
 
-    @Override
-    public boolean isMoving() {
-        return movementFlags != 0 && SidedCharacter.super.isMoving();
+        if (!velocity.isZero()) velocity.nor();
     }
 }

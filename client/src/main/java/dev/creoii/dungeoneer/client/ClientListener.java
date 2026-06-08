@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.client;
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.definitions.Raid;
 import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
@@ -173,10 +174,11 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     });
                 }
             }
-            case CharacterMoveS2C(long characterId, float x, float y, float xv, float yv) -> {
+            case CharacterMoveS2C(long characterId, float x, float y) -> {
                 if (!client.getState().getActiveCharacter().isNull() && characterId == client.getState().getActiveCharacter().get().id()) {
-                    client.getState().getActiveCharacter().getPos().set(x, y);
-                    client.getState().getActiveCharacter().getVelocity().set(xv, yv);
+                    ClientCharacter character = client.getState().getActiveCharacter();
+                    character.getPos().set(x, y);
+                    character.getCorrection().set(character.getPos()).sub(character.getRenderPos());
                 }
             }
             default -> {
