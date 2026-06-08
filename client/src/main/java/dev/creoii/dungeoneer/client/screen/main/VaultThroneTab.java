@@ -20,6 +20,7 @@ public class VaultThroneTab extends Tab {
     private int characterSlots;
     private java.util.List<Character> characters;
     private Label classLabel;
+    private Table statsTable;
     private Stack[] classIcons;
     private Table carousel;
     private TextButton createCharacterButton;
@@ -45,6 +46,8 @@ public class VaultThroneTab extends Tab {
         characters.addAll(getClient().getState().getCharacters());
 
         classLabel = new Label("", getSkin());
+        statsTable = new Table();
+
         for (int i = 0; i < 3; i++) {
             classIcons[i] = new Stack();
             classIcons[i].add(new ImageButton(new NinePatchDrawable(AssetManager.TAB_9PATCH)));
@@ -63,6 +66,8 @@ public class VaultThroneTab extends Tab {
                     classIndex = characterSlots - 1;
                 }
 
+                getClient().getState().setActiveCharacter(characters.get(classIndex));
+
                 updateSelectedCharacter();
             }
         });
@@ -78,13 +83,17 @@ public class VaultThroneTab extends Tab {
                     classIndex = 0;
                 }
 
+                getClient().getState().setActiveCharacter(characters.get(classIndex));
+
                 updateSelectedCharacter();
             }
         });
 
         Table center = new Table();
         center.add(classIcons[1]).size(120).row();
-        center.add(classLabel).padTop(10);
+        center.add(classLabel).padTop(10).row();
+        center.add(statsTable).padTop(10);
+        center.add();
 
         carousel.add(classIcons[0]).size(96).expandX().pad(10);
         carousel.add(center).expandX().pad(20);
@@ -113,28 +122,30 @@ public class VaultThroneTab extends Tab {
         carousel.setVisible(!characters.isEmpty());
 
         if (!characters.isEmpty()) {
-            Character character = characters.get(classIndex);
-            if (character != null) {
-                createCharacterButton.setText("Delete Character");
-                classLabel.setText(classIndex + ": " + character.characterClass().id());
-            } else {
-                createCharacterButton.setText("Create Character");
-                classLabel.setText(classIndex + ": Empty");
-            }
-        }
+            updateSelectedCharacter();
+        } else updateCharacterDisplay();
+    }
 
-        updateCharacterDisplay();
+    private void updateStatsTable() {
+        Character selected = characters.get(classIndex);
+
+        statsTable.clearChildren();
+        statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().stats().speed()), getSkin()));
     }
 
     private void updateSelectedCharacter() {
         Character selected = characters.get(classIndex);
 
-        getClient().getState().setActiveCharacter(selected);
-
         if (selected != null) {
+            createCharacterButton.setText("Delete Character");
             classLabel.setText(classIndex + ": " + selected.characterClass().id());
+            statsTable.setVisible(true);
+            updateStatsTable();
         } else {
+            createCharacterButton.setText("Create Character");
             classLabel.setText(classIndex + ": Empty");
+            statsTable.setVisible(false);
+            updateStatsTable();
         }
 
         updateCharacterDisplay();

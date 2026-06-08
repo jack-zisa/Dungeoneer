@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
+import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 public class ClientCharacter implements SidedCharacter {
@@ -14,7 +15,7 @@ public class ClientCharacter implements SidedCharacter {
     private final Vector2 pos;
     private final Vector2 renderPos;
     private final Vector2 velocity;
-    private float speed;
+    private final StatContainer stats;
     private final Vector2 correction;
 
     public ClientCharacter(@Nullable Character character) {
@@ -26,7 +27,7 @@ public class ClientCharacter implements SidedCharacter {
         pos = new Vector2();
         renderPos = new Vector2();
         velocity = new Vector2();
-        speed = 100f;
+        stats = new StatContainer(character == null ? 0 : character.characterClass().stats().speed().value());
         correction = new Vector2();
     }
 
@@ -36,8 +37,13 @@ public class ClientCharacter implements SidedCharacter {
 
     public void set(@Nullable Character character) {
         this.character = character;
-        if (character == null) sprite = null;
-        else sprite = new Sprite(AssetManager.getClassTexture(character.characterClass().id()));
+        if (character == null) {
+            sprite = null;
+            stats.setSpeed(0);
+        } else {
+            sprite = new Sprite(AssetManager.getClassTexture(character.characterClass().id()));
+            stats.setSpeed(character.characterClass().stats().speed().value());
+        }
     }
 
     public Sprite getSprite() {
@@ -59,8 +65,8 @@ public class ClientCharacter implements SidedCharacter {
     }
 
     @Override
-    public float getSpeed() {
-        return speed;
+    public StatContainer getStats() {
+        return stats;
     }
 
     public Vector2 getCorrection() {

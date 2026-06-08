@@ -1,14 +1,16 @@
 package dev.creoii.dungeoneer.definitions;
 
+import dev.creoii.dungeoneer.util.stat.StatContainer;
+
 import java.util.Locale;
 
-public record CharacterClass(String id) {
-    public static final CharacterClass KNIGHT = new CharacterClass("knight");
-    public static final CharacterClass WIZARD = new CharacterClass("wizard");
-    public static final CharacterClass ROGUE = new CharacterClass("rogue");
-    public static final CharacterClass PRIEST = new CharacterClass("priest");
-    public static final CharacterClass NINJA = new CharacterClass("ninja");
-    public static final CharacterClass ARCHER = new CharacterClass("archer");
+public record CharacterClass(String id, StatContainer stats) {
+    public static final CharacterClass KNIGHT = new CharacterClass("knight", new StatContainer(60));
+    public static final CharacterClass WIZARD = new CharacterClass("wizard", new StatContainer(100));
+    public static final CharacterClass ROGUE = new CharacterClass("rogue", new StatContainer(140));
+    public static final CharacterClass PRIEST = new CharacterClass("priest", new StatContainer(100));
+    public static final CharacterClass NINJA = new CharacterClass("ninja", new StatContainer(140));
+    public static final CharacterClass ARCHER = new CharacterClass("archer", new StatContainer(140));
 
     public static final CharacterClass[] VALUES = new CharacterClass[]{KNIGHT, WIZARD, ROGUE, PRIEST, NINJA, ARCHER};
 

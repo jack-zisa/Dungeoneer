@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.server.game;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
+import dev.creoii.dungeoneer.util.stat.StatContainer;
 
 public class ServerCharacter implements SidedCharacter {
     public static final int LEFT = 1;
@@ -13,13 +14,13 @@ public class ServerCharacter implements SidedCharacter {
     private final Character character;
     private final Vector2 pos;
     private final Vector2 velocity;
-    private float speed;
+    private final StatContainer stats;
 
     public ServerCharacter(Character character) {
         this.character = character;
         pos = new Vector2();
         velocity = new Vector2();
-        speed = 100f;
+        stats = new StatContainer(character.characterClass().stats().speed().value());
     }
 
     public Character get() {
@@ -37,8 +38,8 @@ public class ServerCharacter implements SidedCharacter {
     }
 
     @Override
-    public float getSpeed() {
-        return speed;
+    public StatContainer getStats() {
+        return stats;
     }
 
     public void updateMovement(int movementFlags) {

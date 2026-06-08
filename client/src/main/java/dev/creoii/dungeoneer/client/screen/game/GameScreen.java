@@ -85,14 +85,16 @@ public class GameScreen extends AbstractScreen {
     public void render(float delta) {
         ClientCharacter character = client.getState().getActiveCharacter();
 
-        character.getRenderPos().mulAdd(character.getVelocity(), character.getSpeed() * delta);
+        character.getRenderPos().mulAdd(character.getVelocity(), character.getStats().speed().value() * delta);
 
         Vector2 correction = character.getCorrection();
         float error = correction.len();
         if (error > 30f) {
+            Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             character.getRenderPos().set(character.getPos());
             correction.setZero();
         } else if (error > 5f) {
+            Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             float amount = Math.min(correction.len(), 15f * delta);
             correction.nor();
             character.getRenderPos().mulAdd(correction, amount);

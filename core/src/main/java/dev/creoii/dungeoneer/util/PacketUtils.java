@@ -4,6 +4,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.util.stat.Stat;
+import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -125,5 +127,30 @@ public final class PacketUtils {
         writeAccount(output, raid.target());
         output.writeString(raid.startTime().toString());
         output.writeString(raid.endTime() == null ? "" : raid.endTime().toString());
+    }
+
+    public static Stat readStat(Input input) {
+        return new Stat(Stat.Type.values()[input.readInt()], input.readInt());
+    }
+
+    public static void writeStat(Output output, Stat stat) {
+        output.writeInt(stat.type().ordinal());
+        output.writeInt(stat.value());
+    }
+
+    public static void writeStatContainer(Output output, StatContainer container) {
+        writeStat(output, container.speed());
+    }
+
+    public static StatContainer readStatContainer(Input input) {
+        return new StatContainer(readStat(input));
+    }
+
+    public static void writeStatContainerFast(Output output, StatContainer container) {
+        output.writeInt(container.speed().value());
+    }
+
+    public static StatContainer readStatContainerFast(Input input) {
+        return new StatContainer(input.readInt());
     }
 }
