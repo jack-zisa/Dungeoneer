@@ -39,7 +39,7 @@ public class VaultThroneTab extends Tab {
     protected void build() {
         add(new Label("Vault & Throne", getSkin())).pad(20).row();
 
-        classIcons = new Stack[]{null, null, null};
+        classIcons = new Stack[]{null, null, null, null, null};
         carousel = new Table();
 
         characterSlots = getClient().getState().getAccount().characterSlots();
@@ -48,7 +48,7 @@ public class VaultThroneTab extends Tab {
         classLabel = new Label("", getSkin());
         statsTable = new Table();
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < classIcons.length; i++) {
             classIcons[i] = new Stack();
             classIcons[i].add(new ImageButton(new NinePatchDrawable(AssetManager.TAB_9PATCH)));
             classIcons[i].add(new ImageButton(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
@@ -60,44 +60,63 @@ public class VaultThroneTab extends Tab {
                 if (characterSlots < 1)
                     return;
 
-                classIndex--;
-
-                if (classIndex < 0) {
-                    classIndex = characterSlots - 1;
-                }
+                classIndex = (classIndex - 2 + characterSlots) % characterSlots;
 
                 getClient().getState().setActiveCharacter(characters.get(classIndex));
-
                 updateSelectedCharacter();
             }
         });
 
-        classIcons[2].addListener(new ClickListener() {
+        classIcons[1].addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (characterSlots < 1)
                     return;
-                classIndex++;
 
-                if (classIndex >= characterSlots) {
-                    classIndex = 0;
-                }
+                classIndex = (classIndex - 1 + characterSlots) % characterSlots;
+                
+                getClient().getState().setActiveCharacter(characters.get(classIndex));
+                updateSelectedCharacter();
+            }
+        });
+
+        classIcons[3].addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (characterSlots < 1)
+                    return;
+
+                classIndex = (classIndex + 1) % characterSlots;
 
                 getClient().getState().setActiveCharacter(characters.get(classIndex));
+                updateSelectedCharacter();
+            }
+        });
 
+        classIcons[4].addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (characterSlots < 1)
+                    return;
+
+                classIndex = (classIndex + 2) % characterSlots;
+
+                getClient().getState().setActiveCharacter(characters.get(classIndex));
                 updateSelectedCharacter();
             }
         });
 
         Table center = new Table();
-        center.add(classIcons[1]).size(120).row();
+        center.add(classIcons[2]).size(120).row();
         center.add(classLabel).padTop(10).row();
         center.add(statsTable).padTop(10);
         center.add();
 
         carousel.add(classIcons[0]).size(96).expandX().pad(10);
+        carousel.add(classIcons[1]).size(96).expandX().pad(10);
         carousel.add(center).expandX().pad(20);
-        carousel.add(classIcons[2]).size(96).expandX().pad(10);
+        carousel.add(classIcons[3]).size(96).expandX().pad(10);
+        carousel.add(classIcons[4]).size(96).expandX().pad(10);
 
         add(carousel).growX().height(200).padBottom(20).row();
 
@@ -163,18 +182,20 @@ public class VaultThroneTab extends Tab {
             return;
         }
 
+        int leftLeft = characterSlots > 4 ? (classIndex - 2 + characterSlots) % characterSlots : -1;
         int left = characterSlots > 2 ? (classIndex - 1 + characterSlots) % characterSlots : -1;
         int center = classIndex;
         int right = characterSlots > 1 ? (classIndex + 1) % characterSlots : -1;
+        int rightRight = characterSlots > 3 ? (classIndex + 2) % characterSlots : -1;
 
-        int[] indices = {left, center, right};
+        int[] indices = {leftLeft, left, center, right, rightRight};
 
         Character selected = getCharacterForSlot(center);
 
         createCharacterButton.setText(characters.get(classIndex) == null ? "Create Character" : "Delete Character");
         classLabel.setText(selected == null ? "Empty" : selected.characterClass().id());
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < classIcons.length; i++) {
             Character character = getCharacterForSlot(indices[i]);
             classIcons[i].removeActorAt(1, true);
             TextureRegion texture = character == null ? AssetManager.CLASS_SILHOUETTE_TEXTURE : AssetManager.getClassTexture(character.characterClass().id());
@@ -183,8 +204,10 @@ public class VaultThroneTab extends Tab {
             classIcons[i].add(container);
         }
 
-        classIcons[0].setVisible(characters.size() > 2);
-        classIcons[2].setVisible(characters.size() > 1);
+        classIcons[0].setVisible(characters.size() > 4);
+        classIcons[1].setVisible(characters.size() > 2);
+        classIcons[3].setVisible(characters.size() > 1);
+        classIcons[4].setVisible(characters.size() > 3);
     }
 
     private Character getCharacterForSlot(int slot) {
