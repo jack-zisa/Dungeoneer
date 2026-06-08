@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 
 public abstract class Tab extends Table {
     protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(AssetManager.TAB_9PATCH);
@@ -17,7 +18,7 @@ public abstract class Tab extends Table {
     private final ImageButton tabButton;
 
     protected Tab(Dungeoneer client, TextureRegion tabTexture) {
-        super(MainScreen.SKIN);
+        super(AbstractScreen.SKIN);
         this.client = client;
 
         setFillParent(true);

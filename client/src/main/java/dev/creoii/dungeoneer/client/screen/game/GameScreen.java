@@ -9,12 +9,12 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
@@ -24,7 +24,6 @@ import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class GameScreen extends AbstractScreen {
     private final Dungeoneer client;
-    private Skin skin;
     private OrthographicCamera camera;
     private OrthogonalTiledMapRenderer mapRenderer;
     private SpriteBatch batch;
@@ -48,8 +47,6 @@ public class GameScreen extends AbstractScreen {
         client.getState().getCurrentRaid().getDungeon().build();
         mapRenderer = new OrthogonalTiledMapRenderer(client.getState().getCurrentRaid().getDungeon().getMap());
 
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
-
         ClientRaid currentRaid = client.getState().getCurrentRaid();
         if (currentRaid.isNull()) {
             client.getState().setStatus(ClientState.Status.LOBBY);
@@ -62,9 +59,9 @@ public class GameScreen extends AbstractScreen {
         root.setFillParent(true);
         root.top().left();
 
-        root.add(new Label(String.format("Raiding %s!", client.getState().getCurrentRaid().get().target().username()), skin)).left().row();
+        root.add(new Label(String.format("Raiding %s!", client.getState().getCurrentRaid().get().target().username()), SKIN)).left().row();
 
-        TextButton surrenderButton = new TextButton("Surrender", skin);
+        TextButton surrenderButton = new TextButton("Surrender", SKIN);
         surrenderButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -77,11 +74,8 @@ public class GameScreen extends AbstractScreen {
         root.add(surrenderButton).left();
 
         getStage().addActor(root);
-
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(getStage());
-        multiplexer.addProcessor(client.getController());
-        Gdx.input.setInputProcessor(multiplexer);
+        getStage().addListener(new CharacterInputListener(client));
+        super.show();
     }
 
     @Override
@@ -127,7 +121,7 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void dispose() {
         super.dispose();
-        skin.dispose();
+        SKIN.dispose();
         mapRenderer.dispose();
         batch.dispose();
     }

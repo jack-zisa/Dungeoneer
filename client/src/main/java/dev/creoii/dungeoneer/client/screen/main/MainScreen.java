@@ -1,6 +1,5 @@
 package dev.creoii.dungeoneer.client.screen.main;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
@@ -13,8 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainScreen extends AbstractScreen {
-    protected static final Skin SKIN = new Skin(Gdx.files.internal("uiskin.json"));
-
     private final Dungeoneer client;
     private final Map<ImageButton, Tab> buttonToTab;
     private Tab selectedTab;

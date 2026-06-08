@@ -10,7 +10,7 @@ public class ClientDungeon {
 
     public void build() {
         TiledMap map = new TiledMap();
-        TiledMapTileLayer ground = new TiledMapTileLayer(32, 32, 8, 8);
+        TiledMapTileLayer ground = new TiledMapTileLayer(64, 64, 8, 8);
         ground.setName("ground");
 
         StaticTiledMapTile tile = new StaticTiledMapTile(AssetManager.STONE_TEXTURE);

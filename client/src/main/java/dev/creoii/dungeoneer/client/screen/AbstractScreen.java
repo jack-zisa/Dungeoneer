@@ -3,9 +3,11 @@ package dev.creoii.dungeoneer.client.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public abstract class AbstractScreen implements Screen {
+    public static final Skin SKIN = new Skin(Gdx.files.internal("uiskin.json"));
     private final Stage stage;
 
     public AbstractScreen() {

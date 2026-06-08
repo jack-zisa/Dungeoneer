@@ -1,21 +1,22 @@
 package dev.creoii.dungeoneer.client.control;
 
-import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.util.Constants;
 
-public class CharacterController extends InputAdapter {
+public class CharacterInputListener extends InputListener {
     private final Dungeoneer client;
     private int movementFlags;
 
-    public CharacterController(Dungeoneer client) {
+    public CharacterInputListener(Dungeoneer client) {
         this.client = client;
     }
 
     @Override
-    public boolean keyDown(int keycode) {
+    public boolean keyDown(InputEvent event, int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
 
         if (character.isNull())
@@ -49,7 +50,7 @@ public class CharacterController extends InputAdapter {
     }
 
     @Override
-    public boolean keyUp(int keycode) {
+    public boolean keyUp(InputEvent event, int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
 
         if (character.isNull())

@@ -94,6 +94,7 @@ public class ClientState {
         AUTHENTICATING,
         LOBBY,
         RAID_SEARCHING,
-        RAIDING
+        RAIDING,
+        EDITING_DUNGEON
     }
 }

@@ -9,7 +9,8 @@ import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.screen.RaidLoadingScreen;
+import dev.creoii.dungeoneer.client.screen.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
 
 public class PlayTab extends Tab {
@@ -73,7 +74,16 @@ public class PlayTab extends Tab {
                 getClient().get().sendUDP(new RequestRaidTargetC2S(getClient().getState().getAccount()));
             }
         });
-        mainSection.add(raidButton).size(120f, 80f);
+        mainSection.add(raidButton).size(120f, 80f).row();
+        TextButton buildButton = new TextButton("Build Dungeon", getSkin());
+        buildButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                getClient().setScreen(new DungeonEditorScreen(getClient()));
+                getClient().getState().setStatus(ClientState.Status.EDITING_DUNGEON);
+            }
+        });
+        mainSection.add(buildButton).size(120f, 40f);
         add(mainSection).expand().fill();
     }
 

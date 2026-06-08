@@ -7,7 +7,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.creoii.dungeoneer.client.control.CharacterController;
+import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
@@ -22,14 +22,14 @@ public class Dungeoneer extends Game {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final Client client;
     private final ClientState state;
-    private final CharacterController controller;
+    private final CharacterInputListener controller;
     private final Settings settings;
     private final Listener.QueuedListener listener;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
         state = new ClientState(this);
-        controller = new CharacterController(this);
+        controller = new CharacterInputListener(this);
         settings = Settings.DEFAULT;
         listener = new Listener.QueuedListener(new ClientListener(this)) {
             @Override
@@ -47,7 +47,7 @@ public class Dungeoneer extends Game {
         return state;
     }
 
-    public CharacterController getController() {
+    public CharacterInputListener getController() {
         return controller;
     }
 
