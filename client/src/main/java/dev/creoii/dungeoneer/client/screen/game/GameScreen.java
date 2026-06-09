@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.client.screen.game;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -24,9 +25,11 @@ import javax.annotation.Nullable;
 
 public class GameScreen extends AbstractScreen {
     private final Dungeoneer client;
+    private CharacterInputListener inputListener;
     private OrthographicCamera camera;
     private OrthogonalTiledMapRenderer mapRenderer;
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
 
     public GameScreen(Dungeoneer client) {
         this.client = client;
@@ -46,6 +49,9 @@ public class GameScreen extends AbstractScreen {
 
         client.getState().getCurrentRaid().getDungeon().build();
         mapRenderer = new OrthogonalTiledMapRenderer(client.getState().getCurrentRaid().getDungeon().getMap());
+
+        shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
 
         ClientRaid currentRaid = client.getState().getCurrentRaid();
         if (currentRaid.isNull()) {
@@ -79,7 +85,7 @@ public class GameScreen extends AbstractScreen {
         root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f);
 
         getStage().addActor(root);
-        getStage().addListener(new CharacterInputListener(client));
+        getStage().addListener(inputListener = new CharacterInputListener(client));
         super.show();
     }
 
@@ -128,6 +134,14 @@ public class GameScreen extends AbstractScreen {
         sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
         sprite.draw(batch);
         batch.end();
+
+        if (inputListener != null && client.getSettings().debug().value()) {
+            inputListener.updateMousePos(camera);
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.line(character.getRenderPos().x + 4f, character.getRenderPos().y + 4f, inputListener.getMousePos().x, inputListener.getMousePos().y);
+            shapeRenderer.end();
+        }
 
         super.render(delta);
     }

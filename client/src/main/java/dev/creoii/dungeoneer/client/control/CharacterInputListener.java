@@ -1,5 +1,8 @@
 package dev.creoii.dungeoneer.client.control;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -10,15 +13,20 @@ import dev.creoii.dungeoneer.util.Constants;
 public class CharacterInputListener extends InputListener {
     private final Dungeoneer client;
     private int movementFlags;
+    private final Vector3 mousePos;
 
     public CharacterInputListener(Dungeoneer client) {
         this.client = client;
+        mousePos = new Vector3();
+    }
+
+    public Vector3 getMousePos() {
+        return mousePos;
     }
 
     @Override
     public boolean keyDown(InputEvent event, int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
-
         if (character.isNull())
             return false;
 
@@ -52,7 +60,6 @@ public class CharacterInputListener extends InputListener {
     @Override
     public boolean keyUp(InputEvent event, int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
-
         if (character.isNull())
             return false;
 
@@ -66,6 +73,12 @@ public class CharacterInputListener extends InputListener {
         }
 
         return false;
+    }
+
+    public void updateMousePos(Camera camera) {
+        mousePos.x = Gdx.input.getX();
+        mousePos.y = Gdx.input.getY();
+        camera.unproject(mousePos);
     }
 
     private void updateMovement() {

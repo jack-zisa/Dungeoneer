@@ -3,42 +3,55 @@ package dev.creoii.dungeoneer.client.option;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 
-public record Settings(IntOption upKey, IntOption leftKey, IntOption downKey, IntOption rightKey) {
+public record Settings(IntegerOption upKey, IntegerOption leftKey, IntegerOption downKey, IntegerOption rightKey, BooleanOption debug) {
     public static final Settings DEFAULT = new Settings(
-        new IntOption("up_key", Input.Keys.W),
-        new IntOption("left_key", Input.Keys.A),
-        new IntOption("down_key", Input.Keys.S),
-        new IntOption("right_key", Input.Keys.D)
+        new IntegerOption("up_key", Input.Keys.W),
+        new IntegerOption("left_key", Input.Keys.A),
+        new IntegerOption("down_key", Input.Keys.S),
+        new IntegerOption("right_key", Input.Keys.D),
+        new BooleanOption("debug", true)
     );
-    public static final Codec<Settings> CODEC = RecordCodecBuilder.create(instance -> {
-        return instance.group(
-            IntOption.CODEC.fieldOf("up_key").forGetter(settings -> settings.upKey),
-            IntOption.CODEC.fieldOf("left_key").forGetter(settings -> settings.leftKey),
-            IntOption.CODEC.fieldOf("down_key").forGetter(settings -> settings.downKey),
-            IntOption.CODEC.fieldOf("right_key").forGetter(settings -> settings.rightKey)
-        ).apply(instance, Settings::new);
-    });
+    public static final Codec<Settings> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                Codec.INT.fieldOf("up_key").forGetter(s -> s.upKey.value()),
+                Codec.INT.fieldOf("left_key").forGetter(s -> s.leftKey.value()),
+                Codec.INT.fieldOf("down_key").forGetter(s -> s.downKey.value()),
+                Codec.INT.fieldOf("right_key").forGetter(s -> s.rightKey.value()),
+                Codec.BOOL.fieldOf("debug").forGetter(s -> s.debug.value())
+            ).apply(instance, (up, left, down, right, debug) ->
+                new Settings(
+                    new IntegerOption("up_key", up),
+                    new IntegerOption("left_key", left),
+                    new IntegerOption("down_key", down),
+                    new IntegerOption("right_key", right),
+                    new BooleanOption("debug", debug)
+                )
+            )
+        );
 
     public void load() {
         FileHandle file = Gdx.files.local("settings.json");
         if (file.exists()) {
-            Settings loaded = Dungeoneer.GSON.fromJson(file.reader(), Settings.class);
+            JsonElement json = Dungeoneer.GSON.fromJson(file.reader(), JsonElement.class);
+            Settings loaded = CODEC.parse(JsonOps.INSTANCE, json).getOrThrow(s -> {
+                Dungeoneer.LOGGER.error(s);
+                return new RuntimeException();
+            });
             upKey.setValue(loaded.upKey.value());
             leftKey.setValue(loaded.leftKey.value());
             downKey.setValue(loaded.downKey.value());
             rightKey.setValue(loaded.rightKey.value());
+            debug.setValue(loaded.debug.value());
         }
     }
 
     public void save() {
-        Gdx.files.local("settings.json").writeString(Dungeoneer.GSON.toJson(this), false);
-    }
-
-    public boolean isMovementKey(int keycode) {
-        return keycode == upKey.value() || keycode == leftKey.value() || keycode == downKey.value() || keycode == rightKey.value();
+        CODEC.encodeStart(JsonOps.INSTANCE, this).resultOrPartial(Dungeoneer.LOGGER::error).ifPresent(json -> Gdx.files.local("settings.json").writeString(Dungeoneer.GSON.toJson(json), false));
     }
 }

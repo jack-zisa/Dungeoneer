@@ -4,13 +4,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.option.IntOption;
+import dev.creoii.dungeoneer.client.option.BooleanOption;
+import dev.creoii.dungeoneer.client.option.IntegerOption;
 
 public class SettingsDialog extends Dialog {
     private final Dungeoneer client;
@@ -19,8 +17,9 @@ public class SettingsDialog extends Dialog {
     private final TextButton leftButton;
     private final TextButton downButton;
     private final TextButton rightButton;
+    private final CheckBox debugButton;
 
-    private IntOption listeningFor;
+    private IntegerOption listeningFor;
 
     public SettingsDialog(Dungeoneer client, Skin skin) {
         super("Settings", skin);
@@ -32,6 +31,7 @@ public class SettingsDialog extends Dialog {
         leftButton = createKeyButton(client.getSettings().leftKey(), skin);
         downButton = createKeyButton(client.getSettings().downKey(), skin);
         rightButton = createKeyButton(client.getSettings().rightKey(), skin);
+        debugButton = createToggleButton(client.getSettings().debug(), skin);
 
         content.add("Move Up");
         content.add(upButton).padTop(5f).row();
@@ -44,6 +44,9 @@ public class SettingsDialog extends Dialog {
 
         content.add("Move Right");
         content.add(rightButton).padTop(5f).row();
+
+        content.add("Debug");
+        content.add(debugButton).padTop(5f).row();
 
         button("Apply", true);
         button("Cancel", false);
@@ -77,9 +80,8 @@ public class SettingsDialog extends Dialog {
         }
     }
 
-    private TextButton createKeyButton(IntOption option, Skin skin) {
+    private TextButton createKeyButton(IntegerOption option, Skin skin) {
         TextButton button = new TextButton(Input.Keys.toString(option.value()), skin);
-
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -87,7 +89,18 @@ public class SettingsDialog extends Dialog {
                 button.setText("Press key...");
             }
         });
-
         return button;
+    }
+
+    private CheckBox createToggleButton(BooleanOption option, Skin skin) {
+        CheckBox box = new CheckBox("", skin);
+        box.setChecked(option.value());
+        box.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                option.setValue(box.isChecked());
+            }
+        });
+        return box;
     }
 }

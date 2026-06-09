@@ -1,18 +1,7 @@
 {
-  "upKey": {
-    "key": "up_key",
-    "value": 51
-  },
-  "leftKey": {
-    "key": "left_key",
-    "value": 29
-  },
-  "downKey": {
-    "key": "down_key",
-    "value": 47
-  },
-  "rightKey": {
-    "key": "right_key",
-    "value": 32
-  }
+  "down_key": 47,
+  "right_key": 32,
+  "debug": false,
+  "up_key": 51,
+  "left_key": 29
 }
