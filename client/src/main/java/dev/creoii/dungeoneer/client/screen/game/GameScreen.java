@@ -47,7 +47,6 @@ public class GameScreen extends AbstractScreen {
 
         batch = new SpriteBatch();
 
-        client.getState().getCurrentRaid().getDungeon().build();
         mapRenderer = new OrthogonalTiledMapRenderer(client.getState().getCurrentRaid().getDungeon().getMap());
 
         shapeRenderer = new ShapeRenderer();

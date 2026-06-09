@@ -154,8 +154,8 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     });
                 }
             }
-            case SendRaidS2C(Raid raid) -> {
-                client.getState().setCurrentRaid(raid);
+            case SendRaidS2C(Raid raid, byte[] mapData) -> {
+                client.getState().setCurrentRaid(raid, mapData);
                 Gdx.app.postRunnable(() -> {
                     client.getState().setStatus(ClientState.Status.RAIDING);
                     client.setScreen(new GameScreen(client));

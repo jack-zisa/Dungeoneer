@@ -187,8 +187,13 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof RequestRaidTargetC2S(Account account)) {
             Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
             if (target != null) {
-                Raid raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
-                if (raid != null) server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid));
+                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
+                if (dungeonMap != null) {
+                    Raid raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
+                    if (raid != null) {
+                        server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid, dungeonMap.mapData()));
+                    }
+                }
             }
         } else if (object instanceof StartRaidC2S(long raidId, Character character)) {
             server.getState().getRaids().put(raidId, new ServerRaid(null, new ServerCharacter(character)));

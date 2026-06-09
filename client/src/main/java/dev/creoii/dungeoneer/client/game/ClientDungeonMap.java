@@ -1,32 +1,40 @@
 package dev.creoii.dungeoneer.client.game;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
-import dev.creoii.dungeoneer.client.AssetManager;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+import com.badlogic.gdx.utils.Disposable;
+import dev.creoii.dungeoneer.client.screen.editor.Tiles;
+import dev.creoii.dungeoneer.util.DungeonMapUtils;
 
-public class ClientDungeonMap {
+import java.io.IOException;
+
+public class ClientDungeonMap implements Disposable {
     private TiledMap map;
 
-    public void build() {
-        TiledMap map = new TiledMap();
-        TiledMapTileLayer ground = new TiledMapTileLayer(64, 64, 8, 8);
-        ground.setName("ground");
-
-        StaticTiledMapTile tile = new StaticTiledMapTile(AssetManager.STONE_TEXTURE);
-        for (int x = 0; x < 64; x++) {
-            for (int y = 0; y < 64; y++) {
-                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                cell.setTile(tile);
-                ground.setCell(x, y, cell);
-            }
+    public void build(byte[] mapData) {
+        try {
+            TiledMapTileSet tiledMapTileSet = new TiledMapTileSet();
+            tiledMapTileSet.putTile(1, Tiles.STONE);
+            tiledMapTileSet.putTile(2, Tiles.DIRT);
+            tiledMapTileSet.putTile(3, Tiles.GRASS);
+            tiledMapTileSet.putTile(4, Tiles.SAND);
+            tiledMapTileSet.putTile(5, Tiles.LAVA);
+            map = DungeonMapUtils.deserializeMap(mapData, tiledMapTileSet);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        map.getLayers().add(ground);
-        this.map = map;
     }
 
     public TiledMap getMap() {
-    return map;
-}
+        return map;
+    }
+
+    public void clearMap() {
+        map = null;
+    }
+
+    @Override
+    public void dispose() {
+        map.dispose();
+    }
 }
