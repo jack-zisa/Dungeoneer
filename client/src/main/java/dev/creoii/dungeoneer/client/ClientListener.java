@@ -19,6 +19,8 @@ import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
+import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
+import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.PacketResult;
@@ -31,9 +33,16 @@ import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import org.jspecify.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public record ClientListener(Dungeoneer client) implements Listener {
     @Override
@@ -215,6 +224,22 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     }
                 });
             }
+            case SyncDataS2C(byte[] data) -> {
+                Path cacheRoot = Paths.get(System.getProperty("user.dir"), "cache", "data");
+
+                try (ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(data))) {
+                    ZipEntry entry;
+                    while ((entry = zipIn.getNextEntry()) != null) {
+                        Path filePath = cacheRoot.resolve(entry.getName());
+                        Files.createDirectories(filePath.getParent());
+                        Files.write(filePath, zipIn.readAllBytes());
+                        zipIn.closeEntry();
+                    }
+                } catch (IOException e) {
+                    Dungeoneer.LOGGER.error("Client failed to sync data: " + e);
+                }
+            }
+            case LoadDataS2C() -> dev.creoii.dungeoneer.DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
             default -> {
             }
         }

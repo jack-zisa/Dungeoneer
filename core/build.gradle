@@ -21,7 +21,8 @@ dependencies {
   api "com.github.tommyettinger:libgdx-utils:$utilsVersion"
   api "space.earlygrey:shapedrawer:$shapeDrawerVersion"
 
-  implementation "com.mojang:datafixerupper:$dataFixerUpperVersion"
+  implementation "com.mojang:datafixerupper:8.0.16"
+  implementation "it.unimi.dsi:fastutil:8.5.12"
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"

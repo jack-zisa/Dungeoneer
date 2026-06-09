@@ -1,6 +1,8 @@
 package dev.creoii.dungeoneer.client.game;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.definitions.Character;
@@ -53,6 +55,15 @@ public class ClientCharacter implements SidedCharacter {
             stats.setHealth(character.characterClass().baseStats().health().value());
             stats.setSpeed(character.characterClass().baseStats().speed().value());
         }
+    }
+
+    @Nullable
+    public TiledMapTile getTileOn(TiledMapTileLayer layer) {
+        int tileX = (int) ((getRenderPos().x + 4f) / 8f);
+        int tileY = (int) ((getRenderPos().y + 4f) / 8f);
+
+        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
+        return cell != null ? cell.getTile() : null;
     }
 
     public Sprite getSprite() {

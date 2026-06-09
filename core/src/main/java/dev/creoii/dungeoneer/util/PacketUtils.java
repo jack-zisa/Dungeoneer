@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.util;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.util.stat.Stat;
@@ -14,7 +15,7 @@ import java.util.*;
 public final class PacketUtils {
     @Nullable
     public static CharacterClass readCharacterClass(Input input) {
-        return CharacterClass.parse(input.readString());
+        return DataManager.getCharacterClass(input.readString());
     }
 
     public static void writeCharacterClass(Output output, CharacterClass characterClass) {

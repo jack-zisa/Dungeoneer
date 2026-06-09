@@ -45,6 +45,7 @@ public class DungeoneerServer {
 
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
+        dev.creoii.dungeoneer.DataManager.load();
         sessionManager = new SessionManager(this);
         state = new ServerState(this);
 

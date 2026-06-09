@@ -103,7 +103,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
                 areaSelection.setMin(point.x, point.y);
                 areaSelection.setMax(point.x, point.y);
                 return true;
-            } else {
+            } else if (!selecting) {
                 TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
                 if (point != null) {
                     TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
@@ -152,7 +152,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             currentActions.add(action);
         }
 
-        if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection && point != null) {
+        if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && InputUtils.isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection && point != null) {
             areaSelection.setMax(point.x, point.y);
         }
     }
@@ -160,10 +160,6 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     @Override
     public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
         if (button == Input.Buttons.RIGHT) dragging = false;
-
-        if (button == Input.Buttons.LEFT && selecting) {
-            selecting = false;
-        }
 
         if (!selecting && button == Input.Buttons.LEFT && currentActions.size() > 0) {
             undoRedoList.add(currentActions);

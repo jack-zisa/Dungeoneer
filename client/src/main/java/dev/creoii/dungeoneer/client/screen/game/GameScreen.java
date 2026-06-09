@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -30,6 +32,7 @@ public class GameScreen extends AbstractScreen {
     private OrthogonalTiledMapRenderer mapRenderer;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
+    private HealthBar healthBar;
 
     public GameScreen(Dungeoneer client) {
         this.client = client;
@@ -79,8 +82,7 @@ public class GameScreen extends AbstractScreen {
         root.add(surrenderButton).left().row();
         root.add(new Table()).grow().row();
 
-        HealthBar healthBar = new HealthBar(client.getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, false);
-        healthBar.setPercent(.5f);
+        healthBar = new HealthBar(client.getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, false);
         root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f);
 
         getStage().addActor(root);
@@ -126,6 +128,11 @@ public class GameScreen extends AbstractScreen {
         mapRenderer.setView(camera);
         mapRenderer.render();
 
+        TiledMapTile tile = character.getTileOn((TiledMapTileLayer) mapRenderer.getMap().getLayers().get("ground"));
+        if (tile != null) {
+
+        }
+
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
@@ -138,7 +145,12 @@ public class GameScreen extends AbstractScreen {
             inputListener.updateMousePos(camera);
             shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.line(character.getRenderPos().x + 4f, character.getRenderPos().y + 4f, inputListener.getMousePos().x, inputListener.getMousePos().y);
+
+            float x = character.getRenderPos().x + 4f;
+            float y = character.getRenderPos().y + 4f;
+
+            Vector2 mouseDir = inputListener.getDirectionToMouse(x, y);
+            shapeRenderer.line(x, y, x + mouseDir.x * 32f, y + mouseDir.y * 32f);
             shapeRenderer.end();
         }
 

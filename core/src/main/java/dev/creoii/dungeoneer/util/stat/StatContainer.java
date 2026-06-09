@@ -1,7 +1,20 @@
 package dev.creoii.dungeoneer.util.stat;
 
+import com.mojang.serialization.Codec;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public record StatContainer(Stat health, Stat speed) {
-    public static final StatContainer DEFAULT_STAT_CONTAINER = new StatContainer(200, 100);
+    public static final Codec<StatContainer> INT_CODEC = Codec.unboundedMap(Codec.STRING, Codec.INT).xmap(map -> new StatContainer(
+        map.getOrDefault(Stat.Type.HEALTH.name().toLowerCase(), 0),
+        map.getOrDefault(Stat.Type.SPEED.name().toLowerCase(), 0)
+    ), statContainer -> {
+        Map<String, Integer> map = new HashMap<>();
+        map.put(Stat.Type.HEALTH.name().toLowerCase(), statContainer.health.value());
+        map.put(Stat.Type.SPEED.name().toLowerCase(), statContainer.speed.value());
+        return map;
+    });public static final StatContainer DEFAULT_STAT_CONTAINER = new StatContainer(200, 100);
     public static final StatContainer ZERO = new StatContainer();
 
     public StatContainer() {

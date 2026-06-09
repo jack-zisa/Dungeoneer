@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.server.database.repository;
 
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
@@ -36,7 +37,7 @@ public class CharacterRepository {
                 .map((rs, _) -> new Character(
                     rs.getInt("id"),
                     rs.getInt("account_id"),
-                    CharacterClass.parse(rs.getString("class"))
+                    DataManager.getCharacterClass(rs.getString("class"))
                 ))
                 .findOne()
                 .orElse(null)
@@ -56,6 +57,6 @@ public class CharacterRepository {
             .one()
         );
 
-        return new Character(id, account.id(), CharacterClass.parse(characterClass.id()));
+        return new Character(id, account.id(), DataManager.getCharacterClass(characterClass.id()));
     }
 }

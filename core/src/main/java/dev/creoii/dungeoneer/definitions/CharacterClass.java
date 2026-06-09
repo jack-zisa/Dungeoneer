@@ -1,30 +1,20 @@
 package dev.creoii.dungeoneer.definitions;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
-import java.util.Locale;
-
-public record CharacterClass(String id, StatContainer baseStats, StatContainer maxStats) {
-    public static final CharacterClass KNIGHT = new CharacterClass("knight", new StatContainer(200, 17), new StatContainer(800, 50));
-    public static final CharacterClass WIZARD = new CharacterClass("wizard", new StatContainer(100, 17), new StatContainer(700, 50));
-    public static final CharacterClass ROGUE = new CharacterClass("rogue", new StatContainer(150, 26), new StatContainer(750, 65));
-    public static final CharacterClass PRIEST = new CharacterClass("priest", new StatContainer(100, 22), new StatContainer(700, 55));
-    public static final CharacterClass NINJA = new CharacterClass("ninja", new StatContainer(150, 27), new StatContainer(800, 60));
-    public static final CharacterClass ARCHER = new CharacterClass("archer", new StatContainer(200, 22), new StatContainer(750, 55));
-
-    public static final CharacterClass[] VALUES = new CharacterClass[]{KNIGHT, WIZARD, ROGUE, PRIEST, NINJA, ARCHER};
-
-    public static CharacterClass parse(String s) {
-        return switch (s.toLowerCase(Locale.ROOT)) {
-            case "knight" -> CharacterClass.KNIGHT;
-            case "wizard" -> CharacterClass.WIZARD;
-            case "priest" -> CharacterClass.PRIEST;
-            case "archer" -> CharacterClass.ARCHER;
-            case "rogue" -> CharacterClass.ROGUE;
-            case "ninja" -> CharacterClass.NINJA;
-            default -> null;
-        };
-    }
+public record CharacterClass(String id, StatContainer baseStats, StatContainer maxStats) implements Identifiable {
+    public static final Codec<CharacterClass> CODEC = RecordCodecBuilder.create(instance -> {
+        return instance.group(
+            Codec.STRING.fieldOf("id").forGetter(CharacterClass::id),
+            StatContainer.INT_CODEC.fieldOf("base_stats").orElse(new StatContainer()).forGetter(CharacterClass::baseStats),
+            StatContainer.INT_CODEC.fieldOf("max_stats").orElse(new StatContainer()).forGetter(CharacterClass::maxStats)
+        ).apply(instance, CharacterClass::new);
+    });
+    public static final Codec<CharacterClass> ID_CODEC = Codec.STRING.xmap(DataManager::getCharacterClass, CharacterClass::id);
 
     @Override
     public String toString() {

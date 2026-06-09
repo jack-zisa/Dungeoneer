@@ -13,4 +13,7 @@ dependencies {
 
   implementation("com.password4j:password4j:1.8.2")
   implementation "com.google.guava:guava:33.6.0-jre"
+
+  implementation "com.mojang:datafixerupper:$dataFixerUpperVersion"
+  implementation "it.unimi.dsi:fastutil:$fastUtilVersion"
 }

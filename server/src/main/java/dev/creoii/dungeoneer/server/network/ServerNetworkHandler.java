@@ -10,6 +10,8 @@ import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.character.*;
 import dev.creoii.dungeoneer.network.c2s.faction.*;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
+import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
+import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
@@ -31,8 +33,18 @@ import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Tickable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class ServerNetworkHandler implements Listener, Tickable {
     private final DungeoneerServer server;
@@ -61,6 +73,39 @@ public class ServerNetworkHandler implements Listener, Tickable {
         if (server.getStatus() == DungeoneerServer.Status.PAUSED && !server.get().getConnections().isEmpty()) {
             server.setStatus(DungeoneerServer.Status.RUNNING);
         }
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        URL url = classLoader.getResource("dungeoneer/data/");
+        if (url == null)
+            throw new IllegalStateException("Could not find data folder");
+        Path dataRoot;
+        try {
+            dataRoot = Paths.get(url.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (dev.creoii.dungeoneer.DataManager.SchemaType schemaType : dev.creoii.dungeoneer.DataManager.SchemaType.values()) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(32768);
+            try (ZipOutputStream zipOut = new ZipOutputStream(baos)) {
+                Path schemaRoot = dataRoot.resolve(schemaType.getPath());
+                try (Stream<Path> paths = Files.walk(schemaRoot)) {
+                    for (Path path : (Iterable<Path>) paths.filter(Files::isRegularFile)::iterator) {
+                        ZipEntry entry = new ZipEntry(dataRoot.relativize(path).toString().replace("\\", "/"));
+                        zipOut.putNextEntry(entry);
+                        Files.copy(path, zipOut);
+                        zipOut.closeEntry();
+                    }
+                }
+                zipOut.finish();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            server.get().sendToTCP(connection.getID(), new SyncDataS2C(baos.toByteArray()));
+        }
+
+        server.get().sendToTCP(connection.getID(), new LoadDataS2C());
     }
 
     @Override

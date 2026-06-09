@@ -1,0 +1,11 @@
+{
+  "id": "knight",
+  "base_stats": {
+    "health": 200,
+    "speed": 17
+  },
+  "max_stats": {
+    "health": 800,
+    "speed": 50
+  }
+}

@@ -1,11 +1,21 @@
 package dev.creoii.dungeoneer.util.stat;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class Stat {
+    public static final Codec<Stat> CODEC = RecordCodecBuilder.create(instance -> {
+        return instance.group(
+            Stat.Type.CODEC.fieldOf("stat_type").forGetter(Stat::type),
+            Codec.INT.optionalFieldOf("amount").forGetter(stat -> stat.base == 0 ? Optional.empty() : Optional.of(stat.base)),
+            ModifierEntry.CODEC.listOf().optionalFieldOf("modifiers").forGetter(stat -> stat.modifiers.isEmpty() ? Optional.empty() : Optional.of(stat.modifiers))
+        ).apply(instance, (type, amount, modifiers) -> modifiers.map(modifierEntries -> new Stat(type, amount.orElse(0), new ObjectArrayList<>(modifierEntries))).orElseGet(() -> new Stat(type, amount.orElse(0))));
+    });
     private final Type type;
     private int base;
     private final ObjectList<ModifierEntry> modifiers = new ObjectArrayList<>();
@@ -68,6 +78,8 @@ public class Stat {
 
     public enum Type {
         HEALTH,
-        SPEED
+        SPEED;
+
+        public static final Codec<Type> CODEC = Codec.STRING.xmap(s -> Type.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
     }
 }
