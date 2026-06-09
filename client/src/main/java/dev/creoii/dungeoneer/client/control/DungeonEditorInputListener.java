@@ -2,18 +2,16 @@ package dev.creoii.dungeoneer.client.control;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import dev.creoii.dungeoneer.client.AssetManager;
-import dev.creoii.dungeoneer.client.screen.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.screen.editor.Tiles;
 
 import java.awt.*;
 
 public class DungeonEditorInputListener extends InputListener implements MousePosListener {
     private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f};
-    public static final StaticTiledMapTile TILE = new StaticTiledMapTile(AssetManager.STONE_TEXTURE);
     private final DungeonEditorScreen screen;
     private boolean dragging;
     private float lastX;
@@ -45,9 +43,13 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
                 TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
                 if (cell == null) {
                     cell = new TiledMapTileLayer.Cell();
-                    cell.setTile(TILE);
-                    tileLayer.setCell(point.x, point.y, cell);
-                } else cell.setTile(cell.getTile() == null ? TILE : null);
+                    if (screen.getSidebar().getSelectedTile() != null) {
+                        cell.setTile(screen.getSidebar().getSelectedTile());
+                        tileLayer.setCell(point.x, point.y, cell);
+                    }
+                } else if (screen.getSidebar().getSelectedTile() != null) {
+                    cell.setTile(screen.getSidebar().getSelectedTile());
+                } else cell.setTile(null);
             }
         }
 
@@ -104,9 +106,5 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             screen.getCamera().zoom = ZOOM_LEVELS[index - 1];
             screen.getCamera().update();
         }
-    }
-
-    static {
-        TILE.setId(1);
     }
 }

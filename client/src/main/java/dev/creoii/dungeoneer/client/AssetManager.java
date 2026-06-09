@@ -16,6 +16,10 @@ public class AssetManager {
     public static final TextureRegion HEART_TEXTURE = new TextureRegion(new Texture("textures/ui/heart.png"));
     public static final TextureRegion HEART_DISABLED_TEXTURE = new TextureRegion(new Texture("textures/ui/heart_disabled.png"));
 
+    public static final TextureRegion DIRT_TEXTURE = new TextureRegion(new Texture("textures/tile/dirt.png"));
+    public static final TextureRegion GRASS_TEXTURE = new TextureRegion(new Texture("textures/tile/grass.png"));
+    public static final TextureRegion LAVA_TEXTURE = new TextureRegion(new Texture("textures/tile/lava.png"));
+    public static final TextureRegion SAND_TEXTURE = new TextureRegion(new Texture("textures/tile/sand.png"));
     public static final TextureRegion STONE_TEXTURE = new TextureRegion(new Texture("textures/tile/stone.png"));
 
     public static final TextureRegion BACKGROUND_BRICK_TEXTURE = new TextureRegion(new Texture("textures/ui/background_brick.png"));

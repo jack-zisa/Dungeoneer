@@ -5,11 +5,11 @@ import org.jspecify.annotations.Nullable;
 
 public class ClientRaid {
     private Raid raid;
-    private final ClientDungeon dungeon;
+    private final ClientDungeonMap dungeon;
 
     public ClientRaid(Raid raid) {
         this.raid = raid;
-        dungeon = new ClientDungeon();
+        dungeon = new ClientDungeonMap();
     }
 
     public Raid get() {
@@ -20,7 +20,7 @@ public class ClientRaid {
         this.raid = raid;
     }
 
-    public ClientDungeon getDungeon() {
+    public ClientDungeonMap getDungeon() {
         return dungeon;
     }
 

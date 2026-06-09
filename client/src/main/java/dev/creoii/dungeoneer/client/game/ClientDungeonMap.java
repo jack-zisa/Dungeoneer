@@ -5,7 +5,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import dev.creoii.dungeoneer.client.AssetManager;
 
-public class ClientDungeon {
+public class ClientDungeonMap {
     private TiledMap map;
 
     public void build() {

@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.screen.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
@@ -211,7 +211,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof DungeonEditorScreen dungeonEditorScreen) {
-                        dungeonEditorScreen.getMapRenderer().setMap(dungeonEditorScreen.getEditor().read(dungeonMap.mapData()));
+                        dungeonEditorScreen.getMapRenderer().setMap(dungeonEditorScreen.getMapManager().read(dungeonMap.mapData()));
                     }
                 });
             }

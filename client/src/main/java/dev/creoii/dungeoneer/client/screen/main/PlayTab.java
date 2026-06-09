@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.screen.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
 
