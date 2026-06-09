@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.editor;
+package dev.creoii.dungeoneer.client.editor.selection;
 
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;

@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.AssetManager;
-import dev.creoii.dungeoneer.client.editor.AreaSelection;
-import dev.creoii.dungeoneer.client.editor.Selection;
+import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
+import dev.creoii.dungeoneer.client.editor.selection.Selection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 
 public class Sidebar extends Table {

@@ -7,14 +7,20 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import dev.creoii.dungeoneer.client.editor.AreaSelection;
+import dev.creoii.dungeoneer.client.editor.action.CompositeAction;
+import dev.creoii.dungeoneer.client.editor.action.SetTileAction;
+import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
+import dev.creoii.dungeoneer.client.editor.action.EditorAction;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
+import dev.creoii.dungeoneer.util.UndoRedoList;
 
 import java.awt.*;
 
 public class DungeonEditorInputListener extends InputListener implements MousePosListener {
     private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f, 2.45f};
     private final DungeonEditorScreen screen;
+    private final UndoRedoList<EditorAction> undoRedoList;
+    private CompositeAction currentActions;
     private boolean dragging;
     private boolean selecting;
     private float lastX;
@@ -23,8 +29,14 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
 
     public DungeonEditorInputListener(DungeonEditorScreen screen) {
         this.screen = screen;
+        undoRedoList = new UndoRedoList<>();
+        currentActions = new CompositeAction();
         mousePos = new Vector3();
         screen.getCamera().update();
+    }
+
+    public UndoRedoList<EditorAction> getUndoRedoList() {
+        return undoRedoList;
     }
 
     @Override
@@ -45,7 +57,27 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
         if (keycode == Input.Keys.ESCAPE && selecting && screen.getSidebar().getSelection() != null) {
             selecting = false;
             screen.getSidebar().getSelection().clear();
+            return true;
         }
+
+        if (keycode == Input.Keys.Z && isCtrl()) {
+            if (undoRedoList.canUndo()) {
+                System.out.println("undo");
+                EditorAction undoAction = undoRedoList.undo();
+                if (undoAction != null) undoAction.undo();
+            }
+            return true;
+        }
+
+        if (keycode == Input.Keys.Y && isCtrl()) {
+            if (undoRedoList.canRedo()) {
+                System.out.println("redo");
+                EditorAction redoAction = undoRedoList.redo();
+                if (redoAction != null) redoAction.redo();
+            }
+            return true;
+        }
+
         return false;
     }
 
@@ -66,7 +98,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
 
         if (button == Input.Buttons.LEFT) {
             Point point = screen.getHoveredPos();
-            if ((Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
+            if (isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
                 selecting = true;
 
                 areaSelection.setMin(point.x, point.y);
@@ -75,7 +107,14 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             } else {
                 TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
                 if (point != null) {
-                    setTileAt(tileLayer, point.x, point.y);
+                    TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
+                    if (cell == null) {
+                        cell = new TiledMapTileLayer.Cell();
+                    }
+
+                    SetTileAction action = new SetTileAction(tileLayer, point.x, point.y, cell.getTile(), screen.getSidebar().getSelectedTile());
+                    action.redo();
+                    currentActions.add(action);
                     return true;
                 }
             }
@@ -103,7 +142,15 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
 
         if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null) {
             TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
-            setTileAt(tileLayer, point.x, point.y);
+
+            TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
+            if (cell == null) {
+                cell = new TiledMapTileLayer.Cell();
+            }
+
+            SetTileAction action = new SetTileAction(tileLayer, point.x, point.y, cell.getTile(), screen.getSidebar().getSelectedTile());
+            action.redo();
+            currentActions.add(action);
         }
 
         if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection && point != null) {
@@ -114,19 +161,15 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     @Override
     public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
         if (button == Input.Buttons.RIGHT) dragging = false;
-    }
 
-    public void setTileAt(TiledMapTileLayer tileLayer, int x, int y) {
-        TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
-        if (cell == null) {
-            cell = new TiledMapTileLayer.Cell();
-            if (screen.getSidebar().getSelectedTile() != null) {
-                cell.setTile(screen.getSidebar().getSelectedTile());
-                tileLayer.setCell(x, y, cell);
-            }
-        } else if (screen.getSidebar().getSelectedTile() != null) {
-            cell.setTile(screen.getSidebar().getSelectedTile());
-        } else cell.setTile(null);
+        if (button == Input.Buttons.LEFT && selecting) {
+            selecting = false;
+        }
+
+        if (!selecting && button == Input.Buttons.LEFT && currentActions.size() > 0) {
+            undoRedoList.add(currentActions);
+            currentActions = new CompositeAction();
+        }
     }
 
     @Override
@@ -156,5 +199,9 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             screen.getCamera().zoom = ZOOM_LEVELS[index - 1];
             screen.getCamera().update();
         }
+    }
+
+    public static boolean isCtrl() {
+        return Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
     }
 }

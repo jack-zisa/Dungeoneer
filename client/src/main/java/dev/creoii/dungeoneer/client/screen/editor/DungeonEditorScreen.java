@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.DungeonEditorInputListener;
-import dev.creoii.dungeoneer.client.editor.AreaSelection;
+import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 
