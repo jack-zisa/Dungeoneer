@@ -1,7 +1,7 @@
 {
   "right_key": 32,
-  "favorite_character": 1,
-  "debug": true,
+  "favorite_character": 2,
+  "debug": false,
   "up_key": 51,
   "left_key": 29,
   "down_key": 47
