@@ -14,11 +14,13 @@ import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class VaultThroneTab extends Tab {
-    private int classIndex = 0;
+    private int classIndex;
     private int characterSlots;
     private java.util.List<Character> characters;
+    private CheckBox favoriteButton;
     private Label classLabel;
     private Table statsTable;
     private Stack[] classIcons;
@@ -39,12 +41,31 @@ public class VaultThroneTab extends Tab {
     protected void build() {
         add(new Label("Vault & Throne", getSkin())).pad(20).row();
 
+        int favoriteCharacterIndex = getClient().getSettings().favoriteCharacter().value();
+
+        classIndex = favoriteCharacterIndex == -1 ? 0 : favoriteCharacterIndex;
         classIcons = new Stack[]{null, null, null, null, null};
         carousel = new Table();
 
         characterSlots = getClient().getState().getAccount().characterSlots();
         characters.addAll(getClient().getState().getCharacters());
 
+        favoriteButton = new CheckBox("", getSkin());
+        CheckBox.CheckBoxStyle style = new CheckBox.CheckBoxStyle(getSkin().get(CheckBox.CheckBoxStyle.class));
+        style.checkboxOn = new TextureRegionDrawable(AssetManager.HEART_TEXTURE);
+        style.checkboxOff = new TextureRegionDrawable(AssetManager.HEART_DISABLED_TEXTURE);
+        favoriteButton.setStyle(style);
+        favoriteButton.setProgrammaticChangeEvents(false);
+        favoriteButton.setChecked(favoriteCharacterIndex != -1 && classIndex == favoriteCharacterIndex);
+        favoriteButton.setDisabled(characters.size() < 2);
+        favoriteButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (((CheckBox) actor).isChecked()) getClient().getSettings().favoriteCharacter().setValue(classIndex);
+                else getClient().getSettings().favoriteCharacter().setValue(-1);
+                getClient().getSettings().save();
+            }
+        });
         classLabel = new Label("", getSkin());
         statsTable = new Table();
 
@@ -108,6 +129,7 @@ public class VaultThroneTab extends Tab {
 
         Table center = new Table();
         center.setBackground(new NinePatchDrawable(AssetManager.TAB_9PATCH));
+        center.add(favoriteButton).size(16f, 16f).left().row();
         center.add(classIcons[2]).size(120).row();
         center.add(classLabel).padTop(10).row();
         center.add(statsTable).padTop(10);
@@ -177,7 +199,7 @@ public class VaultThroneTab extends Tab {
     private void updateCharacterDisplay() {
         if (characters.isEmpty()) {
             classLabel.setText("");
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 5; i++) {
                 classIcons[i].removeActorAt(1, true);
                 Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
                 container.size(48f);
@@ -193,9 +215,11 @@ public class VaultThroneTab extends Tab {
         int rightRight = characterSlots > 3 ? (classIndex + 2) % characterSlots : -1;
 
         int[] indices = {leftLeft, left, center, right, rightRight};
+        int favoriteCharacterIndex = getClient().getSettings().favoriteCharacter().value();
 
         Character selected = getCharacterForSlot(center);
-
+        favoriteButton.setDisabled(characters.stream().filter(Objects::nonNull).count() < 2 || selected == null);
+        favoriteButton.setChecked(favoriteCharacterIndex != -1 && classIndex == favoriteCharacterIndex);
         createCharacterButton.setText(characters.get(classIndex) == null ? "Create Character" : "Delete Character");
         classLabel.setText(selected == null ? "Empty" : selected.characterClass().id());
 

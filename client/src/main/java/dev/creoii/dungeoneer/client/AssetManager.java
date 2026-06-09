@@ -13,6 +13,8 @@ public class AssetManager {
     public static final TextureRegion TAB_ARROW_TEXTURE = new TextureRegion(new Texture("textures/ui/tab_arrow.png"));
     public static final TextureRegion GOLD_TEXTURE = new TextureRegion(new Texture("textures/ui/gold.png"));
     public static final TextureRegion GEM_TEXTURE = new TextureRegion(new Texture("textures/ui/gem.png"));
+    public static final TextureRegion HEART_TEXTURE = new TextureRegion(new Texture("textures/ui/heart.png"));
+    public static final TextureRegion HEART_DISABLED_TEXTURE = new TextureRegion(new Texture("textures/ui/heart_disabled.png"));
 
     public static final TextureRegion STONE_TEXTURE = new TextureRegion(new Texture("textures/tile/stone.png"));
 
