@@ -130,7 +130,6 @@ public class GameScreen extends AbstractScreen {
 
         TiledMapTile tile = character.getTileOn((TiledMapTileLayer) mapRenderer.getMap().getLayers().get("ground"));
         if (tile != null) {
-
         }
 
         batch.setProjectionMatrix(camera.combined);
@@ -174,6 +173,7 @@ public class GameScreen extends AbstractScreen {
 
         public HealthBar(ClientCharacter character, float width, boolean displayAmount) {
             this.character = character;
+            percent = 1f;
 
             setWidth(width);
             Table background = new Table();
@@ -195,6 +195,10 @@ public class GameScreen extends AbstractScreen {
         }
 
         public void setPercent(float percent) {
+            if (percent == 0f) {
+                fillContainer.setVisible(false);
+            } else if (!fillContainer.isVisible()) fillContainer.setVisible(true);
+
             this.percent = percent;
             fillContainer.width(getWidth() * percent);
             fillContainer.left();
