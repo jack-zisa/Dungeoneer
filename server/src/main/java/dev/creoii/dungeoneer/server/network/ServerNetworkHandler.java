@@ -5,9 +5,12 @@ import com.esotericsoftware.kryonet.Listener;
 import com.password4j.Password;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
+import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
+import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.character.*;
 import dev.creoii.dungeoneer.network.c2s.faction.*;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
+import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
@@ -252,6 +255,25 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     server.get().sendToTCP(connectionId, new ChatMessageS2C(finalMessage));
                 }
             });
+        } else if (object instanceof SaveDungeonMapC2S(long accountId, byte[] mapData)) {
+            Account account = server.getDatabase().getAccounts().getById(accountId);
+            DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(accountId);
+            if (account != null && dungeonMap != null) {
+                server.getDatabase().getDungeonMaps().updateLastEditDate(accountId, LocalDateTime.now());
+                server.getDatabase().getDungeonMaps().updateDungeonMap(accountId, mapData);
+                dungeonMap = new DungeonMap(dungeonMap.id(), accountId, mapData, LocalDateTime.now());
+            } else {
+                dungeonMap = server.getDatabase().getDungeonMaps().create(accountId, mapData, LocalDateTime.now());
+            }
+
+            if (dungeonMap != null) {
+                server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
+            }
+        } else if (object instanceof RequestDungeonMapC2S(long accountId)) {
+            DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(accountId);
+            if (dungeonMap != null) {
+                server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
+            }
         }
     }
 }

@@ -1,20 +1,34 @@
 package dev.creoii.dungeoneer.client.control;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import dev.creoii.dungeoneer.client.AssetManager;
 import dev.creoii.dungeoneer.client.screen.DungeonEditorScreen;
 
-public class DungeonEditorInputListener extends InputListener {
+import java.awt.*;
+
+public class DungeonEditorInputListener extends InputListener implements MousePosListener {
     private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f};
+    public static final StaticTiledMapTile TILE = new StaticTiledMapTile(AssetManager.STONE_TEXTURE);
     private final DungeonEditorScreen screen;
     private boolean dragging;
     private float lastX;
     private float lastY;
+    private final Vector3 mousePos;
 
     public DungeonEditorInputListener(DungeonEditorScreen screen) {
         this.screen = screen;
+        mousePos = new Vector3();
         screen.getCamera().update();
+    }
+
+    @Override
+    public Vector3 getMousePos() {
+        return mousePos;
     }
 
     @Override
@@ -24,6 +38,17 @@ public class DungeonEditorInputListener extends InputListener {
             lastX = x;
             lastY = y;
             return true;
+        } else if (button == Input.Buttons.LEFT) {
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
+            Point point = screen.getHoveredPos();
+            if (point != null) {
+                TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
+                if (cell == null) {
+                    cell = new TiledMapTileLayer.Cell();
+                    cell.setTile(TILE);
+                    tileLayer.setCell(point.x, point.y, cell);
+                } else cell.setTile(cell.getTile() == null ? TILE : null);
+            }
         }
 
         return false;
@@ -79,5 +104,9 @@ public class DungeonEditorInputListener extends InputListener {
             screen.getCamera().zoom = ZOOM_LEVELS[index - 1];
             screen.getCamera().update();
         }
+    }
+
+    static {
+        TILE.setId(1);
     }
 }

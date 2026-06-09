@@ -12,6 +12,7 @@ public class Database {
     private final FactionRepository factions;
     private final AccountRepository accounts;
     private final CharacterRepository characters;
+    private final DungeonMapRepository dungeonMaps;
     private final RaidRepository raids;
     private final ChatMessageRepository chatMessages;
 
@@ -23,6 +24,7 @@ public class Database {
         factions = new FactionRepository(this, jdbi);
         accounts = new AccountRepository(jdbi);
         characters = new CharacterRepository(jdbi);
+        dungeonMaps = new DungeonMapRepository(jdbi);
         raids = new RaidRepository(this, jdbi);
         chatMessages = new ChatMessageRepository(jdbi);
         LOGGER.info("Database initialized.");
@@ -46,6 +48,10 @@ public class Database {
 
     public CharacterRepository getCharacters() {
         return characters;
+    }
+
+    public DungeonMapRepository getDungeonMaps() {
+        return dungeonMaps;
     }
 
     public RaidRepository getRaids() {

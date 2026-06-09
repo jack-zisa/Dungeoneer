@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.screen.DungeonEditorScreen;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
@@ -16,6 +17,7 @@ import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
+import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
@@ -24,6 +26,7 @@ import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
+import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import org.jspecify.annotations.Nullable;
@@ -53,6 +56,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     client.getState().setAccount(account);
                     client.getState().fillCharacters(account.characterSlots());
                     client.get().sendUDP(new RequestCharactersC2S(account.id()));
+                    client.get().sendUDP(new RequestDungeonMapC2S(account.id()));
                     client.get().sendUDP(new RequestFactionC2S(account.id()));
                     Gdx.app.postRunnable(() -> client.setScreen(new MainScreen(client)));
                     client.getState().setStatus(ClientState.Status.LOBBY);
@@ -181,9 +185,11 @@ public record ClientListener(Dungeoneer client) implements Listener {
                 LinkedHashMap<Long, Message> messages = client.getState().getFaction().recentMessages();
                 messages.put(message.messageId(), message);
 
-                if (client.getScreen() instanceof MainScreen mainScreen && mainScreen.getSelectedTab() instanceof FactionTab factionTab) {
-                    factionTab.refreshChat();
-                }
+                Gdx.app.postRunnable(() -> {
+                    if (client.getScreen() instanceof MainScreen mainScreen && mainScreen.getSelectedTab() instanceof FactionTab factionTab) {
+                        factionTab.refreshChat();
+                    }
+                });
             }
             case FlagChatMessageS2C(long localId, Message message) -> {
                 LinkedHashMap<Long, Message> messages = client.getState().getFaction().recentMessages();
@@ -193,10 +199,21 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     messages.remove(localId);
                     messages.put(message.messageId(), new Message(message.messageId(), message1.factionId(), message1.accountId(), "*****", true));
 
-                    if (client.getScreen() instanceof MainScreen mainScreen && mainScreen.getSelectedTab() instanceof FactionTab factionTab) {
-                        factionTab.refreshChat();
-                    }
+                    Gdx.app.postRunnable(() -> {
+                        if (client.getScreen() instanceof MainScreen mainScreen && mainScreen.getSelectedTab() instanceof FactionTab factionTab) {
+                            factionTab.refreshChat();
+                        }
+                    });
                 }
+            }
+            case SendDungeonMapS2C(DungeonMap dungeonMap) -> {
+                client.getState().setDungeonMap(dungeonMap);
+
+                Gdx.app.postRunnable(() -> {
+                    if (client.getScreen() instanceof DungeonEditorScreen dungeonEditorScreen) {
+                        dungeonEditorScreen.getMapRenderer().setMap(dungeonEditorScreen.getEditor().read(dungeonMap.mapData()));
+                    }
+                });
             }
             default -> {
             }

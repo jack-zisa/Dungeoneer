@@ -27,6 +27,10 @@ print('Dumping accounts...')
 df = pd.read_sql_query("SELECT * FROM accounts", connection)
 df.to_csv('dump_output/accounts.csv', index=False, sep='|')
 
+print('Dumping dungeon_maps...')
+df = pd.read_sql_query("SELECT * FROM dungeon_maps", connection)
+df.to_csv('dump_output/dungeon_maps.csv', index=False, sep='|')
+
 print('Dumping characters...')
 df = pd.read_sql_query("SELECT * FROM characters", connection)
 df.to_csv('dump_output/characters.csv', index=False, sep='|')

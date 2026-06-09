@@ -2,10 +2,8 @@ package dev.creoii.dungeoneer.client;
 
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
-import dev.creoii.dungeoneer.definitions.Account;
+import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.Faction;
-import dev.creoii.dungeoneer.definitions.Raid;
 import dev.creoii.dungeoneer.network.c2s.character.SelectActiveCharacterC2S;
 import org.jspecify.annotations.Nullable;
 
@@ -16,6 +14,7 @@ public class ClientState {
     private final Dungeoneer client;
     private Status status;
     private Account account;
+    private DungeonMap dungeonMap;
     private final List<Character> characters;
     private final ClientCharacter activeCharacter;
     private final ClientRaid currentRaid;
@@ -44,6 +43,14 @@ public class ClientState {
 
     public Account getAccount() {
         return account;
+    }
+
+    public void setDungeonMap(DungeonMap dungeonMap) {
+        this.dungeonMap = dungeonMap;
+    }
+
+    public DungeonMap getDungeonMap() {
+        return dungeonMap;
     }
 
     public List<Character> getCharacters() {

@@ -10,7 +10,7 @@ import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.util.Constants;
 
-public class CharacterInputListener extends InputListener {
+public class CharacterInputListener extends InputListener implements MousePosListener {
     private final Dungeoneer client;
     private int movementFlags;
     private final Vector3 mousePos;
@@ -20,6 +20,7 @@ public class CharacterInputListener extends InputListener {
         mousePos = new Vector3();
     }
 
+    @Override
     public Vector3 getMousePos() {
         return mousePos;
     }
@@ -73,12 +74,6 @@ public class CharacterInputListener extends InputListener {
         }
 
         return false;
-    }
-
-    public void updateMousePos(Camera camera) {
-        mousePos.x = Gdx.input.getX();
-        mousePos.y = Gdx.input.getY();
-        camera.unproject(mousePos);
     }
 
     private void updateMovement() {
