@@ -6,12 +6,11 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import dev.creoii.dungeoneer.client.screen.DungeonEditorScreen;
 
 public class DungeonEditorInputListener extends InputListener {
+    private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f};
     private final DungeonEditorScreen screen;
     private boolean dragging;
     private float lastX;
     private float lastY;
-
-    private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f};
 
     public DungeonEditorInputListener(DungeonEditorScreen screen) {
         this.screen = screen;
@@ -73,9 +72,6 @@ public class DungeonEditorInputListener extends InputListener {
 
     public void updateZoom(float amountY) {
         int index = getClosestZoomIndex(screen.getCamera().zoom);
-
-        System.out.println(index);
-
         if (amountY > 0 && index < ZOOM_LEVELS.length - 1) {
             screen.getCamera().zoom = ZOOM_LEVELS[index + 1];
             screen.getCamera().update();

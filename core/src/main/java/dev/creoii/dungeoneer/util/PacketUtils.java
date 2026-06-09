@@ -143,19 +143,12 @@ public final class PacketUtils {
     }
 
     public static void writeStatContainer(Output output, StatContainer container) {
+        writeStat(output, container.health());
         writeStat(output, container.speed());
     }
 
     public static StatContainer readStatContainer(Input input) {
-        return new StatContainer(readStat(input));
-    }
-
-    public static void writeStatContainerFast(Output output, StatContainer container) {
-        output.writeInt(container.speed().value());
-    }
-
-    public static StatContainer readStatContainerFast(Input input) {
-        return new StatContainer(input.readInt());
+        return new StatContainer(readStat(input), readStat(input));
     }
 
     public static Message readMessage(Input input) {

@@ -67,6 +67,7 @@ public class Stat {
     }
 
     public enum Type {
+        HEALTH,
         SPEED
     }
 }

@@ -28,8 +28,10 @@ public class AssetManager {
 
     public static final TextureRegion MISSING_TEXTURE = new TextureRegion(new Texture("textures/misc/missing.png"));
 
-    public static final NinePatch TAB_9PATCH = new NinePatch(new Texture("textures/ui/tab.png"), 2, 2, 2 ,2);
-    public static final NinePatch TAB_SELECTED_9PATCH = new NinePatch(new Texture("textures/ui/tab_selected.png"), 2, 2, 2 ,2);
+    public static final NinePatch TAB_9PATCH = new NinePatch(new Texture("textures/ui/tab.png"), 2, 2, 2,2);
+    public static final NinePatch TAB_SELECTED_9PATCH = new NinePatch(new Texture("textures/ui/tab_selected.png"), 2, 2, 2,2);
+    public static final NinePatch HEALTH_BAR_9PATCH = new NinePatch(new Texture("textures/ui/health_bar.png"), 4, 4, 4,4);
+    public static final NinePatch HEALTH_BAR_EMPTY_9PATCH = new NinePatch(new Texture("textures/ui/health_bar_empty.png"), 4, 4, 4,4);
 
     public static TextureRegion getClassTexture(String classId) {
         return switch (classId) {

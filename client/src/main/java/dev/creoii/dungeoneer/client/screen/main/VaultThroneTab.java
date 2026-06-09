@@ -151,6 +151,7 @@ public class VaultThroneTab extends Tab {
         statsTable.clearChildren();
 
         if (selected != null) {
+            statsTable.add(new Label(String.format("Health: %s", selected.characterClass().baseStats().health()), getSkin())).row();
             statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().baseStats().speed()), getSkin()));
         }
     }
