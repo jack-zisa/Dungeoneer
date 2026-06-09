@@ -97,23 +97,25 @@ public class DungeonEditorScreen extends AbstractScreen {
         content.add(hoverPosLabel = new Label("", SKIN)).left().row();
 
         Table buttons = new Table();
-        TextButton saveButton = new TextButton("Save", SKIN);
-        saveButton.addListener(new ChangeListener() {
+        TextButton finishButton = new TextButton("Finish", SKIN);
+        finishButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 mapManager.save();
+                client.setScreen(new MainScreen(client));
+                client.getState().setStatus(ClientState.Status.LOBBY);
             }
         });
-        TextButton finishButton = new TextButton("Finish", SKIN);
-        finishButton.addListener(new ChangeListener() {
+        TextButton cancelButton = new TextButton("Cancel", SKIN);
+        cancelButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 client.setScreen(new MainScreen(client));
                 client.getState().setStatus(ClientState.Status.LOBBY);
             }
         });
-        buttons.add(saveButton);
-        buttons.add(finishButton).padLeft(5f);
+        buttons.add(finishButton);
+        buttons.add(cancelButton).padLeft(5f);
 
         content.add(buttons).expandY().bottom();
 

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import dev.creoii.dungeoneer.client.editor.AreaSelection;
@@ -50,12 +51,20 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
 
     @Override
     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+        Actor target = event.getTarget();
+        if (target != null && target != screen.getStage().getRoot()) {
+            return false;
+        }
+
+        lastX = x;
+        lastY = y;
+
         if (button == Input.Buttons.RIGHT) {
             dragging = true;
-            lastX = x;
-            lastY = y;
             return true;
-        } else if (button == Input.Buttons.LEFT) {
+        }
+
+        if (button == Input.Buttons.LEFT) {
             Point point = screen.getHoveredPos();
             if ((Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
                 selecting = true;
@@ -63,21 +72,12 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
                 areaSelection.setMin(point.x, point.y);
                 areaSelection.setMax(point.x, point.y);
                 return true;
-            }
-
-            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
-            if (point != null) {
-                TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
-                if (cell == null) {
-                    cell = new TiledMapTileLayer.Cell();
-                    if (screen.getSidebar().getSelectedTile() != null) {
-                        cell.setTile(screen.getSidebar().getSelectedTile());
-                        tileLayer.setCell(point.x, point.y, cell);
-                    }
-                } else if (screen.getSidebar().getSelectedTile() != null) {
-                    cell.setTile(screen.getSidebar().getSelectedTile());
-                } else cell.setTile(null);
-                return true;
+            } else {
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
+                if (point != null) {
+                    setTileAt(tileLayer, point.x, point.y);
+                    return true;
+                }
             }
         }
 
@@ -86,21 +86,27 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
 
     @Override
     public void touchDragged(InputEvent event, float x, float y, int pointer) {
-        if (dragging && Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+        Point point = screen.getHoveredPos();
+
+        if (dragging) {
             float dx = x - lastX;
             float dy = y - lastY;
 
             screen.getCamera().position.x -= dx * screen.getCamera().zoom;
             screen.getCamera().position.y -= dy * screen.getCamera().zoom;
 
-            lastX = x;
-            lastY = y;
-
             screen.getCamera().update();
         }
 
-        if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
-            Point point = screen.getHoveredPos();
+        lastX = x;
+        lastY = y;
+
+        if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null) {
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
+            setTileAt(tileLayer, point.x, point.y);
+        }
+
+        if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection && point != null) {
             areaSelection.setMax(point.x, point.y);
         }
     }
@@ -108,6 +114,19 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     @Override
     public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
         if (button == Input.Buttons.RIGHT) dragging = false;
+    }
+
+    public void setTileAt(TiledMapTileLayer tileLayer, int x, int y) {
+        TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
+        if (cell == null) {
+            cell = new TiledMapTileLayer.Cell();
+            if (screen.getSidebar().getSelectedTile() != null) {
+                cell.setTile(screen.getSidebar().getSelectedTile());
+                tileLayer.setCell(x, y, cell);
+            }
+        } else if (screen.getSidebar().getSelectedTile() != null) {
+            cell.setTile(screen.getSidebar().getSelectedTile());
+        } else cell.setTile(null);
     }
 
     @Override
