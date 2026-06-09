@@ -68,11 +68,11 @@ public class Sidebar extends Table {
         tiles.setMaxCheckCount(1);
         tiles.setUncheckLast(true);
 
-        ImageButton dirt = addTileButton(tilesTable, tiles, AssetManager.DIRT_TEXTURE, Tiles.DIRT);
-        ImageButton grass = addTileButton(tilesTable, tiles, AssetManager.GRASS_TEXTURE, Tiles.GRASS);
-        ImageButton lava = addTileButton(tilesTable, tiles, AssetManager.LAVA_TEXTURE, Tiles.LAVA);
-        ImageButton sand = addTileButton(tilesTable, tiles, AssetManager.SAND_TEXTURE, Tiles.SAND);
-        ImageButton stone = addTileButton(tilesTable, tiles, AssetManager.STONE_TEXTURE, Tiles.STONE);
+        ImageButton dirt = addTileButton(tilesTable, tiles, AssetManager.DIRT_TEXTURE, Tiles.getTile("dirt"));
+        ImageButton grass = addTileButton(tilesTable, tiles, AssetManager.GRASS_TEXTURE, Tiles.getTile("grass"));
+        ImageButton lava = addTileButton(tilesTable, tiles, AssetManager.LAVA_TEXTURE, Tiles.getTile("lava"));
+        ImageButton sand = addTileButton(tilesTable, tiles, AssetManager.SAND_TEXTURE, Tiles.getTile("sand"));
+        ImageButton stone = addTileButton(tilesTable, tiles, AssetManager.STONE_TEXTURE, Tiles.getTile("stone"));
         add(tilesTable).grow();
 
         setBackground(TAB_BACKGROUND);

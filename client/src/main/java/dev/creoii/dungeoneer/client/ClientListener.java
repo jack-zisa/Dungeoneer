@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.screen.editor.Tiles;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
@@ -239,7 +240,10 @@ public record ClientListener(Dungeoneer client) implements Listener {
                     Dungeoneer.LOGGER.error("Client failed to sync data: " + e);
                 }
             }
-            case LoadDataS2C() -> dev.creoii.dungeoneer.DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
+            case LoadDataS2C() -> {
+                dev.creoii.dungeoneer.DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
+                Gdx.app.postRunnable(Tiles::load);
+            }
             default -> {
             }
         }
