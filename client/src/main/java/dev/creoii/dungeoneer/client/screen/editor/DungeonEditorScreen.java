@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.DungeonEditorInputListener;
+import dev.creoii.dungeoneer.client.editor.AreaSelection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 
@@ -43,6 +44,10 @@ public class DungeonEditorScreen extends AbstractScreen {
 
     public DungeonMapManager getMapManager() {
         return mapManager;
+    }
+
+    public DungeonEditorInputListener getInputListener() {
+        return inputListener;
     }
 
     public OrthographicCamera getCamera() {
@@ -86,7 +91,7 @@ public class DungeonEditorScreen extends AbstractScreen {
         Table root = new Table();
         root.setFillParent(true);
 
-        sidebar = new Sidebar();
+        sidebar = new Sidebar(this);
 
         Table content = new Table();
         content.add(hoverPosLabel = new Label("", SKIN)).left().row();
@@ -128,11 +133,20 @@ public class DungeonEditorScreen extends AbstractScreen {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin();
         shapeRenderer.setColor(1f, 0f, 1f, 1f);
-        shapeRenderer.rect(0f, 0f, 256f * 8f, 256f * 8f);
-        Point hover = getHoveredPos();
-        if (hover.getX() >= 0f && hover.getY() >= 0f && hover.getX() < 256f && hover.getY() < 256f) {
-            shapeRenderer.setColor(0f, 1f, 1f, 1f);
-            shapeRenderer.rect(hover.x * 8f, hover.y * 8f, 8f, 8f);
+        shapeRenderer.rect(0f, 0f, 256f * 8f, 256f * 8f); // editor bounds
+        shapeRenderer.setColor(0f, 1f, 1f, 1f);
+        if (sidebar.getSelection() != null && inputListener.isSelecting()) {
+            switch (sidebar.getSelection().getType()) {
+                case AREA -> {
+                    AreaSelection areaSelection = (AreaSelection) sidebar.getSelection();
+                    shapeRenderer.rect(areaSelection.area.x * 8f, areaSelection.area.y * 8f, areaSelection.area.width * 8f, areaSelection.area.height * 8f);
+                }
+            }
+        } else {
+            Point hover = getHoveredPos();
+            if (hover.getX() >= 0f && hover.getY() >= 0f && hover.getX() < 256f && hover.getY() < 256f) {
+                shapeRenderer.rect(hover.x * 8f, hover.y * 8f, 8f, 8f);
+            }
         }
         shapeRenderer.end();
 

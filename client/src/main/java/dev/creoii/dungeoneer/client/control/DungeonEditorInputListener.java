@@ -1,19 +1,21 @@
 package dev.creoii.dungeoneer.client.control;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import dev.creoii.dungeoneer.client.editor.AreaSelection;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
-import dev.creoii.dungeoneer.client.screen.editor.Tiles;
 
 import java.awt.*;
 
 public class DungeonEditorInputListener extends InputListener implements MousePosListener {
-    private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f};
+    private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f, 2.45f};
     private final DungeonEditorScreen screen;
     private boolean dragging;
+    private boolean selecting;
     private float lastX;
     private float lastY;
     private final Vector3 mousePos;
@@ -29,6 +31,23 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
         return mousePos;
     }
 
+    public boolean isSelecting() {
+        return selecting;
+    }
+
+    public void setSelecting(boolean selecting) {
+        this.selecting = selecting;
+    }
+
+    @Override
+    public boolean keyDown(InputEvent event, int keycode) {
+        if (keycode == Input.Keys.ESCAPE && selecting && screen.getSidebar().getSelection() != null) {
+            selecting = false;
+            screen.getSidebar().getSelection().clear();
+        }
+        return false;
+    }
+
     @Override
     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
         if (button == Input.Buttons.RIGHT) {
@@ -37,8 +56,16 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             lastY = y;
             return true;
         } else if (button == Input.Buttons.LEFT) {
-            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
             Point point = screen.getHoveredPos();
+            if ((Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
+                selecting = true;
+
+                areaSelection.setMin(point.x, point.y);
+                areaSelection.setMax(point.x, point.y);
+                return true;
+            }
+
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
             if (point != null) {
                 TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
                 if (cell == null) {
@@ -50,6 +77,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
                 } else if (screen.getSidebar().getSelectedTile() != null) {
                     cell.setTile(screen.getSidebar().getSelectedTile());
                 } else cell.setTile(null);
+                return true;
             }
         }
 
@@ -58,25 +86,28 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
 
     @Override
     public void touchDragged(InputEvent event, float x, float y, int pointer) {
-        if (!dragging) return;
+        if (dragging && Gdx.input.isButtonPressed(Input.Buttons.RIGHT)) {
+            float dx = x - lastX;
+            float dy = y - lastY;
 
-        float dx = x - lastX;
-        float dy = y - lastY;
+            screen.getCamera().position.x -= dx * screen.getCamera().zoom;
+            screen.getCamera().position.y -= dy * screen.getCamera().zoom;
 
-        screen.getCamera().position.x -= dx * screen.getCamera().zoom;
-        screen.getCamera().position.y -= dy * screen.getCamera().zoom;
+            lastX = x;
+            lastY = y;
 
-        lastX = x;
-        lastY = y;
+            screen.getCamera().update();
+        }
 
-        screen.getCamera().update();
+        if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
+            Point point = screen.getHoveredPos();
+            areaSelection.setMax(point.x, point.y);
+        }
     }
 
     @Override
     public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-        if (button == Input.Buttons.RIGHT) {
-            dragging = false;
-        }
+        if (button == Input.Buttons.RIGHT) dragging = false;
     }
 
     @Override
