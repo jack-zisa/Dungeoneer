@@ -12,6 +12,7 @@ import dev.creoii.dungeoneer.client.editor.action.SetTileAction;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.action.EditorAction;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.util.InputUtils;
 import dev.creoii.dungeoneer.util.UndoRedoList;
 
 import java.awt.*;
@@ -60,18 +61,16 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             return true;
         }
 
-        if (keycode == Input.Keys.Z && isCtrl()) {
+        if (keycode == Input.Keys.Z && InputUtils.isCtrl()) {
             if (undoRedoList.canUndo()) {
-                System.out.println("undo");
                 EditorAction undoAction = undoRedoList.undo();
                 if (undoAction != null) undoAction.undo();
             }
             return true;
         }
 
-        if (keycode == Input.Keys.Y && isCtrl()) {
+        if (keycode == Input.Keys.Y && InputUtils.isCtrl()) {
             if (undoRedoList.canRedo()) {
-                System.out.println("redo");
                 EditorAction redoAction = undoRedoList.redo();
                 if (redoAction != null) redoAction.redo();
             }
@@ -98,7 +97,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
 
         if (button == Input.Buttons.LEFT) {
             Point point = screen.getHoveredPos();
-            if (isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
+            if (InputUtils.isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
                 selecting = true;
 
                 areaSelection.setMin(point.x, point.y);
@@ -199,9 +198,5 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             screen.getCamera().zoom = ZOOM_LEVELS[index - 1];
             screen.getCamera().update();
         }
-    }
-
-    public static boolean isCtrl() {
-        return Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
     }
 }
