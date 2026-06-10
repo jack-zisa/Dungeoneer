@@ -10,22 +10,42 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.selection.Selection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
+import dev.creoii.dungeoneer.util.Identifiable;
+import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
+import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
+
+import java.util.Random;
 
 public class Sidebar extends Table {
     protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(Assets.TAB_9PATCH);
     private final DungeonEditorScreen screen;
-    private TiledMapTile selectedTile;
+    private int brushSize;
+    private TileProvider selectedTile;
     private Selection selection;
 
     public Sidebar(DungeonEditorScreen screen) {
         super(AbstractScreen.SKIN);
         this.screen = screen;
-        add(new Label("Selections", getSkin())).top().center().row();
+        brushSize = 1;
 
+        Table brushTable = new Table();
+        brushTable.add(new Label("Brush Size", getSkin()));
+        Slider brushSize = new Slider(1, 8, 1, false, getSkin());
+        brushSize.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                setBrushSize((int) ((Slider) actor).getValue());
+            }
+        });
+        brushTable.add(brushSize).padLeft(10f).width(100f);
+        add(brushTable).grow().row();
+
+        add(new Label("Selections", getSkin())).top().center().row();
         Table selectionTable = new Table();
         ButtonGroup<TextButton> selections = new ButtonGroup<>();
         selections.setMinCheckCount(0);
@@ -36,7 +56,6 @@ public class Sidebar extends Table {
         add(selectionTable).grow().row();
 
         add(new Label("Tools", getSkin())).top().center().row();
-
         Table toolsTable = new Table();
         ButtonGroup<TextButton> tools = new ButtonGroup<>();
         tools.setMinCheckCount(0);
@@ -47,7 +66,7 @@ public class Sidebar extends Table {
             if (selection != null && selectedTile != null) {
                 TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
                 selection.forEach(tileLayer, cell -> {
-                    if (cell != null) cell.setTile(selectedTile);
+                    if (cell != null) cell.setTile(Tiles.getTile(selectedTile.get(new Random()).id()));
                 });
             }
         });
@@ -61,7 +80,6 @@ public class Sidebar extends Table {
         add(toolsTable).grow().row();
 
         add(new Label("Tiles", getSkin())).center().row();
-
         Table tilesTable = new Table();
         ButtonGroup<ImageButton> tiles = new ButtonGroup<>();
         tiles.setMinCheckCount(0);
@@ -76,12 +94,36 @@ public class Sidebar extends Table {
                 tilesTable.row();
             }
         }
-        add(tilesTable).grow();
+        add(tilesTable).grow().row();
+
+        add(new Label("Tile Providers", getSkin())).center().row();
+        Table tileProvidersTable = new Table();
+        ButtonGroup<ImageButton> tileProviders = new ButtonGroup<>();
+        tileProviders.setMinCheckCount(0);
+        tileProviders.setMaxCheckCount(1);
+        tileProviders.setUncheckLast(true);
+
+        for (Identifiable identifiable : DataManager.getTileProviders().values()) {
+            TileProvider tileProvider = (TileProvider) identifiable;
+            addTileProviderButton(tileProvidersTable, tileProviders, Tiles.getTile(tileProvider.getTile().id()).getTextureRegion(), tileProvider);
+            if (++index % 6 == 0) {
+                tileProvidersTable.row();
+            }
+        }
+        add(tileProvidersTable).grow();
 
         setBackground(TAB_BACKGROUND);
     }
 
-    public TiledMapTile getSelectedTile() {
+    public int getBrushSize() {
+        return brushSize;
+    }
+
+    public void setBrushSize(int brushSize) {
+        this.brushSize = brushSize;
+    }
+
+    public TileProvider getSelectedTile() {
         return selectedTile;
     }
 
@@ -126,7 +168,21 @@ public class Sidebar extends Table {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                selectedTile = button.isChecked() ? tile : null;
+                String id = Tiles.TILES.inverse().get(tile);
+                selectedTile = button.isChecked() ? new SimpleTileProvider(id, DataManager.getTile(id)) : null;
+            }
+        });
+        table.add(button);
+        return button;
+    }
+
+    private ImageButton addTileProviderButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TileProvider tileProvider) {
+        ImageButton button = new ImageButton(new TextureRegionDrawable(texture));
+        group.add(button);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                selectedTile = button.isChecked() ? tileProvider : null;
             }
         });
         table.add(button);

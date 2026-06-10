@@ -4,18 +4,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Tile;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class Tiles {
     public static final TiledMapTileSet TILESET = new TiledMapTileSet();
-    public static final Map<String, TiledMapTile> TILES = new HashMap<>();
+    public static final BiMap<String, TiledMapTile> TILES = HashBiMap.create();
 
     public static void load(Dungeoneer client) {
         DataManager.getTiles().forEach((_, identifiable) -> {

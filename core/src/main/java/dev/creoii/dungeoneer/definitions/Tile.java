@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.definitions;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public record Tile(String id, int tileId) implements Identifiable {
@@ -11,6 +12,7 @@ public record Tile(String id, int tileId) implements Identifiable {
             Codec.INT.fieldOf("tile_id").forGetter(Tile::tileId)
         ).apply(instance, Tile::new);
     });
+    public static final Codec<Tile> ID_CODEC = Codec.STRING.xmap(DataManager::getTile, Tile::id);
 
     @Override
     public String toString() {

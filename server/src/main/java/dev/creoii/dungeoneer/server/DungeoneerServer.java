@@ -46,6 +46,7 @@ public class DungeoneerServer {
 
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
+        DataManager.setDebug(isDebug());
         DataManager.load();
         sessionManager = new SessionManager(this);
         state = new ServerState(this);

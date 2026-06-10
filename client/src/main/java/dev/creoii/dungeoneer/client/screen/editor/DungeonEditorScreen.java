@@ -19,7 +19,6 @@ import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 
 public class DungeonEditorScreen extends AbstractScreen {
@@ -147,7 +146,11 @@ public class DungeonEditorScreen extends AbstractScreen {
         } else {
             Point hover = getHoveredPos();
             if (hover.getX() >= 0f && hover.getY() >= 0f && hover.getX() < 256f && hover.getY() < 256f) {
-                shapeRenderer.rect(hover.x * 8f, hover.y * 8f, 8f, 8f);
+                int radius = sidebar.getBrushSize() - 1;
+                float x = (hover.x - radius) * 8f;
+                float y = (hover.y - radius) * 8f;
+                float size = (radius * 2f + 1f) * 8f;
+                shapeRenderer.rect(x, y, size, size);
             }
         }
         shapeRenderer.end();

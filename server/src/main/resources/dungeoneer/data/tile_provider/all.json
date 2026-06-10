@@ -1,0 +1,20 @@
+{
+  "id": "all",
+  "type": "random",
+  "values": [
+    "abyss_stone",
+    "asylum_brick",
+    "dark_dirt",
+    "dark_grass",
+    "dirt",
+    "grass",
+    "ice",
+    "lava",
+    "planks",
+    "sand",
+    "sandstone_brick",
+    "sludge",
+    "snow",
+    "stone"
+  ]
+}

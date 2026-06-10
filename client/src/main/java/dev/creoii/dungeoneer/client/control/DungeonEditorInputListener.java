@@ -2,20 +2,24 @@ package dev.creoii.dungeoneer.client.control;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.editor.action.CompositeAction;
 import dev.creoii.dungeoneer.client.editor.action.SetTileAction;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.action.EditorAction;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.screen.editor.Tiles;
 import dev.creoii.dungeoneer.client.util.InputUtils;
 import dev.creoii.dungeoneer.util.UndoRedoList;
 
 import java.awt.*;
+import java.util.Random;
 
 public class DungeonEditorInputListener extends InputListener implements MousePosListener {
     private static final float[] ZOOM_LEVELS = {.2f, .25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f, 2.45f};
@@ -101,15 +105,8 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
                 return true;
             } else if (!selecting) {
                 TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
-                if (point != null) {
-                    TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
-                    if (cell == null) {
-                        cell = new TiledMapTileLayer.Cell();
-                    }
-
-                    SetTileAction action = new SetTileAction(tileLayer, point.x, point.y, cell.getTile(), screen.getSidebar().getSelectedTile());
-                    action.redo();
-                    currentActions.add(action);
+                if (point != null && screen.getSidebar().getSelectedTile() != null) {
+                    placeTilesAt(tileLayer, point.x, point.y);
                     return true;
                 }
             }
@@ -135,17 +132,9 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
         lastX = x;
         lastY = y;
 
-        if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null) {
+        if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null && screen.getSidebar().getSelectedTile() != null) {
             TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
-
-            TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
-            if (cell == null) {
-                cell = new TiledMapTileLayer.Cell();
-            }
-
-            SetTileAction action = new SetTileAction(tileLayer, point.x, point.y, cell.getTile(), screen.getSidebar().getSelectedTile());
-            action.redo();
-            currentActions.add(action);
+            placeTilesAt(tileLayer, point.x, point.y);
         }
 
         if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && InputUtils.isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection && point != null) {
@@ -160,6 +149,38 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
         if (!selecting && button == Input.Buttons.LEFT && currentActions.size() > 0) {
             undoRedoList.add(currentActions);
             currentActions = new CompositeAction();
+        }
+    }
+
+    public void placeTilesAt(TiledMapTileLayer tileLayer, int x, int y) {
+        if (screen.getSidebar().getBrushSize() == 1) {
+            TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
+            if (cell == null) {
+                cell = new TiledMapTileLayer.Cell();
+            }
+
+            TiledMapTile old = cell.getTile();
+            SetTileAction action = new SetTileAction(tileLayer, x, y, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), screen.getSidebar().getSelectedTile().get(new Random()));
+            action.redo();
+            currentActions.add(action);
+        } else {
+            int radius = screen.getSidebar().getBrushSize() - 1;
+
+            CompositeAction compositeAction = new CompositeAction();
+            for (int yo = -radius; yo <= radius; ++yo) {
+                for (int xo = -radius; xo <= radius; ++xo) {
+                    TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
+                    if (cell == null) {
+                        cell = new TiledMapTileLayer.Cell();
+                    }
+
+                    TiledMapTile old = cell.getTile();
+                    SetTileAction action = new SetTileAction(tileLayer, x + xo, y + yo, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), screen.getSidebar().getSelectedTile().get(new Random()));
+                    action.redo();
+                    compositeAction.add(action);
+                }
+            }
+            currentActions.add(compositeAction);
         }
     }
 

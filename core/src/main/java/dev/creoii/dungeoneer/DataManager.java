@@ -10,6 +10,7 @@ import dev.creoii.dungeoneer.definitions.CharacterClass;
 import dev.creoii.dungeoneer.definitions.Tile;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.logging.Logger;
+import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
 import javax.annotation.Nullable;
@@ -43,6 +44,10 @@ public class DataManager {
         return DATA.get(SchemaType.TILE);
     }
 
+    public static Object2ObjectArrayMap<String, Identifiable> getTileProviders() {
+        return DATA.get(SchemaType.TILE_PROVIDER);
+    }
+
     @Nullable
     public static CharacterClass getCharacterClass(String id) {
         CharacterClass value = (CharacterClass) getClasses().get(id);
@@ -58,6 +63,16 @@ public class DataManager {
         Tile value = (Tile) getTiles().get(id);
         if (value == null) {
             if (DEBUG) LOGGER.error("Unknown Tile: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static TileProvider getTileProvider(String id) {
+        TileProvider value = (TileProvider) getTileProviders().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Tile Provider: '" + id + "'");
             return null;
         }
         return value;
@@ -124,7 +139,8 @@ public class DataManager {
 
     public enum SchemaType {
         CLASS("class"),
-        TILE("tile");
+        TILE("tile"),
+        TILE_PROVIDER("tile_provider");
 
         private final String path;
 
@@ -140,6 +156,7 @@ public class DataManager {
     static {
         SCHEMA.put(SchemaType.CLASS, CharacterClass.CODEC);
         SCHEMA.put(SchemaType.TILE, Tile.CODEC);
+        SCHEMA.put(SchemaType.TILE_PROVIDER, TileProvider.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {
             DATA.put(schemaType, new Object2ObjectArrayMap<>());

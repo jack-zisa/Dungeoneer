@@ -244,6 +244,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
             }
             case LoadDataS2C() -> {
                 DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
+                DataManager.setDebug(client.getSettings().debug().value()); // TODO: Sync to settings option changes
                 Gdx.app.postRunnable(() -> Tiles.load(client));
             }
             case AttackResultS2C(PacketResult result) -> {
