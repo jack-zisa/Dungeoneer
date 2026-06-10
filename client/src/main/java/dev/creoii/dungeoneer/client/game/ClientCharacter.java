@@ -129,4 +129,8 @@ public class ClientCharacter implements SidedCharacter, Tickable {
     public void setAttackPending(boolean attackPending) {
         this.attackPending = attackPending;
     }
+
+    public boolean isAttackPending() {
+        return attackPending;
+    }
 }

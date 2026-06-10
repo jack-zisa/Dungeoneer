@@ -157,6 +157,7 @@ public class GameScreen extends AbstractScreen {
             float x = character.getRenderPos().x + 4f;
             float y = character.getRenderPos().y + 4f;
 
+            shapeRenderer.setColor(character.isAttackPending() ? Color.GREEN : Color.WHITE);
             Vector2 mouseDir = inputListener.getDirectionToMouse(x, y);
             shapeRenderer.line(x, y, x + mouseDir.x * 32f, y + mouseDir.y * 32f);
             shapeRenderer.end();
