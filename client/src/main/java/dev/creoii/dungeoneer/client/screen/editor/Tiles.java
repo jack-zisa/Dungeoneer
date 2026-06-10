@@ -15,7 +15,7 @@ import java.util.Map;
 
 public final class Tiles {
     public static final TiledMapTileSet TILESET = new TiledMapTileSet();
-    private static final Map<String, TiledMapTile> TILES = new HashMap<>();
+    public static final Map<String, TiledMapTile> TILES = new HashMap<>();
 
     public static void load(Dungeoneer client) {
         DataManager.getTiles().forEach((_, identifiable) -> {

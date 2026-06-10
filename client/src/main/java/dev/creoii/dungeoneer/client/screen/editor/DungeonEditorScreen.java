@@ -171,10 +171,4 @@ public class DungeonEditorScreen extends AbstractScreen {
         camera.unproject(mouse);
         return new Point((int)(mouse.x / 8f), (int)(mouse.y / 8f));
     }
-
-    @Nullable
-    public TiledMapTileLayer.Cell getCellAt(Point point) {
-        TiledMapTileLayer layer = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get("ground");
-        return layer.getCell(point.x, point.y);
-    }
 }

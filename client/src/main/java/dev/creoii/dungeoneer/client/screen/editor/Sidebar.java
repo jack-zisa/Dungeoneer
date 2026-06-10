@@ -1,6 +1,6 @@
 package dev.creoii.dungeoneer.client.screen.editor;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -68,11 +68,14 @@ public class Sidebar extends Table {
         tiles.setMaxCheckCount(1);
         tiles.setUncheckLast(true);
 
-        ImageButton dirt = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "dirt"), Tiles.getTile("dirt"));
-        ImageButton grass = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "grass"), Tiles.getTile("grass"));
-        ImageButton lava = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "lava"), Tiles.getTile("lava"));
-        ImageButton sand = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "sand"), Tiles.getTile("sand"));
-        ImageButton stone = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "stone"), Tiles.getTile("stone"));
+        int index = 0;
+
+        for (TiledMapTile tile : Tiles.TILES.values()) {
+            addTileButton(tilesTable, tiles, tile.getTextureRegion(), tile);
+            if (++index % 6 == 0) {
+                tilesTable.row();
+            }
+        }
         add(tilesTable).grow();
 
         setBackground(TAB_BACKGROUND);
@@ -117,7 +120,7 @@ public class Sidebar extends Table {
         return button;
     }
 
-    private ImageButton addTileButton(Table table, ButtonGroup<ImageButton> group, Texture texture, TiledMapTile tile) {
+    private ImageButton addTileButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TiledMapTile tile) {
         ImageButton button = new ImageButton(new TextureRegionDrawable(texture));
         group.add(button);
         button.addListener(new ChangeListener() {
