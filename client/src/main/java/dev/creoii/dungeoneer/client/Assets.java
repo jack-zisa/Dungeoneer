@@ -8,6 +8,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 import dev.creoii.dungeoneer.client.util.ConditionalPaddedTextureLoader;
 import dev.creoii.dungeoneer.client.util.DynamicTextureAtlas;
@@ -24,6 +25,8 @@ public class Assets implements Disposable {
     public static final NinePatch TAB_SELECTED_9PATCH = new NinePatch(new Texture("textures/ui/tab_selected.png"), 2, 2, 2,2);
     public static final NinePatch HEALTH_BAR_9PATCH = new NinePatch(new Texture("textures/ui/health_bar.png"), 4, 4, 4,4);
     public static final NinePatch HEALTH_BAR_EMPTY_9PATCH = new NinePatch(new Texture("textures/ui/health_bar_empty.png"), 4, 4, 4,4);
+
+    public static final ShaderProgram BORDER_SHADER = new ShaderProgram(Gdx.files.internal("shaders/border.vert"), Gdx.files.internal("shaders/border.frag"));
 
     public static final Logger LOGGER = new Logger(AssetManager.class.getSimpleName());
     public static final String DEFAULT_TEXTURE_ID = "textures/misc/missing.png";

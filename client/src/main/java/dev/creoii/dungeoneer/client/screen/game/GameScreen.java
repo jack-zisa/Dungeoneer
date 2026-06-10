@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.client.screen.game;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -46,7 +47,7 @@ public class GameScreen extends AbstractScreen {
     public void show() {
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        camera.zoom = .4f;
+        camera.zoom = .25f;
 
         batch = new SpriteBatch();
 
@@ -135,9 +136,16 @@ public class GameScreen extends AbstractScreen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
+
+        batch.setShader(Assets.BORDER_SHADER);
+        Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .2f, (1f / character.getSprite().getHeight()) * .2f);
+        Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
+
         Sprite sprite = character.getSprite();
         sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
         sprite.draw(batch);
+
+        batch.setShader(null);
         batch.end();
 
         if (inputListener != null && client.getSettings().debug().value()) {
