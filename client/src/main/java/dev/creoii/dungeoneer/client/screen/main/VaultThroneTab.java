@@ -175,12 +175,12 @@ public class VaultThroneTab extends Tab {
         if (selected != null) {
             statsTable.add(new Label(String.format("Health: %s", selected.characterClass().baseStats().health()), getSkin())).row();
             statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().baseStats().speed()), getSkin()));
+            statsTable.add(new Label(String.format("Attack Speed: %s", selected.characterClass().baseStats().attackSpeed()), getSkin()));
         }
     }
 
     private void updateSelectedCharacter() {
         Character selected = characters.get(classIndex);
-
         if (selected != null) {
             createCharacterButton.setText("Delete Character");
             classLabel.setText(classIndex + ": " + selected.characterClass().id());

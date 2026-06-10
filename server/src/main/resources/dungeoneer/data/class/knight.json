@@ -2,10 +2,12 @@
   "id": "knight",
   "base_stats": {
     "health": 200,
-    "speed": 17
+    "speed": 17,
+    "attack_speed": 15
   },
   "max_stats": {
     "health": 800,
-    "speed": 50
+    "speed": 50,
+    "attack_speed": 50
   }
 }

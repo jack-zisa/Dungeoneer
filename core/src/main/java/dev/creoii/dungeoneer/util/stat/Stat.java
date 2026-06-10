@@ -78,7 +78,8 @@ public class Stat {
 
     public enum Type {
         HEALTH,
-        SPEED;
+        SPEED,
+        ATTACK_SPEED;
 
         public static final Codec<Type> CODEC = Codec.STRING.xmap(s -> Type.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
     }

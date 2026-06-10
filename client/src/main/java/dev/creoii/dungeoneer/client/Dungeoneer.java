@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.client;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
@@ -81,9 +82,10 @@ public class Dungeoneer extends Game {
 
     @Override
     public void render() {
-        if (assets.getManager().update(17)) {
-            ScreenUtils.clear(0, 0, 0, 1);
-            super.render();
+        ScreenUtils.clear(0, 0, 0, 1);
+        if (!state.getActiveCharacter().isNull()) {
+            state.getActiveCharacter().tick(Gdx.graphics.getDeltaTime());
         }
+        super.render();
     }
 }

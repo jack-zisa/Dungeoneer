@@ -9,11 +9,13 @@ import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.character.*;
 import dev.creoii.dungeoneer.network.c2s.faction.*;
+import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
+import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
@@ -32,6 +34,7 @@ import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Tickable;
+import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -323,6 +326,22 @@ public class ServerNetworkHandler implements Listener, Tickable {
             DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(accountId);
             if (dungeonMap != null) {
                 server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
+            }
+        } else if (object instanceof AttackC2S(long raidId, long accountId)) {
+            Account account = server.getDatabase().getAccounts().getById(accountId);
+            if (account != null) {
+                ServerRaid serverRaid = server.getState().getRaids().get(raidId);
+                ServerCharacter character;
+                if (serverRaid != null && (character = serverRaid.getCharacter()).get().accountId() == accountId) {
+                    long currentTime = System.currentTimeMillis();
+                    long lastAttackTime = character.getLastAttackTime();
+                    long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
+                    if (currentTime - lastAttackTime >= cooldown) {
+                        System.out.println("attack server");
+                        character.setLastAttackTime(currentTime);
+                        server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));
+                    } else server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
+                }
             }
         }
     }

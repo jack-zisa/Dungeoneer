@@ -78,6 +78,7 @@ public class GameScreen extends AbstractScreen {
                 getClient().setScreen(new MainScreen(client));
                 getClient().getState().getActiveCharacter().getPos().setZero();
                 getClient().getState().getActiveCharacter().getRenderPos().setZero();
+                getClient().getState().setStatus(ClientState.Status.LOBBY);
             }
         });
         root.add(surrenderButton).left().row();

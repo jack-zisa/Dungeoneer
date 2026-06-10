@@ -2,10 +2,12 @@
   "id": "wizard",
   "base_stats": {
     "health": 100,
-    "speed": 17
+    "speed": 17,
+    "attack_speed": 17
   },
   "max_stats": {
     "health": 700,
-    "speed": 50
+    "speed": 50,
+    "attack_speed": 75
   }
 }

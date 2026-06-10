@@ -163,10 +163,11 @@ public final class PacketUtils {
     public static void writeStatContainer(Output output, StatContainer container) {
         writeStat(output, container.health());
         writeStat(output, container.speed());
+        writeStat(output, container.attackSpeed());
     }
 
     public static StatContainer readStatContainer(Input input) {
-        return new StatContainer(readStat(input), readStat(input));
+        return new StatContainer(readStat(input), readStat(input), readStat(input));
     }
 
     public static Message readMessage(Input input) {

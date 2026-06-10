@@ -2,10 +2,12 @@
   "id": "priest",
   "base_stats": {
     "health": 100,
-    "speed": 22
+    "speed": 22,
+    "attack_speed": 23
   },
   "max_stats": {
     "health": 700,
-    "speed": 55
+    "speed": 55,
+    "attack_speed": 60
   }
 }

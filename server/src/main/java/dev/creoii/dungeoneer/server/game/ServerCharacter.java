@@ -11,6 +11,7 @@ public class ServerCharacter implements SidedCharacter {
     private final Vector2 pos;
     private final Vector2 velocity;
     private final StatContainer stats;
+    private long lastAttackTime;
 
     public ServerCharacter(Character character) {
         this.character = character;
@@ -18,7 +19,8 @@ public class ServerCharacter implements SidedCharacter {
         velocity = new Vector2();
         stats = new StatContainer(
             character.characterClass().baseStats().health().value(),
-            character.characterClass().baseStats().speed().value()
+            character.characterClass().baseStats().speed().value(),
+            character.characterClass().baseStats().attackSpeed().value()
         );
     }
 
@@ -39,6 +41,14 @@ public class ServerCharacter implements SidedCharacter {
     @Override
     public StatContainer getStats() {
         return stats;
+    }
+
+    public long getLastAttackTime() {
+        return lastAttackTime;
+    }
+
+    public void setLastAttackTime(long lastAttackTime) {
+        this.lastAttackTime = lastAttackTime;
     }
 
     public void updateMovement(int movementFlags) {

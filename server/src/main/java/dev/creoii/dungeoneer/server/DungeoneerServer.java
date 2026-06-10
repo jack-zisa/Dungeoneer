@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.server;
 
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
@@ -45,7 +46,7 @@ public class DungeoneerServer {
 
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
-        dev.creoii.dungeoneer.DataManager.load();
+        DataManager.load();
         sessionManager = new SessionManager(this);
         state = new ServerState(this);
 

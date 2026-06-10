@@ -89,7 +89,10 @@ public class PlayTab extends Tab {
 
     @Override
     public void select() {
-        selected.set(getClient().getState().getCharacters().get(getClient().getSettings().favoriteCharacter().value()));
+        if (getClient().getState().getActiveCharacter().isNull()) {
+            selected.set(getClient().getState().getCharacters().get(getClient().getSettings().favoriteCharacter().value()));
+        } else selected.set(getClient().getState().getActiveCharacter().get());
+
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
         selectedImage.setDrawable(new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId)));
         characterTooltip.getActor().setText(classId);

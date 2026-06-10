@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.client;
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.editor.Tiles;
@@ -31,6 +32,7 @@ import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
+import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import org.jspecify.annotations.Nullable;
 
@@ -241,8 +243,15 @@ public record ClientListener(Dungeoneer client) implements Listener {
                 }
             }
             case LoadDataS2C() -> {
-                dev.creoii.dungeoneer.DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
+                DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
                 Gdx.app.postRunnable(() -> Tiles.load(client));
+            }
+            case AttackResultS2C(PacketResult result) -> {
+                ClientCharacter character = client.getState().getActiveCharacter();
+                if (!character.isNull()) {
+                    character.setAttackPending(false);
+                    if (result == PacketResult.SUCCESS) character.setLastAttackTime(System.currentTimeMillis());
+                }
             }
             default -> {
             }
