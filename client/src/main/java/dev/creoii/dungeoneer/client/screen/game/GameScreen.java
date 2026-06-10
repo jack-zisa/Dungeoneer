@@ -138,7 +138,7 @@ public class GameScreen extends AbstractScreen {
         batch.begin();
 
         batch.setShader(Assets.BORDER_SHADER);
-        Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .2f, (1f / character.getSprite().getHeight()) * .2f);
+        Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
         Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
 
         Sprite sprite = character.getSprite();

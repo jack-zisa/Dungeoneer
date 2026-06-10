@@ -186,11 +186,13 @@ public class VaultThroneTab extends Tab {
             classLabel.setText(classIndex + ": " + selected.characterClass().id());
             statsTable.setVisible(true);
             updateStatsTable();
+            getClient().getState().setActiveCharacter(selected);
         } else {
             createCharacterButton.setText("Create Character");
             classLabel.setText(classIndex + ": Empty");
             statsTable.setVisible(false);
             updateStatsTable();
+            getClient().getState().setActiveCharacter(null);
         }
 
         updateCharacterDisplay();
@@ -201,7 +203,7 @@ public class VaultThroneTab extends Tab {
             classLabel.setText("");
             for (int i = 0; i < 5; i++) {
                 classIcons[i].removeActorAt(1, true);
-                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(Assets.MISSING_TEXTURE)));
+                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(Assets.CLASS_SILHOUETTE_TEXTURE)));
                 container.size(48f);
                 classIcons[i].add(container);
             }
@@ -226,7 +228,7 @@ public class VaultThroneTab extends Tab {
         for (int i = 0; i < classIcons.length; i++) {
             Character character = getCharacterForSlot(indices[i]);
             classIcons[i].removeActorAt(1, true);
-            Texture texture = character == null ? Assets.MISSING_TEXTURE : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id());
+            Texture texture = character == null ? Assets.CLASS_SILHOUETTE_TEXTURE : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id());
             Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(texture)));
             container.size(48f);
             classIcons[i].add(container);
