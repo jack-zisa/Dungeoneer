@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.CharacterInputListener;
@@ -177,10 +177,10 @@ public class GameScreen extends AbstractScreen {
 
             setWidth(width);
             Table background = new Table();
-            background.setBackground(new NinePatchDrawable(AssetManager.HEALTH_BAR_EMPTY_9PATCH));
+            background.setBackground(new NinePatchDrawable(Assets.HEALTH_BAR_EMPTY_9PATCH));
 
             Table fill = new Table();
-            fill.setBackground(new NinePatchDrawable(AssetManager.HEALTH_BAR_9PATCH));
+            fill.setBackground(new NinePatchDrawable(Assets.HEALTH_BAR_9PATCH));
 
             fillContainer = new Container<>(fill);
             fillContainer.width(getWidth() * percent);

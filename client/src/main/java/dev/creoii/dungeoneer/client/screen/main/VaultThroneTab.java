@@ -1,6 +1,6 @@
 package dev.creoii.dungeoneer.client.screen.main;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
@@ -27,7 +27,7 @@ public class VaultThroneTab extends Tab {
     private Table carousel;
     private TextButton createCharacterButton;
 
-    protected VaultThroneTab(Dungeoneer client, TextureRegion tabTexture) {
+    protected VaultThroneTab(Dungeoneer client, Texture tabTexture) {
         super(client, tabTexture);
     }
 
@@ -52,8 +52,8 @@ public class VaultThroneTab extends Tab {
 
         favoriteButton = new CheckBox("", getSkin());
         CheckBox.CheckBoxStyle style = new CheckBox.CheckBoxStyle(getSkin().get(CheckBox.CheckBoxStyle.class));
-        style.checkboxOn = new TextureRegionDrawable(AssetManager.HEART_TEXTURE);
-        style.checkboxOff = new TextureRegionDrawable(AssetManager.HEART_DISABLED_TEXTURE);
+        style.checkboxOn = new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.UI, "heart"));
+        style.checkboxOff = new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.UI, "heart_disabled"));
         favoriteButton.setStyle(style);
         favoriteButton.setProgrammaticChangeEvents(false);
         favoriteButton.setChecked(favoriteCharacterIndex != -1 && classIndex == favoriteCharacterIndex);
@@ -71,8 +71,8 @@ public class VaultThroneTab extends Tab {
 
         for (int i = 0; i < classIcons.length; i++) {
             classIcons[i] = new Stack();
-            classIcons[i].add(new ImageButton(new NinePatchDrawable(AssetManager.TAB_9PATCH)));
-            classIcons[i].add(new ImageButton(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
+            classIcons[i].add(new ImageButton(new NinePatchDrawable(Assets.TAB_9PATCH)));
+            classIcons[i].add(new ImageButton(new TextureRegionDrawable(Assets.MISSING_TEXTURE)));
         }
 
         classIcons[0].addListener(new ClickListener() {
@@ -128,7 +128,7 @@ public class VaultThroneTab extends Tab {
         });
 
         Table center = new Table();
-        center.setBackground(new NinePatchDrawable(AssetManager.TAB_9PATCH));
+        center.setBackground(new NinePatchDrawable(Assets.TAB_9PATCH));
         center.add(favoriteButton).size(16f, 16f).left().row();
         center.add(classIcons[2]).size(120).row();
         center.add(classLabel).padTop(10).row();
@@ -201,7 +201,7 @@ public class VaultThroneTab extends Tab {
             classLabel.setText("");
             for (int i = 0; i < 5; i++) {
                 classIcons[i].removeActorAt(1, true);
-                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(AssetManager.MISSING_TEXTURE)));
+                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(Assets.MISSING_TEXTURE)));
                 container.size(48f);
                 classIcons[i].add(container);
             }
@@ -226,7 +226,7 @@ public class VaultThroneTab extends Tab {
         for (int i = 0; i < classIcons.length; i++) {
             Character character = getCharacterForSlot(indices[i]);
             classIcons[i].removeActorAt(1, true);
-            TextureRegion texture = character == null ? AssetManager.CLASS_SILHOUETTE_TEXTURE : AssetManager.getClassTexture(character.characterClass().id());
+            Texture texture = character == null ? Assets.MISSING_TEXTURE : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id());
             Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(texture)));
             container.size(48f);
             classIcons[i].add(container);

@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.client.screen.main;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -7,17 +8,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
-import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 
 public abstract class Tab extends Table {
-    protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(AssetManager.TAB_9PATCH);
-    protected static final NinePatchDrawable TAB_SELECTED_BACKGROUND = new NinePatchDrawable(AssetManager.TAB_SELECTED_9PATCH);
+    protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(Assets.TAB_9PATCH);
+    protected static final NinePatchDrawable TAB_SELECTED_BACKGROUND = new NinePatchDrawable(Assets.TAB_SELECTED_9PATCH);
     private final Dungeoneer client;
     private final ImageButton tabButton;
 
-    protected Tab(Dungeoneer client, TextureRegion tabTexture) {
+    protected Tab(Dungeoneer client, Texture tabTexture) {
         super(AbstractScreen.SKIN);
         this.client = client;
 
@@ -25,8 +26,9 @@ public abstract class Tab extends Table {
         init();
         build();
 
-        Image leftArrow = new Image(new TextureRegionDrawable(AssetManager.TAB_ARROW_TEXTURE));
-        Image rightArrow = new Image(new TextureRegionDrawable(AssetManager.TAB_ARROW_TEXTURE));
+        Texture tabArrowTexture = client.getAssets().getTexture(Assets.Atlas.UI, "tab_arrow");
+        Image leftArrow = new Image(new TextureRegionDrawable(tabArrowTexture));
+        Image rightArrow = new Image(new TextureRegionDrawable(tabArrowTexture));
         rightArrow.setScaleX(-1f); // TODO: Replace with TextureRegion#flip
 
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
@@ -43,7 +45,7 @@ public abstract class Tab extends Table {
         tabButton.add(image).size(48f);
         tabButton.add(rightArrow).padLeft(15f).size(16f);
 
-        TiledDrawable background = new TiledDrawable(AssetManager.BACKGROUND_BRICK_TEXTURE);
+        TiledDrawable background = new TiledDrawable(new TextureRegion(getClient().getAssets().getTexture(Assets.Atlas.UI, "background_brick")));
         background.setScale(3f);
         setBackground(background);
     }

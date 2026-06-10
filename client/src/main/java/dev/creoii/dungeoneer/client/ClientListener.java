@@ -242,7 +242,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
             }
             case LoadDataS2C() -> {
                 dev.creoii.dungeoneer.DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
-                Gdx.app.postRunnable(Tiles::load);
+                Gdx.app.postRunnable(() -> Tiles.load(client));
             }
             default -> {
             }

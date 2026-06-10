@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
-import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 
@@ -55,11 +55,11 @@ public class MainScreen extends AbstractScreen {
         root.setFillParent(true);
 
         Stack content = new Stack();
-        final ShopTab shopTab = new ShopTab(client, AssetManager.MARKET_TEXTURE);
-        final VaultThroneTab vaultThroneTab = new VaultThroneTab(client, AssetManager.THRONE_TEXTURE);
-        final PlayTab playTab = new PlayTab(client, AssetManager.CHEST_TEXTURE);
-        final FactionTab factionTab = new FactionTab(client, AssetManager.TOWER_TEXTURE);
-        final DungeonGamesTab dungeonGamesTab = new DungeonGamesTab(client, AssetManager.SKULL_TEXTURE);
+        final ShopTab shopTab = new ShopTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "market"));
+        final VaultThroneTab vaultThroneTab = new VaultThroneTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "throne"));
+        final PlayTab playTab = new PlayTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "chest"));
+        final FactionTab factionTab = new FactionTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "tower"));
+        final DungeonGamesTab dungeonGamesTab = new DungeonGamesTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "skull"));
         content.addActor(shopTab);
         content.addActor(vaultThroneTab);
         content.addActor(playTab);

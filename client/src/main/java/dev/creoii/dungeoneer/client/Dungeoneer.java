@@ -11,10 +11,7 @@ import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
-import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.util.logging.Logger;
-
-import java.io.IOException;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Dungeoneer extends Game {
@@ -22,6 +19,7 @@ public class Dungeoneer extends Game {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final Client client;
     private final ClientState state;
+    private Assets assets;
     private final CharacterInputListener controller;
     private final Settings settings;
     private final Listener.QueuedListener listener;
@@ -47,12 +45,20 @@ public class Dungeoneer extends Game {
         return state;
     }
 
+    public Assets getAssets() {
+        return assets;
+    }
+
     public CharacterInputListener getController() {
         return controller;
     }
 
     public Settings getSettings() {
         return settings;
+    }
+
+    public Listener.QueuedListener getListener() {
+        return listener;
     }
 
     @Override
@@ -62,28 +68,22 @@ public class Dungeoneer extends Game {
         TooltipManager.getInstance().initialTime = 0f;
         TooltipManager.getInstance().offsetX = 0f;
         TooltipManager.getInstance().offsetY = 0f;
-        setScreen(new LoadingScreen());
+
+        final LoadingScreen loadingScreen = new LoadingScreen(this);
+        setScreen(loadingScreen);
+
+        state.setStatus(ClientState.Status.LOADING);
 
         settings.load();
-
-        PacketSerializer.registerDefault(client.getKryo());
-
-        client.addListener(listener);
-        client.start();
-
-        try {
-            client.connect(5000, "localhost", 54555, 54777);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        Dungeoneer.LOGGER.info("Client initialized.");
-        state.setStatus(ClientState.Status.AUTHENTICATING);
+        assets = new Assets();
+        assets.load();
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0, 0, 0, 1);
-        super.render();
+        if (assets.getManager().update(17)) {
+            ScreenUtils.clear(0, 0, 0, 1);
+            super.render();
+        }
     }
 }

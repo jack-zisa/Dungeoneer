@@ -1,11 +1,11 @@
 package dev.creoii.dungeoneer.client.screen.main;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
@@ -19,7 +19,7 @@ public class PlayTab extends Tab {
     private TextTooltip characterTooltip;
     private TextButton raidButton;
 
-    protected PlayTab(Dungeoneer client, TextureRegion tabTexture) {
+    protected PlayTab(Dungeoneer client, Texture tabTexture) {
         super(client, tabTexture);
     }
 
@@ -32,9 +32,9 @@ public class PlayTab extends Tab {
 
         Table statsTable = new Table();
 
-        Image goldImage = new Image(AssetManager.GOLD_TEXTURE);
+        Image goldImage = new Image(getClient().getAssets().getTexture(Assets.Atlas.UI, "gold"));
         Label goldLabel = new Label(String.format("%s", getClient().getState().getAccount().gold()), getSkin());
-        Image gemImage = new Image(AssetManager.GEM_TEXTURE);
+        Image gemImage = new Image(getClient().getAssets().getTexture(Assets.Atlas.UI, "gem"));
         Label gemsLabel = new Label(String.format("%s", getClient().getState().getAccount().gems()), getSkin());
 
         statsTable.add(goldImage).size(24f).left();
@@ -44,7 +44,7 @@ public class PlayTab extends Tab {
 
         Table accountTable = new Table();
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
-        selectedImage = new Image(AssetManager.getClassTexture(classId));
+        selectedImage = new Image(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId));
         characterTooltip = new TextTooltip(classId, tooltipStyle);
         characterTooltip.setInstant(true);
         selectedImage.addListener(characterTooltip);
@@ -91,7 +91,7 @@ public class PlayTab extends Tab {
     public void select() {
         selected = getClient().getState().getActiveCharacter();
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
-        selectedImage.setDrawable(new TextureRegionDrawable(AssetManager.getClassTexture(classId)));
+        selectedImage.setDrawable(new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId)));
         characterTooltip.getActor().setText(classId);
         raidButton.setDisabled(selected.isNull());
     }

@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.client.screen.main;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -36,7 +37,7 @@ public class FactionTab extends Tab {
     private TextField chatField;
     private long nextMessageId;
 
-    protected FactionTab(Dungeoneer client, TextureRegion tabTexture) {
+    protected FactionTab(Dungeoneer client, Texture tabTexture) {
         super(client, tabTexture);
     }
 
@@ -63,6 +64,7 @@ public class FactionTab extends Tab {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().get().sendUDP(new SearchFactionC2S(factionField.getText()));
+                factionField.setText("");
             }
         });
         factionSearchTable.add(searchButton).row();

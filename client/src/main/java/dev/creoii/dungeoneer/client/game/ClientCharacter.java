@@ -4,15 +4,16 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
-import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.Assets;
+import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 public class ClientCharacter implements SidedCharacter {
-    @Nullable
-    private Character character;
+    private final Dungeoneer client;
+    @Nullable private Character character;
     private Sprite sprite;
     private final Vector2 pos;
     private final Vector2 renderPos;
@@ -20,11 +21,12 @@ public class ClientCharacter implements SidedCharacter {
     private final StatContainer stats;
     private final Vector2 correction;
 
-    public ClientCharacter(@Nullable Character character) {
+    public ClientCharacter(Dungeoneer client, @Nullable Character character) {
+        this.client = client;
         this.character = character;
 
         if (character == null) sprite = null;
-        else sprite = new Sprite(AssetManager.getClassTexture(character.characterClass().id()));
+        else sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
 
         pos = new Vector2();
         renderPos = new Vector2();
@@ -51,7 +53,7 @@ public class ClientCharacter implements SidedCharacter {
             stats.setHealth(0);
             stats.setSpeed(0);
         } else {
-            sprite = new Sprite(AssetManager.getClassTexture(character.characterClass().id()));
+            sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             stats.setHealth(character.characterClass().baseStats().health().value());
             stats.setSpeed(character.characterClass().baseStats().speed().value());
         }

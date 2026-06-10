@@ -23,7 +23,7 @@ public class ClientState {
     public ClientState(Dungeoneer client) {
         this.client = client;
         characters = new ArrayList<>();
-        activeCharacter = new ClientCharacter(null);
+        activeCharacter = new ClientCharacter(client, null);
         currentRaid = new ClientRaid(null);
         setStatus(ClientState.Status.STARTING);
     }
@@ -101,6 +101,7 @@ public class ClientState {
 
     public enum Status {
         STARTING,
+        LOADING,
         AUTHENTICATING,
         LOBBY,
         RAID_SEARCHING,

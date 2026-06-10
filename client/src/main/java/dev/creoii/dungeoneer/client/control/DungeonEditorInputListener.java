@@ -18,7 +18,7 @@ import dev.creoii.dungeoneer.util.UndoRedoList;
 import java.awt.*;
 
 public class DungeonEditorInputListener extends InputListener implements MousePosListener {
-    private static final float[] ZOOM_LEVELS = {.25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f, 2.45f};
+    private static final float[] ZOOM_LEVELS = {.2f, .25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f, 2.45f};
     private final DungeonEditorScreen screen;
     private final UndoRedoList<EditorAction> undoRedoList;
     private CompositeAction currentActions;
@@ -34,10 +34,6 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
         currentActions = new CompositeAction();
         mousePos = new Vector3();
         screen.getCamera().update();
-    }
-
-    public UndoRedoList<EditorAction> getUndoRedoList() {
-        return undoRedoList;
     }
 
     @Override

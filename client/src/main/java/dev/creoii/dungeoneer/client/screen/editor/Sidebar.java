@@ -1,6 +1,6 @@
 package dev.creoii.dungeoneer.client.screen.editor;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -10,13 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import dev.creoii.dungeoneer.client.AssetManager;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.selection.Selection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 
 public class Sidebar extends Table {
-    protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(AssetManager.TAB_9PATCH);
+    protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(Assets.TAB_9PATCH);
     private final DungeonEditorScreen screen;
     private TiledMapTile selectedTile;
     private Selection selection;
@@ -68,11 +68,11 @@ public class Sidebar extends Table {
         tiles.setMaxCheckCount(1);
         tiles.setUncheckLast(true);
 
-        ImageButton dirt = addTileButton(tilesTable, tiles, AssetManager.DIRT_TEXTURE, Tiles.getTile("dirt"));
-        ImageButton grass = addTileButton(tilesTable, tiles, AssetManager.GRASS_TEXTURE, Tiles.getTile("grass"));
-        ImageButton lava = addTileButton(tilesTable, tiles, AssetManager.LAVA_TEXTURE, Tiles.getTile("lava"));
-        ImageButton sand = addTileButton(tilesTable, tiles, AssetManager.SAND_TEXTURE, Tiles.getTile("sand"));
-        ImageButton stone = addTileButton(tilesTable, tiles, AssetManager.STONE_TEXTURE, Tiles.getTile("stone"));
+        ImageButton dirt = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "dirt"), Tiles.getTile("dirt"));
+        ImageButton grass = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "grass"), Tiles.getTile("grass"));
+        ImageButton lava = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "lava"), Tiles.getTile("lava"));
+        ImageButton sand = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "sand"), Tiles.getTile("sand"));
+        ImageButton stone = addTileButton(tilesTable, tiles, screen.getClient().getAssets().getTexture(Assets.Atlas.TILE, "stone"), Tiles.getTile("stone"));
         add(tilesTable).grow();
 
         setBackground(TAB_BACKGROUND);
@@ -117,7 +117,7 @@ public class Sidebar extends Table {
         return button;
     }
 
-    private ImageButton addTileButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TiledMapTile tile) {
+    private ImageButton addTileButton(Table table, ButtonGroup<ImageButton> group, Texture texture, TiledMapTile tile) {
         ImageButton button = new ImageButton(new TextureRegionDrawable(texture));
         group.add(button);
         button.addListener(new ChangeListener() {
