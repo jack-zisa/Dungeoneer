@@ -7,9 +7,12 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.definitions.Attack;
+import dev.creoii.dungeoneer.definitions.Bullet;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
@@ -99,16 +102,17 @@ public class ClientCharacter implements SidedCharacter {
         ) {
             attackPending = true;
 
-            float arcGap = 20f;
-            int bulletCount = 6;
+            Attack attack = DataManager.getAttack("dark_magic");
+            Bullet bullet = DataManager.getBullet("dark_magic");
 
-            float baseAngle = -arcGap * (bulletCount - 1) / 2f;
-            float angleOffset = 0f;
+            if (attack == null || bullet == null)
+                return;
 
+            float baseAngle = -attack.arcGap() * (attack.bulletCount() - 1) / 2f;
             Vector2 mouseDir = client.getInputListener().getDirectionToMouse(getCenterX(), getCenterY());
 
-            for (int i = 0; i < bulletCount; ++i) {
-                float angle = (baseAngle + i * arcGap) + angleOffset;
+            for (int i = 0; i < attack.bulletCount(); ++i) {
+                float angle = (baseAngle + i * attack.arcGap()) + attack.angleOffset();
 
                 float radians = angle * MathUtils.degreesToRadians;
                 float cos = MathUtils.cos(radians);
@@ -117,7 +121,7 @@ public class ClientCharacter implements SidedCharacter {
                 float rotatedX = mouseDir.x * cos - mouseDir.y * sin;
                 float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
 
-                client.getState().getCurrentRaid().addBullet(getCenterX(), getCenterY(), rotatedX, rotatedY, -45f, 0f, -50f, 60f, 3.5f, 10f, 10f, 0f, 0f, i + 1);
+                client.getState().getCurrentRaid().addBullet(getCenterX(), getCenterY(), rotatedX, rotatedY, bullet, i + 1);
             }
             client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
         }

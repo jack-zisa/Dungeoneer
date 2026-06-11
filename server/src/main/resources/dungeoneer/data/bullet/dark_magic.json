@@ -1,0 +1,6 @@
+{
+  "id": "dark_magic",
+  "speed": 100,
+  "lifetime": 2,
+  "acceleration": -100
+}

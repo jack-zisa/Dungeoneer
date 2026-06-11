@@ -3,31 +3,35 @@ package dev.creoii.dungeoneer.client.game;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.definitions.Bullet;
 
 public class ClientBullet implements Pool.Poolable {
+    private Bullet bullet;
     private final Vector2 pos;
     private float startX;
     private float startY;
     private final Vector2 direction;
     private float speed;
-    private float acceleration;
     private float distanceTravelled;
     private float lifetime;
     private int index;
     private float age;
-    private float amplitude;
-    private float frequency;
-    private float orbitSpeed;
-    private float orbitRadius;
     private float orbitPhase;
     private float angleOffset;
     private float angle;
-    private float rotation;
 
     public ClientBullet() {
         pos = new Vector2();
         direction = new Vector2();
         reset();
+    }
+
+    public Bullet get() {
+        return bullet;
+    }
+
+    public void set(Bullet bullet) {
+        this.bullet = bullet;
     }
 
     public Vector2 getPos() {
@@ -59,14 +63,6 @@ public class ClientBullet implements Pool.Poolable {
         angle += f;
     }
 
-    public void setRotation(float rotation) {
-        this.rotation = rotation;
-    }
-
-    public float getRotation() {
-        return rotation;
-    }
-
     public void setDirection(float x, float y) {
         direction.set(x, y);
     }
@@ -79,28 +75,8 @@ public class ClientBullet implements Pool.Poolable {
         this.speed = speed;
     }
 
-    public void setAcceleration(float acceleration) {
-        this.acceleration = acceleration;
-    }
-
     public void setLifetime(float lifetime) {
         this.lifetime = lifetime;
-    }
-
-    public void setAmplitude(float amplitude) {
-        this.amplitude = amplitude;
-    }
-
-    public void setFrequency(float frequency) {
-        this.frequency = frequency;
-    }
-
-    public void setOrbitSpeed(float orbitSpeed) {
-        this.orbitSpeed = orbitSpeed;
-    }
-
-    public void setOrbitRadius(float orbitRadius) {
-        this.orbitRadius = orbitRadius;
     }
 
     public void setOrbitPhase(float orbitPhase) {
@@ -115,21 +91,16 @@ public class ClientBullet implements Pool.Poolable {
     public void reset() {
         setPos(0f, 0f);
         setDirection(0f, 0f);
+        bullet = null;
         lifetime = 0f;
-        amplitude = 0f;
-        frequency = 0f;
         age = 0f;
         index = 0;
         startX = 0f;
         startY = 0f;
         distanceTravelled = 0f;
-        acceleration = 0f;
         speed = 0f;
-        orbitSpeed = 0f;
-        orbitRadius = 0f;
         orbitPhase = 0f;
         angle = 0f;
-        rotation = 0f;
     }
 
     public boolean update(float dt) {
@@ -138,18 +109,18 @@ public class ClientBullet implements Pool.Poolable {
         }
 
         age += dt;
-        speed += acceleration * dt;
+        speed += bullet.acceleration() * dt;
         distanceTravelled += speed * dt;
 
         float phase = (index & 1) == 0 ? 0f : MathUtils.PI;
-        float wave = MathUtils.sin(age * frequency + phase) * amplitude;
+        float wave = MathUtils.sin(age * bullet.frequency() + phase) * bullet.amplitude();
 
         float perpX = -direction.y;
         float perpY = direction.x;
 
-        float orbitAngle = age * orbitSpeed + orbitPhase;
-        float orbitForward = MathUtils.cos(orbitAngle) * orbitRadius;
-        float orbitSide    = MathUtils.sin(orbitAngle) * orbitRadius;
+        float orbitAngle = age * MathUtils.PI2 * bullet.orbitSpeed() + orbitPhase;
+        float orbitForward = MathUtils.cos(orbitAngle) * bullet.orbitRadius();
+        float orbitSide = MathUtils.sin(orbitAngle) * bullet.orbitRadius();
 
         float orbitX = direction.x * orbitForward + perpX * orbitSide;
         float orbitY = direction.y * orbitForward + perpY * orbitSide;

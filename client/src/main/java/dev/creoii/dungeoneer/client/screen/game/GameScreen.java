@@ -158,9 +158,8 @@ public class GameScreen extends AbstractScreen {
 
         for (ClientBullet bullet : raid.getBullets()) {
             Vector2 pos = bullet.getPos();
-            Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, "ice_magic_blade");
-            bullet.incrementAngle(bullet.getRotation() * delta);
-
+            Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.get().id());
+            bullet.incrementAngle(bullet.get().rotationSpeed() * delta);
             batch.draw(texture,
                 pos.x - texture.getWidth() * .5f, pos.y - texture.getHeight() * .5f,
                 texture.getWidth() * .5f, texture.getHeight() * .5f,

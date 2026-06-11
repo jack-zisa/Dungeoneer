@@ -6,6 +6,8 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.creoii.dungeoneer.definitions.Attack;
+import dev.creoii.dungeoneer.definitions.Bullet;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
 import dev.creoii.dungeoneer.definitions.Tile;
 import dev.creoii.dungeoneer.util.Identifiable;
@@ -36,6 +38,14 @@ public class DataManager {
         DataManager.DEBUG = debug;
     }
 
+    public static Object2ObjectArrayMap<String, Identifiable> getBullets() {
+        return DATA.get(SchemaType.BULLET);
+    }
+
+    public static Object2ObjectArrayMap<String, Identifiable> getAttacks() {
+        return DATA.get(SchemaType.ATTACK);
+    }
+
     public static Object2ObjectArrayMap<String, Identifiable> getClasses() {
         return DATA.get(SchemaType.CLASS);
     }
@@ -46,6 +56,26 @@ public class DataManager {
 
     public static Object2ObjectArrayMap<String, Identifiable> getTileProviders() {
         return DATA.get(SchemaType.TILE_PROVIDER);
+    }
+
+    @Nullable
+    public static Bullet getBullet(String id) {
+        Bullet value = (Bullet) getBullets().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Bullet: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static Attack getAttack(String id) {
+        Attack value = (Attack) getAttacks().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Attack: '" + id + "'");
+            return null;
+        }
+        return value;
     }
 
     @Nullable
@@ -138,6 +168,8 @@ public class DataManager {
     }
 
     public enum SchemaType {
+        BULLET("bullet"),
+        ATTACK("attack"),
         CLASS("class"),
         TILE("tile"),
         TILE_PROVIDER("tile_provider");
@@ -154,6 +186,8 @@ public class DataManager {
     }
 
     static {
+        SCHEMA.put(SchemaType.BULLET, Bullet.CODEC);
+        SCHEMA.put(SchemaType.ATTACK, Attack.CODEC);
         SCHEMA.put(SchemaType.CLASS, CharacterClass.CODEC);
         SCHEMA.put(SchemaType.TILE, Tile.CODEC);
         SCHEMA.put(SchemaType.TILE_PROVIDER, TileProvider.CODEC);

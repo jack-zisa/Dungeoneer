@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.client.game;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.definitions.Bullet;
 import dev.creoii.dungeoneer.definitions.Raid;
 import org.jspecify.annotations.Nullable;
 
@@ -63,22 +64,17 @@ public class ClientRaid {
         bullets.removeRange(0, bullets.size - 1);
     }
 
-    public void addBullet(float x, float y, float dirX, float dirY, float angleOffset, float rotation, float acceleration, float speed, float lifetime, float amplitude, float frequency, float orbitRadius, float orbitSpeed, int index) {
-        ClientBullet bullet = bulletPool.obtain();
-        bullet.setStartPos(x, y);
-        bullet.setPos(x, y);
-        bullet.setAngleOffset(angleOffset);
-        bullet.setRotation(rotation);
-        bullet.setSpeed(speed);
-        bullet.setDirection(dirX, dirY);
-        bullet.setLifetime(lifetime);
-        bullet.setAmplitude(amplitude);
-        bullet.setFrequency(frequency);
-        bullet.setIndex(index);
-        bullet.setAcceleration(acceleration);
-        bullet.setOrbitSpeed(MathUtils.PI2 * orbitSpeed);
-        bullet.setOrbitRadius(orbitRadius);
-        bullet.setOrbitPhase(MathUtils.PI2 * index / 5f);
-        bullets.add(bullet);
+    public void addBullet(float x, float y, float dirX, float dirY, Bullet bullet, int index) {
+        ClientBullet poolBullet = bulletPool.obtain();
+        poolBullet.set(bullet);
+        poolBullet.setStartPos(x, y);
+        poolBullet.setPos(x, y);
+        poolBullet.setAngleOffset(bullet.angleOffset());
+        poolBullet.setSpeed(bullet.speed());
+        poolBullet.setDirection(dirX, dirY);
+        poolBullet.setLifetime(bullet.lifetime());
+        poolBullet.setIndex(index);
+        poolBullet.setOrbitPhase(MathUtils.PI2 * index / 5f);
+        bullets.add(poolBullet);
     }
 }
