@@ -100,7 +100,6 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             Point point = screen.getHoveredPos();
             if (InputUtils.isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
                 selecting = true;
-
                 areaSelection.setMin(point.x, point.y);
                 areaSelection.setMax(point.x, point.y);
                 return true;

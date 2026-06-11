@@ -62,7 +62,7 @@ public class ClientNetworkHandler implements Listener {
         PacketSerializer.registerDefault(client.get().getKryo());
     }
 
-    public void render(float dt) {
+    public void update(float dt) {
         NetworkQueue.QueuedPacket packet;
         while ((packet = networkQueue.queue().poll()) != null && PacketSerializer.INSTANCE.isValidPacket(packet.data())) {
             handlePacket(packet.connection(), packet.data());

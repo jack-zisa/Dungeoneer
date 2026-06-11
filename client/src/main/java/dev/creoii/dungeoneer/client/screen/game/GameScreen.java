@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.client.screen.game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -16,7 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.control.CharacterInputListener;
+import dev.creoii.dungeoneer.client.game.ClientBullet;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
@@ -29,7 +30,6 @@ import javax.annotation.Nullable;
 
 public class GameScreen extends AbstractScreen {
     private final Dungeoneer client;
-    private CharacterInputListener inputListener;
     private OrthographicCamera camera;
     private OrthogonalTiledMapRenderer mapRenderer;
     private SpriteBatch batch;
@@ -42,6 +42,10 @@ public class GameScreen extends AbstractScreen {
 
     public Dungeoneer getClient() {
         return client;
+    }
+
+    public OrthographicCamera getCamera() {
+        return camera;
     }
 
     @Override
@@ -80,6 +84,7 @@ public class GameScreen extends AbstractScreen {
                 getClient().getState().getActiveCharacter().getPos().setZero();
                 getClient().getState().getActiveCharacter().getRenderPos().setZero();
                 getClient().getState().setStatus(ClientState.Status.LOBBY);
+                getClient().getState().getCurrentRaid().end();
             }
         });
         root.add(surrenderButton).left().row();
@@ -89,7 +94,7 @@ public class GameScreen extends AbstractScreen {
         root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f);
 
         getStage().addActor(root);
-        getStage().addListener(inputListener = new CharacterInputListener(client));
+        getStage().addListener(client.getInputListener());
         super.show();
     }
 
@@ -106,6 +111,10 @@ public class GameScreen extends AbstractScreen {
     public void render(float delta) {
         ClientCharacter character = client.getState().getActiveCharacter();
         if (character.isNull())
+            return;
+
+        ClientRaid raid = client.getState().getCurrentRaid();
+        if (raid.isNull())
             return;
 
         character.getRenderPos().mulAdd(character.getVelocity(), StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta);
@@ -147,11 +156,27 @@ public class GameScreen extends AbstractScreen {
         sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
         sprite.draw(batch);
 
+        for (ClientBullet bullet : raid.getBullets()) {
+            Vector2 pos = bullet.getPos();
+            Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, "ice_magic_blade");
+            bullet.incrementAngle(bullet.getRotation() * delta);
+
+            batch.draw(texture,
+                pos.x - texture.getWidth() * .5f, pos.y - texture.getHeight() * .5f,
+                texture.getWidth() * .5f, texture.getHeight() * .5f,
+                texture.getWidth(), texture.getHeight(),
+                1f, 1f,
+                bullet.getDirection().angleDeg() + bullet.getAngleOffset() + bullet.getAngle(),
+                0, 0,
+                texture.getWidth(), texture.getHeight(),
+                false, false
+            );
+        }
+
         batch.setShader(null);
         batch.end();
 
-        if (inputListener != null && client.getSettings().debug().value()) {
-            inputListener.updateMousePos(camera);
+        if (client.getSettings().debug().value()) {
             shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
@@ -159,7 +184,7 @@ public class GameScreen extends AbstractScreen {
             float y = character.getRenderPos().y + 4f;
 
             shapeRenderer.setColor(character.isAttackPending() ? Color.GREEN : Color.WHITE);
-            Vector2 mouseDir = inputListener.getDirectionToMouse(x, y);
+            Vector2 mouseDir = client.getInputListener().getDirectionToMouse(x, y);
             shapeRenderer.line(x, y, x + mouseDir.x * 32f, y + mouseDir.y * 32f);
             shapeRenderer.end();
         }

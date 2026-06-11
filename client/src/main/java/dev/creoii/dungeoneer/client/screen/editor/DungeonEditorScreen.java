@@ -174,6 +174,6 @@ public class DungeonEditorScreen extends AbstractScreen {
     public Point getHoveredPos() {
         Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mouse);
-        return new Point((int)(mouse.x / 8f), (int)(mouse.y / 8f));
+        return new Point((int) Math.floor(mouse.x / 8f), (int) Math.floor(mouse.y / 8f));
     }
 }

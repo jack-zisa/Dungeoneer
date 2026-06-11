@@ -11,6 +11,7 @@ import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.network.ClientNetworkHandler;
 import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
+import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.util.logging.Logger;
 
@@ -21,14 +22,14 @@ public class Dungeoneer extends Game {
     private final Client client;
     private final ClientState state;
     private Assets assets;
-    private final CharacterInputListener controller;
+    private final CharacterInputListener inputListener;
     private final Settings settings;
     private final ClientNetworkHandler networkHandler;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
         state = new ClientState(this);
-        controller = new CharacterInputListener(this);
+        inputListener = new CharacterInputListener(this);
         settings = Settings.DEFAULT;
         networkHandler = new ClientNetworkHandler(this);
     }
@@ -45,8 +46,8 @@ public class Dungeoneer extends Game {
         return assets;
     }
 
-    public CharacterInputListener getController() {
-        return controller;
+    public CharacterInputListener getInputListener() {
+        return inputListener;
     }
 
     public Settings getSettings() {
@@ -78,14 +79,17 @@ public class Dungeoneer extends Game {
     @Override
     public void render() {
         ScreenUtils.clear(0, 0, 0, 1);
-        
+
         float dt = Gdx.graphics.getDeltaTime();
 
-        networkHandler.render(dt);
+        networkHandler.update(dt);
 
-        if (!state.getActiveCharacter().isNull()) {
-            state.getActiveCharacter().tick(dt);
+        if (state.getStatus() == ClientState.Status.RAIDING && !state.getCurrentRaid().isNull() && !state.getActiveCharacter().isNull() && screen instanceof GameScreen gameScreen) {
+            inputListener.updateMousePos(gameScreen.getCamera());
+            state.getActiveCharacter().update(dt);
+            state.getCurrentRaid().update(dt);
         }
+
         super.render();
     }
 }

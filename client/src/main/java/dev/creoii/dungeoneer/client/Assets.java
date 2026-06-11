@@ -112,6 +112,7 @@ public class Assets implements Disposable {
 
     public enum Atlas {
         CHARACTER(true),
+        BULLET(true),
         TILE,
         UI;
 
