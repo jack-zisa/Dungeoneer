@@ -10,6 +10,8 @@ import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.Bullet;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
 import dev.creoii.dungeoneer.definitions.Tile;
+import dev.creoii.dungeoneer.definitions.attack.AttackType;
+import dev.creoii.dungeoneer.definitions.attack.ReferenceAttack;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
@@ -68,12 +70,11 @@ public class DataManager {
         return value;
     }
 
-    @Nullable
     public static Attack getAttack(String id) {
         Attack value = (Attack) getAttacks().get(id);
         if (value == null) {
-            if (DEBUG) LOGGER.error("Unknown Attack: '" + id + "'");
-            return null;
+            if (DEBUG) LOGGER.error("Creating reference attack: '" + id + "'");
+            return new ReferenceAttack(id, AttackType.REFERENCE);
         }
         return value;
     }

@@ -4,7 +4,9 @@ import com.mojang.serialization.Codec;
 
 public enum AttackType {
     BULLET,
-    LASER;
+    LASER,
+    COMPOSITE,
+    REFERENCE;
 
     public static final Codec<AttackType> CODEC = Codec.STRING.xmap(s -> AttackType.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
 }

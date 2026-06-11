@@ -11,16 +11,16 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.definitions.attack.Attack;
+import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.Bullet;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.attack.BulletAttack;
-import dev.creoii.dungeoneer.definitions.attack.LaserAttack;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class ClientCharacter implements SidedCharacter {
     private final Dungeoneer client;
@@ -108,40 +108,46 @@ public class ClientCharacter implements SidedCharacter {
         ) {
             attackPending = true;
 
-            Attack attack = DataManager.getAttack("dark_magic");
-            switch (attack) {
-                case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset) -> {
-                    Bullet bullet = DataManager.getBullet("dark_magic");
-                    if (bullet == null)
-                        return;
+            Attack attack = DataManager.getAttack("dark_attack");
+            attack(attack);
+        }
+    }
 
-                    float baseAngle = -arcGap * (bulletCount - 1) / 2f;
-                    Vector2 mouseDir = client.getInputListener().getDirectionToMouse(getCenterX(), getCenterY());
+    public void attack(Attack attack) {
+        switch (attack) {
+            case ReferenceAttack(String id, _) -> attack(DataManager.getAttack(id));
+            case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset) -> {
+                Bullet bullet = DataManager.getBullet("dark_magic");
+                if (bullet == null)
+                    return;
 
-                    for (int i = 0; i < bulletCount; ++i) {
-                        float angle = (baseAngle + i * arcGap) + angleOffset;
+                float baseAngle = -arcGap * (bulletCount - 1) / 2f;
+                Vector2 mouseDir = client.getInputListener().getDirectionToMouse(getCenterX(), getCenterY());
 
-                        float radians = angle * MathUtils.degreesToRadians;
-                        float cos = MathUtils.cos(radians);
-                        float sin = MathUtils.sin(radians);
+                for (int i = 0; i < bulletCount; ++i) {
+                    float angle = (baseAngle + i * arcGap) + angleOffset;
 
-                        float rotatedX = mouseDir.x * cos - mouseDir.y * sin;
-                        float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
+                    float radians = angle * MathUtils.degreesToRadians;
+                    float cos = MathUtils.cos(radians);
+                    float sin = MathUtils.sin(radians);
 
-                        client.getState().getCurrentRaid().addBullet(getCenterX(), getCenterY(), rotatedX, rotatedY, bullet, i + 1);
-                    }
-                    client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
+                    float rotatedX = mouseDir.x * cos - mouseDir.y * sin;
+                    float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
+
+                    client.getState().getCurrentRaid().addBullet(getCenterX(), getCenterY(), rotatedX, rotatedY, bullet, i + 1);
                 }
-                case LaserAttack(_, _, Vector2 size, int laserCount, float arcGap, float angleOffset, float lifetime, boolean attached) -> {
-                    float baseAngle = -arcGap * (laserCount - 1) / 2f;
-                    for (int i = 0; i < laserCount; ++i) {
-                        float angle = (baseAngle + i * arcGap) + angleOffset;
-                        client.getState().getCurrentRaid().addLaser(getCenterX(), getCenterY(), angle, size.x, size.y, lifetime, attached ? this : null);
-                    }
-                    client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
-                }
-                case null, default -> throw new IllegalStateException("Unexpected attack value: " + attack);
+                client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
             }
+            case LaserAttack(_, _, Vector2 size, int laserCount, float arcGap, float angleOffset, float lifetime, boolean attached) -> {
+                float baseAngle = -arcGap * (laserCount - 1) / 2f;
+                for (int i = 0; i < laserCount; ++i) {
+                    float angle = (baseAngle + i * arcGap) + angleOffset;
+                    client.getState().getCurrentRaid().addLaser(getCenterX(), getCenterY(), angle, size.x, size.y, lifetime, attached ? this : null);
+                }
+                client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
+            }
+            case CompositeAttack(_, _, List<Attack> attacks) -> attacks.forEach(this::attack);
+            case null, default -> throw new IllegalStateException("Unexpected attack value: " + attack);
         }
     }
 
