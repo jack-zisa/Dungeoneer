@@ -19,6 +19,7 @@ import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientBullet;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.game.ClientLaser;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
@@ -171,6 +172,22 @@ public class GameScreen extends AbstractScreen {
                 0, 0,
                 texture.getWidth(), texture.getHeight(),
                 false, false
+            );
+        }
+
+        for (ClientLaser laser : raid.getLasers()) {
+            Vector2 pos = laser.getPos();
+            batch.draw(
+                Assets.PURPLE_LASER_REGION,
+                pos.x,
+                pos.y - laser.getWidth() * 0.5f,
+                0,
+                laser.getWidth() * 0.5f,
+                laser.getLength(),
+                laser.getWidth(),
+                1f,
+                1f,
+                laser.getDirection().angleDeg()
             );
         }
 

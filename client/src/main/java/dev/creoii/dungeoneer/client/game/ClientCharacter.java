@@ -14,8 +14,8 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.Bullet;
 import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.attack.AttackType;
 import dev.creoii.dungeoneer.definitions.attack.BulletAttack;
+import dev.creoii.dungeoneer.definitions.attack.LaserAttack;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -54,6 +54,10 @@ public class ClientCharacter implements SidedCharacter {
             );
         }
         correction = new Vector2();
+    }
+
+    public Dungeoneer getClient() {
+        return client;
     }
 
     public @Nullable Character get() {
@@ -125,6 +129,14 @@ public class ClientCharacter implements SidedCharacter {
                         float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
 
                         client.getState().getCurrentRaid().addBullet(getCenterX(), getCenterY(), rotatedX, rotatedY, bullet, i + 1);
+                    }
+                    client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
+                }
+                case LaserAttack(_, _, Vector2 size, int laserCount, float arcGap, float angleOffset, float lifetime, boolean attached) -> {
+                    float baseAngle = -arcGap * (laserCount - 1) / 2f;
+                    for (int i = 0; i < laserCount; ++i) {
+                        float angle = (baseAngle + i * arcGap) + angleOffset;
+                        client.getState().getCurrentRaid().addLaser(getCenterX(), getCenterY(), angle, size.x, size.y, lifetime, attached ? this : null);
                     }
                     client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
                 }

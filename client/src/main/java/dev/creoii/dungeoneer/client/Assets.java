@@ -21,6 +21,9 @@ public class Assets implements Disposable {
     public static final Texture MISSING_TEXTURE = new Texture("textures/misc/missing.png");
     public static final TextureRegion MISSING_TEXTURE_REGION = new TextureRegion(MISSING_TEXTURE);
 
+    public static final Texture PURPLE_LASER = new Texture("textures/laser/purple.png");
+    public static final TextureRegion PURPLE_LASER_REGION = new TextureRegion(PURPLE_LASER);
+
     public static final NinePatch TAB_9PATCH = new NinePatch(new Texture("textures/ui/tab.png"), 2, 2, 2,2);
     public static final NinePatch TAB_SELECTED_9PATCH = new NinePatch(new Texture("textures/ui/tab_selected.png"), 2, 2, 2,2);
     public static final NinePatch HEALTH_BAR_9PATCH = new NinePatch(new Texture("textures/ui/health_bar.png"), 4, 4, 4,4);

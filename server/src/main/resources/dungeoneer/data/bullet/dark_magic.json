@@ -3,5 +3,6 @@
   "speed": 120,
   "lifetime": 2,
   "acceleration": -120,
-  "scale": 2
+  "scale": 2,
+  "rotation_speed": 90
 }

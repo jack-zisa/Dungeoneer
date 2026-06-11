@@ -19,6 +19,14 @@ public class ClientRaid {
     };
     private final Array<ClientBullet> bullets = new Array<>();
 
+    private final Pool<ClientLaser> laserPool = new Pool<>() {
+        @Override
+        protected ClientLaser newObject() {
+            return new ClientLaser();
+        }
+    };
+    private final Array<ClientLaser> lasers = new Array<>();
+
     public ClientRaid(Raid raid) {
         this.raid = raid;
         dungeon = new ClientDungeonMap();
@@ -32,12 +40,12 @@ public class ClientRaid {
         this.raid = raid;
     }
 
-    public Pool<ClientBullet> getBulletPool() {
-        return bulletPool;
-    }
-
     public Array<ClientBullet> getBullets() {
         return bullets;
+    }
+
+    public Array<ClientLaser> getLasers() {
+        return lasers;
     }
 
     public ClientDungeonMap getDungeon() {
@@ -57,11 +65,27 @@ public class ClientRaid {
                 bulletPool.free(bullet);
             }
         }
+
+        for (int i = lasers.size - 1; i >= 0; --i) {
+            ClientLaser laser = lasers.get(i);
+
+            if (!laser.update(dt)) {
+                lasers.removeIndex(i);
+                laserPool.free(laser);
+            }
+        }
     }
 
     public void end() {
-        bulletPool.freeAll(bullets);
-        bullets.removeRange(0, bullets.size - 1);
+        if (bullets.notEmpty()) {
+            bulletPool.freeAll(bullets);
+            bullets.removeRange(0, bullets.size - 1);
+        }
+
+        if (lasers.notEmpty()) {
+            laserPool.freeAll(lasers);
+            lasers.removeRange(0, lasers.size - 1);
+        }
     }
 
     public void addBullet(float x, float y, float dirX, float dirY, Bullet bullet, int index) {
@@ -76,5 +100,16 @@ public class ClientRaid {
         poolBullet.setIndex(index);
         poolBullet.setOrbitPhase(MathUtils.PI2 * index / 5f);
         bullets.add(poolBullet);
+    }
+
+    public void addLaser(float x, float y, float angleOffset, float width, float length, float lifetime, @Nullable ClientCharacter character) {
+        ClientLaser poolLaser = laserPool.obtain();
+        poolLaser.setPos(x, y);
+        poolLaser.setAngleOffset(angleOffset);
+        poolLaser.setAttached(character);
+        poolLaser.setWidth(width);
+        poolLaser.setLength(length);
+        poolLaser.setLifetime(lifetime);
+        lasers.add(poolLaser);
     }
 }

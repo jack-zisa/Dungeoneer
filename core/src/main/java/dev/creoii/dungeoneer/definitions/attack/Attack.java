@@ -11,6 +11,7 @@ public interface Attack extends Identifiable {
 
     Codec<Attack> CODEC = AttackType.CODEC.dispatch(Attack::type, type -> switch (type) {
         case BULLET -> BulletAttack.TYPE_CODEC;
+        case LASER -> LaserAttack.TYPE_CODEC;
     });
     Codec<Attack> ID_CODEC = Codec.STRING.xmap(DataManager::getAttack, Attack::id);
 
