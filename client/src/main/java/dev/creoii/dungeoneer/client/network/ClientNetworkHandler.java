@@ -1,23 +1,27 @@
-package dev.creoii.dungeoneer.client;
+package dev.creoii.dungeoneer.client.network;
 
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.client.ClientState;
+import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.editor.Tiles;
-import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
-import dev.creoii.dungeoneer.client.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.screen.main.PlayTab;
 import dev.creoii.dungeoneer.client.screen.main.VaultThroneTab;
+import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.network.NetworkQueue;
+import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
-import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
+import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
@@ -25,7 +29,6 @@ import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
@@ -47,7 +50,25 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public record ClientListener(Dungeoneer client) implements Listener {
+public class ClientNetworkHandler implements Listener {
+    private final Dungeoneer client;
+    private final NetworkQueue networkQueue;
+
+    public ClientNetworkHandler(Dungeoneer client) {
+        this.client = client;
+        networkQueue = new NetworkQueue();
+        client.get().addListener(this);
+
+        PacketSerializer.registerDefault(client.get().getKryo());
+    }
+
+    public void render(float dt) {
+        NetworkQueue.QueuedPacket packet;
+        while ((packet = networkQueue.queue().poll()) != null && PacketSerializer.INSTANCE.isValidPacket(packet.data())) {
+            handlePacket(packet.connection(), packet.data());
+        }
+    }
+
     @Override
     public void connected(Connection connection) {
         client.get().sendUDP(new RequestLoginC2S());
@@ -55,10 +76,14 @@ public record ClientListener(Dungeoneer client) implements Listener {
 
     @Override
     public void received(Connection connection, Object object) {
+        networkQueue.queuePacket(connection, object);
+    }
+
+    public void handlePacket(Connection connection, Object object) {
         if (!PacketSerializer.INSTANCE.isValidPacket(object))
             return;
 
-        Dungeoneer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
+        if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
 
         switch (object) {
             case AuthenticateS2C _ ->
@@ -75,7 +100,7 @@ public record ClientListener(Dungeoneer client) implements Listener {
                 }
                 Dungeoneer.LOGGER.info("Login result: %s", result.name());
             }
-            case SendCharactersS2C(List<Character> characters) -> {
+            case SendCharactersS2C(List<dev.creoii.dungeoneer.definitions.Character> characters) -> {
                 if (characters.isEmpty())
                     return;
 

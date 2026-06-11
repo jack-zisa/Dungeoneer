@@ -3,6 +3,8 @@ package dev.creoii.dungeoneer.server.network;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.password4j.Password;
+import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.network.NetworkQueue;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
@@ -51,11 +53,11 @@ import java.util.zip.ZipOutputStream;
 
 public class ServerNetworkHandler implements Listener, Tickable {
     private final DungeoneerServer server;
-    private final ServerNetworkQueue networkQueue;
+    private final NetworkQueue networkQueue;
 
     public ServerNetworkHandler(DungeoneerServer server) {
         this.server = server;
-        networkQueue = new ServerNetworkQueue();
+        networkQueue = new NetworkQueue();
         server.get().addListener(this);
 
         PacketSerializer.registerDefault(server.get().getKryo());
@@ -63,7 +65,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
 
     @Override
     public void tick(float dt) {
-        ServerNetworkQueue.QueuedPacket packet;
+        NetworkQueue.QueuedPacket packet;
         while ((packet = networkQueue.queue().poll()) != null && PacketSerializer.INSTANCE.isValidPacket(packet.data())) {
             handlePacket(packet.connection(), packet.data());
         }
@@ -88,7 +90,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
             throw new RuntimeException(e);
         }
 
-        for (dev.creoii.dungeoneer.DataManager.SchemaType schemaType : dev.creoii.dungeoneer.DataManager.SchemaType.values()) {
+        for (DataManager.SchemaType schemaType : DataManager.SchemaType.values()) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream(32768);
             try (ZipOutputStream zipOut = new ZipOutputStream(baos)) {
                 Path schemaRoot = dataRoot.resolve(schemaType.getPath());

@@ -29,8 +29,6 @@ public class Assets implements Disposable {
     public static final ShaderProgram BORDER_SHADER = new ShaderProgram(Gdx.files.internal("shaders/border.vert"), Gdx.files.internal("shaders/border.frag"));
 
     public static final Logger LOGGER = new Logger(AssetManager.class.getSimpleName());
-    public static final String DEFAULT_TEXTURE_ID = "textures/misc/missing.png";
-    protected static final Texture DEFAULT_TEXTURE = new Texture(DEFAULT_TEXTURE_ID);
     private final AssetManager manager;
     private final Int2ObjectOpenHashMap<DynamicTextureAtlas> atlases;
 

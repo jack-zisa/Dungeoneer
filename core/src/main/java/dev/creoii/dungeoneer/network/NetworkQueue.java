@@ -1,11 +1,11 @@
-package dev.creoii.dungeoneer.server.network;
+package dev.creoii.dungeoneer.network;
 
 import com.esotericsoftware.kryonet.Connection;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public record ServerNetworkQueue(ConcurrentLinkedQueue<QueuedPacket> queue) {
-    public ServerNetworkQueue() {
+public record NetworkQueue(ConcurrentLinkedQueue<QueuedPacket> queue) {
+    public NetworkQueue() {
         this(new ConcurrentLinkedQueue<>());
     }
 

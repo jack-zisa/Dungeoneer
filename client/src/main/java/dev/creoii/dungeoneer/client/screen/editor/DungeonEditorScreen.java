@@ -12,12 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.DungeonEditorInputListener;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
+import dev.creoii.dungeoneer.util.Constants;
 
 import java.awt.*;
 
@@ -69,7 +71,7 @@ public class DungeonEditorScreen extends AbstractScreen {
     public TiledMap buildEmptyMap() {
         TiledMap map = new TiledMap();
         TiledMapTileLayer ground = new TiledMapTileLayer(256, 256, 8, 8);
-        ground.setName("ground");
+        ground.setName(Constants.MAP_LAYER_GROUND);
         map.getLayers().add(ground);
         return map;
     }

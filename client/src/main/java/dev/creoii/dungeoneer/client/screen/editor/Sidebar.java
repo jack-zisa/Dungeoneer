@@ -15,6 +15,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.selection.Selection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
@@ -64,7 +65,7 @@ public class Sidebar extends Table {
 
         TextButton fillButton = addToolButton(toolsTable, tools, "Fill", () -> {
             if (selection != null && selectedTile != null) {
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND);
                 selection.forEach(tileLayer, cell -> {
                     if (cell != null) cell.setTile(Tiles.getTile(selectedTile.get(new Random()).id()));
                 });
@@ -72,7 +73,7 @@ public class Sidebar extends Table {
         });
         TextButton deleteButton = addToolButton(toolsTable, tools, "Delete", () -> {
             if (selection != null) {
-                selection.forEach((TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground"), cell -> {
+                selection.forEach((TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND), cell -> {
                     if (cell != null) cell.setTile(null);
                 });
             }

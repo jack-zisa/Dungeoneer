@@ -22,6 +22,7 @@ import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 import javax.annotation.Nullable;
@@ -112,11 +113,11 @@ public class GameScreen extends AbstractScreen {
         Vector2 correction = character.getCorrection();
         float error = correction.len();
         if (error > 30f) {
-            Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
+            if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             character.getRenderPos().set(character.getPos());
             correction.setZero();
         } else if (error > 5f) {
-            Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
+            if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             float amount = Math.min(correction.len(), 15f * delta);
             correction.nor();
             character.getRenderPos().mulAdd(correction, amount);
@@ -130,7 +131,7 @@ public class GameScreen extends AbstractScreen {
         mapRenderer.setView(camera);
         mapRenderer.render();
 
-        TiledMapTile tile = character.getTileOn((TiledMapTileLayer) mapRenderer.getMap().getLayers().get("ground"));
+        TiledMapTile tile = character.getTileOn((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_GROUND));
         if (tile != null) {
         }
 

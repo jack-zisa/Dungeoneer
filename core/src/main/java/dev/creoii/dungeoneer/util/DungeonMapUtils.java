@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.util;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+import com.mojang.datafixers.kinds.Const;
 
 import java.io.*;
 import java.util.zip.DeflaterOutputStream;
@@ -12,7 +13,7 @@ public final class DungeonMapUtils {
     public static byte[] serializeMap(TiledMap map) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dos = new DataOutputStream(baos)) {
-            if (map.getLayers().get("ground") instanceof TiledMapTileLayer tileLayer) {
+            if (map.getLayers().get(Constants.MAP_LAYER_GROUND) instanceof TiledMapTileLayer tileLayer) {
                 byte[] layerBlob = serializeLayer(tileLayer);
                 dos.writeInt(layerBlob.length);
                 dos.write(layerBlob);
@@ -43,7 +44,7 @@ public final class DungeonMapUtils {
             byte[] layerBlob = new byte[dis.readInt()];
             dis.readFully(layerBlob);
             TiledMapTileLayer layer = deserializeLayer(layerBlob, tileSet);
-            layer.setName("ground");
+            layer.setName(Constants.MAP_LAYER_GROUND);
             map.getLayers().add(layer);
         }
 

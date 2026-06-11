@@ -16,6 +16,7 @@ import dev.creoii.dungeoneer.client.editor.action.EditorAction;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.editor.Tiles;
 import dev.creoii.dungeoneer.client.util.InputUtils;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.UndoRedoList;
 
 import java.awt.*;
@@ -104,7 +105,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
                 areaSelection.setMax(point.x, point.y);
                 return true;
             } else if (!selecting) {
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND);
                 if (point != null && screen.getSidebar().getSelectedTile() != null) {
                     placeTilesAt(tileLayer, point.x, point.y);
                     return true;
@@ -133,7 +134,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
         lastY = y;
 
         if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null && screen.getSidebar().getSelectedTile() != null) {
-            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get("ground");
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND);
             placeTilesAt(tileLayer, point.x, point.y);
         }
 

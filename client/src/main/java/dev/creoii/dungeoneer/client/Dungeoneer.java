@@ -5,10 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Listener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.creoii.dungeoneer.client.control.CharacterInputListener;
+import dev.creoii.dungeoneer.client.network.ClientNetworkHandler;
 import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
@@ -23,19 +23,14 @@ public class Dungeoneer extends Game {
     private Assets assets;
     private final CharacterInputListener controller;
     private final Settings settings;
-    private final Listener.QueuedListener listener;
+    private final ClientNetworkHandler networkHandler;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
         state = new ClientState(this);
         controller = new CharacterInputListener(this);
         settings = Settings.DEFAULT;
-        listener = new Listener.QueuedListener(new ClientListener(this)) {
-            @Override
-            protected void queue(Runnable runnable) {
-                runnable.run();
-            }
-        };
+        networkHandler = new ClientNetworkHandler(this);
     }
 
     public Client get() {
@@ -58,8 +53,8 @@ public class Dungeoneer extends Game {
         return settings;
     }
 
-    public Listener.QueuedListener getListener() {
-        return listener;
+    public ClientNetworkHandler getNetworkHandler() {
+        return networkHandler;
     }
 
     @Override
@@ -83,8 +78,13 @@ public class Dungeoneer extends Game {
     @Override
     public void render() {
         ScreenUtils.clear(0, 0, 0, 1);
+        
+        float dt = Gdx.graphics.getDeltaTime();
+
+        networkHandler.render(dt);
+
         if (!state.getActiveCharacter().isNull()) {
-            state.getActiveCharacter().tick(Gdx.graphics.getDeltaTime());
+            state.getActiveCharacter().tick(dt);
         }
         super.render();
     }

@@ -40,7 +40,7 @@ public class LoadingScreen extends AbstractScreen {
 
             PacketSerializer.registerDefault(client.get().getKryo());
 
-            client.get().addListener(client.getListener());
+            client.get().addListener(client.getNetworkHandler());
             client.get().start();
 
             try {
