@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.creoii.dungeoneer.definitions.Attack;
+import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.Bullet;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
 import dev.creoii.dungeoneer.definitions.Tile;
