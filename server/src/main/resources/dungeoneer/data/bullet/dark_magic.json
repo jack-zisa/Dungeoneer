@@ -1,6 +1,7 @@
 {
   "id": "dark_magic",
-  "speed": 100,
+  "speed": 120,
   "lifetime": 2,
-  "acceleration": -100
+  "acceleration": -120,
+  "scale": 2
 }

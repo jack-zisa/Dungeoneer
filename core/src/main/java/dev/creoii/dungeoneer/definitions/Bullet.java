@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public record Bullet(String id, float angleOffset,
+public record Bullet(String id, float scale, float angleOffset,
                      float speed, float lifetime, float rotationSpeed, float acceleration,
                      float amplitude, float frequency,
                      float orbitSpeed, float orbitRadius
@@ -13,6 +13,7 @@ public record Bullet(String id, float angleOffset,
     public static final Codec<Bullet> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.STRING.fieldOf("id").forGetter(Bullet::id),
+            Codec.FLOAT.fieldOf("scale").orElse(1f).forGetter(Bullet::scale),
             Codec.FLOAT.fieldOf("angle_offset").orElse(0f).forGetter(Bullet::angleOffset),
             Codec.FLOAT.fieldOf("speed").forGetter(Bullet::speed),
             Codec.FLOAT.fieldOf("lifetime").forGetter(Bullet::lifetime),
