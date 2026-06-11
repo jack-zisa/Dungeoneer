@@ -12,7 +12,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.attack.*;
-import dev.creoii.dungeoneer.definitions.Bullet;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
@@ -88,10 +88,12 @@ public class ClientCharacter implements SidedCharacter {
         return cell != null ? cell.getTile() : null;
     }
 
+    @Override
     public float getCenterX() {
         return getRenderPos().x + sprite.getWidth() * .5f;
     }
 
+    @Override
     public float getCenterY() {
         return getRenderPos().y + sprite.getHeight() * .5f;
     }
@@ -117,7 +119,7 @@ public class ClientCharacter implements SidedCharacter {
         switch (attack) {
             case ReferenceAttack(String id, _) -> attack(DataManager.getAttack(id));
             case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
-                Bullet bullet = DataManager.getBullet("fire_shot");
+                BulletDefinition bullet = DataManager.getBullet("fire_shot");
                 if (bullet == null)
                     return;
 
@@ -138,7 +140,7 @@ public class ClientCharacter implements SidedCharacter {
                     float rotatedX = mouseDir.x * cos - mouseDir.y * sin;
                     float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
 
-                    client.getState().getCurrentRaid().addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset);
+                    client.getState().getCurrentRaid().addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, this);
                 }
                 client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
             }

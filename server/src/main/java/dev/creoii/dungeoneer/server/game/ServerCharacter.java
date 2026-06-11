@@ -34,6 +34,16 @@ public class ServerCharacter implements SidedCharacter {
     }
 
     @Override
+    public float getCenterX() {
+        return 0; // TODO: Implement collision box
+    }
+
+    @Override
+    public float getCenterY() {
+        return 0; // TODO: Implement collision box
+    }
+
+    @Override
     public Vector2 getVelocity() {
         return velocity;
     }

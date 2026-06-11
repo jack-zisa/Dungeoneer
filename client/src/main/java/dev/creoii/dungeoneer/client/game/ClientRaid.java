@@ -3,7 +3,7 @@ package dev.creoii.dungeoneer.client.game;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import dev.creoii.dungeoneer.definitions.Bullet;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
 import dev.creoii.dungeoneer.definitions.Raid;
 import org.jspecify.annotations.Nullable;
 
@@ -88,9 +88,9 @@ public class ClientRaid {
         }
     }
 
-    public void addBullet(float x, float y, float dirX, float dirY, Bullet bullet, int index) {
+    public void addBullet(float x, float y, float dirX, float dirY, BulletDefinition bullet, int index, @Nullable ClientCharacter character) {
         ClientBullet poolBullet = bulletPool.obtain();
-        poolBullet.set(bullet);
+        poolBullet.setDefinition(bullet);
         poolBullet.setStartPos(x, y);
         poolBullet.setPos(x, y);
         poolBullet.setAngleOffset(bullet.angleOffset());
@@ -99,6 +99,7 @@ public class ClientRaid {
         poolBullet.setLifetime(bullet.lifetime());
         poolBullet.setIndex(index);
         poolBullet.setOrbitPhase(MathUtils.PI2 * index / 5f);
+        poolBullet.setAttached(character);
         bullets.add(poolBullet);
     }
 

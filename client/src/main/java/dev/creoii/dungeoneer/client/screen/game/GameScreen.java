@@ -159,10 +159,10 @@ public class GameScreen extends AbstractScreen {
 
         for (ClientBullet bullet : raid.getBullets()) {
             Vector2 pos = bullet.getPos();
-            Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.get().id());
-            float width = texture.getWidth() * bullet.get().scale();
-            float height = texture.getHeight() * bullet.get().scale();
-            bullet.incrementAngle(bullet.get().rotationSpeed() * delta);
+            Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getDefinition().id());
+            float width = texture.getWidth() * bullet.getDefinition().scale();
+            float height = texture.getHeight() * bullet.getDefinition().scale();
+            bullet.incrementAngle(bullet.getDefinition().rotationSpeed() * delta);
             batch.draw(texture,
                 pos.x - width * .5f, pos.y - height * .5f,
                 width * .5f, height * .5f,

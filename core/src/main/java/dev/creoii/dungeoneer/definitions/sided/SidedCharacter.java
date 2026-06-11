@@ -6,6 +6,10 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 public interface SidedCharacter {
     Vector2 getPos();
 
+    float getCenterX();
+
+    float getCenterY();
+
     Vector2 getVelocity();
 
     StatContainer getStats();

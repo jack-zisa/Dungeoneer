@@ -86,8 +86,7 @@ public class ClientNetworkHandler implements Listener {
         if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
 
         switch (object) {
-            case AuthenticateS2C _ ->
-                Gdx.app.postRunnable(() -> client.setScreen(new LoginScreen(client)));
+            case AuthenticateS2C _ -> Gdx.app.postRunnable(() -> client.setScreen(new LoginScreen(client)));
             case LoginResultS2C(PacketResult result, @Nullable Account account) -> {
                 if (result == PacketResult.SUCCESS) {
                     client.getState().setAccount(account);

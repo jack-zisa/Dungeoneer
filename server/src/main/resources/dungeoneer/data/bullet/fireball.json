@@ -1,0 +1,13 @@
+{
+  "id": "fireball",
+  "speed": 0.5,
+  "lifetime": 5,
+  "scale": 1.5,
+  "rotation_speed": 40,
+  "path": {
+    "id": "fireball_orbit",
+    "type": "orbit",
+    "orbit_radius": 20,
+    "attached": true
+  }
+}

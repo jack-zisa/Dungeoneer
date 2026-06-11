@@ -5,6 +5,10 @@
   "acceleration": -180,
   "scale": 2,
   "rotation_speed": 90,
-  "amplitude": 5,
-  "frequency": 20
+  "path": {
+    "id": "dark_magic_wavy",
+    "type": "wavy",
+    "amplitude": 5,
+    "frequency": 20
+  }
 }

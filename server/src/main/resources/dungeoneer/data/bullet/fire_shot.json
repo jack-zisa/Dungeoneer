@@ -1,9 +1,14 @@
 {
   "id": "fire_shot",
-  "speed": 250,
-  "lifetime": 0.4,
+  "speed": 200,
+  "lifetime": 0.5,
   "scale": 1.5,
-  "amplitude": 5,
-  "frequency": 50,
-  "angle_offset": -45
+  "angle_offset": -45,
+  "path": {
+    "id": "fire_shot_wavy",
+    "type": "wavy",
+    "wave_type": "triangle",
+    "amplitude": 10,
+    "frequency": 2
+  }
 }
