@@ -1,0 +1,9 @@
+{
+  "id": "fire_shot",
+  "speed": 250,
+  "lifetime": 0.4,
+  "scale": 1.5,
+  "amplitude": 5,
+  "frequency": 50,
+  "angle_offset": -45
+}

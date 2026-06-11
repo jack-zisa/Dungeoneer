@@ -1,8 +1,10 @@
 {
   "id": "dark_magic",
-  "speed": 120,
+  "speed": 180,
   "lifetime": 2,
-  "acceleration": -120,
+  "acceleration": -180,
   "scale": 2,
-  "rotation_speed": 90
+  "rotation_speed": 90,
+  "amplitude": 5,
+  "frequency": 20
 }

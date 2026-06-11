@@ -108,7 +108,7 @@ public class ClientCharacter implements SidedCharacter {
         ) {
             attackPending = true;
 
-            Attack attack = DataManager.getAttack("dark_attack");
+            Attack attack = DataManager.getAttack("staff");
             attack(attack);
         }
     }
@@ -116,13 +116,17 @@ public class ClientCharacter implements SidedCharacter {
     public void attack(Attack attack) {
         switch (attack) {
             case ReferenceAttack(String id, _) -> attack(DataManager.getAttack(id));
-            case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset) -> {
-                Bullet bullet = DataManager.getBullet("dark_magic");
+            case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
+                Bullet bullet = DataManager.getBullet("fire_shot");
                 if (bullet == null)
                     return;
 
                 float baseAngle = -arcGap * (bulletCount - 1) / 2f;
                 Vector2 mouseDir = client.getInputListener().getDirectionToMouse(getCenterX(), getCenterY());
+
+                Vector2 up = new Vector2(-mouseDir.y, mouseDir.x);
+                float x = getCenterX() + mouseDir.x * offset.x + up.x * offset.y;
+                float y = getCenterY() + mouseDir.y * offset.x + up.y * offset.y;
 
                 for (int i = 0; i < bulletCount; ++i) {
                     float angle = (baseAngle + i * arcGap) + angleOffset;
@@ -134,7 +138,7 @@ public class ClientCharacter implements SidedCharacter {
                     float rotatedX = mouseDir.x * cos - mouseDir.y * sin;
                     float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
 
-                    client.getState().getCurrentRaid().addBullet(getCenterX(), getCenterY(), rotatedX, rotatedY, bullet, i + 1);
+                    client.getState().getCurrentRaid().addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset);
                 }
                 client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
             }
