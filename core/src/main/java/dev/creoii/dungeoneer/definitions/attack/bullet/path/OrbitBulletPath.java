@@ -10,7 +10,7 @@ import dev.creoii.dungeoneer.definitions.sided.SidedBullet;
 import java.util.ArrayList;
 import java.util.List;
 
-public record OrbitBulletPath(String id, BulletPathType type, int sides, float orbitRadius, boolean attached) implements BulletPath {
+public record OrbitBulletPath(String id, int sides, float orbitRadius, boolean attached) implements BulletPath {
     public static final MapCodec<OrbitBulletPath> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return BulletPath.addDefaultFields(instance).and(instance.group(
             Codec.INT.fieldOf("sides").orElse(-1).forGetter(OrbitBulletPath::sides),
@@ -18,6 +18,11 @@ public record OrbitBulletPath(String id, BulletPathType type, int sides, float o
             Codec.BOOL.fieldOf("attached").orElse(false).forGetter(OrbitBulletPath::attached)
         )).apply(instance, OrbitBulletPath::new);
     });
+
+    @Override
+    public BulletPathType type() {
+        return BulletPathType.ORBIT;
+    }
 
     @Override
     public void start(SidedBullet bullet, float dt, BulletPath previous) {

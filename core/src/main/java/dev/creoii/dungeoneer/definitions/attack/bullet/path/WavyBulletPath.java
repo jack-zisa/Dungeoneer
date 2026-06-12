@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.SidedBullet;
 
-public record WavyBulletPath(String id, BulletPathType type, WaveType waveType, float amplitude, float frequency, boolean indexPhase) implements BulletPath {
+public record WavyBulletPath(String id, WaveType waveType, float amplitude, float frequency, boolean indexPhase) implements BulletPath {
     public static final MapCodec<WavyBulletPath> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return BulletPath.addDefaultFields(instance).and(instance.group(
             WaveType.CODEC.fieldOf("wave_type").orElse(WaveType.SIN).forGetter(WavyBulletPath::waveType),
@@ -15,6 +15,11 @@ public record WavyBulletPath(String id, BulletPathType type, WaveType waveType, 
             Codec.BOOL.fieldOf("index_phase").orElse(false).forGetter(WavyBulletPath::indexPhase)
         )).apply(instance, WavyBulletPath::new);
     });
+
+    @Override
+    public BulletPathType type() {
+        return BulletPathType.WAVY;
+    }
 
     @Override
     public void apply(SidedBullet bullet, float dt) {

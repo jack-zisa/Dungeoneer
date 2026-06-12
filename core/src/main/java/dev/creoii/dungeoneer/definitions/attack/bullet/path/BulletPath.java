@@ -7,6 +7,16 @@ import dev.creoii.dungeoneer.definitions.sided.SidedBullet;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public interface BulletPath extends Identifiable {
+    Codec<BulletPath> CODEC = BulletPathType.CODEC.dispatch(BulletPath::type, type -> switch (type) {
+        case EMPTY -> EmptyBulletPath.TYPE_CODEC;
+        case STRAIGHT -> StraightBulletPath.TYPE_CODEC;
+        case WAVY -> WavyBulletPath.TYPE_CODEC;
+        case ORBIT -> OrbitBulletPath.TYPE_CODEC;
+        case SEGMENTED -> SegmentedBulletPath.TYPE_CODEC;
+        case PARAMETRIC -> ParametricBulletPath.TYPE_CODEC;
+    });
+    BulletPath EMPTY = new EmptyBulletPath("empty");
+
     BulletPathType type();
 
     default void start(SidedBullet bullet, float dt, BulletPath previous) {
@@ -17,15 +27,7 @@ public interface BulletPath extends Identifiable {
 
     void apply(SidedBullet bullet, float dt);
 
-    Codec<BulletPath> CODEC = BulletPathType.CODEC.dispatch(BulletPath::type, type -> switch (type) {
-        case STRAIGHT -> StraightBulletPath.TYPE_CODEC;
-        case WAVY -> WavyBulletPath.TYPE_CODEC;
-        case ORBIT -> OrbitBulletPath.TYPE_CODEC;
-        case SEGMENTED -> SegmentedBulletPath.TYPE_CODEC;
-        case PARAMETRIC -> ParametricBulletPath.TYPE_CODEC;
-    });
-
-    static <T extends BulletPath> Products.P2<RecordCodecBuilder.Mu<T>, String, BulletPathType> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {
-        return instance.group(Codec.STRING.fieldOf("id").forGetter(BulletPath::id), BulletPathType.CODEC.fieldOf("type").forGetter(BulletPath::type));
+    static <T extends BulletPath> Products.P1<RecordCodecBuilder.Mu<T>, String> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {
+        return instance.group(Codec.STRING.fieldOf("id").forGetter(BulletPath::id));
     }
 }

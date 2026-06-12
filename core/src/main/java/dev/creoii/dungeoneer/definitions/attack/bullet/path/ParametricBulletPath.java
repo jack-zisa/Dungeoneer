@@ -8,7 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.SidedBullet;
 import dev.creoii.dungeoneer.util.Codecs;
 
-public record ParametricBulletPath(String id, BulletPathType type, ParametricType parametricType, Vector2 scale, boolean attached) implements BulletPath {
+public record ParametricBulletPath(String id, ParametricType parametricType, Vector2 scale, boolean attached) implements BulletPath {
     public static final MapCodec<ParametricBulletPath> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return BulletPath.addDefaultFields(instance).and(instance.group(
             ParametricType.CODEC.fieldOf("parametric_type").orElse(ParametricType.FIGURE_EIGHT).forGetter(ParametricBulletPath::parametricType),
@@ -16,6 +16,11 @@ public record ParametricBulletPath(String id, BulletPathType type, ParametricTyp
             Codec.BOOL.fieldOf("attached").orElse(false).forGetter(ParametricBulletPath::attached)
         )).apply(instance, ParametricBulletPath::new);
     });
+
+    @Override
+    public BulletPathType type() {
+        return BulletPathType.PARAMETRIC;
+    }
 
     @Override
     public void start(SidedBullet bullet, float dt, BulletPath previous) {

@@ -1,13 +1,102 @@
 {
   "id": "fireball",
+  "type": "group",
   "speed": 0.5,
   "lifetime": 5,
-  "scale": 1.5,
-  "rotation_speed": 40,
   "path": {
     "id": "fireball_orbit",
     "type": "orbit",
     "orbit_radius": 20,
     "attached": true
-  }
+  },
+  "children": [
+    {
+      "offset": [1, 0],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [0, 1],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [-1, 0],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [0, -1],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [1, 1],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [1, -1],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [-1, 1],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [-1, -1],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 0.5,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    }
+  ]
 }

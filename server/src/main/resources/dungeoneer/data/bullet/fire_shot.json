@@ -1,5 +1,6 @@
 {
   "id": "fire_shot",
+  "type": "single",
   "speed": 200,
   "lifetime": 0.5,
   "scale": 1.5,

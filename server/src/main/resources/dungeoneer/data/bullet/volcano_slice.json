@@ -1,5 +1,6 @@
 {
   "id": "volcano_slice",
+  "type": "single",
   "speed": 250,
   "acceleration": 200,
   "lifetime": 44,

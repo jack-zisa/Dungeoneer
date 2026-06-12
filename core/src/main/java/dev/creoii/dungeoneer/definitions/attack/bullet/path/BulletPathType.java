@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.definitions.attack.bullet.path;
 import com.mojang.serialization.Codec;
 
 public enum BulletPathType {
+    EMPTY,
     STRAIGHT,
     WAVY,
     ORBIT,

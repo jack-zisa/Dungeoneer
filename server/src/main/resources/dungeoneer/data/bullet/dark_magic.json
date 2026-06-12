@@ -1,5 +1,6 @@
 {
   "id": "dark_magic",
+  "type": "single",
   "speed": 180,
   "lifetime": 42,
   "scale": 2,

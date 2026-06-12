@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletDefinition;
 import dev.creoii.dungeoneer.definitions.Raid;
 import org.jspecify.annotations.Nullable;
 
