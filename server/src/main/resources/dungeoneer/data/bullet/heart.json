@@ -1,0 +1,14 @@
+{
+  "id": "heart",
+  "speed": 180,
+  "lifetime": 30,
+  "scale": 0.5,
+  "rotation_speed": 120,
+  "path": {
+    "id": "heart_parametric",
+    "type": "parametric",
+    "parametric_type": "heart",
+    "scale": [60, 60],
+    "attached": true
+  }
+}

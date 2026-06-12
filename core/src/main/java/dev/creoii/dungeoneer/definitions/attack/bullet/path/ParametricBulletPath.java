@@ -18,6 +18,12 @@ public record ParametricBulletPath(String id, BulletPathType type, ParametricTyp
     });
 
     @Override
+    public void start(SidedBullet bullet, float dt, BulletPath previous) {
+        bullet.resetDistanceTravelled();
+        bullet.setSegmentStartAge(bullet.getAge());
+    }
+
+    @Override
     public void apply(SidedBullet bullet, float dt) {
         float t = (bullet.getAge() - bullet.getSegmentStartAge()) * MathUtils.PI2 * (bullet.getSpeed() / 1000f);
 
@@ -61,8 +67,14 @@ public record ParametricBulletPath(String id, BulletPathType type, ParametricTyp
             }
         }
 
-        x *= scale.x;
-        y *= scale.y;
+        float localX = x * scale.x;
+        float localY = y * scale.y;
+
+        float dirX = bullet.getDirection().x;
+        float dirY = bullet.getDirection().y;
+
+        float perpX = -dirY;
+        float perpY = dirX;
 
         float centerX;
         float centerY;
@@ -75,7 +87,7 @@ public record ParametricBulletPath(String id, BulletPathType type, ParametricTyp
             centerY = bullet.getStartY();
         }
 
-        bullet.getPos().set(centerX + x, centerY + y);
+        bullet.getPos().set(centerX + perpX * localX + dirX * localY, centerY + perpY * localX + dirY * localY);
     }
 
     public enum ParametricType {
