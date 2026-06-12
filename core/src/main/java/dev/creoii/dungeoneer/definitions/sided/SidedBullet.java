@@ -13,15 +13,15 @@ public interface SidedBullet {
 
     float getStartY();
 
+    void setStartPos(float x, float y);
+
     Vector2 getDirection();
 
     float getSpeed();
 
-    void incrementSpeed(float f);
-
     float getDistanceTravelled();
 
-    void incrementDistanceTravelled(float f);
+    void resetDistanceTravelled();
 
     float getLifetime();
 
@@ -37,4 +37,12 @@ public interface SidedBullet {
 
     @Nullable
     SidedCharacter getAttached();
+
+    float getCurrentSegmentThreshold();
+
+    void setCurrentSegmentThreshold(float threshold);
+
+    float getSegmentStartAge();
+
+    void setSegmentStartAge(float segmentStartAge);
 }

@@ -18,16 +18,15 @@ public record WavyBulletPath(String id, BulletPathType type, WaveType waveType, 
 
     @Override
     public void apply(SidedBullet bullet, float dt) {
-        bullet.incrementSpeed(bullet.getDefinition().acceleration() * dt);
-        bullet.incrementDistanceTravelled(bullet.getSpeed() * dt);
+        float segmentAge = bullet.getAge() - bullet.getSegmentStartAge();
 
         float phase = indexPhase ? 0f : (bullet.getIndex() & 1) == 0 ? 0f : .5f;
-        float cycle = bullet.getAge() * frequency + phase;
+        float cycle = segmentAge * frequency + phase;
 
         float wave = switch (waveType) {
             case SIN -> MathUtils.sin(cycle * MathUtils.PI2) * amplitude;
             case TRIANGLE -> {
-                float triangle = 2f * Math.abs(2f * (cycle - (float)Math.floor(cycle + .5f))) - 1f;
+                float triangle = 2f * Math.abs(2f * (cycle - (float) Math.floor(cycle + .5f))) - 1f;
                 yield triangle * amplitude;
             }
             case SQUARE -> (MathUtils.sin(cycle * MathUtils.PI2) >= 0f ? 1f : -1f) * amplitude;

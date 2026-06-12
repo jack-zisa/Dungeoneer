@@ -9,12 +9,19 @@ import dev.creoii.dungeoneer.util.Identifiable;
 public interface BulletPath extends Identifiable {
     BulletPathType type();
 
+    default void start(SidedBullet bullet, float dt, BulletPath previous) {
+        bullet.setStartPos(bullet.getPos().x, bullet.getPos().y);
+        bullet.resetDistanceTravelled();
+        bullet.setSegmentStartAge(bullet.getAge());
+    }
+
     void apply(SidedBullet bullet, float dt);
 
     Codec<BulletPath> CODEC = BulletPathType.CODEC.dispatch(BulletPath::type, type -> switch (type) {
-        case FORWARD -> ForwardBulletPath.TYPE_CODEC;
+        case STRAIGHT -> StraightBulletPath.TYPE_CODEC;
         case WAVY -> WavyBulletPath.TYPE_CODEC;
         case ORBIT -> OrbitBulletPath.TYPE_CODEC;
+        case SEGMENTED -> SegmentedBulletPath.TYPE_CODEC;
     });
 
     static <T extends BulletPath> Products.P2<RecordCodecBuilder.Mu<T>, String, BulletPathType> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {

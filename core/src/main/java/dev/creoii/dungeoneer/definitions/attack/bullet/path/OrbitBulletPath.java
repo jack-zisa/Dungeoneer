@@ -16,13 +16,10 @@ public record OrbitBulletPath(String id, BulletPathType type, float orbitRadius,
 
     @Override
     public void apply(SidedBullet bullet, float dt) {
-        bullet.incrementSpeed(bullet.getDefinition().acceleration() * dt);
-        bullet.incrementDistanceTravelled(bullet.getSpeed() * dt);
-
         float perpX = -bullet.getDirection().y;
         float perpY = bullet.getDirection().x;
 
-        float orbitAngle = bullet.getAge() * MathUtils.PI2 * bullet.getDefinition().speed() + bullet.getOrbitPhase();
+        float orbitAngle = bullet.getAge() * MathUtils.PI2 * (bullet.getDefinition().speed() / 1000f) + bullet.getOrbitPhase();
         float orbitForward = MathUtils.cos(orbitAngle) * orbitRadius;
         float orbitSide = MathUtils.sin(orbitAngle) * orbitRadius;
 

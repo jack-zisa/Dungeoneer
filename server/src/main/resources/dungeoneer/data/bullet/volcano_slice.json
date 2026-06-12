@@ -1,0 +1,39 @@
+{
+  "id": "volcano_slice",
+  "speed": 150,
+  "lifetime": 4,
+  "scale": 1,
+  "angle_offset": -45,
+  "path": {
+    "id": "volcano_slice_segments",
+    "type": "segmented",
+    "segments": [
+      {
+        "threshold": 0,
+        "path": {
+          "id": "volcano_slice_orbit",
+          "type": "orbit",
+          "orbit_radius": 40,
+          "orbit_speed": 2
+        }
+      },
+      {
+        "threshold": 2,
+        "path": {
+          "id": "volano_slice_wave",
+          "type": "wavy",
+          "wave_type": "triangle",
+          "amplitude": 5,
+          "frequency": 5
+        }
+      },
+      {
+        "threshold": 3,
+        "path": {
+          "id": "volcano_slice_straight",
+          "type": "straight"
+        }
+      }
+    ]
+  }
+}

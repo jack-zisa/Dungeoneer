@@ -22,6 +22,8 @@ public class ClientBullet implements SidedBullet, Pool.Poolable {
     private float angle;
     @Nullable
     private ClientCharacter attached;
+    private float currentSegmentThreshold;
+    private float segmentStartAge;
 
     public ClientBullet() {
         pos = new Vector2();
@@ -55,6 +57,7 @@ public class ClientBullet implements SidedBullet, Pool.Poolable {
         return startY;
     }
 
+    @Override
     public void setStartPos(float x, float y) {
         startX = x;
         startY = y;
@@ -94,18 +97,13 @@ public class ClientBullet implements SidedBullet, Pool.Poolable {
     }
 
     @Override
-    public void incrementSpeed(float f) {
-        speed += f;
-    }
-
-    @Override
     public float getDistanceTravelled() {
         return distanceTravelled;
     }
 
     @Override
-    public void incrementDistanceTravelled(float f) {
-        distanceTravelled += f;
+    public void resetDistanceTravelled() {
+        distanceTravelled = 0f;
     }
 
     @Override
@@ -150,6 +148,24 @@ public class ClientBullet implements SidedBullet, Pool.Poolable {
     }
 
     @Override
+    public float getCurrentSegmentThreshold() {
+        return currentSegmentThreshold;
+    }
+
+    @Override
+    public void setCurrentSegmentThreshold(float threshold) {
+        this.currentSegmentThreshold = threshold;
+    }
+
+    public float getSegmentStartAge() {
+        return segmentStartAge;
+    }
+
+    public void setSegmentStartAge(float segmentStartAge) {
+        this.segmentStartAge = segmentStartAge;
+    }
+
+    @Override
     public void reset() {
         setPos(0f, 0f);
         setDirection(0f, 0f);
@@ -164,6 +180,8 @@ public class ClientBullet implements SidedBullet, Pool.Poolable {
         orbitPhase = 0f;
         angle = 0f;
         attached = null;
+        currentSegmentThreshold = -1f;
+        segmentStartAge = 0f;
     }
 
     public boolean update(float dt) {
@@ -172,6 +190,9 @@ public class ClientBullet implements SidedBullet, Pool.Poolable {
         }
 
         age += dt;
+
+        speed += definition.acceleration() * dt;
+        distanceTravelled += speed * dt;
 
         definition.path().apply(this, dt);
         return true;
