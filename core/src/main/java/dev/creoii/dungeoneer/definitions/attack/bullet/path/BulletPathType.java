@@ -6,7 +6,8 @@ public enum BulletPathType {
     STRAIGHT,
     WAVY,
     ORBIT,
-    SEGMENTED;
+    SEGMENTED,
+    PARAMETRIC;
 
     public static final Codec<BulletPathType> CODEC = Codec.STRING.xmap(s -> BulletPathType.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
 }
