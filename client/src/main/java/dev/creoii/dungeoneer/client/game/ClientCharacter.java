@@ -12,7 +12,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.attack.*;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.Character;
 import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
@@ -119,7 +119,7 @@ public class ClientCharacter implements SidedCharacter {
         switch (attack) {
             case ReferenceAttack(String id, _) -> attack(DataManager.getAttack(id));
             case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
-                BulletDefinition bullet = DataManager.getBullet("fireball");
+                BulletType bullet = DataManager.getBullet("fireballa");
                 if (bullet == null)
                     return;
 

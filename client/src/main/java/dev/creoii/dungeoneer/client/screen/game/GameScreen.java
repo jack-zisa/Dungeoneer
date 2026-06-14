@@ -2,7 +2,6 @@ package dev.creoii.dungeoneer.client.screen.game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -17,12 +16,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.game.ClientBullet;
-import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.game.ClientLaser;
-import dev.creoii.dungeoneer.client.game.ClientRaid;
+import dev.creoii.dungeoneer.client.game.*;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
+import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -158,21 +155,11 @@ public class GameScreen extends AbstractScreen {
         sprite.draw(batch);
 
         for (ClientBullet bullet : raid.getBullets()) {
-            Vector2 pos = bullet.getPos();
-            Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getDefinition().id());
-            float width = texture.getWidth() * bullet.getDefinition().scale();
-            float height = texture.getHeight() * bullet.getDefinition().scale();
-            bullet.incrementAngle(bullet.getDefinition().rotationSpeed() * delta);
-            batch.draw(texture,
-                pos.x - width * .5f, pos.y - height * .5f,
-                width * .5f, height * .5f,
-                width, height,
-                1f, 1f,
-                bullet.getDirection().angleDeg() + bullet.getAngleOffset() + bullet.getAngle(),
-                0, 0,
-                texture.getWidth(), texture.getHeight(),
-                false, false
-            );
+            renderBullet(bullet, batch, delta);
+        }
+
+        for (ClientBulletGroup bulletGroup : raid.getBulletGroups()) {
+            bulletGroup.getChildren().forEach(child -> renderBullet(child, batch, delta));
         }
 
         for (ClientLaser laser : raid.getLasers()) {
@@ -208,6 +195,14 @@ public class GameScreen extends AbstractScreen {
         }
 
         super.render(delta);
+    }
+
+    private void renderBullet(BulletNode bullet, SpriteBatch batch, float dt) {
+        if (bullet instanceof ClientBullet clientBullet) {
+            clientBullet.render(client, batch, dt);
+        } else if (bullet instanceof ClientBulletGroup clientBulletGroup) {
+            clientBulletGroup.getChildren().forEach(bullet1 -> renderBullet(bullet1, batch, dt));
+        }
     }
 
     @Override
