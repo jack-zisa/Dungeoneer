@@ -1,7 +1,7 @@
 {
   "id": "fireballa",
   "type": "group",
-  "speed": 300,
+  "speed": 200,
   "lifetime": 5,
   "path": {
     "id": "fireball_orbit",
@@ -15,7 +15,12 @@
         "id": "fireball",
         "type": "group",
         "lifetime": 5,
-        "speed": 75,
+        "speed": 200,
+        "path": {
+          "id": "fireball_orbit",
+          "type": "orbit",
+          "orbit_radius": 20
+        },
         "children": [
           {
             "offset": [15, 0],
@@ -114,7 +119,12 @@
         "id": "fireball",
         "type": "group",
         "lifetime": 5,
-        "speed": 75,
+        "speed": 200,
+        "path": {
+          "id": "fireball_orbit",
+          "type": "orbit",
+          "orbit_radius": 20
+        },
         "children": [
           {
             "offset": [15, 0],
@@ -213,7 +223,12 @@
         "id": "fireball",
         "type": "group",
         "lifetime": 5,
-        "speed": 75,
+        "speed": 200,
+        "path": {
+          "id": "fireball_orbit",
+          "type": "orbit",
+          "orbit_radius": 20
+        },
         "children": [
           {
             "offset": [15, 0],
@@ -312,7 +327,12 @@
         "id": "fireball",
         "type": "group",
         "lifetime": 5,
-        "speed": 75,
+        "speed": 200,
+        "path": {
+          "id": "fireball_orbit",
+          "type": "orbit",
+          "orbit_radius": 20
+        },
         "children": [
           {
             "offset": [15, 0],

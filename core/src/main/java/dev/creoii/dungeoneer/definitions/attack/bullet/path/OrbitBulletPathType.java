@@ -52,6 +52,8 @@ public record OrbitBulletPathType(String id, int sides, float orbitRadius) imple
 
         @Override
         public void reset() {
+            angle = 0f;
+            orbitPhase = 0f;
         }
 
         @Override
@@ -103,18 +105,7 @@ public record OrbitBulletPathType(String id, int sides, float orbitRadius) imple
                 orbitY = bullet.getDirY() * orbitForward + perpY * orbitSide;
             }
 
-            float centerX;
-            float centerY;
-
-            if (bullet.getParent() != null) {
-                centerX = bullet.getParent().getX();
-                centerY = bullet.getParent().getY();
-            } else {
-                centerX = bullet.getStartX();
-                centerY = bullet.getStartY();
-            }
-
-            bullet.setPos(centerX + orbitX, centerY + orbitY);
+            bullet.setLocalPos(orbitX, orbitY);
         }
     }
 }

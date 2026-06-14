@@ -30,7 +30,7 @@ public record StraightBulletPathType(String id) implements BulletPathType<Straig
 
         @Override
         public void update(BulletNode bullet, float dt) {
-            bullet.setPos(bullet.getStartX() + bullet.getDirX() * bullet.getDistanceTravelled(), bullet.getStartY() + bullet.getDirY() * bullet.getDistanceTravelled());
+            bullet.setLocalPos(bullet.getStartX() + bullet.getDirX() * bullet.getDistanceTravelled(), bullet.getStartY() + bullet.getDirY() * bullet.getDistanceTravelled());
         }
     }
 }

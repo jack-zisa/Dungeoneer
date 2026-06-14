@@ -73,7 +73,7 @@ public record WavyBulletPathType(String id, WaveType waveType, float amplitude, 
                 case SQUARE -> (MathUtils.sin(cycle * MathUtils.PI2) >= 0f ? 1f : -1f) * getType().amplitude;
             };
 
-            bullet.setPos(
+            bullet.setLocalPos(
                 bullet.getStartX() + bullet.getDirX() * bullet.getDistanceTravelled() + -bullet.getDirY() * wave,
                 bullet.getStartY() + bullet.getDirY() * bullet.getDistanceTravelled() + bullet.getDirX() * wave
             );

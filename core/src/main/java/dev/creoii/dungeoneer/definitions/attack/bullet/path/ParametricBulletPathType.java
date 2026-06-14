@@ -113,18 +113,7 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
             float perpX = -dirY;
             float perpY = dirX;
 
-            float centerX;
-            float centerY;
-
-            if (bullet.getParent() != null) {
-                centerX = bullet.getParent().getX();
-                centerY = bullet.getParent().getY();
-            } else {
-                centerX = bullet.getStartX();
-                centerY = bullet.getStartY();
-            }
-
-            bullet.setPos(centerX + perpX * localX + dirX * localY, centerY + perpY * localX + dirY * localY);
+            bullet.setLocalPos(perpX * localX + dirX * localY, perpY * localX + dirY * localY);
         }
     }
 

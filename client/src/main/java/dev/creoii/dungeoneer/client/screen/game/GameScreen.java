@@ -166,14 +166,10 @@ public class GameScreen extends AbstractScreen {
             Vector2 pos = laser.getPos();
             batch.draw(
                 Assets.PURPLE_LASER_REGION,
-                pos.x,
-                pos.y - laser.getWidth() * 0.5f,
-                0,
-                laser.getWidth() * 0.5f,
-                laser.getLength(),
-                laser.getWidth(),
-                1f,
-                1f,
+                pos.x, pos.y - laser.getWidth() * 0.5f,
+                0, laser.getWidth() * 0.5f,
+                laser.getLength(), laser.getWidth(),
+                1f, 1f,
                 laser.getDirection().angleDeg()
             );
         }

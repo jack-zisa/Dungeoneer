@@ -31,11 +31,15 @@ public class ClientBulletGroup extends BulletNode implements Pool.Poolable {
             return false;
 
         for (BulletNode child : children) {
-            child.setPos(getX() + child.getOffsetX(), getY() + child.getOffsetY());
+            child.update(dt);
 
-            if (child instanceof ClientBulletGroup group) {
-                group.update(dt);
-            }
+            float perpX = -getDirY();
+            float perpY = getDirX();
+
+            float offsetWorldX = getDirX() * child.getOffsetY() + perpX * child.getOffsetX();
+            float offsetWorldY = getDirY() * child.getOffsetY() + perpY * child.getOffsetX();
+
+            child.setPos(getX() + offsetWorldX + child.getLocalX(), getY() + offsetWorldY + child.getLocalY());
         }
         return true;
     }

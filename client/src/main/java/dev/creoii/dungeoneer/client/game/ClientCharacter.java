@@ -137,8 +137,8 @@ public class ClientCharacter implements SidedCharacter {
                     float cos = MathUtils.cos(radians);
                     float sin = MathUtils.sin(radians);
 
-                    float rotatedX = mouseDir.x * cos - mouseDir.y * sin;
-                    float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
+                    float rotatedX = mouseDir.x * cos + -mouseDir.y * sin;
+                    float rotatedY = mouseDir.y * cos + mouseDir.x * sin;
 
                     client.getState().getCurrentRaid().addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, this);
                 }

@@ -14,6 +14,8 @@ public abstract class BulletNode implements Pool.Poolable {
     private float startY;
     private float dirX;
     private float dirY;
+    private float localX;
+    private float localY;
     private float offsetX;
     private float offsetY;
     private float speed;
@@ -73,6 +75,19 @@ public abstract class BulletNode implements Pool.Poolable {
     public void setDirection(float x, float y) {
         dirX = x;
         dirY = y;
+    }
+
+    public float getLocalX() {
+        return localX;
+    }
+
+    public float getLocalY() {
+        return localY;
+    }
+
+    public void setLocalPos(float x, float y) {
+        localX = x;
+        localY = y;
     }
 
     public float getOffsetX() {
@@ -143,6 +158,10 @@ public abstract class BulletNode implements Pool.Poolable {
         distanceTravelled += speed * dt;
 
         path.update(this, dt);
+
+        if (parent == null) {
+            setPos(startX + offsetX + localX, startY + offsetY + localY);
+        }
         return true;
     }
 
@@ -151,14 +170,13 @@ public abstract class BulletNode implements Pool.Poolable {
         setPos(0f, 0f);
         setStartPos(0f, 0f);
         setDirection(0f, 0f);
+        setLocalPos(0f, 0f);
         setOffset(0f, 0f);
         type = null;
         path = null;
         lifetime = 0f;
         age = 0f;
         index = 0;
-        startX = 0f;
-        startY = 0f;
         distanceTravelled = 0f;
         speed = 0f;
         parent = null;

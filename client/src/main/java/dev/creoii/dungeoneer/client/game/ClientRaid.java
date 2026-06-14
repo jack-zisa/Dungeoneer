@@ -112,38 +112,9 @@ public class ClientRaid {
 
     public void addBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, @Nullable ClientCharacter shooter) {
         BulletNode poolBullet = createHierarchy(x, y, dirX, dirY, bullet, index);
-
         if (bullet instanceof SingleBulletType) {
-            ClientBullet clientBullet = (ClientBullet) poolBullet;
-            bullets.add(clientBullet);
-        } else {
-            ClientBulletGroup clientBulletGroup = (ClientBulletGroup) poolBullet;
-            GroupBulletType groupBulletDefinition = (GroupBulletType) bullet;
-            for (int i = 0; i < groupBulletDefinition.children().size(); ++i) {
-                GroupBulletType.Child child1 = groupBulletDefinition.children().get(i);
-                BulletNode childBullet = createHierarchy(x, y, dirX, dirY, child1.definition(), i);
-                childBullet.setOffset(child1.offset().x, child1.offset().y);
-                childBullet.setParent(poolBullet);
-                clientBulletGroup.addChild(childBullet);
-            }
-            bulletGroups.add(clientBulletGroup);
-        }
-    }
-
-    public BulletNode createBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index) {
-        BulletNode poolBullet = bullet instanceof SingleBulletType ? bulletPool.obtain() : bulletGroupPool.obtain();
-        poolBullet.setType(bullet);
-        poolBullet.setStartPos(x, y);
-        poolBullet.setPos(x, y);
-        poolBullet.setSpeed(bullet.speed());
-        poolBullet.setDirection(dirX, dirY);
-        poolBullet.setLifetime(bullet.lifetime());
-        poolBullet.setIndex(index);
-
-        if (poolBullet.getPath() instanceof OrbitBulletPathType.OrbitBulletPathInstance instance) {
-            instance.setOrbitPhase(MathUtils.PI2 * index / 5f);
-        }
-        return poolBullet;
+            bullets.add((ClientBullet) poolBullet);
+        } else bulletGroups.add((ClientBulletGroup) poolBullet);
     }
 
     private BulletNode createHierarchy(float x, float y, float dirX, float dirY, BulletType bullet, int index) {
@@ -159,6 +130,24 @@ public class ClientRaid {
             }
         }
         return node;
+    }
+
+    public BulletNode createBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index) {
+        BulletNode poolBullet = bullet instanceof SingleBulletType ? bulletPool.obtain() : bulletGroupPool.obtain();
+        poolBullet.setType(bullet);
+        poolBullet.setStartPos(x, y);
+        poolBullet.setPos(x, y);
+        poolBullet.setSpeed(bullet.speed());
+        poolBullet.setDirection(dirX, dirY);
+        poolBullet.setLifetime(bullet.lifetime());
+        poolBullet.setIndex(index);
+
+        if (poolBullet.getPath() instanceof OrbitBulletPathType.OrbitBulletPathInstance instance) {
+            float f = 1f;
+            if (poolBullet instanceof ClientBulletGroup group) f = group.getChildren().size - 1;
+            instance.setOrbitPhase(MathUtils.PI2 * index / f);
+        }
+        return poolBullet;
     }
 
     public void addLaser(float x, float y, float angleOffset, float width, float length, float lifetime, @Nullable ClientCharacter character) {
