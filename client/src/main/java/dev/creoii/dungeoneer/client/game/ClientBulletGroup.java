@@ -31,16 +31,33 @@ public class ClientBulletGroup extends BulletNode implements Pool.Poolable {
             return false;
 
         for (BulletNode child : children) {
-            child.update(dt);
-
-            float perpX = -getDirY();
-            float perpY = getDirX();
-
-            float offsetWorldX = getDirX() * child.getOffsetY() + perpX * child.getOffsetX();
-            float offsetWorldY = getDirY() * child.getOffsetY() + perpY * child.getOffsetX();
-
-            child.setPos(getX() + offsetWorldX + child.getLocalX(), getY() + offsetWorldY + child.getLocalY());
+            if (!child.update(dt))
+                return false;
         }
+
         return true;
+    }
+
+    @Override
+    public void resolveTransform() {
+        super.resolveTransform();
+
+        for (BulletNode child : children) {
+            child.resolveTransform();
+        }
+    }
+
+    @Override
+    public void applyTransform(float originX, float originY, float dirX, float dirY) {
+        super.applyTransform(originX, originY, dirX, dirY);
+
+        for (BulletNode child : children) {
+            child.applyTransform(
+                getX(),
+                getY(),
+                child.getDirX(),
+                child.getDirY()
+            );
+        }
     }
 }

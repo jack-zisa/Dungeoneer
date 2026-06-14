@@ -3,27 +3,37 @@ package dev.creoii.dungeoneer.definitions.sided;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
+import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Arrays;
 
 public abstract class BulletNode implements Pool.Poolable {
     private BulletType type;
     private BulletPathType.Instance<?> path;
-    private float x;
-    private float y;
-    private float startX;
-    private float startY;
-    private float dirX;
-    private float dirY;
-    private float localX;
-    private float localY;
-    private float offsetX;
-    private float offsetY;
+    private final float[] pos;
+    private final float[] startPos;
+    private final float[] direction;
+    private final float[] startDirection;
+    private final float[] localPos;
+    private final float[] offset;
+    private final float[] formationOffset;
     private float speed;
     private float distanceTravelled;
     private float lifetime;
     private int index;
     private float age;
-    @Nullable BulletNode parent;
+    @Nullable private BulletNode parent;
+
+    public BulletNode() {
+        pos = new float[]{0f, 0f};
+        startPos = new float[]{0f, 0f};
+        direction = new float[]{0f, 0f};
+        startDirection = new float[]{0f, 0f};
+        localPos = new float[]{0f, 0f};
+        offset = new float[]{0f, 0f};
+        formationOffset = new float[]{0f, 0f};
+    }
 
     public BulletType getType() {
         return type;
@@ -39,68 +49,83 @@ public abstract class BulletNode implements Pool.Poolable {
     }
 
     public float getX() {
-        return x;
+        return pos[0];
     }
 
     public float getY() {
-        return y;
+        return pos[1];
     }
 
     public void setPos(float x, float y) {
-        this.x = x;
-        this.y = y;
+        pos[0] = x;
+        pos[1] = y;
     }
 
     public float getStartX() {
-        return startX;
+        return startPos[0];
     }
 
     public float getStartY() {
-        return startY;
+        return startPos[1];
     }
 
     public void setStartPos(float x, float y) {
-        startX = x;
-        startY = y;
+        startPos[0] = x;
+        startPos[1] = y;
+        setPos(x, y);
     }
 
     public float getDirX() {
-        return dirX;
+        return direction[0];
     }
 
     public float getDirY() {
-        return dirY;
+        return direction[1];
     }
 
     public void setDirection(float x, float y) {
-        dirX = x;
-        dirY = y;
+        direction[0] = x;
+        direction[1] = y;
     }
 
-    public float getLocalX() {
-        return localX;
+    public float getStartDirX() {
+        return direction[0];
     }
 
-    public float getLocalY() {
-        return localY;
+    public float getStartDirY() {
+        return direction[1];
     }
 
-    public void setLocalPos(float x, float y) {
-        localX = x;
-        localY = y;
+    public void setStartDirection(float x, float y) {
+        startDirection[0] = x;
+        startDirection[1] = y;
+        setDirection(x, y);
     }
 
     public float getOffsetX() {
-        return offsetX;
+        return offset[0];
     }
 
     public float getOffsetY() {
-        return offsetY;
+        return offset[1];
     }
 
     public void setOffset(float x, float y) {
-        offsetX = x;
-        offsetY = y;
+        offset[0] = x;
+        offset[1] = y;
+    }
+
+    public float getFormationX() {
+        return formationOffset[0];
+    }
+
+    public float getFormationY() {
+        return formationOffset[1];
+    }
+
+    public void setFormationOffset(float x, float y) {
+        formationOffset[0] = x;
+        formationOffset[1] = y;
     }
 
     public float getSpeed() {
@@ -148,21 +173,63 @@ public abstract class BulletNode implements Pool.Poolable {
     }
 
     public boolean update(float dt) {
-        if ((lifetime -= dt) <= 0f) {
+        if ((lifetime -= dt) <= 0f)
             return false;
-        }
 
         age += dt;
 
         speed += type.acceleration() * dt;
         distanceTravelled += speed * dt;
 
-        path.update(this, dt);
+        float[] offset = path.getOffset2(age);
 
-        if (parent == null) {
-            setPos(startX + offsetX + localX, startY + offsetY + localY);
-        }
+        this.offset[0] = offset[0];
+        this.offset[1] = offset[1];
+
         return true;
+    }
+
+    public void resolveTransform() {
+        if (parent == null) {
+            applyTransform(
+                startPos[0],
+                startPos[1],
+                getDirX(),
+                getDirY()
+            );
+        }
+    }
+
+    public void applyTransform(
+        float originX,
+        float originY,
+        float dirX,
+        float dirY
+    ) {
+        float perpX = -dirY;
+        float perpY = dirX;
+
+        // Rotate local path offset into world space
+        float pathWorldX =
+            dirX * offset[1]
+                + perpX * offset[0];
+
+        float pathWorldY =
+            dirY * offset[1]
+                + perpY * offset[0];
+
+        float formationWorldX =
+            dirX * formationOffset[1]
+                + perpX * formationOffset[0];
+
+        float formationWorldY =
+            dirY * formationOffset[1]
+                + perpY * formationOffset[0];
+
+        setPos(
+            originX + formationWorldX + pathWorldX,
+            originY + formationWorldY + pathWorldY
+        );
     }
 
     @Override
@@ -170,8 +237,9 @@ public abstract class BulletNode implements Pool.Poolable {
         setPos(0f, 0f);
         setStartPos(0f, 0f);
         setDirection(0f, 0f);
-        setLocalPos(0f, 0f);
+        setStartDirection(0f, 0f);
         setOffset(0f, 0f);
+        setFormationOffset(0f, 0f);
         type = null;
         path = null;
         lifetime = 0f;

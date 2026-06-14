@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.definitions.attack.bullet.path;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Pool;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
@@ -13,7 +14,6 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
         case STRAIGHT -> StraightBulletPathType.TYPE_CODEC;
         case WAVY -> WavyBulletPathType.TYPE_CODEC;
         case ORBIT -> OrbitBulletPathType.TYPE_CODEC;
-        case SEGMENTED -> SegmentedBulletPathType.TYPE_CODEC;
         case PARAMETRIC -> ParametricBulletPathType.TYPE_CODEC;
     });
     BulletPathType<EmptyBulletPathType.EmptyBulletPathInstance> EMPTY = new EmptyBulletPathType("empty");
@@ -27,6 +27,8 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
     }
 
     abstract class Instance<T extends BulletPathType<?>> implements Pool.Poolable {
+        public static final float[] ZERO = new float[]{0f, 0f};
+
         private final T type;
 
         public Instance(T type) {
@@ -37,15 +39,18 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
             return type;
         }
 
-        public void start(BulletNode bullet, float dt, Instance<?> previous) {
-            bullet.setStartPos(bullet.getX(), bullet.getY());
-            bullet.resetDistanceTravelled();
-
-            if (bullet.getPath() instanceof SegmentedBulletPathType.SegmentedBulletPathInstance instance)
-                instance.setSegmentStartAge(bullet.getAge());
+        public float[] getOffset2(float t) {
+            if (this instanceof OrbitBulletPathType.OrbitBulletPathInstance instance) {
+                float angle = t * MathUtils.PI2 + instance.getOrbitPhase();
+                return new float[]{
+                    MathUtils.sin(angle) * instance.getType().orbitRadius(),
+                    MathUtils.cos(angle) * instance.getType().orbitRadius()
+                };
+            }
+            return ZERO;
         }
 
-        public abstract void update(BulletNode bullet, float dt);
+        public abstract float[] getOffset(BulletNode bullet, float dt);
     }
 
     enum Type {
@@ -53,7 +58,6 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
         STRAIGHT,
         WAVY,
         ORBIT,
-        SEGMENTED,
         PARAMETRIC;
 
         public static final Codec<Type> CODEC = Codec.STRING.xmap(s -> Type.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());

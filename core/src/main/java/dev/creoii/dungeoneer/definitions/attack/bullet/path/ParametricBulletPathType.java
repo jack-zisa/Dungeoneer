@@ -49,23 +49,14 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
         }
 
         @Override
-        public void start(BulletNode bullet, float dt, Instance<?> previous) {
-            bullet.resetDistanceTravelled();
-
-            if (bullet.getPath() instanceof SegmentedBulletPathType.SegmentedBulletPathInstance instance)
-                instance.setSegmentStartAge(bullet.getAge());
-        }
-
-        @Override
-        public void update(BulletNode bullet, float dt) {
+        public float[] getOffset(BulletNode bullet, float dt) {
             float age = bullet.getAge();
-            if (bullet.getPath() instanceof SegmentedBulletPathType.SegmentedBulletPathInstance instance)
-                age -= instance.getSegmentStartAge();
 
             float t = age * MathUtils.PI2 * (bullet.getSpeed() / 1000f);
 
             float x = 0f;
             float y = 0f;
+
             switch (getType().parametricType) {
                 case CIRCLE -> {
                     x = MathUtils.cos(t);
@@ -83,18 +74,24 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
                 }
                 case ROSE -> {
                     float r = MathUtils.cos(5f * t);
+
                     x = r * MathUtils.cos(t);
                     y = r * MathUtils.sin(t);
                 }
                 case HEART -> {
                     x = 16f * MathUtils.sin(t) * MathUtils.sin(t) * MathUtils.sin(t);
-                    y = 13f * MathUtils.cos(t) - 5f * MathUtils.cos(2f * t) - 2f * MathUtils.cos(3f * t) - MathUtils.cos(4f * t);
+                    y = 13f * MathUtils.cos(t)
+                        - 5f * MathUtils.cos(2f * t)
+                        - 2f * MathUtils.cos(3f * t)
+                        - MathUtils.cos(4f * t);
+
                     x /= 16f;
                     y /= 16f;
                 }
                 case ASTROID -> {
                     x = MathUtils.cos(t);
                     x = x * x * x;
+
                     y = MathUtils.sin(t);
                     y = y * y * y;
                 }
@@ -107,13 +104,10 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
             float localX = x * getType().scale.x;
             float localY = y * getType().scale.y;
 
-            float dirX = bullet.getDirX();
-            float dirY = bullet.getDirY();
-
-            float perpX = -dirY;
-            float perpY = dirX;
-
-            bullet.setLocalPos(perpX * localX + dirX * localY, perpY * localX + dirY * localY);
+            return new float[] {
+                localX,
+                localY
+            };
         }
     }
 

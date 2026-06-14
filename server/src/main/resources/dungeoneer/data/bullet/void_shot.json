@@ -1,0 +1,31 @@
+{
+  "id": "void_shot",
+  "type": "group",
+  "speed": 400,
+  "lifetime": 2.5,
+  "scale": 1.5,
+  "angle_offset": -45,
+  "path": {
+    "id": "void_shot_orbit",
+    "type": "orbit",
+    "orbit_radius": 40
+  },
+  "children": [
+    {
+      "offset": [10, 0],
+      "definition": {
+        "id": "void_shot",
+        "type": "single",
+        "speed": -400,
+        "lifetime": 2.5,
+        "scale": 1.5,
+        "angle_offset": -45,
+        "path": {
+          "id": "void_shot_orbit",
+          "type": "orbit",
+          "orbit_radius": 40
+        }
+      }
+    }
+  ]
+}

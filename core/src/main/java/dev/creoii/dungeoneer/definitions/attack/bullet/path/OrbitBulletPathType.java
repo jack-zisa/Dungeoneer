@@ -1,14 +1,10 @@
 package dev.creoii.dungeoneer.definitions.attack.bullet.path;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public record OrbitBulletPathType(String id, int sides, float orbitRadius) implements BulletPathType<OrbitBulletPathType.OrbitBulletPathInstance> {
     public static final MapCodec<OrbitBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
@@ -46,6 +42,10 @@ public record OrbitBulletPathType(String id, int sides, float orbitRadius) imple
             angle += f;
         }
 
+        public float getOrbitPhase() {
+            return orbitPhase;
+        }
+
         public void setOrbitPhase(float orbitPhase) {
             this.orbitPhase = orbitPhase;
         }
@@ -57,55 +57,46 @@ public record OrbitBulletPathType(String id, int sides, float orbitRadius) imple
         }
 
         @Override
-        public void start(BulletNode bullet, float dt, Instance<?> previous) {
-            bullet.resetDistanceTravelled();
-            if (bullet.getPath() instanceof SegmentedBulletPathType.SegmentedBulletPathInstance instance)
-                instance.setSegmentStartAge(bullet.getAge());
-        }
-
-        @Override
-        public void update(BulletNode bullet, float dt) {
-            float perpX = -bullet.getDirY();
-            float perpY = bullet.getDirX();
-
+        public float[] getOffset(BulletNode bullet, float dt) {
             float age = bullet.getAge();
-            if (bullet.getPath() instanceof SegmentedBulletPathType.SegmentedBulletPathInstance instance)
-                age -= instance.getSegmentStartAge();
 
-            float orbitAngle = age * MathUtils.PI2 * (bullet.getSpeed() / 1000f) + orbitPhase;
+            float orbitAngle =
+                age * MathUtils.PI2 * (bullet.getSpeed() / 1000f)
+                    + orbitPhase;
 
-            float orbitX;
-            float orbitY;
             if (getType().sides > 0) {
-                List<Vector2> vertices = new ArrayList<>();
-                for (int i = 0; i < getType().sides; i++) {
-                    float a = i * MathUtils.PI2 / getType().sides;
-                    vertices.add(new Vector2(MathUtils.cos(a) * getType().orbitRadius, MathUtils.sin(a) * getType().orbitRadius));
-                }
+                float t = orbitAngle / MathUtils.PI2;
+                t -= (float)Math.floor(t);
 
-                float t = (orbitAngle / MathUtils.PI2) % 1f;
                 float scaled = t * getType().sides;
 
-                int edge = (int) scaled;
+                int edge = (int)scaled;
                 float u = scaled - edge;
 
-                Vector2 v1 = vertices.get(edge);
-                Vector2 v2 = vertices.get((edge + 1) % getType().sides);
+                float angle1 = edge * MathUtils.PI2 / getType().sides;
+                float angle2 = ((edge + 1) % getType().sides)
+                    * MathUtils.PI2 / getType().sides;
 
-                float x = MathUtils.lerp(v1.x, v2.x, u);
-                float y = MathUtils.lerp(v1.y, v2.y, u);
+                float side1 =
+                    MathUtils.cos(angle1) * getType().orbitRadius;
+                float forward1 =
+                    MathUtils.sin(angle1) * getType().orbitRadius;
 
-                orbitX = bullet.getDirX() * x + perpX * y;
-                orbitY = bullet.getDirY() * x + perpY * y;
-            } else {
-                float orbitForward = MathUtils.cos(orbitAngle) * getType().orbitRadius;
-                float orbitSide = MathUtils.sin(orbitAngle) * getType().orbitRadius;
+                float side2 =
+                    MathUtils.cos(angle2) * getType().orbitRadius;
+                float forward2 =
+                    MathUtils.sin(angle2) * getType().orbitRadius;
 
-                orbitX = bullet.getDirX() * orbitForward + perpX * orbitSide;
-                orbitY = bullet.getDirY() * orbitForward + perpY * orbitSide;
+                return new float[] {
+                    MathUtils.lerp(side1, side2, u),
+                    MathUtils.lerp(forward1, forward2, u)
+                };
             }
 
-            bullet.setLocalPos(orbitX, orbitY);
+            return new float[] {
+                MathUtils.sin(orbitAngle) * getType().orbitRadius,
+                MathUtils.cos(orbitAngle) * getType().orbitRadius
+            };
         }
     }
 }

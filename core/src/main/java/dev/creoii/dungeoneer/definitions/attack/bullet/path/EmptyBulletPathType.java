@@ -29,7 +29,8 @@ public record EmptyBulletPathType(String id) implements BulletPathType<EmptyBull
         }
 
         @Override
-        public void update(BulletNode bullet, float dt) {
+        public float[] getOffset(BulletNode bullet, float dt) {
+            return ZERO;
         }
     }
 }

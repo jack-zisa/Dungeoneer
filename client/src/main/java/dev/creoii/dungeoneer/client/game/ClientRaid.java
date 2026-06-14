@@ -78,7 +78,7 @@ public class ClientRaid {
             if (!bullet.update(dt)) {
                 bullets.removeIndex(i);
                 bulletPool.free(bullet);
-            }
+            } else bullet.resolveTransform();
         }
 
         for (int i = bulletGroups.size - 1; i >= 0; --i) {
@@ -86,7 +86,7 @@ public class ClientRaid {
             if (!bulletGroup.update(dt)) {
                 bulletGroups.removeIndex(i);
                 bulletGroupPool.free(bulletGroup);
-            }
+            } else bulletGroup.resolveTransform();
         }
 
         for (int i = lasers.size - 1; i >= 0; --i) {
@@ -111,20 +111,24 @@ public class ClientRaid {
     }
 
     public void addBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, @Nullable ClientCharacter shooter) {
-        BulletNode poolBullet = createHierarchy(x, y, dirX, dirY, bullet, index);
+        BulletNode poolBullet = createHierarchy(x, y, dirX, dirY, bullet, index, 1);
         if (bullet instanceof SingleBulletType) {
             bullets.add((ClientBullet) poolBullet);
         } else bulletGroups.add((ClientBulletGroup) poolBullet);
     }
 
-    private BulletNode createHierarchy(float x, float y, float dirX, float dirY, BulletType bullet, int index) {
-        BulletNode node = createBullet(x, y, dirX, dirY, bullet, index);
+    private BulletNode createHierarchy(float x, float y, float dirX, float dirY, BulletType bullet, int index, int siblings) {
+        BulletNode node = createBullet(x, y, dirX, dirY, bullet, index, siblings);
         if (node instanceof ClientBulletGroup group) {
             GroupBulletType def = (GroupBulletType) bullet;
-            for (int i = 0; i < def.children().size(); i++) {
+            int nodeSiblings = def.children().size();
+            for (int i = 0; i < nodeSiblings; i++) {
                 GroupBulletType.Child childDef = def.children().get(i);
-                BulletNode child = createHierarchy(x, y, dirX, dirY, childDef.definition(), i);
-                child.setOffset(childDef.offset().x, childDef.offset().y);
+                BulletNode child = createHierarchy(x, y, dirX, dirY, childDef.definition(), i, nodeSiblings);
+                child.setFormationOffset(
+                    childDef.offset().x,
+                    childDef.offset().y
+                );
                 child.setParent(node);
                 group.addChild(child);
             }
@@ -132,20 +136,17 @@ public class ClientRaid {
         return node;
     }
 
-    public BulletNode createBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index) {
+    public BulletNode createBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, int siblings) {
         BulletNode poolBullet = bullet instanceof SingleBulletType ? bulletPool.obtain() : bulletGroupPool.obtain();
         poolBullet.setType(bullet);
         poolBullet.setStartPos(x, y);
-        poolBullet.setPos(x, y);
+        poolBullet.setStartDirection(dirX, dirY);
         poolBullet.setSpeed(bullet.speed());
-        poolBullet.setDirection(dirX, dirY);
         poolBullet.setLifetime(bullet.lifetime());
         poolBullet.setIndex(index);
-
         if (poolBullet.getPath() instanceof OrbitBulletPathType.OrbitBulletPathInstance instance) {
-            float f = 1f;
-            if (poolBullet instanceof ClientBulletGroup group) f = group.getChildren().size - 1;
-            instance.setOrbitPhase(MathUtils.PI2 * index / f);
+            float phase = siblings <= 1 ? 0f : MathUtils.PI2 * index / siblings;
+            instance.setOrbitPhase(phase);
         }
         return poolBullet;
     }

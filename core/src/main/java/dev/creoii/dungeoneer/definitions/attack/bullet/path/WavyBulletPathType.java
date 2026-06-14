@@ -49,34 +49,33 @@ public record WavyBulletPathType(String id, WaveType waveType, float amplitude, 
         }
 
         @Override
-        public void start(BulletNode bullet, float dt, Instance<?> previous) {
-            bullet.resetDistanceTravelled();
-            if (bullet.getPath() instanceof SegmentedBulletPathType.SegmentedBulletPathInstance instance)
-                instance.setSegmentStartAge(bullet.getAge());
-        }
-
-        @Override
-        public void update(BulletNode bullet, float dt) {
+        public float[] getOffset(BulletNode bullet, float dt) {
             float age = bullet.getAge();
-            if (bullet.getPath() instanceof SegmentedBulletPathType.SegmentedBulletPathInstance instance)
-                age -= instance.getSegmentStartAge();
 
-            float phase = getType().indexPhase ? 0f : (bullet.getIndex() & 1) == 0 ? 0f : .5f;
+            float phase = getType().indexPhase
+                ? 0f
+                : ((bullet.getIndex() & 1) == 0 ? 0f : .5f);
+
             float cycle = age * getType().frequency + phase;
 
             float wave = switch (getType().waveType) {
                 case SIN -> MathUtils.sin(cycle * MathUtils.PI2) * getType().amplitude;
+
                 case TRIANGLE -> {
-                    float triangle = 2f * Math.abs(2f * (cycle - (float) Math.floor(cycle + .5f))) - 1f;
+                    float triangle =
+                        2f * Math.abs(2f * (cycle - (float)Math.floor(cycle + .5f))) - 1f;
                     yield triangle * getType().amplitude;
                 }
-                case SQUARE -> (MathUtils.sin(cycle * MathUtils.PI2) >= 0f ? 1f : -1f) * getType().amplitude;
+
+                case SQUARE ->
+                    (MathUtils.sin(cycle * MathUtils.PI2) >= 0f ? 1f : -1f)
+                        * getType().amplitude;
             };
 
-            bullet.setLocalPos(
-                bullet.getStartX() + bullet.getDirX() * bullet.getDistanceTravelled() + -bullet.getDirY() * wave,
-                bullet.getStartY() + bullet.getDirY() * bullet.getDistanceTravelled() + bullet.getDirX() * wave
-            );
+            return new float[] {
+                wave,
+                bullet.getDistanceTravelled()
+            };
         }
     }
 

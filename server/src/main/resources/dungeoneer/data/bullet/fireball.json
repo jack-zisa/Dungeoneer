@@ -1,428 +1,111 @@
 {
-  "id": "fireballa",
+  "id": "fireball",
   "type": "group",
-  "speed": 200,
+  "speed": 150,
   "lifetime": 5,
   "path": {
-    "id": "fireball_orbit",
+    "id": "fireball_straight",
     "type": "orbit",
     "orbit_radius": 40
   },
   "children": [
     {
-      "offset": [75, 0],
+      "offset": [0, 0],
       "definition": {
         "id": "fireball",
-        "type": "group",
+        "type": "single",
         "lifetime": 5,
-        "speed": 200,
-        "path": {
-          "id": "fireball_orbit",
-          "type": "orbit",
-          "orbit_radius": 20
-        },
-        "children": [
-          {
-            "offset": [15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, 15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, -15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          }
-        ]
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
       }
     },
     {
-      "offset": [0, 75],
+      "offset": [15, 0],
       "definition": {
         "id": "fireball",
-        "type": "group",
+        "type": "single",
         "lifetime": 5,
-        "speed": 200,
-        "path": {
-          "id": "fireball_orbit",
-          "type": "orbit",
-          "orbit_radius": 20
-        },
-        "children": [
-          {
-            "offset": [15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, 15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, -15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          }
-        ]
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
       }
     },
     {
-      "offset": [-75, 0],
+      "offset": [0, 15],
       "definition": {
         "id": "fireball",
-        "type": "group",
+        "type": "single",
         "lifetime": 5,
-        "speed": 200,
-        "path": {
-          "id": "fireball_orbit",
-          "type": "orbit",
-          "orbit_radius": 20
-        },
-        "children": [
-          {
-            "offset": [15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, 15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, -15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          }
-        ]
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
       }
     },
     {
-      "offset": [0, -75],
+      "offset": [-15, 0],
       "definition": {
         "id": "fireball",
-        "type": "group",
+        "type": "single",
         "lifetime": 5,
-        "speed": 200,
-        "path": {
-          "id": "fireball_orbit",
-          "type": "orbit",
-          "orbit_radius": 20
-        },
-        "children": [
-          {
-            "offset": [15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, 15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-15, 0],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [0, -15],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, 10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          },
-          {
-            "offset": [-10, -10],
-            "definition": {
-              "id": "fireball",
-              "type": "single",
-              "lifetime": 5,
-              "speed": 100,
-              "scale": 1.5,
-              "rotation_speed": 40
-            }
-          }
-        ]
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [0, -15],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [10, 10],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [10, -10],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [-10, 10],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
+      }
+    },
+    {
+      "offset": [-10, -10],
+      "definition": {
+        "id": "fireball",
+        "type": "single",
+        "lifetime": 5,
+        "speed": 100,
+        "scale": 1.5,
+        "rotation_speed": 40
       }
     }
   ]
