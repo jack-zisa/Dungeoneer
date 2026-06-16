@@ -96,16 +96,21 @@ public class ClientRaid {
         }
     }
 
-    public void end() { // TODO: Fix bullets preserved across raids
+    public void end() {
         if (bullets.notEmpty()) {
-            bullets.removeRange(0, bullets.size - 1);
+            bulletPool.freeAll(bullets);
+            bullets.clear();
         }
-        bulletPool.freeAll(bullets);
+
+        if (bulletGroups.notEmpty()) {
+            bulletGroupPool.freeAll(bulletGroups);
+            bulletGroups.clear();
+        }
 
         if (lasers.notEmpty()) {
-            lasers.removeRange(0, lasers.size - 1);
+            laserPool.freeAll(lasers);
+            lasers.clear();
         }
-        laserPool.freeAll(lasers);
     }
 
     public void addBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, @Nullable ClientCharacter shooter) {
@@ -135,7 +140,7 @@ public class ClientRaid {
         BulletNode poolBullet = bullet instanceof SingleBulletType ? bulletPool.obtain() : bulletGroupPool.obtain();
         poolBullet.setType(bullet);
         poolBullet.setStartPos(x, y);
-        poolBullet.setDirection(dirX, dirY);
+        poolBullet.setStartDirection(dirX, dirY);
         poolBullet.setSpeed(bullet.speed());
         poolBullet.setLifetime(bullet.lifetime());
         poolBullet.setIndex(index);

@@ -110,7 +110,7 @@ public class ClientCharacter implements SidedCharacter {
         ) {
             attackPending = true;
 
-            Attack attack = DataManager.getAttack("omni_attack");
+            Attack attack = DataManager.getAttack("staff");
             attack(attack);
         }
     }

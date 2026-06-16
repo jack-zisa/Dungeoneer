@@ -27,6 +27,7 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
 
     abstract class Instance<T extends BulletPathType<?>> implements Pool.Poolable {
         public static final float[] ZERO = new float[]{0f, 0f};
+        public static final float[] RIGHT = new float[]{0f, 1f};
 
         private final T type;
 
@@ -38,8 +39,19 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
             return type;
         }
 
-        public float[] getOffset(BulletNode bullet, float t) {
+        public float[] getOffset(BulletNode node, float t) {
             return ZERO;
+        }
+
+        public float[] getDirection(BulletNode node, float[] offset1, float[] offset2) {
+            float dx = offset2[0] - offset1[0];
+            float dy = offset2[1] - offset1[1];
+
+            float len = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (len == 0f)
+                return RIGHT;
+            return new float[]{dx / len, dy / len};
         }
 
         @Override

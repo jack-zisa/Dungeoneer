@@ -12,6 +12,7 @@ public abstract class BulletNode implements Pool.Poolable {
     private final float[] startPos;
     private final float[] localPos;
     private final float[] direction;
+    private final float[] startDirection;
     private final float[] localDirection;
     private final float[] offset;
     private float speed;
@@ -27,6 +28,7 @@ public abstract class BulletNode implements Pool.Poolable {
         startPos = new float[]{0f, 0f};
         localPos = new float[]{0f, 0f};
         direction = new float[]{0f, 0f};
+        startDirection = new float[]{0f, 0f};
         localDirection = new float[]{0f, 0f};
         offset = new float[]{0f, 0f};
     }
@@ -95,6 +97,20 @@ public abstract class BulletNode implements Pool.Poolable {
     public void setDirection(float x, float y) {
         direction[0] = x;
         direction[1] = y;
+    }
+
+    public float getStartDirX() {
+        return startDirection[0];
+    }
+
+    public float getStartDirY() {
+        return startDirection[1];
+    }
+
+    public void setStartDirection(float x, float y) {
+        direction[0] = x;
+        direction[1] = y;
+        setDirection(x, y);
     }
 
     public float getLocalDirX() {
@@ -209,7 +225,7 @@ public abstract class BulletNode implements Pool.Poolable {
     public void reset() {
         setStartPos(0f, 0f);
         setLocalPos(0f, 0f);
-        setDirection(0f, 0f);
+        setStartDirection(0f, 0f);
         setLocalDirection(0f, 0f);
         setOffset(0f, 0f);
         type = null;

@@ -30,11 +30,7 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
         }
 
         @Override
-        public float[] getOffset(BulletNode bullet, float dt) {
-            float age = bullet.getAge();
-
-            float t = age * MathUtils.PI2 * (bullet.getSpeed() / 1000f);
-
+        public float[] getOffset(BulletNode node, float t) {
             float x = 0f;
             float y = 0f;
 
@@ -74,11 +70,7 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
                     y = MathUtils.sin(2f * t);
                 }
             }
-
-            float localX = x * getType().scale.x;
-            float localY = y * getType().scale.y;
-
-            return new float[] {localX, localY};
+            return new float[] {x * getType().scale.x, y * getType().scale.y};
         }
     }
 
