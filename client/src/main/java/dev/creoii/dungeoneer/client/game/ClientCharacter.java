@@ -33,6 +33,7 @@ public class ClientCharacter implements Character {
     private final float[] correction;
     private long lastAttackTime;
     private boolean attackPending;
+    private AnimationState animationState;
 
     public ClientCharacter(Dungeoneer client, @Nullable CharacterDefinition character) {
         this.client = client;
@@ -54,6 +55,7 @@ public class ClientCharacter implements Character {
             );
         }
         correction = new float[]{0f, 0f};
+        animationState = AnimationState.IDLE;
     }
 
     public Dungeoneer getClient() {
@@ -216,5 +218,25 @@ public class ClientCharacter implements Character {
 
     public boolean isAttackPending() {
         return attackPending;
+    }
+
+    public AnimationState getAnimationState() {
+        return animationState;
+    }
+
+    public void setAnimationState(AnimationState animationState) {
+        this.animationState = animationState;
+    }
+
+    public enum AnimationState {
+        IDLE,
+        ATTACKING_UP,
+        ATTACKING_DOWN,
+        ATTACKING_LEFT,
+        ATTACKING_RIGHT,
+        MOVING_UP,
+        MOVING_DOWN,
+        MOVING_LEFT,
+        MOVING_RIGHT
     }
 }
