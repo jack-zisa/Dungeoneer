@@ -19,4 +19,6 @@ public interface Character extends Entity {
     default boolean isMoving() {
         return getVelocity()[0] != 0f || getVelocity()[1] != 0f;
     }
+
+    boolean isAttacking();
 }

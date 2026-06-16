@@ -339,10 +339,13 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     long lastAttackTime = character.getLastAttackTime();
                     long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
                     if (currentTime - lastAttackTime >= cooldown) {
-                        System.out.println("attack server");
+                        character.setAttacking(true);
                         character.setLastAttackTime(currentTime);
                         server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));
-                    } else server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
+                    } else {
+                        character.setAttacking(false);
+                        server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
+                    }
                 }
             }
         }

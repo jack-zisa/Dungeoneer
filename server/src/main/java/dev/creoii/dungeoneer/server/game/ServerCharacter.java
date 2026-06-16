@@ -12,6 +12,7 @@ public class ServerCharacter implements Character {
     private final float[] velocity;
     private final StatContainer stats;
     private long lastAttackTime;
+    private boolean attacking;
 
     public ServerCharacter(CharacterDefinition character) {
         this.character = character;
@@ -59,6 +60,15 @@ public class ServerCharacter implements Character {
 
     public void setLastAttackTime(long lastAttackTime) {
         this.lastAttackTime = lastAttackTime;
+    }
+
+    @Override
+    public boolean isAttacking() {
+        return attacking;
+    }
+
+    public void setAttacking(boolean attacking) {
+        this.attacking = attacking;
     }
 
     public void updateMovement(int movementFlags) {

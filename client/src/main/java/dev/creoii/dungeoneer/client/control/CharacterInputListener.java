@@ -5,11 +5,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.util.Constants;
-
-import java.util.Arrays;
 
 public class CharacterInputListener extends InputListener implements MousePosListener {
     private final Dungeoneer client;
@@ -100,23 +99,14 @@ public class CharacterInputListener extends InputListener implements MousePosLis
             }
         }
 
-        System.out.println(Arrays.toString(character.getVelocity()));
-
-        character.setAnimationState(calculateAnimationState(velocity[0], velocity[1], velocity[0] != 0f || velocity[1] != 0f, false));
-        System.out.println(character.getAnimationState());
+        AnimationState to;
+        if (velocity[1] == 0f && velocity[0] == 0f) {
+            to = AnimationState.toIdle(character.getAnimationState());
+        } else if (Math.abs(velocity[1]) >= Math.abs(velocity[0])) {
+            to = velocity[1] > 0 ? AnimationState.MOVING_UP : AnimationState.MOVING_DOWN;
+        } else to = velocity[0] > 0 ? AnimationState.MOVING_RIGHT : AnimationState.MOVING_LEFT;
+        character.setAnimationState(character.isAttacking() ? AnimationState.toAttacking(to) : AnimationState.toMoving(to));
 
         client.get().sendUDP(new CharacterMoveC2S(client.getState().getCurrentRaid().get().id(), character.get().id(), movementFlags));
-    }
-
-    public ClientCharacter.AnimationState calculateAnimationState(float dirX, float dirY, boolean moving, boolean attacking) {
-        ClientCharacter.AnimationState base;
-
-        if (Math.abs(dirY) >= Math.abs(dirX)) {
-            base = dirY > 0 ? (attacking ? ClientCharacter.AnimationState.ATTACKING_UP : ClientCharacter.AnimationState.MOVING_UP) : (attacking ? ClientCharacter.AnimationState.ATTACKING_DOWN : ClientCharacter.AnimationState.MOVING_DOWN);
-        } else {
-            base = dirX > 0 ? (attacking ? ClientCharacter.AnimationState.ATTACKING_RIGHT : ClientCharacter.AnimationState.MOVING_RIGHT) : (attacking ? ClientCharacter.AnimationState.ATTACKING_LEFT : ClientCharacter.AnimationState.MOVING_LEFT);
-        }
-
-        return moving || attacking ? base : ClientCharacter.AnimationState.IDLE;
     }
 }

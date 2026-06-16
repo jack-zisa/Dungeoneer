@@ -32,6 +32,7 @@ public class ClientCharacter implements Character {
     private final StatContainer stats;
     private final float[] correction;
     private long lastAttackTime;
+    private boolean attacking;
     private boolean attackPending;
     private AnimationState animationState;
 
@@ -55,7 +56,7 @@ public class ClientCharacter implements Character {
             );
         }
         correction = new float[]{0f, 0f};
-        animationState = AnimationState.IDLE;
+        animationState = AnimationState.IDLE_DOWN;
     }
 
     public Dungeoneer getClient() {
@@ -100,21 +101,24 @@ public class ClientCharacter implements Character {
         return getRenderY() + sprite.getHeight() * .5f;
     }
 
+    @Override
+    public boolean isAttacking() {
+        return attacking;
+    }
+
     public void update(float dt) {
         long currentTime = System.currentTimeMillis();
         long cooldown = (long) StatUtils.getCalculatedAttackSpeed(stats.attackSpeed().value());
 
-        if (client.getState().getStatus() == ClientState.Status.RAIDING
-            && !attackPending
-            && !client.getState().getCurrentRaid().isNull()
-            && (currentTime - lastAttackTime) >= cooldown
-            && Gdx.input.isButtonPressed(Input.Buttons.LEFT)
-        ) {
-            attackPending = true;
+        if (client.getState().getStatus() == ClientState.Status.RAIDING && !client.getState().getCurrentRaid().isNull() && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            if (!attackPending && (currentTime - lastAttackTime) >= cooldown) {
+                attackPending = true;
 
-            Attack attack = DataManager.getAttack("simple");
-            attack(attack);
-        }
+                Attack attack = DataManager.getAttack("simple");
+                attack(attack);
+            }
+            animationState = AnimationState.toAttacking(animationState);
+        } else animationState = isMoving() ? AnimationState.toMoving(animationState) : AnimationState.toIdle(animationState);
     }
 
     public void attack(Attack attack) {
@@ -226,17 +230,5 @@ public class ClientCharacter implements Character {
 
     public void setAnimationState(AnimationState animationState) {
         this.animationState = animationState;
-    }
-
-    public enum AnimationState {
-        IDLE,
-        ATTACKING_UP,
-        ATTACKING_DOWN,
-        ATTACKING_LEFT,
-        ATTACKING_RIGHT,
-        MOVING_UP,
-        MOVING_DOWN,
-        MOVING_LEFT,
-        MOVING_RIGHT
     }
 }
