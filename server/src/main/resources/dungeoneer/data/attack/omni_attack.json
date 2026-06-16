@@ -1,0 +1,6 @@
+{
+  "id": "omni_attack",
+  "type": "bullet",
+  "bullet_count": 10,
+  "arc_gap": 36
+}

@@ -1,6 +1,5 @@
 package dev.creoii.dungeoneer.definitions.attack.bullet.path;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Pool;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
@@ -39,18 +38,13 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
             return type;
         }
 
-        public float[] getOffset2(float t) {
-            if (this instanceof OrbitBulletPathType.OrbitBulletPathInstance instance) {
-                float angle = t * MathUtils.PI2 + instance.getOrbitPhase();
-                return new float[]{
-                    MathUtils.sin(angle) * instance.getType().orbitRadius(),
-                    MathUtils.cos(angle) * instance.getType().orbitRadius()
-                };
-            }
+        public float[] getOffset(BulletNode bullet, float t) {
             return ZERO;
         }
 
-        public abstract float[] getOffset(BulletNode bullet, float dt);
+        @Override
+        public void reset() {
+        }
     }
 
     enum Type {

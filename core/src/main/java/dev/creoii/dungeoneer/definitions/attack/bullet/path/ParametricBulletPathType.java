@@ -9,12 +9,10 @@ import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Codecs;
 
 public record ParametricBulletPathType(String id, ParametricType parametricType, Vector2 scale) implements BulletPathType<ParametricBulletPathType.ParametricBulletPathInstance> {
-    public static final MapCodec<ParametricBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
-        return BulletPathType.addDefaultFields(instance).and(instance.group(
-            ParametricType.CODEC.fieldOf("parametric_type").orElse(ParametricType.FIGURE_EIGHT).forGetter(ParametricBulletPathType::parametricType),
-            Codecs.VECTOR_2.fieldOf("scale").orElse(Vector2.One).forGetter(ParametricBulletPathType::scale)
-        )).apply(instance, ParametricBulletPathType::new);
-    });
+    public static final MapCodec<ParametricBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).and(instance.group(
+        ParametricType.CODEC.fieldOf("parametric_type").orElse(ParametricType.FIGURE_EIGHT).forGetter(ParametricBulletPathType::parametricType),
+        Codecs.VECTOR_2.fieldOf("scale").orElse(Vector2.One).forGetter(ParametricBulletPathType::scale)
+    )).apply(instance, ParametricBulletPathType::new));
 
     @Override
     public Type type() {
@@ -26,26 +24,9 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
         return new ParametricBulletPathInstance(this);
     }
 
-    public static class ParametricBulletPathInstance extends Instance<ParametricBulletPathType> implements AngledBulletPath {
-        private float angle;
-
+    public static class ParametricBulletPathInstance extends Instance<ParametricBulletPathType> {
         public ParametricBulletPathInstance(ParametricBulletPathType definition) {
             super(definition);
-        }
-
-        @Override
-        public float getAngle() {
-            return angle;
-        }
-
-        @Override
-        public void incrementAngle(float f) {
-            angle += f;
-        }
-
-        @Override
-        public void reset() {
-            angle = 0f;
         }
 
         @Override
@@ -67,31 +48,24 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
                     y = MathUtils.sin(t * 2f);
                 }
                 case SPIRAL -> {
-                    float r = t * 0.1f;
-
+                    float r = t * .1f;
                     x = MathUtils.cos(t) * r;
                     y = MathUtils.sin(t) * r;
                 }
                 case ROSE -> {
                     float r = MathUtils.cos(5f * t);
-
                     x = r * MathUtils.cos(t);
                     y = r * MathUtils.sin(t);
                 }
                 case HEART -> {
                     x = 16f * MathUtils.sin(t) * MathUtils.sin(t) * MathUtils.sin(t);
-                    y = 13f * MathUtils.cos(t)
-                        - 5f * MathUtils.cos(2f * t)
-                        - 2f * MathUtils.cos(3f * t)
-                        - MathUtils.cos(4f * t);
-
+                    y = 13f * MathUtils.cos(t) - 5f * MathUtils.cos(2f * t) - 2f * MathUtils.cos(3f * t) - MathUtils.cos(4f * t);
                     x /= 16f;
                     y /= 16f;
                 }
                 case ASTROID -> {
                     x = MathUtils.cos(t);
                     x = x * x * x;
-
                     y = MathUtils.sin(t);
                     y = y * y * y;
                 }
@@ -104,10 +78,7 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
             float localX = x * getType().scale.x;
             float localY = y * getType().scale.y;
 
-            return new float[] {
-                localX,
-                localY
-            };
+            return new float[] {localX, localY};
         }
     }
 

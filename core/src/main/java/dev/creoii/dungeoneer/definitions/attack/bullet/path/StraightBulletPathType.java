@@ -5,9 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 
 public record StraightBulletPathType(String id) implements BulletPathType<StraightBulletPathType.StraightBulletPathInstance> {
-    public static final MapCodec<StraightBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
-        return BulletPathType.addDefaultFields(instance).apply(instance, StraightBulletPathType::new);
-    });
+    public static final MapCodec<StraightBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).apply(instance, StraightBulletPathType::new));
 
     @Override
     public Type type() {
@@ -25,15 +23,8 @@ public record StraightBulletPathType(String id) implements BulletPathType<Straig
         }
 
         @Override
-        public void reset() {
-        }
-
-        @Override
-        public float[] getOffset(BulletNode bullet, float dt) {
-            return new float[] {
-                0f,
-                bullet.getDistanceTravelled()
-            };
+        public float[] getOffset(BulletNode bullet, float t) {
+            return new float[]{0f, t};
         }
     }
 }

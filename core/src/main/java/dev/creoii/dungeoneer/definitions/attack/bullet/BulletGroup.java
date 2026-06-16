@@ -1,13 +1,13 @@
-package dev.creoii.dungeoneer.client.game;
+package dev.creoii.dungeoneer.definitions.attack.bullet;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 
-public class ClientBulletGroup extends BulletNode implements Pool.Poolable {
+public class BulletGroup extends BulletNode implements Pool.Poolable {
     private final Array<BulletNode> children;
 
-    public ClientBulletGroup() {
+    public BulletGroup() {
         children = new Array<>();
     }
 
@@ -34,30 +34,14 @@ public class ClientBulletGroup extends BulletNode implements Pool.Poolable {
             if (!child.update(dt))
                 return false;
         }
-
         return true;
-    }
-
-    @Override
-    public void resolveTransform() {
-        super.resolveTransform();
-
-        for (BulletNode child : children) {
-            child.resolveTransform();
-        }
     }
 
     @Override
     public void applyTransform(float originX, float originY, float dirX, float dirY) {
         super.applyTransform(originX, originY, dirX, dirY);
-
         for (BulletNode child : children) {
-            child.applyTransform(
-                getX(),
-                getY(),
-                child.getDirX(),
-                child.getDirY()
-            );
+            child.applyTransform(getX(), getY(), getLocalDirX(), getLocalDirY());
         }
     }
 }

@@ -3,10 +3,8 @@ package dev.creoii.dungeoneer.client.game;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
+import dev.creoii.dungeoneer.definitions.attack.bullet.*;
 import dev.creoii.dungeoneer.definitions.Raid;
-import dev.creoii.dungeoneer.definitions.attack.bullet.GroupBulletType;
-import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import org.jspecify.annotations.Nullable;
@@ -15,21 +13,21 @@ public class ClientRaid {
     private Raid raid;
     private final ClientDungeonMap dungeon;
 
-    private final Pool<ClientBullet> bulletPool = new Pool<>() {
+    private final Pool<Bullet> bulletPool = new Pool<>() {
         @Override
-        protected ClientBullet newObject() {
-            return new ClientBullet();
+        protected Bullet newObject() {
+            return new Bullet();
         }
     };
-    private final Array<ClientBullet> bullets = new Array<>();
+    private final Array<Bullet> bullets = new Array<>();
 
-    private final Pool<ClientBulletGroup> bulletGroupPool = new Pool<>() {
+    private final Pool<BulletGroup> bulletGroupPool = new Pool<>() {
         @Override
-        protected ClientBulletGroup newObject() {
-            return new ClientBulletGroup();
+        protected BulletGroup newObject() {
+            return new BulletGroup();
         }
     };
-    private final Array<ClientBulletGroup> bulletGroups = new Array<>();
+    private final Array<BulletGroup> bulletGroups = new Array<>();
 
     private final Pool<ClientLaser> laserPool = new Pool<>() {
         @Override
@@ -52,11 +50,11 @@ public class ClientRaid {
         this.raid = raid;
     }
 
-    public Array<ClientBullet> getBullets() {
+    public Array<Bullet> getBullets() {
         return bullets;
     }
 
-    public Array<ClientBulletGroup> getBulletGroups() {
+    public Array<BulletGroup> getBulletGroups() {
         return bulletGroups;
     }
 
@@ -74,19 +72,19 @@ public class ClientRaid {
 
     public void update(float dt) {
         for (int i = bullets.size - 1; i >= 0; --i) {
-            ClientBullet bullet = bullets.get(i);
+            Bullet bullet = bullets.get(i);
             if (!bullet.update(dt)) {
                 bullets.removeIndex(i);
                 bulletPool.free(bullet);
-            } else bullet.resolveTransform();
+            } else bullet.applyTransform(bullet.getStartX(), bullet.getStartY(), bullet.getDirX(), bullet.getDirY());
         }
 
         for (int i = bulletGroups.size - 1; i >= 0; --i) {
-            ClientBulletGroup bulletGroup = bulletGroups.get(i);
+            BulletGroup bulletGroup = bulletGroups.get(i);
             if (!bulletGroup.update(dt)) {
                 bulletGroups.removeIndex(i);
                 bulletGroupPool.free(bulletGroup);
-            } else bulletGroup.resolveTransform();
+            } else bulletGroup.applyTransform(bulletGroup.getStartX(), bulletGroup.getStartY(), bulletGroup.getDirX(), bulletGroup.getDirY());
         }
 
         for (int i = lasers.size - 1; i >= 0; --i) {
@@ -98,38 +96,35 @@ public class ClientRaid {
         }
     }
 
-    public void end() {
+    public void end() { // TODO: Fix bullets preserved across raids
         if (bullets.notEmpty()) {
-            bulletPool.freeAll(bullets);
             bullets.removeRange(0, bullets.size - 1);
         }
+        bulletPool.freeAll(bullets);
 
         if (lasers.notEmpty()) {
-            laserPool.freeAll(lasers);
             lasers.removeRange(0, lasers.size - 1);
         }
+        laserPool.freeAll(lasers);
     }
 
     public void addBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, @Nullable ClientCharacter shooter) {
         BulletNode poolBullet = createHierarchy(x, y, dirX, dirY, bullet, index, 1);
         if (bullet instanceof SingleBulletType) {
-            bullets.add((ClientBullet) poolBullet);
-        } else bulletGroups.add((ClientBulletGroup) poolBullet);
+            bullets.add((Bullet) poolBullet);
+        } else bulletGroups.add((BulletGroup) poolBullet);
     }
 
     private BulletNode createHierarchy(float x, float y, float dirX, float dirY, BulletType bullet, int index, int siblings) {
         BulletNode node = createBullet(x, y, dirX, dirY, bullet, index, siblings);
-        if (node instanceof ClientBulletGroup group) {
+        if (node instanceof BulletGroup group) {
             GroupBulletType def = (GroupBulletType) bullet;
             int nodeSiblings = def.children().size();
             for (int i = 0; i < nodeSiblings; i++) {
                 GroupBulletType.Child childDef = def.children().get(i);
                 BulletNode child = createHierarchy(x, y, dirX, dirY, childDef.definition(), i, nodeSiblings);
-                child.setFormationOffset(
-                    childDef.offset().x,
-                    childDef.offset().y
-                );
-                child.setParent(node);
+                child.setOffset(childDef.offset().x, childDef.offset().y);
+                child.setParent(group);
                 group.addChild(child);
             }
         }
@@ -140,7 +135,7 @@ public class ClientRaid {
         BulletNode poolBullet = bullet instanceof SingleBulletType ? bulletPool.obtain() : bulletGroupPool.obtain();
         poolBullet.setType(bullet);
         poolBullet.setStartPos(x, y);
-        poolBullet.setStartDirection(dirX, dirY);
+        poolBullet.setDirection(dirX, dirY);
         poolBullet.setSpeed(bullet.speed());
         poolBullet.setLifetime(bullet.lifetime());
         poolBullet.setIndex(index);

@@ -9,6 +9,9 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.function.Function;
 
+/**
+ * An attack defines the initial state of one or more {@link dev.creoii.dungeoneer.definitions.sided.BulletNode}.
+ */
 public interface Attack extends Identifiable {
     AttackType type();
 

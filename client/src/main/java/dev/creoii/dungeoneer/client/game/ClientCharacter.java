@@ -110,7 +110,7 @@ public class ClientCharacter implements SidedCharacter {
         ) {
             attackPending = true;
 
-            Attack attack = DataManager.getAttack("simple");
+            Attack attack = DataManager.getAttack("omni_attack");
             attack(attack);
         }
     }
@@ -119,7 +119,7 @@ public class ClientCharacter implements SidedCharacter {
         switch (attack) {
             case ReferenceAttack(String id, _) -> attack(DataManager.getAttack(id));
             case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
-                BulletType bullet = DataManager.getBullet("void_shot");
+                BulletType bullet = DataManager.getBullet("fire_shot");
                 if (bullet == null)
                     return;
 

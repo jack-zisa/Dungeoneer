@@ -2,12 +2,14 @@ package dev.creoii.dungeoneer.client.screen.game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -19,6 +21,9 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.*;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
+import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
+import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
@@ -150,16 +155,12 @@ public class GameScreen extends AbstractScreen {
         Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
         Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
 
-        Sprite sprite = character.getSprite();
-        sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
-        sprite.draw(batch);
-
-        for (ClientBullet bullet : raid.getBullets()) {
-            renderBullet(bullet, batch, delta);
+        for (Bullet bullet : raid.getBullets()) {
+            renderBullet(bullet, client, batch, delta);
         }
 
-        for (ClientBulletGroup bulletGroup : raid.getBulletGroups()) {
-            bulletGroup.getChildren().forEach(child -> renderBullet(child, batch, delta));
+        for (BulletGroup bulletGroup : raid.getBulletGroups()) {
+            bulletGroup.getChildren().forEach(child -> renderBullet(child, client, batch, delta));
         }
 
         for (ClientLaser laser : raid.getLasers()) {
@@ -173,6 +174,10 @@ public class GameScreen extends AbstractScreen {
                 laser.getDirection().angleDeg()
             );
         }
+
+        Sprite sprite = character.getSprite();
+        sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
+        sprite.draw(batch);
 
         batch.setShader(null);
         batch.end();
@@ -193,12 +198,46 @@ public class GameScreen extends AbstractScreen {
         super.render(delta);
     }
 
-    private void renderBullet(BulletNode bullet, SpriteBatch batch, float dt) {
-        if (bullet instanceof ClientBullet clientBullet) {
-            clientBullet.render(client, batch, dt);
-        } else if (bullet instanceof ClientBulletGroup clientBulletGroup) {
-            clientBulletGroup.getChildren().forEach(bullet1 -> renderBullet(bullet1, batch, dt));
+    public void renderBullet(BulletNode node, Dungeoneer client, SpriteBatch batch, float dt) {
+        if (node instanceof BulletGroup group) {
+            group.getChildren().forEach(child -> renderBullet(child, client, batch, dt));
+            return;
         }
+
+        Bullet bullet = (Bullet) node;
+
+        Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getType().id());
+
+        float scale = bullet.getType() instanceof SingleBulletType singleBulletType ? singleBulletType.scale() : 1f;
+        float rotationSpeed = bullet.getType() instanceof SingleBulletType singleBulletType ? singleBulletType.rotationSpeed() : 0f;
+        float angleOffset = bullet.getType() instanceof SingleBulletType singleBulletType ? singleBulletType.angleOffset() : 0f;
+        float angle = 0f;
+
+        if (rotationSpeed != 0f) {
+            bullet.incrementAngle(rotationSpeed * dt);
+            angle = bullet.getAngle();
+        }
+
+        float width = texture.getWidth() * scale;
+        float height = texture.getHeight() * scale;
+
+        batch.draw(texture,
+            bullet.getX() - width * .5f, bullet.getY() - height * .5f,
+            width * .5f, height * .5f,
+            width, height,
+            1f, 1f,
+            angleDeg(bullet) + angleOffset + angle,
+            0, 0,
+            texture.getWidth(), texture.getHeight(),
+            false, false
+        );
+    }
+
+    public float angleDeg(Bullet bullet) {
+        float angle = (float) Math.atan2(bullet.getDirY(), bullet.getDirX()) * MathUtils.radiansToDegrees;
+        if (angle < 0f)
+            angle += 360f;
+        return angle;
     }
 
     @Override

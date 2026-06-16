@@ -1,12 +1,13 @@
 {
   "id": "fireball",
   "type": "group",
-  "speed": 150,
-  "lifetime": 5,
+  "speed": 0,
+  "lifetime": 16,
+  "acceleration": 75,
+  "rotation_speed": 100,
   "path": {
     "id": "fireball_straight",
-    "type": "orbit",
-    "orbit_radius": 40
+    "type": "straight"
   },
   "children": [
     {
@@ -15,9 +16,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -26,9 +28,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -37,9 +40,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -48,9 +52,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -59,9 +64,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -70,9 +76,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -81,9 +88,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -92,9 +100,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     },
     {
@@ -103,9 +112,10 @@
         "id": "fireball",
         "type": "single",
         "lifetime": 5,
-        "speed": 100,
+        "speed": 0,
+        "acceleration": 75,
         "scale": 1.5,
-        "rotation_speed": 40
+        "rotation_speed": 100
       }
     }
   ]
