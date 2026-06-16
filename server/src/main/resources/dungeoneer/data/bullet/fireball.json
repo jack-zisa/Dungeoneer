@@ -6,8 +6,11 @@
   "acceleration": 75,
   "rotation_speed": 100,
   "path": {
-    "id": "fireball_straight",
-    "type": "straight"
+    "id": "fireball_wavy",
+    "type": "wavy",
+    "wave_type": "triangle",
+    "amplitude": 16,
+    "frequency": 0.015
   },
   "children": [
     {
