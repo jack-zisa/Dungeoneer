@@ -36,7 +36,7 @@ public interface SidedBullet {
     float getAngle();
 
     @Nullable
-    SidedCharacter getAttached();
+    Character getAttached();
 
     float getCurrentSegmentThreshold();
 

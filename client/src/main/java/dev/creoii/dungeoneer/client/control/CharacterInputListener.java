@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.client.control;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -87,9 +88,14 @@ public class CharacterInputListener extends InputListener implements MousePosLis
         if (character.isNull())
             return;
 
-        character.getVelocity().set(dx, dy);
-        if (!character.getVelocity().isZero()) {
-            character.getVelocity().nor();
+        character.setVelocity(dx, dy);
+        float[] velocity = character.getVelocity();
+        if (velocity[0] != 0f || velocity[1] != 0f) {
+            float len = Vector2.len(velocity[0], velocity[1]);
+            if (len != 0) {
+                velocity[0] /= len;
+                velocity[1] /= len;
+            }
         }
 
         client.get().sendUDP(new CharacterMoveC2S(client.getState().getCurrentRaid().get().id(), character.get().id(), movementFlags));

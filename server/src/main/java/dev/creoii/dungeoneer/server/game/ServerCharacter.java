@@ -1,22 +1,22 @@
 package dev.creoii.dungeoneer.server.game;
 
 import com.badlogic.gdx.math.Vector2;
-import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
-public class ServerCharacter implements SidedCharacter {
-    private final Character character;
-    private final Vector2 pos;
-    private final Vector2 velocity;
+public class ServerCharacter implements Character {
+    private final CharacterDefinition character;
+    private final float[] pos;
+    private final float[] velocity;
     private final StatContainer stats;
     private long lastAttackTime;
 
-    public ServerCharacter(Character character) {
+    public ServerCharacter(CharacterDefinition character) {
         this.character = character;
-        pos = new Vector2();
-        velocity = new Vector2();
+        pos = new float[]{0f, 0f};
+        velocity = new float[]{0f, 0f};
         stats = new StatContainer(
             character.characterClass().baseStats().health().value(),
             character.characterClass().baseStats().speed().value(),
@@ -24,12 +24,12 @@ public class ServerCharacter implements SidedCharacter {
         );
     }
 
-    public Character get() {
+    public CharacterDefinition get() {
         return character;
     }
 
     @Override
-    public Vector2 getPos() {
+    public float[] getPos() {
         return pos;
     }
 
@@ -44,7 +44,7 @@ public class ServerCharacter implements SidedCharacter {
     }
 
     @Override
-    public Vector2 getVelocity() {
+    public float[] getVelocity() {
         return velocity;
     }
 
@@ -70,8 +70,15 @@ public class ServerCharacter implements SidedCharacter {
         if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_UP) != 0) dy += 1f;
         if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_DOWN) != 0) dy -= 1f;
 
-        velocity.set(dx, dy);
+        velocity[0] = dx;
+        velocity[1] = dy;
 
-        if (!velocity.isZero()) velocity.nor();
+        if (velocity[0] != 0f || velocity[1] != 0f) {
+            float len = Vector2.len(velocity[0], velocity[1]);
+            if (len != 0) {
+                velocity[0] /= len;
+                velocity[1] /= len;
+            }
+        }
     }
 }

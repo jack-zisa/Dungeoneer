@@ -4,7 +4,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.*;
-import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
@@ -23,16 +23,16 @@ public final class PacketUtils {
     }
 
     @Nullable
-    public static Character readCharacter(Input input) {
+    public static CharacterDefinition readCharacter(Input input) {
         long id = input.readLong();
         if (id == -1L) return null;
         long accountId = input.readLong();
         CharacterClass characterClass = readCharacterClass(input);
         if (characterClass == null) return null;
-        return new Character(id, accountId, characterClass);
+        return new CharacterDefinition(id, accountId, characterClass);
     }
 
-    public static void writeCharacter(Output output, @Nullable Character character) {
+    public static void writeCharacter(Output output, @Nullable CharacterDefinition character) {
         if (character == null) {
             output.writeLong(-1L);
             return;

@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.Objects;
 public class VaultThroneTab extends Tab {
     private int classIndex;
     private int characterSlots;
-    private java.util.List<Character> characters;
+    private java.util.List<CharacterDefinition> characters;
     private CheckBox favoriteButton;
     private Label classLabel;
     private Table statsTable;
@@ -169,7 +169,7 @@ public class VaultThroneTab extends Tab {
     }
 
     private void updateStatsTable() {
-        Character selected = characters.get(classIndex);
+        CharacterDefinition selected = characters.get(classIndex);
         statsTable.clearChildren();
 
         if (selected != null) {
@@ -180,7 +180,7 @@ public class VaultThroneTab extends Tab {
     }
 
     private void updateSelectedCharacter() {
-        Character selected = characters.get(classIndex);
+        CharacterDefinition selected = characters.get(classIndex);
         if (selected != null) {
             createCharacterButton.setText("Delete Character");
             classLabel.setText(classIndex + ": " + selected.characterClass().id());
@@ -219,14 +219,14 @@ public class VaultThroneTab extends Tab {
         int[] indices = {leftLeft, left, center, right, rightRight};
         int favoriteCharacterIndex = getClient().getSettings().favoriteCharacter().value();
 
-        Character selected = getCharacterForSlot(center);
+        CharacterDefinition selected = getCharacterForSlot(center);
         favoriteButton.setDisabled(characters.stream().filter(Objects::nonNull).count() < 2 || selected == null);
         favoriteButton.setChecked(favoriteCharacterIndex != -1 && classIndex == favoriteCharacterIndex);
         createCharacterButton.setText(characters.get(classIndex) == null ? "Create Character" : "Delete Character");
         classLabel.setText(selected == null ? "Empty" : selected.characterClass().id());
 
         for (int i = 0; i < classIcons.length; i++) {
-            Character character = getCharacterForSlot(indices[i]);
+            CharacterDefinition character = getCharacterForSlot(indices[i]);
             classIcons[i].removeActorAt(1, true);
             Texture texture = character == null ? Assets.CLASS_SILHOUETTE_TEXTURE : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id());
             Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(texture)));
@@ -240,7 +240,7 @@ public class VaultThroneTab extends Tab {
         classIcons[4].setVisible(characters.size() > 3);
     }
 
-    private Character getCharacterForSlot(int slot) {
+    private CharacterDefinition getCharacterForSlot(int slot) {
         return slot < characters.size() ? characters.get(slot) : null;
     }
 }

@@ -11,10 +11,10 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
-import dev.creoii.dungeoneer.definitions.Character;
-import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
+import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -22,28 +22,28 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class ClientCharacter implements SidedCharacter {
+public class ClientCharacter implements Character {
     private final Dungeoneer client;
-    @Nullable private Character character;
+    @Nullable private CharacterDefinition character;
     private Sprite sprite;
-    private final Vector2 pos;
-    private final Vector2 renderPos;
-    private final Vector2 velocity;
+    private final float[] pos;
+    private final float[] renderPos;
+    private final float[] velocity;
     private final StatContainer stats;
-    private final Vector2 correction;
+    private final float[] correction;
     private long lastAttackTime;
     private boolean attackPending;
 
-    public ClientCharacter(Dungeoneer client, @Nullable Character character) {
+    public ClientCharacter(Dungeoneer client, @Nullable CharacterDefinition character) {
         this.client = client;
         this.character = character;
 
         if (character == null) sprite = null;
         else sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
 
-        pos = new Vector2();
-        renderPos = new Vector2();
-        velocity = new Vector2();
+        pos = new float[]{0f, 0f};
+        renderPos = new float[]{0f, 0f};
+        velocity = new float[]{0f, 0f};
         if (character == null) {
             stats = StatContainer.ZERO.copy();
         } else {
@@ -53,18 +53,18 @@ public class ClientCharacter implements SidedCharacter {
                 character.characterClass().baseStats().attackSpeed().value()
             );
         }
-        correction = new Vector2();
+        correction = new float[]{0f, 0f};
     }
 
     public Dungeoneer getClient() {
         return client;
     }
 
-    public @Nullable Character get() {
+    public @Nullable CharacterDefinition get() {
         return character;
     }
 
-    public void set(@Nullable Character character) {
+    public void set(@Nullable CharacterDefinition character) {
         this.character = character;
         if (character == null) {
             sprite = null;
@@ -81,8 +81,8 @@ public class ClientCharacter implements SidedCharacter {
 
     @Nullable
     public TiledMapTile getTileOn(TiledMapTileLayer layer) {
-        int tileX = (int) (getRenderPos().x + sprite.getWidth() * .625f); // .5f * .125f
-        int tileY = (int) ((getRenderPos().y) * .125f);
+        int tileX = (int) (getRenderX() + sprite.getWidth() * .625f); // .5f * .125f
+        int tileY = (int) (getRenderY() * .125f);
 
         TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
         return cell != null ? cell.getTile() : null;
@@ -90,12 +90,12 @@ public class ClientCharacter implements SidedCharacter {
 
     @Override
     public float getCenterX() {
-        return getRenderPos().x + sprite.getWidth() * .5f;
+        return getRenderX() + sprite.getWidth() * .5f;
     }
 
     @Override
     public float getCenterY() {
-        return getRenderPos().y + sprite.getHeight() * .5f;
+        return getRenderY() + sprite.getHeight() * .5f;
     }
 
     public void update(float dt) {
@@ -162,16 +162,29 @@ public class ClientCharacter implements SidedCharacter {
     }
 
     @Override
-    public Vector2 getPos() {
+    public float[] getPos() {
         return pos;
     }
 
-    public Vector2 getRenderPos() {
+    public float[] getRenderPos() {
         return renderPos;
     }
 
+    public float getRenderX() {
+        return renderPos[0];
+    }
+
+    public float getRenderY() {
+        return renderPos[1];
+    }
+
+    public void setRenderPos(float x, float y) {
+        renderPos[0] = x;
+        renderPos[1] = y;
+    }
+
     @Override
-    public Vector2 getVelocity() {
+    public float[] getVelocity() {
         return velocity;
     }
 
@@ -180,8 +193,13 @@ public class ClientCharacter implements SidedCharacter {
         return stats;
     }
 
-    public Vector2 getCorrection() {
+    public float[] getCorrection() {
         return correction;
+    }
+
+    public void setCorrection(float x, float y) {
+        correction[0] = x;
+        correction[1] = y;
     }
 
     public void setLastAttackTime(long lastAttackTime) {

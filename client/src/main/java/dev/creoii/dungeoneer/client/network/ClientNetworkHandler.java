@@ -16,7 +16,7 @@ import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.client.screen.main.PlayTab;
 import dev.creoii.dungeoneer.client.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.*;
-import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.NetworkQueue;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
@@ -99,7 +99,7 @@ public class ClientNetworkHandler implements Listener {
                 }
                 Dungeoneer.LOGGER.info("Login result: %s", result.name());
             }
-            case SendCharactersS2C(List<dev.creoii.dungeoneer.definitions.Character> characters) -> {
+            case SendCharactersS2C(List<CharacterDefinition> characters) -> {
                 if (characters.isEmpty())
                     return;
 
@@ -130,7 +130,7 @@ public class ClientNetworkHandler implements Listener {
                     }
                 });
             }
-            case CreateCharacterResultS2C(PacketResult result, int index, @Nullable Character character) -> {
+            case CreateCharacterResultS2C(PacketResult result, int index, @Nullable CharacterDefinition character) -> {
                 if (result == PacketResult.SUCCESS) {
                     client.getState().getCharacters().set(index, character);
                     client.getState().setActiveCharacter(character);
@@ -213,8 +213,8 @@ public class ClientNetworkHandler implements Listener {
             case CharacterMoveS2C(long characterId, float x, float y) -> {
                 if (!client.getState().getActiveCharacter().isNull() && characterId == client.getState().getActiveCharacter().get().id()) {
                     ClientCharacter character = client.getState().getActiveCharacter();
-                    character.getPos().set(x, y);
-                    character.getCorrection().set(character.getPos()).sub(character.getRenderPos());
+                    character.setPos(x, y);
+                    character.setCorrection(character.getX() - character.getRenderX(), character.getY() - character.getRenderY());
                 }
             }
             case ChatMessageS2C(Message message) -> {

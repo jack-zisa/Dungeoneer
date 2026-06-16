@@ -22,6 +22,7 @@ public class ServerRaid implements Tickable {
 
     @Override
     public void tick(float dt) {
-        character.getPos().mulAdd(character.getVelocity(), StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * dt);
+        float speed = StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * dt;
+        character.setPos(character.getX() + character.getVelocity()[0] * speed, character.getY() + character.getVelocity()[1] * speed);
     }
 }

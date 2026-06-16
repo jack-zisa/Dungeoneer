@@ -121,7 +121,7 @@ public class DungeoneerServer {
                         return;
                     int connectionId = getSessionManager().getAccountConnections().getOrDefault(serverRaid.getCharacter().get().accountId(), -1);
                     if (connectionId != -1L) {
-                        get().sendToUDP(connectionId, new CharacterMoveS2C(serverRaid.getCharacter().get().id(), serverRaid.getCharacter().getPos().x, serverRaid.getCharacter().getPos().y));
+                        get().sendToUDP(connectionId, new CharacterMoveS2C(serverRaid.getCharacter().get().id(), serverRaid.getCharacter().getX(), serverRaid.getCharacter().getY()));
                     }
                 });
 

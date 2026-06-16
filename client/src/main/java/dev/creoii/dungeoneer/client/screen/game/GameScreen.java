@@ -82,8 +82,8 @@ public class GameScreen extends AbstractScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().get().sendUDP(new EndRaidC2S(client.getState().getCurrentRaid().get().id()));
                 getClient().setScreen(new MainScreen(client));
-                getClient().getState().getActiveCharacter().getPos().setZero();
-                getClient().getState().getActiveCharacter().getRenderPos().setZero();
+                getClient().getState().getActiveCharacter().setPos(0f, 0f);
+                getClient().getState().getActiveCharacter().setRenderPos(0f, 0f);
                 getClient().getState().setStatus(ClientState.Status.LOBBY);
                 getClient().getState().getCurrentRaid().end();
             }
@@ -118,24 +118,28 @@ public class GameScreen extends AbstractScreen {
         if (raid.isNull())
             return;
 
-        character.getRenderPos().mulAdd(character.getVelocity(), StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta);
+        float speed = StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta;
+        character.setRenderPos(character.getRenderX() + character.getVelocity()[0] * speed, character.getRenderY() + character.getVelocity()[1] * speed);
 
-        Vector2 correction = character.getCorrection();
-        float error = correction.len();
+        float[] correction = character.getCorrection();
+        float error = Vector2.len(correction[0], correction[1]);
         if (error > 30f) {
             if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
-            character.getRenderPos().set(character.getPos());
-            correction.setZero();
+            character.setRenderPos(character.getX(), character.getY());
+            character.setCorrection(0f, 0f);
         } else if (error > 5f) {
             if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
-            float amount = Math.min(correction.len(), 15f * delta);
-            correction.nor();
-            character.getRenderPos().mulAdd(correction, amount);
-            correction.scl(Math.max(0f, 1f - amount / error));
+            float amount = Math.min(error, 15f * delta);
+            correction[0] /= error;
+            correction[1] /= error;
+            character.setRenderPos(character.getRenderX() + correction[0] * amount, character.getRenderY() + correction[1] * amount);
+            float scalar = Math.max(0f, 1f - amount / error);
+            correction[0] *= scalar;
+            correction[1] *= scalar;
         }
 
-        camera.position.x = character.getRenderPos().x + character.getSprite().getWidth() * .5f;
-        camera.position.y = character.getRenderPos().y + character.getSprite().getHeight() * .5f;
+        camera.position.x = character.getRenderX() + character.getSprite().getWidth() * .5f;
+        camera.position.y = character.getRenderY() + character.getSprite().getHeight() * .5f;
         camera.update();
 
         mapRenderer.setView(camera);
@@ -154,7 +158,7 @@ public class GameScreen extends AbstractScreen {
         Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
 
         Sprite sprite = character.getSprite();
-        sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
+        sprite.setPosition(character.getRenderX(), character.getRenderY());
         sprite.draw(batch);
 
         for (ClientBullet bullet : raid.getBullets()) {
@@ -198,8 +202,8 @@ public class GameScreen extends AbstractScreen {
             shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-            float x = character.getRenderPos().x + 4f;
-            float y = character.getRenderPos().y + 4f;
+            float x = character.getRenderX() + 4f;
+            float y = character.getRenderY() + 4f;
 
             shapeRenderer.setColor(character.isAttackPending() ? Color.GREEN : Color.WHITE);
             Vector2 mouseDir = client.getInputListener().getDirectionToMouse(x, y);

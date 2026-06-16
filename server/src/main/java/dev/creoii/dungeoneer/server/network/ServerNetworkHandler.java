@@ -22,7 +22,7 @@ import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
-import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
@@ -164,7 +164,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account == null) return;
 
-            List<Character> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
+            List<CharacterDefinition> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
             server.get().sendToUDP(connection.getID(), new SendCharactersS2C(characters));
         } else if (object instanceof RequestFactionC2S(long accountId)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
@@ -178,7 +178,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof CreateCharacterC2S(long accountId, int index, CharacterClass characterClass)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
-                Character character = server.getDatabase().getCharacters().create(account, characterClass);
+                CharacterDefinition character = server.getDatabase().getCharacters().create(account, characterClass);
                 if (character != null) {
                     account.characters().set(index, character.id());
                     server.getDatabase().getAccounts().updateCharacters(account);
@@ -245,7 +245,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     }
                 }
             }
-        } else if (object instanceof StartRaidC2S(long raidId, Character character)) {
+        } else if (object instanceof StartRaidC2S(long raidId, CharacterDefinition character)) {
             server.getState().getRaids().put(raidId, new ServerRaid(null, new ServerCharacter(character)));
         } else if (object instanceof EndRaidC2S(long raidId)) {
             Raid raid = server.getDatabase().getRaids().getById(raidId);
@@ -258,7 +258,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (account != null) {
                 account.characters().set(index, -1L);
                 server.getDatabase().getAccounts().updateCharacters(account);
-                List<Character> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
+                List<CharacterDefinition> characters = account.characters().stream().map(integer -> integer == -1L ? null : server.getDatabase().getCharacters().getById(integer)).toList();
                 server.get().sendToUDP(connection.getID(), new SendCharactersS2C(characters));
             }
         } else if (object instanceof SearchFactionC2S(String search)) {
@@ -274,7 +274,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 server.getDatabase().getAccounts().updateActiveCharacter(accountId, activeCharacterId);
             }
         } else if (object instanceof CharacterMoveC2S(long raidId, long characterId, int movementFlags)) {
-            Character character = server.getDatabase().getCharacters().getById(characterId);
+            CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
             if (character != null && server.getState().getRaids().containsKey(raidId)) {
                 ServerRaid raid = server.getState().getRaids().get(raidId);
                 if (raid.getCharacter().get().id() != characterId)

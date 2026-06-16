@@ -3,7 +3,7 @@ package dev.creoii.dungeoneer.client;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.definitions.*;
-import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.character.SelectActiveCharacterC2S;
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +15,7 @@ public class ClientState {
     private Status status;
     private Account account;
     private DungeonMap dungeonMap;
-    private final List<Character> characters;
+    private final List<CharacterDefinition> characters;
     private final ClientCharacter activeCharacter;
     private final ClientRaid currentRaid;
     private @Nullable Faction faction;
@@ -53,16 +53,16 @@ public class ClientState {
         return dungeonMap;
     }
 
-    public List<Character> getCharacters() {
+    public List<CharacterDefinition> getCharacters() {
         return characters;
     }
 
-    public void setCharacters(List<Character> characters) {
+    public void setCharacters(List<CharacterDefinition> characters) {
         this.characters.clear();
         this.characters.addAll(characters);
     }
 
-    public void addCharacter(Character character) {
+    public void addCharacter(CharacterDefinition character) {
         characters.add(character);
     }
 
@@ -70,7 +70,7 @@ public class ClientState {
         return activeCharacter;
     }
 
-    public void setActiveCharacter(@Nullable Character activeCharacter) {
+    public void setActiveCharacter(@Nullable CharacterDefinition activeCharacter) {
         this.activeCharacter.set(activeCharacter);
         client.get().sendUDP(new SelectActiveCharacterC2S(account.id(), activeCharacter == null ? -1L : activeCharacter.id()));
     }

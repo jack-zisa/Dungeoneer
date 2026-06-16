@@ -2,7 +2,7 @@ package dev.creoii.dungeoneer.server.database.repository;
 
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.Account;
-import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
@@ -26,7 +26,7 @@ public class CharacterRepository {
     }
 
     @Nullable
-    public Character getById(long id) {
+    public CharacterDefinition getById(long id) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                 SELECT *
@@ -34,7 +34,7 @@ public class CharacterRepository {
                 WHERE id = :id
             """)
                 .bind("id", id)
-                .map((rs, _) -> new Character(
+                .map((rs, _) -> new CharacterDefinition(
                     rs.getInt("id"),
                     rs.getInt("account_id"),
                     DataManager.getCharacterClass(rs.getString("class"))
@@ -44,7 +44,7 @@ public class CharacterRepository {
         );
     }
 
-    public Character create(Account account, CharacterClass characterClass) {
+    public CharacterDefinition create(Account account, CharacterClass characterClass) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
                 INSERT INTO characters(account_id, class)
@@ -57,6 +57,6 @@ public class CharacterRepository {
             .one()
         );
 
-        return new Character(id, account.id(), DataManager.getCharacterClass(characterClass.id()));
+        return new CharacterDefinition(id, account.id(), DataManager.getCharacterClass(characterClass.id()));
     }
 }
