@@ -24,7 +24,7 @@ public class ClientState {
         this.client = client;
         characters = new ArrayList<>();
         activeCharacter = new ClientCharacter(client, null);
-        currentRaid = new ClientRaid(null);
+        currentRaid = new ClientRaid(client, null);
         setStatus(ClientState.Status.STARTING);
     }
 

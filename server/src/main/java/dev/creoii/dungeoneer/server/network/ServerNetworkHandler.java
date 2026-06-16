@@ -246,7 +246,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 }
             }
         } else if (object instanceof StartRaidC2S(long raidId, CharacterDefinition character)) {
-            server.getState().getRaids().put(raidId, new ServerRaid(null, new ServerCharacter(character)));
+            server.getState().getRaids().put(raidId, new ServerRaid(server, null, new ServerCharacter(character)));
         } else if (object instanceof EndRaidC2S(long raidId)) {
             Raid raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {

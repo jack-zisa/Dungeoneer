@@ -36,6 +36,7 @@ public class GameScreen extends AbstractScreen {
     private OrthogonalTiledMapRenderer mapRenderer;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
+    private Label timeRemainingLabel;
     private HealthBar healthBar;
 
     public GameScreen(Dungeoneer client) {
@@ -48,6 +49,10 @@ public class GameScreen extends AbstractScreen {
 
     public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    public Label getTimeRemainingLabel() {
+        return timeRemainingLabel;
     }
 
     @Override
@@ -76,6 +81,7 @@ public class GameScreen extends AbstractScreen {
         root.top().left();
 
         root.add(new Label(String.format("Raiding %s!", client.getState().getCurrentRaid().get().target().username()), SKIN)).left().row();
+        root.add(timeRemainingLabel = new Label(String.format("Time Remaining: %s!", client.getState().getCurrentRaid().getRemainingTimeString()), SKIN)).left().row();
 
         TextButton surrenderButton = new TextButton("Surrender", SKIN);
         surrenderButton.addListener(new ChangeListener() {

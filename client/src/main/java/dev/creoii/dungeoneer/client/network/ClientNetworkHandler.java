@@ -7,6 +7,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.editor.Tiles;
@@ -37,6 +38,7 @@ import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -276,6 +278,15 @@ public class ClientNetworkHandler implements Listener {
                 if (!character.isNull()) {
                     character.setAttackPending(false);
                     if (result == PacketResult.SUCCESS) character.setLastAttackTime(System.currentTimeMillis());
+                }
+            }
+            case SyncRaidTimerS2C(long timeRemaining) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid != null && timeRemaining != raid.getRemainingTimeMs()) {
+                    if (client.getSettings().debug().value()) {
+                        Dungeoneer.LOGGER.debug("Synced remaining raid time from %s to %s.", raid.getRemainingTimeMs(), timeRemaining);
+                    }
+                    raid.syncTimer(timeRemaining);
                 }
             }
             default -> {

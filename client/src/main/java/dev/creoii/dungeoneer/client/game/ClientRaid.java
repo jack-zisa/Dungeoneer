@@ -1,15 +1,25 @@
 package dev.creoii.dungeoneer.client.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.client.ClientState;
+import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.screen.game.GameScreen;
+import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
 import dev.creoii.dungeoneer.definitions.Raid;
+import dev.creoii.dungeoneer.util.Constants;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
+
 public class ClientRaid {
+    private final Dungeoneer client;
     private Raid raid;
     private final ClientDungeonMap dungeon;
+    private long endTime;
 
     private final Pool<ClientBullet> bulletPool = new Pool<>() {
         @Override
@@ -27,7 +37,8 @@ public class ClientRaid {
     };
     private final Array<ClientLaser> lasers = new Array<>();
 
-    public ClientRaid(Raid raid) {
+    public ClientRaid(Dungeoneer client, Raid raid) {
+        this.client = client;
         this.raid = raid;
         dungeon = new ClientDungeonMap();
     }
@@ -38,6 +49,10 @@ public class ClientRaid {
 
     public void set(@Nullable Raid raid) {
         this.raid = raid;
+
+        if (raid != null) {
+            endTime = System.currentTimeMillis() + Constants.RAID_DURATION_MS;
+        } else endTime = -1L;
     }
 
     public Array<ClientBullet> getBullets() {
@@ -56,7 +71,38 @@ public class ClientRaid {
         return raid == null;
     }
 
+    public long getRemainingTimeMs() {
+        return Math.max(0, endTime - System.currentTimeMillis());
+    }
+
+    public String getRemainingTimeString() {
+        Duration duration = Duration.ofMillis(getRemainingTimeMs());
+        long hours = duration.toHours();
+        long minutes = duration.toMinutesPart();
+        long seconds = duration.toSecondsPart();
+        if (hours <= 0L && minutes < 0L) {
+            return String.valueOf(seconds);
+        } else if (hours <= 0L) {
+            return String.format("%02d:%02d", minutes, seconds);
+        } else return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+    }
+
+    public void syncTimer(long timeRemaining) {
+        endTime = System.currentTimeMillis() + timeRemaining;
+    }
+
     public void update(float dt) {
+        if (client.getScreen() instanceof GameScreen gameScreen) {
+            long remaining = getRemainingTimeMs();
+            if (remaining <= 0L) {
+                Gdx.app.postRunnable(() -> {
+                    client.getState().setStatus(ClientState.Status.LOBBY);
+                    client.getState().getCurrentRaid().end();
+                    client.setScreen(new MainScreen(client));
+                });
+            } else gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
+        }
+
         for (int i = bullets.size - 1; i >= 0; --i) {
             ClientBullet bullet = bullets.get(i);
 

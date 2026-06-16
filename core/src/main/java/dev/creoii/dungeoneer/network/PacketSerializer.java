@@ -26,6 +26,7 @@ import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,6 +98,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(SyncDataS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoadDataS2C.class, PacketSerializer.INSTANCE);
         kryo.register(AttackResultS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(SyncRaidTimerS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
@@ -135,5 +137,6 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(SyncDataS2C.class, SyncDataS2C::write, SyncDataS2C::read);
         PacketSerializer.INSTANCE.register(LoadDataS2C.class, LoadDataS2C::write, LoadDataS2C::read);
         PacketSerializer.INSTANCE.register(AttackResultS2C.class, AttackResultS2C::write, AttackResultS2C::read);
+        PacketSerializer.INSTANCE.register(SyncRaidTimerS2C.class, SyncRaidTimerS2C::write, SyncRaidTimerS2C::read);
     }
 }

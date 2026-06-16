@@ -10,4 +10,6 @@ public final class Constants {
     public static final String MAP_LAYER_OBJECT = "object";
     public static final String MAP_LAYER_WALL = "wall";
     public static final String MAP_LAYER_OVERLAY = "overlay";
+
+    public static final long RAID_DURATION_MS = 5L * 60L * 1000L;
 }
