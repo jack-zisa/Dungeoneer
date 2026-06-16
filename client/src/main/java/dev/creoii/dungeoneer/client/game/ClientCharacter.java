@@ -16,6 +16,7 @@ import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
+import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
@@ -32,7 +33,6 @@ public class ClientCharacter implements Character {
     private final StatContainer stats;
     private final float[] correction;
     private long lastAttackTime;
-    private boolean attacking;
     private boolean attackPending;
     private AnimationState animationState;
 
@@ -43,9 +43,9 @@ public class ClientCharacter implements Character {
         if (character == null) sprite = null;
         else sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
 
-        pos = new float[]{0f, 0f};
-        renderPos = new float[]{0f, 0f};
-        velocity = new float[]{0f, 0f};
+        pos = VectorUtils.zero();
+        renderPos = VectorUtils.zero();
+        velocity = VectorUtils.zero();
         if (character == null) {
             stats = StatContainer.ZERO.copy();
         } else {
@@ -55,7 +55,7 @@ public class ClientCharacter implements Character {
                 character.characterClass().baseStats().attackSpeed().value()
             );
         }
-        correction = new float[]{0f, 0f};
+        correction = VectorUtils.zero();
         animationState = AnimationState.IDLE_DOWN;
     }
 
@@ -99,11 +99,6 @@ public class ClientCharacter implements Character {
     @Override
     public float getCenterY() {
         return getRenderY() + sprite.getHeight() * .5f;
-    }
-
-    @Override
-    public boolean isAttacking() {
-        return attacking;
     }
 
     public void update(float dt) {

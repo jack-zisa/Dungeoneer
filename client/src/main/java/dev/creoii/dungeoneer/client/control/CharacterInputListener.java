@@ -1,6 +1,5 @@
 package dev.creoii.dungeoneer.client.control;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -9,6 +8,7 @@ import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.VectorUtils;
 
 public class CharacterInputListener extends InputListener implements MousePosListener {
     private final Dungeoneer client;
@@ -91,21 +91,17 @@ public class CharacterInputListener extends InputListener implements MousePosLis
 
         character.setVelocity(dx, dy);
         float[] velocity = character.getVelocity();
-        if (velocity[0] != 0f || velocity[1] != 0f) {
-            float len = Vector2.len(velocity[0], velocity[1]);
-            if (len != 0) {
-                velocity[0] /= len;
-                velocity[1] /= len;
-            }
+        if (!VectorUtils.isZero(velocity)) {
+            VectorUtils.nor(velocity);
         }
 
         AnimationState to;
-        if (velocity[1] == 0f && velocity[0] == 0f) {
+        if (VectorUtils.isZero(velocity)) {
             to = AnimationState.toIdle(character.getAnimationState());
         } else if (Math.abs(velocity[1]) >= Math.abs(velocity[0])) {
             to = velocity[1] > 0 ? AnimationState.MOVING_UP : AnimationState.MOVING_DOWN;
         } else to = velocity[0] > 0 ? AnimationState.MOVING_RIGHT : AnimationState.MOVING_LEFT;
-        character.setAnimationState(character.isAttacking() ? AnimationState.toAttacking(to) : AnimationState.toMoving(to));
+        character.setAnimationState(AnimationState.toMoving(to));
 
         client.get().sendUDP(new CharacterMoveC2S(client.getState().getCurrentRaid().get().id(), character.get().id(), movementFlags));
     }

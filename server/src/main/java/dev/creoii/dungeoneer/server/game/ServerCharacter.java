@@ -1,9 +1,9 @@
 package dev.creoii.dungeoneer.server.game;
 
-import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
 public class ServerCharacter implements Character {
@@ -12,12 +12,11 @@ public class ServerCharacter implements Character {
     private final float[] velocity;
     private final StatContainer stats;
     private long lastAttackTime;
-    private boolean attacking;
 
     public ServerCharacter(CharacterDefinition character) {
         this.character = character;
-        pos = new float[]{0f, 0f};
-        velocity = new float[]{0f, 0f};
+        pos = VectorUtils.zero();
+        velocity = VectorUtils.zero();
         stats = new StatContainer(
             character.characterClass().baseStats().health().value(),
             character.characterClass().baseStats().speed().value(),
@@ -62,15 +61,6 @@ public class ServerCharacter implements Character {
         this.lastAttackTime = lastAttackTime;
     }
 
-    @Override
-    public boolean isAttacking() {
-        return attacking;
-    }
-
-    public void setAttacking(boolean attacking) {
-        this.attacking = attacking;
-    }
-
     public void updateMovement(int movementFlags) {
         float dx = 0;
         float dy = 0;
@@ -83,12 +73,8 @@ public class ServerCharacter implements Character {
         velocity[0] = dx;
         velocity[1] = dy;
 
-        if (velocity[0] != 0f || velocity[1] != 0f) {
-            float len = Vector2.len(velocity[0], velocity[1]);
-            if (len != 0) {
-                velocity[0] /= len;
-                velocity[1] /= len;
-            }
+        if (!VectorUtils.isZero(velocity)) {
+            VectorUtils.nor(velocity);
         }
     }
 }

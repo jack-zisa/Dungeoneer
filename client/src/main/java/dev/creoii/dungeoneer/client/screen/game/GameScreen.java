@@ -25,6 +25,7 @@ import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 import javax.annotation.Nullable;
@@ -119,23 +120,20 @@ public class GameScreen extends AbstractScreen {
             return;
 
         float speed = StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta;
-        character.setRenderPos(character.getRenderX() + character.getVelocity()[0] * speed, character.getRenderY() + character.getVelocity()[1] * speed);
+        VectorUtils.mulAdd(character.getRenderPos(), character.getVelocity(), speed);
 
         float[] correction = character.getCorrection();
-        float error = Vector2.len(correction[0], correction[1]);
+        float error = VectorUtils.len(correction);
         if (error > 30f) {
             if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             character.setRenderPos(character.getX(), character.getY());
-            character.setCorrection(0f, 0f);
+            VectorUtils.setZero(correction);
         } else if (error > 5f) {
             if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             float amount = Math.min(error, 15f * delta);
-            correction[0] /= error;
-            correction[1] /= error;
-            character.setRenderPos(character.getRenderX() + correction[0] * amount, character.getRenderY() + correction[1] * amount);
-            float scalar = Math.max(0f, 1f - amount / error);
-            correction[0] *= scalar;
-            correction[1] *= scalar;
+            VectorUtils.nor(correction);
+            VectorUtils.mulAdd(character.getRenderPos(), correction, amount);
+            VectorUtils.scl(correction, Math.max(0f, 1f - amount / error));
         }
 
         camera.position.x = character.getRenderX() + character.getSprite().getWidth() * .5f;
