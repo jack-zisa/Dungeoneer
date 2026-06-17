@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.SidedBullet;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public interface BulletPath extends Identifiable {
+public sealed interface BulletPath extends Identifiable permits OrbitBulletPath, ParametricBulletPath, SegmentedBulletPath, StraightBulletPath, WavyBulletPath {
     BulletPathType type();
 
     default void start(SidedBullet bullet, float dt, BulletPath previous) {

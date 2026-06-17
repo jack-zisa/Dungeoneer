@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.function.Function;
 
-public interface Attack extends Identifiable {
+public sealed interface Attack extends Identifiable permits BulletAttack, CompositeAttack, LaserAttack, ReferenceAttack {
     AttackType type();
 
     Codec<Attack> CODEC = AttackType.CODEC.dispatch(Attack::type, type -> switch (type) {
