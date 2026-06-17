@@ -148,7 +148,7 @@ public class VaultThroneTab extends Tab {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (characters.get(classIndex) == null) new CreateCharacterDialog(getClient(), classIndex, getSkin()).show(getStage());
-                else getClient().get().sendUDP(new DeleteCharacterC2S(getClient().getState().getAccount().id(), classIndex));
+                else getClient().get().sendTCP(new DeleteCharacterC2S(getClient().getState().getAccount().id(), classIndex));
             }
         });
         add(createCharacterButton);

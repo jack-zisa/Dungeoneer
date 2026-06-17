@@ -87,7 +87,7 @@ public class GameScreen extends AbstractScreen {
         surrenderButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                getClient().get().sendUDP(new EndRaidC2S(client.getState().getCurrentRaid().get().id()));
+                getClient().get().sendTCP(new EndRaidC2S(client.getState().getCurrentRaid().get().id()));
                 getClient().setScreen(new MainScreen(client));
                 getClient().getState().getActiveCharacter().setPos(0f, 0f);
                 getClient().getState().getActiveCharacter().setRenderPos(0f, 0f);

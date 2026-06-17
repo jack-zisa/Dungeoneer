@@ -34,7 +34,7 @@ public class CreateCharacterDialog extends Dialog {
     protected void result(Object object) {
         if (Boolean.TRUE.equals(object)) {
             CharacterClass selected = classBox.getSelected();
-            client.get().sendUDP(new CreateCharacterC2S(client.getState().getAccount().id(), classIndex, selected));
+            client.get().sendTCP(new CreateCharacterC2S(client.getState().getAccount().id(), classIndex, selected));
         }
     }
 }

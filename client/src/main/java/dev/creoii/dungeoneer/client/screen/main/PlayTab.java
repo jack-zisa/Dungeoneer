@@ -71,7 +71,7 @@ public class PlayTab extends Tab {
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().setScreen(new RaidLoadingScreen(getClient()));
                 getClient().getState().setStatus(ClientState.Status.RAID_SEARCHING);
-                getClient().get().sendUDP(new RequestRaidTargetC2S(getClient().getState().getAccount()));
+                getClient().get().sendTCP(new RequestRaidTargetC2S(getClient().getState().getAccount()));
             }
         });
         mainSection.add(raidButton).size(120f, 80f).row();

@@ -73,7 +73,7 @@ public class ClientNetworkHandler implements Listener {
 
     @Override
     public void connected(Connection connection) {
-        client.get().sendUDP(new RequestLoginC2S());
+        client.get().sendTCP(new RequestLoginC2S());
     }
 
     @Override
@@ -93,9 +93,9 @@ public class ClientNetworkHandler implements Listener {
                 if (result == PacketResult.SUCCESS) {
                     client.getState().setAccount(account);
                     client.getState().fillCharacters(account.characterSlots());
-                    client.get().sendUDP(new RequestCharactersC2S(account.id()));
-                    client.get().sendUDP(new RequestDungeonMapC2S(account.id()));
-                    client.get().sendUDP(new RequestFactionC2S(account.id()));
+                    client.get().sendTCP(new RequestCharactersC2S(account.id()));
+                    client.get().sendTCP(new RequestDungeonMapC2S(account.id()));
+                    client.get().sendTCP(new RequestFactionC2S(account.id()));
                     Gdx.app.postRunnable(() -> client.setScreen(new MainScreen(client)));
                     client.getState().setStatus(ClientState.Status.LOBBY);
                 }
@@ -198,7 +198,7 @@ public class ClientNetworkHandler implements Listener {
                     client.getState().setStatus(ClientState.Status.RAIDING);
                     client.setScreen(new GameScreen(client));
                 });
-                client.get().sendUDP(new StartRaidC2S(raid.id(), client.getState().getActiveCharacter().get()));
+                client.get().sendTCP(new StartRaidC2S(raid.id(), client.getState().getActiveCharacter().get()));
             }
             case SearchFactionResultS2C(PacketResult result, List<Faction> factions) -> {
                 if (result == PacketResult.SUCCESS) {

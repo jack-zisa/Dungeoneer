@@ -30,7 +30,7 @@ public class CreateFactionDialog extends Dialog {
     @Override
     protected void result(Object object) {
         if (Boolean.TRUE.equals(object)) {
-            client.get().sendUDP(new CreateFactionC2S(client.getState().getAccount(), nameField.getText(), descriptionField.getText()));
+            client.get().sendTCP(new CreateFactionC2S(client.getState().getAccount(), nameField.getText(), descriptionField.getText()));
         }
     }
 }

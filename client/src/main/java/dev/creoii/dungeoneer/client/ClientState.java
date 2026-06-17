@@ -72,7 +72,7 @@ public class ClientState {
 
     public void setActiveCharacter(@Nullable CharacterDefinition activeCharacter) {
         this.activeCharacter.set(activeCharacter);
-        client.get().sendUDP(new SelectActiveCharacterC2S(account.id(), activeCharacter == null ? -1L : activeCharacter.id()));
+        client.get().sendTCP(new SelectActiveCharacterC2S(account.id(), activeCharacter == null ? -1L : activeCharacter.id()));
     }
 
     public ClientRaid getCurrentRaid() {

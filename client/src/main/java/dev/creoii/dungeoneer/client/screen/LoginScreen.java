@@ -48,7 +48,7 @@ public class LoginScreen extends AbstractScreen {
                     String password = passwordField.getText();
 
                     statusLabel.setText("Logging in...");
-                    client.get().sendUDP(new LoginC2S(username, password));
+                    client.get().sendTCP(new LoginC2S(username, password));
                 }
             }
         );

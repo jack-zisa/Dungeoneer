@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import java.util.function.Consumer;
 
 public class AreaSelection implements Selection {
-    public Rectangle area;
+    public final Rectangle area;
 
     public AreaSelection() {
         area = new Rectangle();

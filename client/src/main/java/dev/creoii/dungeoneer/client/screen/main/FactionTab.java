@@ -63,7 +63,7 @@ public class FactionTab extends Tab {
         searchButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                getClient().get().sendUDP(new SearchFactionC2S(factionField.getText()));
+                getClient().get().sendTCP(new SearchFactionC2S(factionField.getText()));
                 factionField.setText("");
             }
         });
@@ -138,7 +138,7 @@ public class FactionTab extends Tab {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 if (getClient().getState().getFaction() != null)
-                    getClient().get().sendUDP(new LeaveFactionC2S(getClient().getState().getAccount()));
+                    getClient().get().sendTCP(new LeaveFactionC2S(getClient().getState().getAccount()));
             }
         });
         factionTable.add(leaveButton);
@@ -165,7 +165,7 @@ public class FactionTab extends Tab {
             joinButton.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    getClient().get().sendUDP(new JoinFactionC2S(getClient().getState().getAccount(), faction.id()));
+                    getClient().get().sendTCP(new JoinFactionC2S(getClient().getState().getAccount(), faction.id()));
                 }
             });
             row.add(joinButton).padLeft(10f);
