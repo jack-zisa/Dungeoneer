@@ -2,12 +2,9 @@ package dev.creoii.dungeoneer.client.control;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.editor.action.CompositeAction;
 import dev.creoii.dungeoneer.client.editor.action.SetTileAction;
@@ -18,11 +15,12 @@ import dev.creoii.dungeoneer.client.screen.editor.Tiles;
 import dev.creoii.dungeoneer.client.util.InputUtils;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.UndoRedoList;
+import dev.creoii.dungeoneer.util.VectorUtils;
 
 import java.awt.*;
 import java.util.Random;
 
-public class DungeonEditorInputListener extends InputListener implements MousePosListener {
+public class DungeonEditorInputListener extends InputAdapter implements MousePosListener {
     private static final float[] ZOOM_LEVELS = {.2f, .25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f, 2.45f};
     private final DungeonEditorScreen screen;
     private final UndoRedoList<EditorAction> undoRedoList;
@@ -31,18 +29,19 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     private boolean selecting;
     private float lastX;
     private float lastY;
-    private final Vector3 mousePos;
+    private final float[] mousePos;
+    private int screenX;
 
     public DungeonEditorInputListener(DungeonEditorScreen screen) {
         this.screen = screen;
         undoRedoList = new UndoRedoList<>();
         currentActions = new CompositeAction();
-        mousePos = new Vector3();
+        mousePos = VectorUtils.zero();
         screen.getCamera().update();
     }
 
     @Override
-    public Vector3 getMousePos() {
+    public float[] getMousePos() {
         return mousePos;
     }
 
@@ -55,7 +54,7 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     }
 
     @Override
-    public boolean keyDown(InputEvent event, int keycode) {
+    public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE && selecting && screen.getSidebar().getSelection() != null) {
             selecting = false;
             screen.getSidebar().getSelection().clear();
@@ -82,14 +81,9 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     }
 
     @Override
-    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-        Actor target = event.getTarget();
-        if (target != null && target != screen.getStage().getRoot()) {
-            return false;
-        }
-
-        lastX = x;
-        lastY = y;
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        lastX = screenX;
+        lastY = screenY;
 
         if (button == Input.Buttons.RIGHT) {
             dragging = true;
@@ -116,12 +110,12 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     }
 
     @Override
-    public void touchDragged(InputEvent event, float x, float y, int pointer) {
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
         Point point = screen.getHoveredPos();
 
         if (dragging) {
-            float dx = x - lastX;
-            float dy = y - lastY;
+            float dx = screenX - lastX;
+            float dy = screenY - lastY;
 
             screen.getCamera().position.x -= dx * screen.getCamera().zoom;
             screen.getCamera().position.y -= dy * screen.getCamera().zoom;
@@ -129,8 +123,8 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
             screen.getCamera().update();
         }
 
-        lastX = x;
-        lastY = y;
+        lastX = screenX;
+        lastY = screenY;
 
         if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null && screen.getSidebar().getSelectedTile() != null) {
             TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND);
@@ -140,16 +134,18 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
         if (selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && InputUtils.isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection && point != null) {
             areaSelection.setMax(point.x, point.y);
         }
+        return true;
     }
 
     @Override
-    public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         if (button == Input.Buttons.RIGHT) dragging = false;
 
         if (!selecting && button == Input.Buttons.LEFT && currentActions.size() > 0) {
             undoRedoList.add(currentActions);
             currentActions = new CompositeAction();
         }
+        return false;
     }
 
     public void placeTilesAt(TiledMapTileLayer tileLayer, int x, int y) {
@@ -185,9 +181,9 @@ public class DungeonEditorInputListener extends InputListener implements MousePo
     }
 
     @Override
-    public boolean scrolled(InputEvent event, float x, float y, float amountX, float amountY) {
+    public boolean scrolled(float amountX, float amountY) {
         updateZoom(amountY);
-        return super.scrolled(event, x, y, amountX, amountY);
+        return false;
     }
 
     private int getClosestZoomIndex(float zoom) {

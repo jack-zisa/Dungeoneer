@@ -5,13 +5,20 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import dev.creoii.dungeoneer.client.Dungeoneer;
 
 public abstract class AbstractScreen implements Screen {
     public static final Skin SKIN = new Skin(Gdx.files.internal("uiskin.json"));
+    private final Dungeoneer client;
     private final Stage stage;
 
-    public AbstractScreen() {
+    public AbstractScreen(Dungeoneer client) {
+        this.client = client;
         stage = new Stage(new ScreenViewport());
+    }
+
+    public Dungeoneer getClient() {
+        return client;
     }
 
     public Stage getStage() {
@@ -20,7 +27,6 @@ public abstract class AbstractScreen implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(getStage());
     }
 
     @Override

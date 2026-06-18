@@ -8,11 +8,10 @@ import dev.creoii.dungeoneer.network.PacketSerializer;
 import java.io.IOException;
 
 public class LoadingScreen extends AbstractScreen {
-    private final Dungeoneer client;
     private boolean initialized;
 
     public LoadingScreen(Dungeoneer client) {
-        this.client = client;
+        super(client);
     }
 
     @Override
@@ -33,24 +32,24 @@ public class LoadingScreen extends AbstractScreen {
 
     @Override
     public void render(float delta) {
-        if (!initialized && client.getAssets().getManager().update()) {
+        if (!initialized && getClient().getAssets().getManager().update()) {
             initialized = true;
 
-            client.getAssets().bindAtlases();
+            getClient().getAssets().bindAtlases();
 
-            PacketSerializer.registerDefault(client.get().getKryo());
+            PacketSerializer.registerDefault(getClient().get().getKryo());
 
-            client.get().addListener(client.getNetworkHandler());
-            client.get().start();
+            getClient().get().addListener(getClient().getNetworkHandler());
+            getClient().get().start();
 
             try {
-                client.get().connect(5000, "localhost", 54555, 54777);
+                getClient().get().connect(5000, "localhost", 54555, 54777);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             Dungeoneer.LOGGER.info("Client initialized.");
-            client.getState().setStatus(ClientState.Status.AUTHENTICATING);
+            getClient().getState().setStatus(ClientState.Status.AUTHENTICATING);
         }
 
         super.render(delta);

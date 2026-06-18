@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainScreen extends AbstractScreen {
-    private final Dungeoneer client;
     private final Map<ImageButton, Tab> buttonToTab;
     private Tab selectedTab;
     private Table tabBar;
@@ -21,7 +20,7 @@ public class MainScreen extends AbstractScreen {
     private final Array<ImageButton> tabButtons;
 
     public MainScreen(Dungeoneer client) {
-        this.client = client;
+        super(client);
         tabButtons = new Array<>(5);
         buttonToTab = new HashMap<>(5);
     }
@@ -55,11 +54,11 @@ public class MainScreen extends AbstractScreen {
         root.setFillParent(true);
 
         Stack content = new Stack();
-        final ShopTab shopTab = new ShopTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "market"));
-        final VaultThroneTab vaultThroneTab = new VaultThroneTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "throne"));
-        final PlayTab playTab = new PlayTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "chest"));
-        final FactionTab factionTab = new FactionTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "tower"));
-        final DungeonGamesTab dungeonGamesTab = new DungeonGamesTab(client, client.getAssets().getTexture(Assets.Atlas.UI, "skull"));
+        final ShopTab shopTab = new ShopTab(getClient(), getClient().getAssets().getTexture(Assets.Atlas.UI, "market"));
+        final VaultThroneTab vaultThroneTab = new VaultThroneTab(getClient(), getClient().getAssets().getTexture(Assets.Atlas.UI, "throne"));
+        final PlayTab playTab = new PlayTab(getClient(), getClient().getAssets().getTexture(Assets.Atlas.UI, "chest"));
+        final FactionTab factionTab = new FactionTab(getClient(), getClient().getAssets().getTexture(Assets.Atlas.UI, "tower"));
+        final DungeonGamesTab dungeonGamesTab = new DungeonGamesTab(getClient(), getClient().getAssets().getTexture(Assets.Atlas.UI, "skull"));
         content.addActor(shopTab);
         content.addActor(vaultThroneTab);
         content.addActor(playTab);
@@ -133,7 +132,12 @@ public class MainScreen extends AbstractScreen {
 
         getStage().addActor(root);
 
-        super.show();
+        getClient().getInputMultiplexer().addProcessor(getStage());
+    }
+
+    @Override
+    public void hide() {
+        getClient().getInputMultiplexer().removeProcessor(getStage());
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.util.VectorUtils;
 import org.jspecify.annotations.Nullable;
 
 public class ClientLaser implements Pool.Poolable {
@@ -71,14 +72,16 @@ public class ClientLaser implements Pool.Poolable {
         attached = null;
     }
 
+    private static final float[] TEST = VectorUtils.zero(); // TODO: Hook up
+
     public boolean update(float dt) {
         if (attached == null) {
             return (lifetime -= dt) > 0f;
         } else {
             pos.set(attached.getCenterX(), attached.getCenterY());
 
-            Vector2 mouseDir = attached.getClient().getInputListener().getDirectionToMouse(attached.getCenterX(), attached.getCenterY());
-            direction.set(mouseDir).rotateDeg(angleOffset);
+            float[] mouseDir = TEST; //attached.getClient().getInputListener().getDirectionToMouse(attached.getCenterX(), attached.getCenterY());
+            direction.set(mouseDir[0], mouseDir[1]).rotateDeg(angleOffset);
 
             return Gdx.input.isButtonPressed(Input.Buttons.LEFT);
         }

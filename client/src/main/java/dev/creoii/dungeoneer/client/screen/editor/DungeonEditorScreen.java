@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.DungeonEditorInputListener;
@@ -24,7 +23,6 @@ import dev.creoii.dungeoneer.util.Constants;
 import java.awt.*;
 
 public class DungeonEditorScreen extends AbstractScreen {
-    private final Dungeoneer client;
     private final DungeonMapManager mapManager;
     private DungeonEditorInputListener inputListener;
     private OrthographicCamera camera;
@@ -35,12 +33,8 @@ public class DungeonEditorScreen extends AbstractScreen {
     private Label hoverPosLabel;
 
     public DungeonEditorScreen(Dungeoneer client) {
-        this.client = client;
+        super(client);
         mapManager = new DungeonMapManager(client);
-    }
-
-    public Dungeoneer getClient() {
-        return client;
     }
 
     public DungeonMapManager getMapManager() {
@@ -82,9 +76,7 @@ public class DungeonEditorScreen extends AbstractScreen {
         camera.setToOrtho(false);
         camera.zoom = 1f;
 
-        inputListener = new DungeonEditorInputListener(this);
-
-        setMapRenderer(new OrthogonalTiledMapRenderer(client.getState().getDungeonMap() == null ? buildEmptyMap() : mapManager.read(client.getState().getDungeonMap().mapData())));
+        setMapRenderer(new OrthogonalTiledMapRenderer(getClient().getState().getDungeonMap() == null ? buildEmptyMap() : mapManager.read(getClient().getState().getDungeonMap().mapData())));
 
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
@@ -103,16 +95,16 @@ public class DungeonEditorScreen extends AbstractScreen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 mapManager.save();
-                client.setScreen(new MainScreen(client));
-                client.getState().setStatus(ClientState.Status.LOBBY);
+                getClient().setScreen(new MainScreen(getClient()));
+                getClient().getState().setStatus(ClientState.Status.LOBBY);
             }
         });
         TextButton cancelButton = new TextButton("Cancel", SKIN);
         cancelButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                client.setScreen(new MainScreen(client));
-                client.getState().setStatus(ClientState.Status.LOBBY);
+                getClient().setScreen(new MainScreen(getClient()));
+                getClient().getState().setStatus(ClientState.Status.LOBBY);
             }
         });
         buttons.add(finishButton);
@@ -124,8 +116,15 @@ public class DungeonEditorScreen extends AbstractScreen {
         root.add(content).grow();
 
         getStage().addActor(root);
-        getStage().addListener(inputListener);
+        getClient().getInputMultiplexer().addProcessor(getStage());
+        getClient().getInputMultiplexer().addProcessor(inputListener = new DungeonEditorInputListener(this));
         super.show();
+    }
+
+    @Override
+    public void hide() {
+        getClient().getInputMultiplexer().removeProcessor(getStage());
+        getClient().getInputMultiplexer().removeProcessor(inputListener);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package dev.creoii.dungeoneer.client.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -9,7 +7,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
-import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
@@ -18,7 +15,6 @@ import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
-import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -67,6 +63,10 @@ public class ClientCharacter implements Character {
         return character;
     }
 
+    public long getLastAttackTime() {
+        return lastAttackTime;
+    }
+
     public void set(@Nullable CharacterDefinition character) {
         this.character = character;
         if (character == null) {
@@ -99,63 +99,6 @@ public class ClientCharacter implements Character {
     @Override
     public float getCenterY() {
         return getRenderY() + sprite.getHeight() * .5f;
-    }
-
-    public void update(float dt) {
-        long currentTime = System.currentTimeMillis();
-        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(stats.attackSpeed().value());
-
-        if (client.getState().getStatus() == ClientState.Status.RAIDING && !client.getState().getCurrentRaid().isNull() && Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-            if (!attackPending && (currentTime - lastAttackTime) >= cooldown) {
-                attackPending = true;
-
-                Attack attack = DataManager.getAttack("simple");
-                attack(attack);
-            }
-            animationState = AnimationState.toAttacking(animationState);
-        } else animationState = isMoving() ? AnimationState.toMoving(animationState) : AnimationState.toIdle(animationState);
-    }
-
-    public void attack(Attack attack) {
-        switch (attack) {
-            case ReferenceAttack(String id, _) -> attack(DataManager.getAttack(id));
-            case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
-                BulletDefinition bullet = DataManager.getBullet("dark_magic");
-                if (bullet == null)
-                    return;
-
-                float baseAngle = -arcGap * (bulletCount - 1) / 2f;
-                Vector2 mouseDir = client.getInputListener().getDirectionToMouse(getCenterX(), getCenterY());
-
-                Vector2 up = new Vector2(-mouseDir.y, mouseDir.x);
-                float x = getCenterX() + mouseDir.x * offset.x + up.x * offset.y;
-                float y = getCenterY() + mouseDir.y * offset.x + up.y * offset.y;
-
-                for (int i = 0; i < bulletCount; ++i) {
-                    float angle = (baseAngle + i * arcGap) + angleOffset;
-
-                    float radians = angle * MathUtils.degreesToRadians;
-                    float cos = MathUtils.cos(radians);
-                    float sin = MathUtils.sin(radians);
-
-                    float rotatedX = mouseDir.x * cos - mouseDir.y * sin;
-                    float rotatedY = mouseDir.x * sin + mouseDir.y * cos;
-
-                    client.getState().getCurrentRaid().addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, this);
-                }
-                client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
-            }
-            case LaserAttack(_, _, Vector2 size, int laserCount, float arcGap, float angleOffset, float lifetime, boolean attached) -> {
-                float baseAngle = -arcGap * (laserCount - 1) / 2f;
-                for (int i = 0; i < laserCount; ++i) {
-                    float angle = (baseAngle + i * arcGap) + angleOffset;
-                    client.getState().getCurrentRaid().addLaser(getCenterX(), getCenterY(), angle, size.x, size.y, lifetime, attached ? this : null);
-                }
-                client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
-            }
-            case CompositeAttack(_, _, List<Attack> attacks) -> attacks.forEach(this::attack);
-            case null, default -> throw new IllegalStateException("Unexpected attack value: " + attack);
-        }
     }
 
     public Sprite getSprite() {
@@ -225,5 +168,46 @@ public class ClientCharacter implements Character {
 
     public void setAnimationState(AnimationState animationState) {
         this.animationState = animationState;
+    }
+
+    public void attack(Attack attack, float[] mouseDir) {
+        switch (attack) {
+            case ReferenceAttack(String id, _) -> attack(DataManager.getAttack(id), mouseDir);
+            case BulletAttack(_, _, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
+                BulletDefinition bullet = DataManager.getBullet("dark_magic");
+                if (bullet == null)
+                    return;
+
+                float baseAngle = -arcGap * (bulletCount - 1) / 2f;
+
+                Vector2 up = new Vector2(-mouseDir[1], mouseDir[0]);
+                float x = getCenterX() + mouseDir[0] * offset.x + up.x * offset.y;
+                float y = getCenterY() + mouseDir[1] * offset.x + up.y * offset.y;
+
+                for (int i = 0; i < bulletCount; ++i) {
+                    float angle = (baseAngle + i * arcGap) + angleOffset;
+
+                    float radians = angle * MathUtils.degreesToRadians;
+                    float cos = MathUtils.cos(radians);
+                    float sin = MathUtils.sin(radians);
+
+                    float rotatedX = mouseDir[0] * cos - mouseDir[1] * sin;
+                    float rotatedY = mouseDir[0] * sin + mouseDir[1] * cos;
+
+                    client.getState().getCurrentRaid().addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, this);
+                }
+                client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
+            }
+            case LaserAttack(_, _, Vector2 size, int laserCount, float arcGap, float angleOffset, float lifetime, boolean attached) -> {
+                float baseAngle = -arcGap * (laserCount - 1) / 2f;
+                for (int i = 0; i < laserCount; ++i) {
+                    float angle = (baseAngle + i * arcGap) + angleOffset;
+                    client.getState().getCurrentRaid().addLaser(getCenterX(), getCenterY(), angle, size.x, size.y, lifetime, attached ? this : null);
+                }
+                client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));
+            }
+            case CompositeAttack(_, _, List<Attack> attacks) -> attacks.forEach(attack1 -> attack(attack1, mouseDir));
+            case null, default -> throw new IllegalStateException("Unexpected attack value: " + attack);
+        }
     }
 }

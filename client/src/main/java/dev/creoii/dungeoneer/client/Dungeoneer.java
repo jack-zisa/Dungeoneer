@@ -2,12 +2,12 @@ package dev.creoii.dungeoneer.client;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.network.ClientNetworkHandler;
 import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.screen.LoadingScreen;
@@ -21,15 +21,15 @@ public class Dungeoneer extends Game {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final Client client;
     private final ClientState state;
+    private final InputMultiplexer inputMultiplexer;
     private Assets assets;
-    private final CharacterInputListener inputListener;
     private final Settings settings;
     private final ClientNetworkHandler networkHandler;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
         state = new ClientState(this);
-        inputListener = new CharacterInputListener(this);
+        inputMultiplexer = new InputMultiplexer();
         settings = Settings.DEFAULT;
         networkHandler = new ClientNetworkHandler(this);
     }
@@ -42,12 +42,12 @@ public class Dungeoneer extends Game {
         return state;
     }
 
-    public Assets getAssets() {
-        return assets;
+    public InputMultiplexer getInputMultiplexer() {
+        return inputMultiplexer;
     }
 
-    public CharacterInputListener getInputListener() {
-        return inputListener;
+    public Assets getAssets() {
+        return assets;
     }
 
     public Settings getSettings() {
@@ -60,6 +60,8 @@ public class Dungeoneer extends Game {
 
     @Override
     public void create() {
+        Gdx.input.setInputProcessor(inputMultiplexer);
+
         TooltipManager.getInstance().animations = false;
         TooltipManager.getInstance().resetTime = 0f;
         TooltipManager.getInstance().initialTime = 0f;
@@ -85,8 +87,6 @@ public class Dungeoneer extends Game {
         networkHandler.update(dt);
 
         if (state.getStatus() == ClientState.Status.RAIDING && !state.getCurrentRaid().isNull() && !state.getActiveCharacter().isNull() && screen instanceof GameScreen gameScreen) {
-            inputListener.updateMousePos(gameScreen.getCamera());
-            state.getActiveCharacter().update(dt);
             state.getCurrentRaid().update(dt);
         }
 

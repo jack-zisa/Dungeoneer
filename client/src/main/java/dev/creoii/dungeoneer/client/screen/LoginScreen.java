@@ -8,15 +8,13 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 
 public class LoginScreen extends AbstractScreen {
-    private final Dungeoneer client;
     private Skin skin;
-
     private TextField usernameField;
     private TextField passwordField;
     private Label statusLabel;
 
     public LoginScreen(Dungeoneer client) {
-        this.client = client;
+        super(client);
     }
 
     @Override
@@ -48,7 +46,7 @@ public class LoginScreen extends AbstractScreen {
                     String password = passwordField.getText();
 
                     statusLabel.setText("Logging in...");
-                    client.get().sendTCP(new LoginC2S(username, password));
+                    getClient().get().sendTCP(new LoginC2S(username, password));
                 }
             }
         );
@@ -61,7 +59,12 @@ public class LoginScreen extends AbstractScreen {
 
         getStage().addActor(root);
 
-        super.show();
+        getClient().getInputMultiplexer().addProcessor(getStage());
+    }
+
+    @Override
+    public void hide() {
+        getClient().getInputMultiplexer().removeProcessor(getStage());
     }
 
     @Override

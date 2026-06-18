@@ -11,10 +11,8 @@ import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 
 public class RaidLoadingScreen extends AbstractScreen {
-    private final Dungeoneer client;
-
     public RaidLoadingScreen(Dungeoneer client) {
-        this.client = client;
+        super(client);
     }
 
     @Override
@@ -32,8 +30,8 @@ public class RaidLoadingScreen extends AbstractScreen {
         cancelButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                client.setScreen(new MainScreen(client));
-                client.getState().setStatus(ClientState.Status.LOBBY);
+                getClient().setScreen(new MainScreen(getClient()));
+                getClient().getState().setStatus(ClientState.Status.LOBBY);
             }
         });
         root.add(cancelButton);

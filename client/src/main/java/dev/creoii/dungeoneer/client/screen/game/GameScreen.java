@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.game.ClientBullet;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientLaser;
@@ -31,8 +32,8 @@ import dev.creoii.dungeoneer.util.stat.StatUtils;
 import javax.annotation.Nullable;
 
 public class GameScreen extends AbstractScreen {
-    private final Dungeoneer client;
     private OrthographicCamera camera;
+    private CharacterInputListener inputListener;
     private OrthogonalTiledMapRenderer mapRenderer;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
@@ -40,11 +41,7 @@ public class GameScreen extends AbstractScreen {
     private HealthBar healthBar;
 
     public GameScreen(Dungeoneer client) {
-        this.client = client;
-    }
-
-    public Dungeoneer getClient() {
-        return client;
+        super(client);
     }
 
     public OrthographicCamera getCamera() {
@@ -63,15 +60,15 @@ public class GameScreen extends AbstractScreen {
 
         batch = new SpriteBatch();
 
-        mapRenderer = new OrthogonalTiledMapRenderer(client.getState().getCurrentRaid().getDungeon().getMap());
+        mapRenderer = new OrthogonalTiledMapRenderer(getClient().getState().getCurrentRaid().getDungeon().getMap());
 
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
 
-        ClientRaid currentRaid = client.getState().getCurrentRaid();
+        ClientRaid currentRaid = getClient().getState().getCurrentRaid();
         if (currentRaid.isNull()) {
-            client.getState().setStatus(ClientState.Status.LOBBY);
-            client.setScreen(new MainScreen(client));
+            getClient().getState().setStatus(ClientState.Status.LOBBY);
+            getClient().setScreen(new MainScreen(getClient()));
             Dungeoneer.LOGGER.error("Raid failed to start");
             return;
         }
@@ -80,15 +77,15 @@ public class GameScreen extends AbstractScreen {
         root.setFillParent(true);
         root.top().left();
 
-        root.add(new Label(String.format("Raiding %s!", client.getState().getCurrentRaid().get().target().username()), SKIN)).left().row();
-        root.add(timeRemainingLabel = new Label(String.format("Time Remaining: %s!", client.getState().getCurrentRaid().getRemainingTimeString()), SKIN)).left().row();
+        root.add(new Label(String.format("Raiding %s!", getClient().getState().getCurrentRaid().get().target().username()), SKIN)).left().row();
+        root.add(timeRemainingLabel = new Label(String.format("Time Remaining: %s!", getClient().getState().getCurrentRaid().getRemainingTimeString()), SKIN)).left().row();
 
         TextButton surrenderButton = new TextButton("Surrender", SKIN);
         surrenderButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                getClient().get().sendTCP(new EndRaidC2S(client.getState().getCurrentRaid().get().id()));
-                getClient().setScreen(new MainScreen(client));
+                getClient().get().sendTCP(new EndRaidC2S(getClient().getState().getCurrentRaid().get().id()));
+                getClient().setScreen(new MainScreen(getClient()));
                 getClient().getState().getActiveCharacter().setPos(0f, 0f);
                 getClient().getState().getActiveCharacter().setRenderPos(0f, 0f);
                 getClient().getState().setStatus(ClientState.Status.LOBBY);
@@ -98,12 +95,19 @@ public class GameScreen extends AbstractScreen {
         root.add(surrenderButton).left().row();
         root.add(new Table()).grow().row();
 
-        healthBar = new HealthBar(client.getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, false);
+        healthBar = new HealthBar(getClient().getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, false);
         root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f);
 
         getStage().addActor(root);
-        getStage().addListener(client.getInputListener());
-        super.show();
+
+        getClient().getInputMultiplexer().addProcessor(getStage());
+        getClient().getInputMultiplexer().addProcessor(inputListener = new CharacterInputListener(getClient(), this));
+    }
+
+    @Override
+    public void hide() {
+        getClient().getInputMultiplexer().removeProcessor(inputListener);
+        getClient().getInputMultiplexer().removeProcessor(getStage());
     }
 
     @Override
@@ -117,11 +121,11 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void render(float delta) {
-        ClientCharacter character = client.getState().getActiveCharacter();
+        ClientCharacter character = getClient().getState().getActiveCharacter();
         if (character.isNull())
             return;
 
-        ClientRaid raid = client.getState().getCurrentRaid();
+        ClientRaid raid = getClient().getState().getCurrentRaid();
         if (raid.isNull())
             return;
 
@@ -131,16 +135,19 @@ public class GameScreen extends AbstractScreen {
         float[] correction = character.getCorrection();
         float error = VectorUtils.len(correction);
         if (error > 30f) {
-            if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
+            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             character.setRenderPos(character.getX(), character.getY());
             VectorUtils.setZero(correction);
         } else if (error > 5f) {
-            if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
+            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
             float amount = Math.min(error, 15f * delta);
             VectorUtils.nor(correction);
             VectorUtils.mulAdd(character.getRenderPos(), correction, amount);
             VectorUtils.scl(correction, Math.max(0f, 1f - amount / error));
         }
+
+        if (inputListener.isAttacking())
+            inputListener.tryAttack();
 
         camera.position.x = character.getRenderX() + character.getSprite().getWidth() * .5f;
         camera.position.y = character.getRenderY() + character.getSprite().getHeight() * .5f;
@@ -167,7 +174,7 @@ public class GameScreen extends AbstractScreen {
 
         for (ClientBullet bullet : raid.getBullets()) {
             Vector2 pos = bullet.getPos();
-            Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getDefinition().id());
+            Texture texture = getClient().getAssets().getTexture(Assets.Atlas.BULLET, bullet.getDefinition().id());
             float width = texture.getWidth() * bullet.getDefinition().scale();
             float height = texture.getHeight() * bullet.getDefinition().scale();
             bullet.incrementAngle(bullet.getDefinition().rotationSpeed() * delta);
@@ -202,16 +209,16 @@ public class GameScreen extends AbstractScreen {
         batch.setShader(null);
         batch.end();
 
-        if (client.getSettings().debug().value()) {
+        if (getClient().getSettings().debug().value()) {
             shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-            float x = character.getRenderX() + 4f;
-            float y = character.getRenderY() + 4f;
+            float x = character.getCenterX();
+            float y = character.getCenterY();
 
             shapeRenderer.setColor(character.isAttackPending() ? Color.GREEN : Color.WHITE);
-            Vector2 mouseDir = client.getInputListener().getDirectionToMouse(x, y);
-            shapeRenderer.line(x, y, x + mouseDir.x * 32f, y + mouseDir.y * 32f);
+            float[] mouseDir = inputListener.getDirectionToMouse(x, y);
+            shapeRenderer.line(x, y, x + mouseDir[0] * 32f, y + mouseDir[1] * 32f);
             shapeRenderer.end();
         }
 

@@ -35,7 +35,7 @@ public class DynamicTextureAtlas {
                 TextureRegion region = new TextureRegion(texture);
 
                 textureAtlas.addRegion(id, region);
-                textures.put(id, region);
+                textures.put(id, textureAtlas.findRegion(id));
             }
         }
 

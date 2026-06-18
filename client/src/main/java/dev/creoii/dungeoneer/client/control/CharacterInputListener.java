@@ -1,32 +1,78 @@
 package dev.creoii.dungeoneer.client.control;
 
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.InputAdapter;
+import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.screen.game.GameScreen;
+import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.stat.StatUtils;
 
-public class CharacterInputListener extends InputListener implements MousePosListener {
+public class CharacterInputListener extends InputAdapter implements MousePosListener {
     private final Dungeoneer client;
+    private final GameScreen screen;
     private int movementFlags;
-    private final Vector3 mousePos;
+    private final float[] mousePos;
+    private boolean attacking;
 
-    public CharacterInputListener(Dungeoneer client) {
+    public CharacterInputListener(Dungeoneer client, GameScreen screen) {
         this.client = client;
-        mousePos = new Vector3();
+        this.screen = screen;
+        mousePos = VectorUtils.zero();
     }
 
     @Override
-    public Vector3 getMousePos() {
+    public float[] getMousePos() {
         return mousePos;
     }
 
+    public boolean isAttacking() {
+        return attacking;
+    }
+
     @Override
-    public boolean keyDown(InputEvent event, int keycode) {
+    public boolean mouseMoved(int screenX, int screenY) {
+        updateMousePos(screen.getCamera());
+        return super.mouseMoved(screenX, screenY);
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        attacking = true;
+        return true;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        attacking = false;
+        return true;
+    }
+
+    public void tryAttack() {
+        ClientCharacter character = client.getState().getActiveCharacter();
+        AnimationState animationState = character.getAnimationState();
+
+        long currentTime = System.currentTimeMillis();
+        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
+
+        if (client.getState().getStatus() == ClientState.Status.RAIDING && !client.getState().getCurrentRaid().isNull()) {
+            if (!character.isAttackPending() && (currentTime - character.getLastAttackTime()) >= cooldown) {
+                character.setAttackPending(true);
+
+                Attack attack = DataManager.getAttack("simple");
+                character.attack(attack, getDirectionToMouse(character.getCenterX(), character.getCenterY()));
+            }
+            character.setAnimationState(AnimationState.toAttacking(animationState));
+        } else character.setAnimationState(character.isMoving() ? AnimationState.toMoving(animationState) : AnimationState.toIdle(animationState));
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
         if (character.isNull())
             return false;
@@ -59,7 +105,7 @@ public class CharacterInputListener extends InputListener implements MousePosLis
     }
 
     @Override
-    public boolean keyUp(InputEvent event, int keycode) {
+    public boolean keyUp(int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
         if (character.isNull())
             return false;
