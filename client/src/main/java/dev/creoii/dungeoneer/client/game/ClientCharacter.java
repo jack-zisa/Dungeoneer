@@ -10,8 +10,9 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
-import dev.creoii.dungeoneer.definitions.sided.Character;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
+import dev.creoii.dungeoneer.definitions.Character;
+import dev.creoii.dungeoneer.definitions.sided.SidedCharacter;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -99,6 +100,23 @@ public class ClientCharacter implements Character {
     @Override
     public float getCenterY() {
         return getRenderY() + sprite.getHeight() * .5f;
+    }
+
+    public void update(float dt) {
+        long currentTime = System.currentTimeMillis();
+        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(stats.attackSpeed().value());
+
+        if (client.getState().getStatus() == ClientState.Status.RAIDING
+            && !attackPending
+            && !client.getState().getCurrentRaid().isNull()
+            && (currentTime - lastAttackTime) >= cooldown
+            && Gdx.input.isButtonPressed(Input.Buttons.LEFT)
+        ) {
+            attackPending = true;
+
+            Attack attack = DataManager.getAttack("staff");
+            attack(attack);
+        }
     }
 
     public Sprite getSprite() {
@@ -192,8 +210,8 @@ public class ClientCharacter implements Character {
                     float sin = MathUtils.sin(radians);
 
                     float rotatedX = mouseDir[0] * cos - mouseDir[1] * sin;
-                    float rotatedY = mouseDir[0] * sin + mouseDir[1] * cos;
-
+                    float rotatedY = mouseDir[1] * cos + mouseDir[0] * sin;
+					
                     client.getState().getCurrentRaid().addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, this);
                 }
                 client.get().sendTCP(new AttackC2S(client.getState().getCurrentRaid().get().id(), character.accountId()));

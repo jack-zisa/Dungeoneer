@@ -1,0 +1,79 @@
+{
+  "id": "void_shot",
+  "type": "group",
+  "speed": 150,
+  "lifetime": 8,
+  "scale": 1.5,
+  "angle_offset": -45,
+  "path": {
+    "id": "void_shot_orbit",
+    "type": "orbit",
+    "orbit_radius": 60
+  },
+  "children": [
+    {
+      "offset": [100, 0],
+      "definition": {
+        "id": "void_shot",
+        "type": "single",
+        "speed": 750,
+        "lifetime": 8,
+        "scale": 1.5,
+        "angle_offset": -45,
+        "path": {
+          "id": "void_shot_orbit",
+          "type": "orbit",
+          "orbit_radius": 10
+        }
+      }
+    },
+    {
+      "offset": [-100, 0],
+      "definition": {
+        "id": "void_shot",
+        "type": "single",
+        "speed": 750,
+        "lifetime": 8,
+        "scale": 1.5,
+        "angle_offset": -45,
+        "path": {
+          "id": "void_shot_orbit",
+          "type": "orbit",
+          "orbit_radius": 10
+        }
+      }
+    },
+    {
+      "offset": [0, 100],
+      "definition": {
+        "id": "void_shot",
+        "type": "single",
+        "speed": 750,
+        "lifetime": 8,
+        "scale": 1.5,
+        "angle_offset": -45,
+        "path": {
+          "id": "void_shot_orbit",
+          "type": "orbit",
+          "orbit_radius": 10
+        }
+      }
+    },
+    {
+      "offset": [0, -100],
+      "definition": {
+        "id": "void_shot",
+        "type": "single",
+        "speed": 750,
+        "lifetime": 8,
+        "scale": 1.5,
+        "angle_offset": -45,
+        "path": {
+          "id": "void_shot_orbit",
+          "type": "orbit",
+          "orbit_radius": 10
+        }
+      }
+    }
+  ]
+}

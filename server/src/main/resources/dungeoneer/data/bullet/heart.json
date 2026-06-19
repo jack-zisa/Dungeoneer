@@ -1,5 +1,6 @@
 {
   "id": "heart",
+  "type": "single",
   "speed": 180,
   "lifetime": 30,
   "scale": 0.5,

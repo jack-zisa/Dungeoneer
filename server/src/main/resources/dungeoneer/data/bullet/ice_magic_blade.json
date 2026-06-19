@@ -1,16 +1,16 @@
 {
-  "id": "fire_shot",
+  "id": "ice_magic_blade",
   "type": "single",
-  "speed": 50,
-  "acceleration": 200,
+  "speed": 0,
+  "acceleration": -100,
   "lifetime": 2,
   "scale": 1.5,
   "angle_offset": -45,
   "path": {
-    "id": "fire_shot_wavy",
+    "id": "triangle",
     "type": "wavy",
     "wave_type": "triangle",
-    "amplitude": 12,
-    "frequency": 0.01
+    "amplitude": 10,
+    "frequency": 0.025
   }
 }

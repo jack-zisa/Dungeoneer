@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
 import dev.creoii.dungeoneer.definitions.Tile;
 import dev.creoii.dungeoneer.definitions.attack.AttackType;
@@ -61,8 +61,8 @@ public class DataManager {
     }
 
     @Nullable
-    public static BulletDefinition getBullet(String id) {
-        BulletDefinition value = (BulletDefinition) getBullets().get(id);
+    public static BulletType getBullet(String id) {
+        BulletType value = (BulletType) getBullets().get(id);
         if (value == null) {
             if (DEBUG) LOGGER.error("Unknown Bullet: '" + id + "'");
             return null;
@@ -187,7 +187,7 @@ public class DataManager {
     }
 
     static {
-        SCHEMA.put(SchemaType.BULLET, BulletDefinition.CODEC);
+        SCHEMA.put(SchemaType.BULLET, BulletType.CODEC);
         SCHEMA.put(SchemaType.ATTACK, Attack.CODEC);
         SCHEMA.put(SchemaType.CLASS, CharacterClass.CODEC);
         SCHEMA.put(SchemaType.TILE, Tile.CODEC);

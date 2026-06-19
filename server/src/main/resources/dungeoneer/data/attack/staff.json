@@ -5,13 +5,13 @@
     {
       "id": "staff1",
       "type": "bullet",
-      "offset": [0, -2.5],
+      "offset": [0, -10],
       "index_offset": 1
     },
     {
       "id": "staff2",
       "type": "bullet",
-      "offset": [0, 2.5]
+      "offset": [0, 10]
     }
   ]
 }
