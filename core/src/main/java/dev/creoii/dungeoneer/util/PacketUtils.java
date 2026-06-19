@@ -134,16 +134,16 @@ public final class PacketUtils {
         }
     }
 
-    public static Raid readRaid(Input input) {
+    public static RaidDefinition readRaid(Input input) {
         long id = input.readLong();
         Account attacker = readAccount(input);
         Account target = readAccount(input);
         String startTime = input.readString();
         String endTime = input.readString();
-        return new Raid(id, attacker, target, startTime.isBlank() ? null : LocalDateTime.parse(startTime), endTime.isBlank() ? null : LocalDateTime.parse(endTime));
+        return new RaidDefinition(id, attacker, target, startTime.isBlank() ? null : LocalDateTime.parse(startTime), endTime.isBlank() ? null : LocalDateTime.parse(endTime));
     }
 
-    public static void writeRaid(Output output, Raid raid) {
+    public static void writeRaid(Output output, RaidDefinition raid) {
         output.writeLong(raid.id());
         writeAccount(output, raid.attacker());
         writeAccount(output, raid.target());

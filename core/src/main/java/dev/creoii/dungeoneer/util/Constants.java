@@ -12,4 +12,7 @@ public final class Constants {
     public static final String MAP_LAYER_OVERLAY = "overlay";
 
     public static final long RAID_DURATION_MS = 5L * 60L * 1000L;
+
+    public static final String TEST_ATTACK = "staff";
+    public static final String TEST_BULLET = "ice_magic_blade";
 }

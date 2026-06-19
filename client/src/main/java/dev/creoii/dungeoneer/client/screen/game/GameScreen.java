@@ -29,12 +29,15 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.function.BiConsumer;
 
 public class GameScreen extends AbstractScreen {
     private OrthographicCamera camera;
@@ -124,6 +127,21 @@ public class GameScreen extends AbstractScreen {
         camera.update();
     }
 
+    public void applyCorrection(Entity entity, float[] pos, float[] correction, float[] renderPos, float dt, BiConsumer<Float, Float> setRenderPos) {
+        float error = VectorUtils.len(correction);
+        if (error > 30f) {
+            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", Arrays.toString(renderPos), Arrays.toString(pos));
+            setRenderPos.accept(entity.getX(), entity.getY());
+            VectorUtils.setZero(correction);
+        } else if (error > 5f) {
+            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", Arrays.toString(renderPos), Arrays.toString(pos));
+            float amount = Math.min(error, 15f * dt);
+            VectorUtils.nor(correction);
+            VectorUtils.mulAdd(renderPos, correction, amount);
+            VectorUtils.scl(correction, Math.max(0f, 1f - amount / error));
+        }
+    }
+
     @Override
     public void render(float delta) {
         ClientCharacter character = getClient().getState().getActiveCharacter();
@@ -137,19 +155,7 @@ public class GameScreen extends AbstractScreen {
         float speed = StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta;
         VectorUtils.mulAdd(character.getRenderPos(), character.getVelocity(), speed);
 
-        float[] correction = character.getCorrection();
-        float error = VectorUtils.len(correction);
-        if (error > 30f) {
-            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
-            character.setRenderPos(character.getX(), character.getY());
-            VectorUtils.setZero(correction);
-        } else if (error > 5f) {
-            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", character.getRenderPos().toString(), character.getPos().toString());
-            float amount = Math.min(error, 15f * delta);
-            VectorUtils.nor(correction);
-            VectorUtils.mulAdd(character.getRenderPos(), correction, amount);
-            VectorUtils.scl(correction, Math.max(0f, 1f - amount / error));
-        }
+        applyCorrection(character, character.getPos(), character.getCorrection(), character.getRenderPos(), delta, character::setRenderPos);
 
         inputListener.updateMousePos(camera);
         if (inputListener.isAttacking())
@@ -174,11 +180,13 @@ public class GameScreen extends AbstractScreen {
         Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
         Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
 
-        for (Bullet bullet : raid.getBullets()) {
+        for (ClientBullet bullet : raid.getBullets().values()) {
+            applyCorrection(bullet, bullet.getPos(), bullet.getCorrection(), bullet.getRenderPos(), delta, bullet::setRenderPos);
             renderBullet(bullet, getClient(), batch, delta);
         }
 
-        for (BulletGroup bulletGroup : raid.getBulletGroups()) {
+        for (ClientBulletGroup bulletGroup : raid.getBulletGroups().values()) {
+            applyCorrection(bulletGroup, bulletGroup.getPos(), bulletGroup.getCorrection(), bulletGroup.getRenderPos(), delta, bulletGroup::setRenderPos);
             bulletGroup.getChildren().forEach(child -> renderBullet(child, getClient(), batch, delta));
         }
 

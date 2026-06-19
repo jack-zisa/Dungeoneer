@@ -6,6 +6,8 @@ import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.game.ClientBullet;
+import dev.creoii.dungeoneer.client.game.ClientBulletGroup;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.LoginScreen;
@@ -37,6 +39,7 @@ import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.BulletMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import org.jspecify.annotations.Nullable;
@@ -194,7 +197,7 @@ public class ClientNetworkHandler implements Listener {
                     });
                 }
             }
-            case SendRaidS2C(Raid raid, byte[] mapData) -> {
+            case SendRaidS2C(RaidDefinition raid, byte[] mapData) -> {
                 client.getState().setCurrentRaid(raid, mapData);
                 Gdx.app.postRunnable(() -> {
                     client.getState().setStatus(ClientState.Status.RAIDING);
@@ -309,11 +312,29 @@ public class ClientNetworkHandler implements Listener {
             }
             case SyncRaidTimerS2C(long timeRemaining) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
-                if (raid != null && timeRemaining != raid.getRemainingTimeMs()) {
+                if (!raid.isNull() && timeRemaining != raid.getRemainingTimeMs()) {
                     if (client.getSettings().debug().value()) {
                         Dungeoneer.LOGGER.debug("Synced remaining raid time from %s to %s.", raid.getRemainingTimeMs(), timeRemaining);
                     }
                     raid.syncTimer(timeRemaining);
+                }
+            }
+            case BulletMoveS2C(BulletMoveS2C.Entry[] entries) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (!raid.isNull()) {
+                    for (BulletMoveS2C.Entry entry : entries) {
+                        ClientBullet bullet = raid.getBullets().get(entry.bulletId());
+                        if (bullet != null) {
+                            bullet.setPos(entry.x(), entry.y());
+                            bullet.setCorrection(bullet.getX() - bullet.getRenderX(), bullet.getY() - bullet.getRenderY());
+                        } else {
+                            ClientBulletGroup bulletGroup = raid.getBulletGroups().get(entry.bulletId());
+                            if (bulletGroup != null) {
+                                bulletGroup.setPos(entry.x(), entry.y());
+                                bulletGroup.setCorrection(bulletGroup.getX() - bulletGroup.getRenderX(), bulletGroup.getY() - bulletGroup.getRenderY());
+                            }
+                        }
+                    }
                 }
             }
             default -> {

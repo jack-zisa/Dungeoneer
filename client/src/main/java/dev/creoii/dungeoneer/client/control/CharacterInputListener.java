@@ -7,7 +7,6 @@ import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.util.Constants;
@@ -63,8 +62,8 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
             if (!character.isAttackPending() && (currentTime - character.getLastAttackTime()) >= cooldown) {
                 character.setAttackPending(true);
 
-                Attack attack = DataManager.getAttack("staff");
-                character.attack(attack, getDirectionToMouse(character.getCenterX(), character.getCenterY()));
+                Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+                character.attack(attack, client.getState().getCurrentRaid(), getDirectionToMouse(character.getCenterX(), character.getCenterY()));
             }
             character.setAnimationState(AnimationState.toAttacking(animationState));
         } else character.setAnimationState(character.isMoving() ? AnimationState.toMoving(animationState) : AnimationState.toIdle(animationState));

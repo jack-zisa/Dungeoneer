@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.password4j.Password;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.network.NetworkQueue;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
@@ -35,6 +36,7 @@ import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
@@ -239,16 +241,19 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (target != null) {
                 DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
                 if (dungeonMap != null) {
-                    Raid raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
+                    RaidDefinition raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
                     if (raid != null) {
                         server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid, dungeonMap.mapData()));
                     }
                 }
             }
         } else if (object instanceof StartRaidC2S(long raidId, CharacterDefinition character)) {
-            server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, null, new ServerCharacter(character)));
+            RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
+            if (raid != null) {
+                server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, null, new ServerCharacter(character), raid));
+            }
         } else if (object instanceof EndRaidC2S(long raidId)) {
-            Raid raid = server.getDatabase().getRaids().getById(raidId);
+            RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
                 server.getState().getRaids().remove(raidId);
                 server.getDatabase().getRaids().updateEndTime(raidId, LocalDateTime.now());
@@ -329,7 +334,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (dungeonMap != null) {
                 server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
             }
-        } else if (object instanceof AttackC2S(long raidId, long accountId)) {
+        } else if (object instanceof AttackC2S(long raidId, long accountId, float mouseDirX, float mouseDirY)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
                 ServerRaid serverRaid = server.getState().getRaids().get(raidId);
@@ -339,6 +344,10 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     long lastAttackTime = character.getLastAttackTime();
                     long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
                     if (currentTime - lastAttackTime >= cooldown) {
+                        Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+
+                        character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
+
                         character.setLastAttackTime(currentTime);
                         server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));
                     } else {

@@ -2,7 +2,7 @@ package dev.creoii.dungeoneer.server.database.repository;
 
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.Account;
-import dev.creoii.dungeoneer.definitions.Raid;
+import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
@@ -44,7 +44,7 @@ public class RaidRepository {
     }
 
     @Nullable
-    public Raid getById(long id) {
+    public RaidDefinition getById(long id) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                 SELECT *
@@ -54,7 +54,7 @@ public class RaidRepository {
                 .bind("id", id)
                 .map((rs, _) -> {
                     String endTime = rs.getString("end_time");
-                    return new Raid(
+                    return new RaidDefinition(
                         rs.getInt("id"),
                         database.getAccounts().getById(rs.getInt("attacker_id")),
                         database.getAccounts().getById(rs.getInt("target_id")),
@@ -67,7 +67,7 @@ public class RaidRepository {
         );
     }
 
-    public Raid create(Account attacker, Account target, LocalDateTime startTime) {
+    public RaidDefinition create(Account attacker, Account target, LocalDateTime startTime) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
                 INSERT INTO raids(attacker_id, target_id, start_time)
@@ -81,6 +81,6 @@ public class RaidRepository {
                 .one()
         );
 
-        return new Raid(id, attacker, target, startTime, null);
+        return new RaidDefinition(id, attacker, target, startTime, null);
     }
 }

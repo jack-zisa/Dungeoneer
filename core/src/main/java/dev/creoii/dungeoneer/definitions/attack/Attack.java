@@ -25,7 +25,7 @@ import java.util.function.Function;
         return either.map(DataManager::getAttack, Function.identity());
     }, Either::right);
 
-    static <T extends Attack> Products.P2<RecordCodecBuilder.Mu<T>, String, AttackType> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {
-        return instance.group(Codec.STRING.fieldOf("id").forGetter(Attack::id), AttackType.CODEC.fieldOf("type").forGetter(Attack::type));
+    static <T extends Attack> Products.P1<RecordCodecBuilder.Mu<T>, String> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {
+        return instance.group(Codec.STRING.fieldOf("id").forGetter(Attack::id));
     }
 }

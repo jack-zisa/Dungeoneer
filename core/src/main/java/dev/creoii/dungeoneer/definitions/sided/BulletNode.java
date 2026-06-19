@@ -3,10 +3,11 @@ package dev.creoii.dungeoneer.definitions.sided;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
+import dev.creoii.dungeoneer.util.VectorUtils;
 import org.jspecify.annotations.Nullable;
 
-public abstract class BulletNode implements Pool.Poolable {
-    private BulletType type;
+public abstract class BulletNode<T extends BulletType> implements Entity, Pool.Poolable {
+    private T type;
     private BulletPathType.Instance<?> path;
     private final float[] pos;
     private final float[] startPos;
@@ -21,19 +22,19 @@ public abstract class BulletNode implements Pool.Poolable {
     private int index;
     private float age;
     private float angle;
-    @Nullable private BulletNode parent;
+    @Nullable private BulletNode<?> parent;
 
     public BulletNode() {
-        pos = new float[]{0f, 0f};
-        startPos = new float[]{0f, 0f};
-        localPos = new float[]{0f, 0f};
-        direction = new float[]{0f, 0f};
-        startDirection = new float[]{0f, 0f};
-        localDirection = new float[]{0f, 0f};
-        offset = new float[]{0f, 0f};
+        pos = VectorUtils.zero();
+        startPos = VectorUtils.zero();
+        localPos = VectorUtils.zero();
+        direction = VectorUtils.zero();
+        startDirection = VectorUtils.zero();
+        localDirection = VectorUtils.zero();
+        offset = VectorUtils.zero();
     }
 
-    public BulletType getType() {
+    public T getType() {
         return type;
     }
 
@@ -41,22 +42,14 @@ public abstract class BulletNode implements Pool.Poolable {
         return path;
     }
 
-    public void setType(BulletType type) {
+    public void setType(T type) {
         this.type = type;
         path = type.path().create();
     }
 
-    public float getX() {
-        return pos[0];
-    }
-
-    public float getY() {
-        return pos[1];
-    }
-
-    public void setPos(float x, float y) {
-        pos[0] = x;
-        pos[1] = y;
+    @Override
+    public float[] getPos() {
+        return pos;
     }
 
     public float getStartX() {
@@ -183,11 +176,11 @@ public abstract class BulletNode implements Pool.Poolable {
         angle += f;
     }
 
-    public @Nullable BulletNode getParent() {
+    public @Nullable BulletNode<?> getParent() {
         return parent;
     }
 
-    public void setParent(@Nullable BulletNode parent) {
+    public void setParent(@Nullable BulletNode<?> parent) {
         this.parent = parent;
     }
 

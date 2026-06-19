@@ -79,7 +79,7 @@ public class ClientState {
         return currentRaid;
     }
 
-    public void setCurrentRaid(@Nullable Raid raid, byte[] mapData) {
+    public void setCurrentRaid(@Nullable RaidDefinition raid, byte[] mapData) {
         currentRaid.set(raid);
 
         if (raid == null) currentRaid.getDungeon().clearMap();
