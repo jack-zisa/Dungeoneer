@@ -26,6 +26,7 @@ public class Sidebar extends Table {
     protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(Assets.TAB_9PATCH);
     private final DungeonEditorScreen screen;
     private int brushSize;
+    private String selectedLayer;
     private TileProvider selectedTile;
     private Selection selection;
 
@@ -33,6 +34,36 @@ public class Sidebar extends Table {
         super(AbstractScreen.SKIN);
         this.screen = screen;
         brushSize = 1;
+        selectedLayer = Constants.MAP_LAYER_GROUND;
+
+        Table layerTable = new Table();
+        layerTable.add(new Label("Layer", getSkin()));
+
+        ButtonGroup<TextButton> layers = new ButtonGroup<>();
+        layers.setMinCheckCount(1);
+        layers.setMaxCheckCount(1);
+        layers.setUncheckLast(true);
+
+        TextButton groundButton = new TextButton(Constants.MAP_LAYER_GROUND, getSkin());
+        groundButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                selectedLayer = Constants.MAP_LAYER_GROUND;
+            }
+        });
+        layers.add(groundButton);
+        layerTable.add(groundButton);
+
+        TextButton wallButton = new TextButton(Constants.MAP_LAYER_WALL, getSkin());
+        wallButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                selectedLayer = Constants.MAP_LAYER_WALL;
+            }
+        });
+        layers.add(wallButton);
+        layerTable.add(wallButton);
+        add(layerTable).grow().row();
 
         Table brushTable = new Table();
         brushTable.add(new Label("Brush Size", getSkin()));
@@ -65,7 +96,7 @@ public class Sidebar extends Table {
 
         TextButton fillButton = addToolButton(toolsTable, tools, "Fill", () -> {
             if (selection != null && selectedTile != null) {
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND);
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(selectedLayer);
                 selection.forEach(tileLayer, cell -> {
                     if (cell != null) cell.setTile(Tiles.getTile(selectedTile.get(new Random()).id()));
                 });
@@ -73,7 +104,7 @@ public class Sidebar extends Table {
         });
         TextButton deleteButton = addToolButton(toolsTable, tools, "Delete", () -> {
             if (selection != null) {
-                selection.forEach((TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND), cell -> {
+                selection.forEach((TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(selectedLayer), cell -> {
                     if (cell != null) cell.setTile(null);
                 });
             }
@@ -114,6 +145,10 @@ public class Sidebar extends Table {
         add(tileProvidersTable).grow();
 
         setBackground(TAB_BACKGROUND);
+    }
+
+    public String getSelectedLayer() {
+        return selectedLayer;
     }
 
     public int getBrushSize() {

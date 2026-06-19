@@ -3,7 +3,6 @@ package dev.creoii.dungeoneer.util;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
-import com.mojang.datafixers.kinds.Const;
 
 import java.io.*;
 import java.util.zip.DeflaterOutputStream;
@@ -13,8 +12,14 @@ public final class DungeonMapUtils {
     public static byte[] serializeMap(TiledMap map) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (DataOutputStream dos = new DataOutputStream(baos)) {
-            if (map.getLayers().get(Constants.MAP_LAYER_GROUND) instanceof TiledMapTileLayer tileLayer) {
-                byte[] layerBlob = serializeLayer(tileLayer);
+            for (String layerName : Constants.MAP_LAYERS) {
+                TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(layerName);
+                dos.writeUTF(layerName);
+                if (layer == null) {
+                    dos.writeInt(0);
+                    continue;
+                }
+                byte[] layerBlob = serializeLayer(layer);
                 dos.writeInt(layerBlob.length);
                 dos.write(layerBlob);
             }
@@ -40,12 +45,21 @@ public final class DungeonMapUtils {
 
     public static TiledMap deserializeMap(byte[] blob, TiledMapTileSet tileSet) throws IOException {
         TiledMap map = new TiledMap();
+
         try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(blob))) {
-            byte[] layerBlob = new byte[dis.readInt()];
-            dis.readFully(layerBlob);
-            TiledMapTileLayer layer = deserializeLayer(layerBlob, tileSet);
-            layer.setName(Constants.MAP_LAYER_GROUND);
-            map.getLayers().add(layer);
+            for (int i = 0; i < Constants.MAP_LAYERS.length; i++) {
+                String layerName = dis.readUTF();
+                int length = dis.readInt();
+                if (length == 0)
+                    continue;
+
+                byte[] layerBlob = new byte[length];
+                dis.readFully(layerBlob);
+
+                TiledMapTileLayer layer = deserializeLayer(layerBlob, tileSet);
+                layer.setName(layerName);
+                map.getLayers().add(layer);
+            }
         }
 
         map.getTileSets().addTileSet(tileSet);

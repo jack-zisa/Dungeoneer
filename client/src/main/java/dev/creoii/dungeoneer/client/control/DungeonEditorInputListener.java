@@ -13,9 +13,9 @@ import dev.creoii.dungeoneer.client.editor.action.EditorAction;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.editor.Tiles;
 import dev.creoii.dungeoneer.client.util.InputUtils;
-import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.UndoRedoList;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
 import java.awt.*;
 import java.util.Random;
@@ -97,8 +97,8 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
                 areaSelection.setMax(point.x, point.y);
                 return true;
             } else if (!selecting) {
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND);
-                if (point != null && screen.getSidebar().getSelectedTile() != null) {
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
+                if (point != null) {
                     placeTilesAt(tileLayer, point.x, point.y);
                     return true;
                 }
@@ -117,7 +117,7 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
             float dy = screenY - lastY;
 
             screen.getCamera().position.x -= dx * screen.getCamera().zoom;
-            screen.getCamera().position.y -= dy * screen.getCamera().zoom;
+            screen.getCamera().position.y += dy * screen.getCamera().zoom;
 
             screen.getCamera().update();
         }
@@ -125,8 +125,8 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
         lastX = screenX;
         lastY = screenY;
 
-        if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null && screen.getSidebar().getSelectedTile() != null) {
-            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(Constants.MAP_LAYER_GROUND);
+        if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null) {
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
             placeTilesAt(tileLayer, point.x, point.y);
         }
 
@@ -148,14 +148,14 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
     }
 
     public void placeTilesAt(TiledMapTileLayer tileLayer, int x, int y) {
+        TileProvider tile = screen.getSidebar().getSelectedTile();
         if (screen.getSidebar().getBrushSize() == 1) {
             TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
             if (cell == null) {
                 cell = new TiledMapTileLayer.Cell();
             }
-
             TiledMapTile old = cell.getTile();
-            SetTileAction action = new SetTileAction(tileLayer, x, y, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), screen.getSidebar().getSelectedTile().get(new Random()));
+            SetTileAction action = new SetTileAction(tileLayer, x, y, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
             action.redo();
             currentActions.add(action);
         } else {
@@ -170,7 +170,7 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
                     }
 
                     TiledMapTile old = cell.getTile();
-                    SetTileAction action = new SetTileAction(tileLayer, x + xo, y + yo, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), screen.getSidebar().getSelectedTile().get(new Random()));
+                    SetTileAction action = new SetTileAction(tileLayer, x + xo, y + yo, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
                     action.redo();
                     compositeAction.add(action);
                 }

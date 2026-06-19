@@ -65,6 +65,10 @@ public class DungeonEditorScreen extends AbstractScreen {
         TiledMapTileLayer ground = new TiledMapTileLayer(256, 256, 8, 8);
         ground.setName(Constants.MAP_LAYER_GROUND);
         map.getLayers().add(ground);
+
+        TiledMapTileLayer wall = new TiledMapTileLayer(256, 256, 8, 8);
+        wall.setName(Constants.MAP_LAYER_WALL);
+        map.getLayers().add(wall);
         return map;
     }
 
