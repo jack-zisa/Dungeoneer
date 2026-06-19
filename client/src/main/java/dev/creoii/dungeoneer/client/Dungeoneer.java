@@ -92,4 +92,10 @@ public class Dungeoneer extends Game {
 
         super.render();
     }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        client.stop();
+    }
 }

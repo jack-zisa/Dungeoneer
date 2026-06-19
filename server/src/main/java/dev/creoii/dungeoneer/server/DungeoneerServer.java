@@ -6,10 +6,12 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
+import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.server.network.ServerNetworkHandler;
 import dev.creoii.dungeoneer.util.logging.Logger;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Set;
 
 public class DungeoneerServer {
@@ -112,18 +114,24 @@ public class DungeoneerServer {
             if (status.shouldTick()) {
                 long start = System.currentTimeMillis();
 
-                networkHandler.tick(DT);
+                Iterator<ServerRaid> iterator = state.getRaids().values().iterator();
+                while (iterator.hasNext()) {
+                    ServerRaid raid = iterator.next();
 
-                state.getRaids().values().forEach(serverRaid -> serverRaid.tick(DT));
-
-                getState().getRaids().values().forEach(serverRaid -> {
-                    if (!serverRaid.getCharacter().isMoving())
-                        return;
-                    int connectionId = getSessionManager().getAccountConnections().getOrDefault(serverRaid.getCharacter().get().accountId(), -1);
-                    if (connectionId != -1L) {
-                        get().sendToUDP(connectionId, new CharacterMoveS2C(serverRaid.getCharacter().get().id(), serverRaid.getCharacter().getX(), serverRaid.getCharacter().getY()));
+                    int connectionId = getSessionManager().getAccountConnections().getOrDefault(raid.getCharacter().get().accountId(), -1);
+                    if (connectionId == -1) {
+                        iterator.remove();
+                        continue;
                     }
-                });
+
+                    raid.tick(DT);
+
+                    if (raid.getCharacter().isMoving()) {
+                        get().sendToUDP(connectionId, new CharacterMoveS2C(raid.getCharacter().get().id(), raid.getCharacter().getX(), raid.getCharacter().getY()));
+                    }
+                }
+
+                networkHandler.tick(DT);
 
                 long sleep = tickRate - (System.currentTimeMillis() - start);
 

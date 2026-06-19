@@ -30,7 +30,6 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
     private float lastX;
     private float lastY;
     private final float[] mousePos;
-    private int screenX;
 
     public DungeonEditorInputListener(DungeonEditorScreen screen) {
         this.screen = screen;

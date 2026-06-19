@@ -25,6 +25,7 @@ import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
@@ -74,6 +75,12 @@ public class ClientNetworkHandler implements Listener {
     @Override
     public void connected(Connection connection) {
         client.get().sendTCP(new RequestLoginC2S());
+    }
+
+    @Override
+    public void disconnected(Connection connection) {
+        if (!client.getState().getCurrentRaid().isNull())
+            client.get().sendTCP(new EndRaidC2S(client.getState().getCurrentRaid().get().id()));
     }
 
     @Override

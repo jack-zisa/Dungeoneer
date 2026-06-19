@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.client.control;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
@@ -15,14 +16,12 @@ import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class CharacterInputListener extends InputAdapter implements MousePosListener {
     private final Dungeoneer client;
-    private final GameScreen screen;
     private int movementFlags;
     private final float[] mousePos;
     private boolean attacking;
 
-    public CharacterInputListener(Dungeoneer client, GameScreen screen) {
+    public CharacterInputListener(Dungeoneer client) {
         this.client = client;
-        this.screen = screen;
         mousePos = VectorUtils.zero();
     }
 
@@ -36,21 +35,21 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     }
 
     @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        updateMousePos(screen.getCamera());
-        return super.mouseMoved(screenX, screenY);
-    }
-
-    @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        attacking = true;
-        return true;
+        if (button == Input.Buttons.LEFT) {
+            attacking = true;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        attacking = false;
-        return true;
+        if (button == Input.Buttons.LEFT) {
+            attacking = false;
+            return true;
+        }
+        return false;
     }
 
     public void tryAttack() {
@@ -64,7 +63,7 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
             if (!character.isAttackPending() && (currentTime - character.getLastAttackTime()) >= cooldown) {
                 character.setAttackPending(true);
 
-                Attack attack = DataManager.getAttack("simple");
+                Attack attack = DataManager.getAttack("staff");
                 character.attack(attack, getDirectionToMouse(character.getCenterX(), character.getCenterY()));
             }
             character.setAnimationState(AnimationState.toAttacking(animationState));

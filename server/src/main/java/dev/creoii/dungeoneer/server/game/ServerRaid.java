@@ -8,18 +8,24 @@ import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class ServerRaid implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
+    private final long id;
     private final DungeoneerServer server;
     private final ServerDungeon dungeon;
     private final ServerCharacter character;
     private final long endTime;
     private float timer;
 
-    public ServerRaid(DungeoneerServer server, ServerDungeon dungeon, ServerCharacter character) {
+    public ServerRaid(long id, DungeoneerServer server, ServerDungeon dungeon, ServerCharacter character) {
+        this.id = id;
         this.server = server;
         this.dungeon = dungeon;
         this.character = character;
         timer = SYNC_INTERVAL;
         endTime = System.currentTimeMillis() + Constants.RAID_DURATION_MS;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public ServerDungeon getDungeon() {

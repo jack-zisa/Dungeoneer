@@ -1,9 +1,9 @@
 {
   "id": "ice_magic_blade",
   "type": "single",
-  "speed": 0,
+  "speed": 200,
   "acceleration": -100,
-  "lifetime": 2,
+  "lifetime": 2.5,
   "scale": 1.5,
   "angle_offset": -45,
   "path": {

@@ -19,7 +19,6 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.CharacterInputListener;
-import dev.creoii.dungeoneer.client.game.ClientBullet;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientLaser;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
@@ -107,7 +106,7 @@ public class GameScreen extends AbstractScreen {
         getStage().addActor(root);
 
         getClient().getInputMultiplexer().addProcessor(getStage());
-        getClient().getInputMultiplexer().addProcessor(inputListener = new CharacterInputListener(getClient(), this));
+        getClient().getInputMultiplexer().addProcessor(inputListener = new CharacterInputListener(getClient()));
     }
 
     @Override
@@ -152,6 +151,7 @@ public class GameScreen extends AbstractScreen {
             VectorUtils.scl(correction, Math.max(0f, 1f - amount / error));
         }
 
+        inputListener.updateMousePos(camera);
         if (inputListener.isAttacking())
             inputListener.tryAttack();
 
@@ -175,11 +175,11 @@ public class GameScreen extends AbstractScreen {
         Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
 
         for (Bullet bullet : raid.getBullets()) {
-            renderBullet(bullet, client, batch, delta);
+            renderBullet(bullet, getClient(), batch, delta);
         }
 
         for (BulletGroup bulletGroup : raid.getBulletGroups()) {
-            bulletGroup.getChildren().forEach(child -> renderBullet(child, client, batch, delta));
+            bulletGroup.getChildren().forEach(child -> renderBullet(child, getClient(), batch, delta));
         }
 
         for (ClientLaser laser : raid.getLasers()) {
@@ -195,7 +195,7 @@ public class GameScreen extends AbstractScreen {
         }
 
         Sprite sprite = character.getSprite();
-        sprite.setPosition(character.getRenderPos().x, character.getRenderPos().y);
+        sprite.setPosition(character.getRenderX(), character.getRenderY());
         sprite.draw(batch);
 
         batch.setShader(null);

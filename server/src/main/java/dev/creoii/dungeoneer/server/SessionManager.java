@@ -59,6 +59,7 @@ public class SessionManager {
         if (clientSession != null) {
             accountSessions.remove(clientSession.accountId());
             accountConnections.remove(clientSession.accountId());
+
             server.getDatabase().getClientSessions().updateEndTime(clientSession.id(), LocalDateTime.now());
             DungeoneerServer.LOGGER.info("Client session ended for account id: %s", clientSession.accountId());
         }

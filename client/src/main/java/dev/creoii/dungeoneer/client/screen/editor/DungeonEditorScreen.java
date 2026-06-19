@@ -1,12 +1,10 @@
 package dev.creoii.dungeoneer.client.screen.editor;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -156,8 +154,8 @@ public class DungeonEditorScreen extends AbstractScreen {
         }
         shapeRenderer.end();
 
+        inputListener.updateMousePos(camera);
         if (inputListener != null) {
-            inputListener.updateMousePos(camera);
             hoverPosLabel.setText(getHoveredPos().x + "," + getHoveredPos().y);
         }
 
@@ -171,8 +169,7 @@ public class DungeonEditorScreen extends AbstractScreen {
     }
 
     public Point getHoveredPos() {
-        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        camera.unproject(mouse);
-        return new Point((int) Math.floor(mouse.x / 8f), (int) Math.floor(mouse.y / 8f));
+        float[] mousePos = inputListener.getMousePos();
+        return new Point((int) Math.floor(mousePos[0] / 8f), (int) Math.floor(mousePos[1] / 8f));
     }
 }
