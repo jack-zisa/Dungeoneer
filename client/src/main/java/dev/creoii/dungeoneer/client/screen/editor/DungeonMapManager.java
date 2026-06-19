@@ -33,7 +33,7 @@ public class DungeonMapManager {
 
     public TiledMap read(byte[] blob) {
         try {
-            return DungeonMapUtils.deserializeMap(blob, Tiles.TILESET);
+            return DungeonMapUtils.deserializeMap(blob, ClientTiles.TILESET);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -13,7 +13,7 @@ import dev.creoii.dungeoneer.definitions.Tile;
 
 import javax.annotation.Nullable;
 
-public final class Tiles {
+public final class ClientTiles {
     public static final TiledMapTileSet TILESET = new TiledMapTileSet();
     public static final BiMap<String, TiledMapTile> TILES = HashBiMap.create();
 

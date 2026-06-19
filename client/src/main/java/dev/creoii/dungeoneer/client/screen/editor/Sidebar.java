@@ -98,7 +98,7 @@ public class Sidebar extends Table {
             if (selection != null && selectedTile != null) {
                 TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(selectedLayer);
                 selection.forEach(tileLayer, cell -> {
-                    if (cell != null) cell.setTile(Tiles.getTile(selectedTile.get(new Random()).id()));
+                    if (cell != null) cell.setTile(ClientTiles.getTile(selectedTile.get(new Random()).id()));
                 });
             }
         });
@@ -120,7 +120,7 @@ public class Sidebar extends Table {
 
         int index = 0;
 
-        for (TiledMapTile tile : Tiles.TILES.values()) {
+        for (TiledMapTile tile : ClientTiles.TILES.values()) {
             addTileButton(tilesTable, tiles, tile.getTextureRegion(), tile);
             if (++index % 6 == 0) {
                 tilesTable.row();
@@ -137,7 +137,7 @@ public class Sidebar extends Table {
 
         for (Identifiable identifiable : DataManager.getTileProviders().values()) {
             TileProvider tileProvider = (TileProvider) identifiable;
-            addTileProviderButton(tileProvidersTable, tileProviders, Tiles.getTile(tileProvider.getTile().id()).getTextureRegion(), tileProvider);
+            addTileProviderButton(tileProvidersTable, tileProviders, ClientTiles.getTile(tileProvider.getTile().id()).getTextureRegion(), tileProvider);
             if (++index % 6 == 0) {
                 tileProvidersTable.row();
             }
@@ -204,7 +204,7 @@ public class Sidebar extends Table {
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                String id = Tiles.TILES.inverse().get(tile);
+                String id = ClientTiles.TILES.inverse().get(tile);
                 selectedTile = button.isChecked() ? new SimpleTileProvider(id, DataManager.getTile(id)) : null;
             }
         });

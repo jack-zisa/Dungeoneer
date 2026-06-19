@@ -11,7 +11,7 @@ import dev.creoii.dungeoneer.client.editor.action.SetTileAction;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.action.EditorAction;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
-import dev.creoii.dungeoneer.client.screen.editor.Tiles;
+import dev.creoii.dungeoneer.client.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.util.InputUtils;
 import dev.creoii.dungeoneer.util.UndoRedoList;
 import dev.creoii.dungeoneer.util.VectorUtils;
@@ -155,7 +155,7 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
                 cell = new TiledMapTileLayer.Cell();
             }
             TiledMapTile old = cell.getTile();
-            SetTileAction action = new SetTileAction(tileLayer, x, y, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
+            SetTileAction action = new SetTileAction(tileLayer, x, y, old == null ? null : DataManager.getTile(ClientTiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
             action.redo();
             currentActions.add(action);
         } else {
@@ -170,7 +170,7 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
                     }
 
                     TiledMapTile old = cell.getTile();
-                    SetTileAction action = new SetTileAction(tileLayer, x + xo, y + yo, old == null ? null : DataManager.getTile(Tiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
+                    SetTileAction action = new SetTileAction(tileLayer, x + xo, y + yo, old == null ? null : DataManager.getTile(ClientTiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
                     action.redo();
                     compositeAction.add(action);
                 }

@@ -35,6 +35,7 @@ import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
+import dev.creoii.dungeoneer.server.game.ServerDungeon;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
@@ -250,7 +251,10 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof StartRaidC2S(long raidId, CharacterDefinition character)) {
             RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
-                server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, null, new ServerCharacter(character), raid));
+                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(character.accountId());
+                if (dungeonMap != null) {
+                    server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, new ServerDungeon(dungeonMap.mapData()), new ServerCharacter(character), raid));
+                }
             }
         } else if (object instanceof EndRaidC2S(long raidId)) {
             RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);

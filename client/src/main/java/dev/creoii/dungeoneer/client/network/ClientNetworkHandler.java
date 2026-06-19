@@ -10,7 +10,7 @@ import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
-import dev.creoii.dungeoneer.client.screen.editor.Tiles;
+import dev.creoii.dungeoneer.client.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.screen.main.FactionTab;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
@@ -298,7 +298,7 @@ public class ClientNetworkHandler implements Listener {
             case LoadDataS2C() -> {
                 DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
                 DataManager.setDebug(client.getSettings().debug().value()); // TODO: Sync to settings option changes
-                Gdx.app.postRunnable(() -> Tiles.load(client));
+                Gdx.app.postRunnable(() -> ClientTiles.load(client));
             }
             case AttackResultS2C(PacketResult result) -> {
                 ClientCharacter character = client.getState().getActiveCharacter();
