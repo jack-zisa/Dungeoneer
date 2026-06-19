@@ -11,7 +11,7 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.game.RaidLoadingScreen;
-import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.JoinOrCreateRaidC2S;
 
 public class PlayTab extends Tab {
     private ClientCharacter selected;
@@ -71,7 +71,7 @@ public class PlayTab extends Tab {
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().setScreen(new RaidLoadingScreen(getClient()));
                 getClient().getState().setStatus(ClientState.Status.RAID_SEARCHING);
-                getClient().get().sendTCP(new RequestRaidTargetC2S(getClient().getState().getAccount()));
+                getClient().get().sendTCP(new JoinOrCreateRaidC2S(getClient().getState().getAccount(), getClient().getState().getActiveCharacter().get(), 2));
             }
         });
         mainSection.add(raidButton).size(120f, 80f).row();

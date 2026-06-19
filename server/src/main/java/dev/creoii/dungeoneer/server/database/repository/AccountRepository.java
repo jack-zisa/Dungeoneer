@@ -6,6 +6,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class AccountRepository {
     private final Jdbi jdbi;
@@ -92,6 +93,38 @@ public class AccountRepository {
                 })
                 .findOne()
                 .orElse(null)
+        );
+    }
+
+    public List<Account> getByIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return jdbi.withHandle(handle ->
+            handle.createQuery("""
+                SELECT *
+                FROM accounts
+                WHERE id IN (<ids>)
+                """)
+                .bindList("ids", ids)
+                .map((rs, ctx) -> {
+                    String factionJoinDate = rs.getString("faction_join_date");
+                    String lastLoginDate = rs.getString("last_login_date");
+                    return new Account(
+                        rs.getLong("id"),
+                        rs.getString("username"),
+                        rs.getString("password_hash"),
+                        rs.getInt("gold"),
+                        rs.getInt("gems"),
+                        rs.getInt("character_slots"),
+                        NetworkUtils.parseIds(rs.getString("characters")),
+                        rs.getInt("active_character_id"),
+                        rs.getInt("faction_id"),
+                        factionJoinDate == null || factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
+                        lastLoginDate == null || lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate)
+                    );
+                })
+                .list()
         );
     }
 

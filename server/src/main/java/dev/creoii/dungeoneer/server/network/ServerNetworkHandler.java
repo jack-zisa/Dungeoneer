@@ -13,12 +13,13 @@ import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.character.*;
 import dev.creoii.dungeoneer.network.c2s.faction.*;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
-import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.CancelJoinRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidWaitingStateS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
@@ -27,13 +28,13 @@ import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
-import dev.creoii.dungeoneer.network.c2s.raid.RequestRaidTargetC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.JoinOrCreateRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SendRaidTargetS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerDungeon;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
@@ -49,6 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -237,23 +239,34 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 }
             }
             server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.FAIL));
-        } else if (object instanceof RequestRaidTargetC2S(Account account)) {
-            Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
-            if (target != null) {
-                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
+        } else if (object instanceof JoinOrCreateRaidC2S(Account account, CharacterDefinition character, int requiredCharacters)) {
+            List<RaidDefinition> availableRaids = server.getDatabase().getRaids().getAvailableRaids(requiredCharacters);
+            Collections.shuffle(availableRaids);
+            if (!availableRaids.isEmpty()) { // Join an existing raid
+                System.out.println("join existing raid");
+                RaidDefinition raidDefinition = availableRaids.getFirst();
+                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raidDefinition.target().id());
                 if (dungeonMap != null) {
-                    RaidDefinition raid = server.getDatabase().getRaids().create(account, target, LocalDateTime.now());
-                    if (raid != null) {
-                        server.get().sendToUDP(connection.getID(), new SendRaidS2C(raid, dungeonMap.mapData()));
-                    }
+                    raidDefinition.attackers().add(account);
+                    server.getDatabase().getRaids().updateAttackers(raidDefinition);
+                    server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raidDefinition, dungeonMap.mapData()));
+                    raidDefinition.attackers().forEach(account1 -> {
+                        int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
+                        if (connectionId != -1) server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(raidDefinition));
+                    });
                 }
-            }
-        } else if (object instanceof StartRaidC2S(long raidId, CharacterDefinition character)) {
-            RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
-            if (raid != null) {
-                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raid.target().id());
-                if (dungeonMap != null) {
-                    server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, new ServerDungeon(dungeonMap.mapData()), new ServerCharacter(connection.getID(), character), raid));
+            } else { // Create a new raid
+                System.out.println("create new raid");
+                Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
+                if (target != null) {
+                    DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
+                    if (dungeonMap != null) {
+                        RaidDefinition raid = server.getDatabase().getRaids().create(account, target, requiredCharacters, LocalDateTime.now());
+                        if (raid != null) {
+                            server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.mapData()));
+                            server.getState().getRaids().put(raid.id(), new ServerRaid(raid.id(), server, new ServerDungeon(dungeonMap.mapData()), new ServerCharacter(connection.getID(), character), raid));
+                        }
+                    }
                 }
             }
         } else if (object instanceof EndRaidC2S(long raidId)) {
@@ -286,9 +299,10 @@ public class ServerNetworkHandler implements Listener, Tickable {
             CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
             if (character != null && server.getState().getRaids().containsKey(raidId)) {
                 ServerRaid raid = server.getState().getRaids().get(raidId);
-                if (raid.getCharacter().get().id() != characterId)
+                ServerCharacter serverCharacter = raid.getCharacterById(characterId);
+                if (serverCharacter == null)
                     return;
-                raid.getCharacter().updateVelocity(raid.getCharacter().getVelocity(), movementFlags);
+                serverCharacter.updateVelocity(serverCharacter.getVelocity(), movementFlags);
             }
         } else if (object instanceof ChatMessageC2S(long localId, Message message)) {
             Faction faction = server.getDatabase().getFactions().getById(message.factionId());
@@ -341,22 +355,39 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
                 ServerRaid serverRaid = server.getState().getRaids().get(raidId);
-                ServerCharacter character;
-                if (serverRaid != null && (character = serverRaid.getCharacter()).get().accountId() == accountId) {
-                    long currentTime = System.currentTimeMillis();
-                    long lastAttackTime = character.getLastAttackTime();
-                    long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
-                    if (currentTime - lastAttackTime >= cooldown) {
-                        Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+                if (serverRaid != null) {
+                    ServerCharacter character = serverRaid.getCharacterByAccountId(accountId);
+                    if (character != null) {
+                        long currentTime = System.currentTimeMillis();
+                        long lastAttackTime = character.getLastAttackTime();
+                        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
+                        if (currentTime - lastAttackTime >= cooldown) {
+                            Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
 
-                        character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
+                            character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
 
-                        character.setLastAttackTime(currentTime);
-                        server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));
-                    } else {
-                        server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
+                            character.setLastAttackTime(currentTime);
+                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));
+                        } else {
+                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
+                        }
                     }
                 }
+            }
+        } else if (object instanceof CancelJoinRaidC2S(long accountId, long raidId)) {
+            ServerRaid serverRaid = server.getState().getRaids().get(raidId);
+            if (serverRaid != null && serverRaid.getStatus() == ServerRaid.Status.WAITING) {
+                serverRaid.get().attackers().removeIf(account -> account.id() == accountId);
+
+                if (serverRaid.get().attackers().isEmpty()) {
+                    server.getDatabase().getRaids().delete(raidId);
+                } else server.getDatabase().getRaids().updateAttackers(serverRaid.get());
+
+                serverRaid.get().attackers().forEach(account1 -> {
+                    int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
+                    if (connectionId != -1)
+                        server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
+                });
             }
         }
     }

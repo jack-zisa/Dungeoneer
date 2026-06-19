@@ -136,17 +136,28 @@ public final class PacketUtils {
 
     public static RaidDefinition readRaid(Input input) {
         long id = input.readLong();
-        Account attacker = readAccount(input);
+
+        List<Account> attackers = new ArrayList<>();
+        long size = input.readInt();
+        for (int i = 0; i < size; ++i) {
+            attackers.add(readAccount(input));
+        }
+
         Account target = readAccount(input);
+        int requiredCharacters = input.readInt();
         String startTime = input.readString();
         String endTime = input.readString();
-        return new RaidDefinition(id, attacker, target, startTime.isBlank() ? null : LocalDateTime.parse(startTime), endTime.isBlank() ? null : LocalDateTime.parse(endTime));
+        return new RaidDefinition(id, attackers, target, requiredCharacters, startTime.isBlank() ? null : LocalDateTime.parse(startTime), endTime.isBlank() ? null : LocalDateTime.parse(endTime));
     }
 
     public static void writeRaid(Output output, RaidDefinition raid) {
         output.writeLong(raid.id());
-        writeAccount(output, raid.attacker());
+        output.writeInt(raid.attackers().size());
+        for (Account account : raid.attackers()) {
+            writeAccount(output, account);
+        }
         writeAccount(output, raid.target());
+        output.writeInt(raid.requiredCharacters());
         output.writeString(raid.startTime().toString());
         output.writeString(raid.endTime() == null ? "" : raid.endTime().toString());
     }

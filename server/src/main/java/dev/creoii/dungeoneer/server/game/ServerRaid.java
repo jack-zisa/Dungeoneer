@@ -9,13 +9,18 @@ import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final long id;
     private final DungeoneerServer server;
     private final ServerDungeon dungeon;
-    private final ServerCharacter character;
+    private final List<ServerCharacter> characters;
+    private Status status;
     private float timer;
 
     private final Pool<Bullet> bulletPool = new Pool<>() {
@@ -36,7 +41,9 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
         this.id = id;
         this.server = server;
         this.dungeon = dungeon;
-        this.character = character;
+        characters = new ArrayList<>();
+        characters.add(character);
+        status = Status.WAITING;
         timer = SYNC_INTERVAL;
         setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
     }
@@ -59,23 +66,59 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
         return dungeon;
     }
 
-    public ServerCharacter getCharacter() {
-        return character;
+    public List<ServerCharacter> getCharacters() {
+        return characters;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     @Override
     public void tick(float dt) {
-        timer -= dt;
+        if (status == Status.ACTIVE) {
+            timer -= dt;
 
-        // Sync raid timer
-        if (timer <= 0f) {
-            timer += SYNC_INTERVAL;
-            server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(character.get().accountId()), new SyncRaidTimerS2C(getRemainingTimeMs()));
+            // Update bullet positions
+            super.update(dt);
+
+            for (ServerCharacter character : characters) {
+                // Sync raid timer
+                if (timer <= 0f) {
+                    timer += SYNC_INTERVAL;
+                    server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(character.get().accountId()), new SyncRaidTimerS2C(getRemainingTimeMs()));
+                }
+                character.tick(server, dt);
+            }
+        } else if (status == Status.WAITING && characters.size() == get().requiredCharacters()) {
+            setStatus(Status.ACTIVE);
         }
+    }
 
-        // Update bullet positions
-        super.update(dt);
+    @Nullable
+    public ServerCharacter getCharacterByAccountId(long accountId) {
+        for (ServerCharacter character : characters) {
+            if (character.get().accountId() == accountId)
+                return character;
+        }
+        return null;
+    }
 
-        character.tick(server, dt);
+    @Nullable
+    public ServerCharacter getCharacterById(long characterId) {
+        for (ServerCharacter character : characters) {
+            if (character.get().id() == characterId)
+                return character;
+        }
+        return null;
+    }
+
+    public enum Status {
+        WAITING,
+        ACTIVE
     }
 }

@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.client;
 
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
+import dev.creoii.dungeoneer.client.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.character.SelectActiveCharacterC2S;
@@ -83,7 +84,17 @@ public class ClientState {
         currentRaid.set(raid);
 
         if (raid == null) currentRaid.getDungeon().clearMap();
-        else currentRaid.getDungeon().build(mapData);
+        else {
+            syncRaid(raid);
+            currentRaid.getDungeon().build(mapData);
+        }
+    }
+
+    public void syncRaid(RaidDefinition raid) {
+        if (client.getScreen() instanceof RaidLoadingScreen raidLoadingScreen) {
+            raidLoadingScreen.getTargetLabel().setText(raid.target().username());
+            raidLoadingScreen.getAttackersLabel().setText(String.format("%s / %s Attackers", raid.attackers().size(), raid.requiredCharacters()));
+        }
     }
 
     public @Nullable Faction getFaction() {

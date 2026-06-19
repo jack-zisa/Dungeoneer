@@ -25,7 +25,6 @@ import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
-import dev.creoii.dungeoneer.network.c2s.raid.StartRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
@@ -37,7 +36,8 @@ import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SendRaidS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidWaitingStateS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.SendRaidTargetS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import org.jspecify.annotations.Nullable;
 
@@ -194,13 +194,9 @@ public class ClientNetworkHandler implements Listener {
                     });
                 }
             }
-            case SendRaidS2C(RaidDefinition raid, byte[] mapData) -> {
+            case SendRaidTargetS2C(RaidDefinition raid, byte[] mapData) -> {
                 client.getState().setCurrentRaid(raid, mapData);
-                Gdx.app.postRunnable(() -> {
-                    client.getState().setStatus(ClientState.Status.RAIDING);
-                    client.setScreen(new GameScreen(client));
-                });
-                client.get().sendTCP(new StartRaidC2S(raid.id(), client.getState().getActiveCharacter().get()));
+                client.getState().syncRaid(raid);
             }
             case SearchFactionResultS2C(PacketResult result, List<Faction> factions) -> {
                 if (result == PacketResult.SUCCESS) {
@@ -320,6 +316,28 @@ public class ClientNetworkHandler implements Listener {
                         Dungeoneer.LOGGER.debug("Synced remaining raid time from %s to %s.", raid.getRemainingTimeMs(), timeRemaining);
                     }
                     raid.syncTimer(timeRemaining);
+                }
+            }
+            case SyncRaidWaitingStateS2C(RaidDefinition raidDefinition) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid.isNull() || raid.get().id() != raidDefinition.id())
+                    return;
+
+                raid.set(raidDefinition);
+                client.getState().syncRaid(raidDefinition);
+                System.out.println("synced raid: characters: " + client.getState().getCurrentRaid().get().attackers().size() + "/" + client.getState().getCurrentRaid().get().requiredCharacters());
+                if (raidDefinition.attackers().isEmpty()) {
+                    System.out.println("Empty raid, going to lobby");
+                    Gdx.app.postRunnable(() -> {
+                        client.getState().setStatus(ClientState.Status.LOBBY);
+                        client.setScreen(new MainScreen(client));
+                    });
+                } else if (raid.get().attackers().size() == raid.get().requiredCharacters()) {
+                    System.out.println("Full raid, starting game");
+                    Gdx.app.postRunnable(() -> {
+                        client.getState().setStatus(ClientState.Status.RAIDING);
+                        client.setScreen(new GameScreen(client));
+                    });
                 }
             }
             default -> {
