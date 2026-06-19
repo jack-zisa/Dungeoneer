@@ -26,6 +26,7 @@ import dev.creoii.dungeoneer.client.game.*;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Entity;
@@ -179,13 +180,11 @@ public class GameScreen extends AbstractScreen {
         Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
         Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
 
-        for (ClientBullet bullet : raid.getBullets().values()) {
-            applyCorrection(bullet, bullet.getPos(), bullet.getCorrection(), bullet.getRenderPos(), delta, bullet::setRenderPos);
+        for (Bullet bullet : raid.getBullets().values()) {
             renderBullet(bullet, getClient(), batch, delta);
         }
 
-        for (ClientBulletGroup bulletGroup : raid.getBulletGroups().values()) {
-            applyCorrection(bulletGroup, bulletGroup.getPos(), bulletGroup.getCorrection(), bulletGroup.getRenderPos(), delta, bulletGroup::setRenderPos);
+        for (BulletGroup bulletGroup : raid.getBulletGroups().values()) {
             bulletGroup.getChildren().forEach(child -> renderBullet(child, getClient(), batch, delta));
         }
 
@@ -225,12 +224,12 @@ public class GameScreen extends AbstractScreen {
     }
 
     public void renderBullet(BulletNode node, Dungeoneer client, SpriteBatch batch, float dt) {
-        if (node instanceof ClientBulletGroup group) {
+        if (node instanceof BulletGroup group) {
             group.getChildren().forEach(child -> renderBullet(child, client, batch, dt));
             return;
         }
 
-        ClientBullet bullet = (ClientBullet) node;
+        Bullet bullet = (Bullet) node;
 
         Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getType().id());
 
@@ -248,7 +247,7 @@ public class GameScreen extends AbstractScreen {
         float height = texture.getHeight() * scale;
 
         batch.draw(texture,
-            bullet.getRenderX() - width * .5f, bullet.getRenderY() - height * .5f,
+            bullet.getX() - width * .5f, bullet.getY() - height * .5f,
             width * .5f, height * .5f,
             width, height,
             1f, 1f,

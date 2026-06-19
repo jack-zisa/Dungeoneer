@@ -3,10 +3,7 @@ package dev.creoii.dungeoneer.server;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
 import dev.creoii.dungeoneer.DataManager;
-import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.BulletMoveS2C;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
@@ -15,7 +12,6 @@ import dev.creoii.dungeoneer.util.logging.Logger;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 public class DungeoneerServer {
@@ -133,21 +129,6 @@ public class DungeoneerServer {
                     // Sync character movement
                     if (raid.getCharacter().isMoving()) {
                         get().sendToUDP(connectionId, new CharacterMoveS2C(raid.getCharacter().get().id(), raid.getCharacter().getX(), raid.getCharacter().getY()));
-                    }
-
-                    // Sync bullet movement
-                    BulletMoveS2C.Entry[] entries = new BulletMoveS2C.Entry[raid.getBullets().size() + raid.getBulletGroups().size()];
-                    if (entries.length > 0) {
-                        int i = 0;
-                        for (Map.Entry<Integer, Bullet> entry : raid.getBullets().int2ObjectEntrySet()) {
-                            entries[i] = new BulletMoveS2C.Entry(entry.getKey(), entry.getValue().getX(), entry.getValue().getY());
-                            ++i;
-                        }
-                        for (Map.Entry<Integer, BulletGroup> entry : raid.getBulletGroups().int2ObjectEntrySet()) {
-                            entries[i] = new BulletMoveS2C.Entry(entry.getKey(), entry.getValue().getX(), entry.getValue().getY());
-                            ++i;
-                        }
-                        get().sendToUDP(connectionId, new BulletMoveS2C(entries));
                     }
                 }
 

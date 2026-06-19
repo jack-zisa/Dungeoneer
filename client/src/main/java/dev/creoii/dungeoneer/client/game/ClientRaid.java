@@ -14,20 +14,20 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
-public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup> {
+public class ClientRaid extends Raid<Bullet, BulletGroup> {
     private final Dungeoneer client;
     private final ClientDungeonMap dungeon;
 
-    private final Pool<ClientBullet> bulletPool = new Pool<>() {
+    private final Pool<Bullet> bulletPool = new Pool<>() {
         @Override
-        protected ClientBullet newObject() {
-            return new ClientBullet();
+        protected Bullet newObject() {
+            return new Bullet();
         }
     };
-    private final Pool<ClientBulletGroup> bulletGroupPool = new Pool<>() {
+    private final Pool<BulletGroup> bulletGroupPool = new Pool<>() {
         @Override
-        protected ClientBulletGroup newObject() {
-            return new ClientBulletGroup();
+        protected BulletGroup newObject() {
+            return new BulletGroup();
         }
     };
 
@@ -46,12 +46,12 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup> {
     }
 
     @Override
-    public Pool<ClientBullet> getBulletPool() {
+    public Pool<Bullet> getBulletPool() {
         return bulletPool;
     }
 
     @Override
-    public Pool<ClientBulletGroup> getBulletGroupPool() {
+    public Pool<BulletGroup> getBulletGroupPool() {
         return bulletGroupPool;
     }
 
