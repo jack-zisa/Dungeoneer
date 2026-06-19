@@ -107,7 +107,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 throw new RuntimeException(e);
             }
 
-            server.get().sendToTCP(connection.getID(), new SyncDataS2C(baos.toByteArray()));
+            server.get().sendToTCP(connection.getID(), new SyncDataS2C(schemaType.getPath(), baos.toByteArray()));
         }
 
         server.get().sendToTCP(connection.getID(), new LoadDataS2C());

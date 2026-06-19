@@ -117,8 +117,8 @@ public class DataManager {
 
                 Path folderPath = path.resolve(folder);
                 if (!Files.exists(folderPath)) {
-                    LOGGER.info("Folder '" + folderPath + "' does not exist, skipping.");
-                    continue;
+                    LOGGER.info("Folder '" + folderPath + "' does not exist, creating.");
+                    Files.createDirectories(folderPath);
                 }
 
                 Object2ObjectArrayMap<String, Identifiable> data = DATA.get(entry.getKey());

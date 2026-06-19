@@ -48,8 +48,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -260,15 +262,40 @@ public class ClientNetworkHandler implements Listener {
                     }
                 });
             }
-            case SyncDataS2C(byte[] data) -> {
+            case SyncDataS2C(String schema, byte[] data) -> {
                 Path cacheRoot = Paths.get(System.getProperty("user.dir"), "cache", "data");
+                Path schemaRoot = cacheRoot.resolve(schema);
+                try {
+                    if (Files.exists(schemaRoot)) {
+                        try (Stream<Path> stream = Files.walk(schemaRoot)) {
+                            stream.sorted(Comparator.reverseOrder()).forEach(path -> {
+                                try {
+                                    Files.delete(path);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
                 try (ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(data))) {
                     ZipEntry entry;
                     while ((entry = zipIn.getNextEntry()) != null) {
-                        Path filePath = cacheRoot.resolve(entry.getName());
-                        Files.createDirectories(filePath.getParent());
-                        Files.write(filePath, zipIn.readAllBytes());
+                        Path filePath = cacheRoot.resolve(entry.getName()).normalize();
+                        if (!filePath.startsWith(cacheRoot)) {
+                            throw new IOException("Invalid zip entry: " + entry.getName());
+                        }
+
+                        if (entry.isDirectory()) {
+                            Files.createDirectories(filePath);
+                        } else {
+                            Files.createDirectories(filePath.getParent());
+                            Files.write(filePath, zipIn.readAllBytes());
+                        }
+
                         zipIn.closeEntry();
                     }
                 } catch (IOException e) {
