@@ -31,6 +31,8 @@ public class RaidLoadingScreen extends AbstractScreen {
         Label loadingLabel = new Label("Searching...", SKIN);
 
         root.add(title).padBottom(30).row();
+        root.add(targetLabel).row();
+        root.add(attackersLabel).row();
         root.add(loadingLabel).row();
 
         TextButton cancelButton = new TextButton("Cancel", SKIN);

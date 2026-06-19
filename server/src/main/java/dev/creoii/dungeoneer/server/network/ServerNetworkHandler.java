@@ -243,11 +243,11 @@ public class ServerNetworkHandler implements Listener, Tickable {
             List<RaidDefinition> availableRaids = server.getDatabase().getRaids().getAvailableRaids(requiredCharacters);
             Collections.shuffle(availableRaids);
             if (!availableRaids.isEmpty()) { // Join an existing raid
-                System.out.println("join existing raid");
                 RaidDefinition raidDefinition = availableRaids.getFirst();
                 DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raidDefinition.target().id());
                 if (dungeonMap != null) {
                     raidDefinition.attackers().add(account);
+                    server.getState().getRaids().get(raidDefinition.id()).getCharacters().add(new ServerCharacter(connection.getID(), character));
                     server.getDatabase().getRaids().updateAttackers(raidDefinition);
                     server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raidDefinition, dungeonMap.mapData()));
                     raidDefinition.attackers().forEach(account1 -> {
@@ -256,7 +256,6 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     });
                 }
             } else { // Create a new raid
-                System.out.println("create new raid");
                 Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
                 if (target != null) {
                     DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
