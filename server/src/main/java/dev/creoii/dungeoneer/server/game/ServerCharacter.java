@@ -70,11 +70,13 @@ public class ServerCharacter implements Character {
     }
 
     public void tick(DungeoneerServer server, float dt) {
-        // Update character position
-        float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
-        updatePosition(pos, velocity, speed, dt);
+        if (isMoving()) {
+            // Update character position
+            float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
+            updatePosition(pos, velocity, speed, dt);
 
-        // Sync character movement
-        server.get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
+            // Sync character movement
+            server.get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
+        }
     }
 }
