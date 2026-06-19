@@ -9,7 +9,6 @@ import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
-import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
@@ -77,8 +76,6 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
         // Update bullet positions
         super.update(dt);
 
-        // Update character position
-        float speed = StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * dt;
-        character.setPos(character.getX() + character.getVelocity()[0] * speed, character.getY() + character.getVelocity()[1] * speed);
+        character.tick(server, dt);
     }
 }

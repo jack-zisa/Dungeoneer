@@ -121,32 +121,9 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     }
 
     private void updateMovement() {
-        float dx = 0;
-        float dy = 0;
-
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_LEFT) != 0) --dx;
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_RIGHT) != 0) ++dx;
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_UP) != 0) ++dy;
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_DOWN) != 0) --dy;
-
         ClientCharacter character = client.getState().getActiveCharacter();
         if (character.isNull())
             return;
-
-        character.setVelocity(dx, dy);
-        float[] velocity = character.getVelocity();
-        if (!VectorUtils.isZero(velocity)) {
-            VectorUtils.nor(velocity);
-        }
-
-        AnimationState to;
-        if (VectorUtils.isZero(velocity)) {
-            to = AnimationState.toIdle(character.getAnimationState());
-        } else if (Math.abs(velocity[1]) >= Math.abs(velocity[0])) {
-            to = velocity[1] > 0 ? AnimationState.MOVING_UP : AnimationState.MOVING_DOWN;
-        } else to = velocity[0] > 0 ? AnimationState.MOVING_RIGHT : AnimationState.MOVING_LEFT;
-        character.setAnimationState(AnimationState.toMoving(to));
-
         client.get().sendUDP(new CharacterMoveC2S(client.getState().getCurrentRaid().get().id(), character.get().id(), movementFlags));
     }
 }

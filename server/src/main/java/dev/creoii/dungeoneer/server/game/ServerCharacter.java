@@ -2,18 +2,22 @@ package dev.creoii.dungeoneer.server.game;
 
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
-import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
+import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
+import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class ServerCharacter implements Character {
+    private final int connectionId;
     private final CharacterDefinition character;
     private final float[] pos;
     private final float[] velocity;
     private final StatContainer stats;
     private long lastAttackTime;
 
-    public ServerCharacter(CharacterDefinition character) {
+    public ServerCharacter(int connectionId, CharacterDefinition character) {
+        this.connectionId = connectionId;
         this.character = character;
         pos = VectorUtils.zero();
         velocity = VectorUtils.zero();
@@ -22,6 +26,10 @@ public class ServerCharacter implements Character {
             character.characterClass().baseStats().speed().value(),
             character.characterClass().baseStats().attackSpeed().value()
         );
+    }
+
+    public int getConnectionId() {
+        return connectionId;
     }
 
     public CharacterDefinition get() {
@@ -61,20 +69,12 @@ public class ServerCharacter implements Character {
         this.lastAttackTime = lastAttackTime;
     }
 
-    public void updateMovement(int movementFlags) {
-        float dx = 0;
-        float dy = 0;
+    public void tick(DungeoneerServer server, float dt) {
+        // Update character position
+        float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
+        updatePosition(pos, velocity, speed, dt);
 
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_LEFT) != 0) dx -= 1f;
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_RIGHT) != 0) dx += 1f;
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_UP) != 0) dy += 1f;
-        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_DOWN) != 0) dy -= 1f;
-
-        velocity[0] = dx;
-        velocity[1] = dy;
-
-        if (!VectorUtils.isZero(velocity)) {
-            VectorUtils.nor(velocity);
-        }
+        // Sync character movement
+        server.get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
     }
 }

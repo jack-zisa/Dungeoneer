@@ -127,11 +127,6 @@ public class DungeoneerServer {
                     }
 
                     raid.tick(DT);
-
-                    // Sync character movement
-                    if (raid.getCharacter().isMoving()) {
-                        get().sendToUDP(connectionId, new CharacterMoveS2C(raid.getCharacter().get().id(), raid.getCharacter().getX(), raid.getCharacter().getY()));
-                    }
                 }
 
                 networkHandler.tick(DT);

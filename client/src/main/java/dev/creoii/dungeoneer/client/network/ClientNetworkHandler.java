@@ -217,8 +217,14 @@ public class ClientNetworkHandler implements Listener {
             case CharacterMoveS2C(long characterId, float x, float y) -> {
                 if (!client.getState().getActiveCharacter().isNull() && characterId == client.getState().getActiveCharacter().get().id()) {
                     ClientCharacter character = client.getState().getActiveCharacter();
+
                     character.setPos(x, y);
-                    character.setCorrection(character.getX() - character.getRenderX(), character.getY() - character.getRenderY());
+
+                    float errorX = character.getX() - x;
+                    float errorY = character.getY() - y;
+
+                    character.getCorrection()[0] += errorX;
+                    character.getCorrection()[1] += errorY;
                 }
             }
             case ChatMessageS2C(Message message) -> {

@@ -3,14 +3,12 @@ package dev.creoii.dungeoneer.client.screen.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -30,15 +28,10 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
-import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
-import dev.creoii.dungeoneer.util.VectorUtils;
-import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.function.BiConsumer;
 
 public class GameScreen extends AbstractScreen {
     private OrthographicCamera camera;
@@ -128,23 +121,8 @@ public class GameScreen extends AbstractScreen {
         camera.update();
     }
 
-    public void applyCorrection(Entity entity, float[] pos, float[] correction, float[] renderPos, float dt, BiConsumer<Float, Float> setRenderPos) {
-        float error = VectorUtils.len(correction);
-        if (error > 30f) {
-            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", Arrays.toString(renderPos), Arrays.toString(pos));
-            setRenderPos.accept(entity.getX(), entity.getY());
-            VectorUtils.setZero(correction);
-        } else if (error > 5f) {
-            if (getClient().getSettings().debug().value()) Dungeoneer.LOGGER.debug("Correcting client position %s to %s", Arrays.toString(renderPos), Arrays.toString(pos));
-            float amount = Math.min(error, 15f * dt);
-            VectorUtils.nor(correction);
-            VectorUtils.mulAdd(renderPos, correction, amount);
-            VectorUtils.scl(correction, Math.max(0f, 1f - amount / error));
-        }
-    }
-
     @Override
-    public void render(float delta) {
+    public void render(float dt) {
         ClientCharacter character = getClient().getState().getActiveCharacter();
         if (character.isNull())
             return;
@@ -153,10 +131,7 @@ public class GameScreen extends AbstractScreen {
         if (raid.isNull())
             return;
 
-        float speed = StatUtils.getCalculatedSpeed(character.getStats().speed().value()) * delta;
-        VectorUtils.mulAdd(character.getRenderPos(), character.getVelocity(), speed);
-
-        applyCorrection(character, character.getPos(), character.getCorrection(), character.getRenderPos(), delta, character::setRenderPos);
+        character.update(dt);
 
         inputListener.updateMousePos(camera);
         if (inputListener.isAttacking())
@@ -182,11 +157,11 @@ public class GameScreen extends AbstractScreen {
         Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
 
         for (Bullet bullet : raid.getBullets().values()) {
-            renderBullet(bullet, getClient(), batch, delta);
+            renderBullet(bullet, getClient(), batch, dt);
         }
 
         for (BulletGroup bulletGroup : raid.getBulletGroups().values()) {
-            bulletGroup.getChildren().forEach(child -> renderBullet(child, getClient(), batch, delta));
+            bulletGroup.getChildren().forEach(child -> renderBullet(child, getClient(), batch, dt));
         }
 
         for (ClientLaser laser : raid.getLasers()) {
@@ -201,9 +176,7 @@ public class GameScreen extends AbstractScreen {
             );
         }
 
-        Sprite sprite = character.getSprite();
-        sprite.setPosition(character.getRenderX(), character.getRenderY());
-        sprite.draw(batch);
+        character.render(batch);
 
         batch.setShader(null);
         batch.end();
@@ -212,22 +185,12 @@ public class GameScreen extends AbstractScreen {
             shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-            float x = character.getCenterX();
-            float y = character.getCenterY();
-
-            shapeRenderer.setColor(character.isAttackPending() ? Color.GREEN : Color.WHITE);
-            float[] mouseDir = inputListener.getDirectionToMouse(x, y);
-            shapeRenderer.line(x, y, x + mouseDir[0] * 32f, y + mouseDir[1] * 32f);
-
-            shapeRenderer.setColor(Color.GREEN);
-            shapeRenderer.rect(character.getRenderX(), character.getRenderY(), character.getSprite().getWidth(), character.getSprite().getHeight());
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.rect(character.getX(), character.getY(), character.getSprite().getWidth(), character.getSprite().getHeight());
+            character.renderDebug(shapeRenderer, character.getDirectionToMouse(inputListener));
 
             shapeRenderer.end();
         }
 
-        super.render(delta);
+        super.render(dt);
     }
 
     public void renderBullet(BulletNode node, Dungeoneer client, SpriteBatch batch, float dt) {

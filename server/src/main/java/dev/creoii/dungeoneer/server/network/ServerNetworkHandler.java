@@ -253,7 +253,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (raid != null) {
                 DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raid.target().id());
                 if (dungeonMap != null) {
-                    server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, new ServerDungeon(dungeonMap.mapData()), new ServerCharacter(character), raid));
+                    server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, new ServerDungeon(dungeonMap.mapData()), new ServerCharacter(connection.getID(), character), raid));
                 }
             }
         } else if (object instanceof EndRaidC2S(long raidId)) {
@@ -288,8 +288,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 ServerRaid raid = server.getState().getRaids().get(raidId);
                 if (raid.getCharacter().get().id() != characterId)
                     return;
-
-                raid.getCharacter().updateMovement(movementFlags);
+                raid.getCharacter().updateVelocity(raid.getCharacter().getVelocity(), movementFlags);
             }
         } else if (object instanceof ChatMessageC2S(long localId, Message message)) {
             Faction faction = server.getDatabase().getFactions().getById(message.factionId());

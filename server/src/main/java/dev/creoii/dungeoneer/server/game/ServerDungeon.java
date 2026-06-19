@@ -62,22 +62,6 @@ public class ServerDungeon {
         }
     }
 
-    public int[][] getGround() {
-        return ground;
-    }
-
-    public int[][] getWalls() {
-        return walls;
-    }
-
-    public int[][] getObjects() {
-        return objects;
-    }
-
-    public int[][] getOverlays() {
-        return overlays;
-    }
-
     @Nullable
     public Tile getTileAt(String layer, int tileX, int tileY) {
         int id = switch (layer) {

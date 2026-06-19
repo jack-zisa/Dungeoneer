@@ -35,6 +35,10 @@ public class ClientDungeonMap implements Disposable {
 
     public boolean isSolid(int tileX, int tileY) {
         TiledMapTileLayer wallLayer = (TiledMapTileLayer) map.getLayers().get(Constants.MAP_LAYER_WALL);
+        if (tileX < 0 || tileY < 0 || tileX >= wallLayer.getWidth() || tileY >= wallLayer.getHeight()) {
+            return true;
+        }
+
         TiledMapTileLayer.Cell cell = wallLayer.getCell(tileX, tileY);
         return cell != null;
     }

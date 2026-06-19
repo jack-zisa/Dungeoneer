@@ -6,6 +6,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
 import java.util.List;
@@ -67,5 +68,26 @@ public interface Character extends Entity {
             }
             case null, default -> throw new IllegalStateException("Unexpected attack value: " + attack);
         }
+    }
+
+    default void updateVelocity(float[] velocity, int movementFlags) {
+        float dx = 0;
+        float dy = 0;
+
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_LEFT) != 0) dx--;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_RIGHT) != 0) dx++;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_UP) != 0) dy++;
+        if ((movementFlags & Constants.CHARACTER_MOVEMENT_FLAG_DOWN) != 0) dy--;
+
+        velocity[0] = dx;
+        velocity[1] = dy;
+
+        if (!VectorUtils.isZero(velocity)) {
+            VectorUtils.nor(velocity);
+        }
+    }
+
+    default void updatePosition(float[] position, float[] velocity, float speed, float dt) {
+        VectorUtils.mulAdd(position, velocity, speed * dt);
     }
 }
