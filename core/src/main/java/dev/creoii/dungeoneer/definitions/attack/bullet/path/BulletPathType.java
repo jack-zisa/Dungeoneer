@@ -39,11 +39,11 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
             return type;
         }
 
-        public float[] getOffset(BulletNode node, float t) {
+        public float[] getOffset(BulletNode<?> node, float t) {
             return ZERO;
         }
 
-        public float[] getDirection(BulletNode node, float[] offset1, float[] offset2) {
+        public float[] getDirection(BulletNode<?> node, float[] offset1, float[] offset2) {
             float dx = offset2[0] - offset1[0];
             float dy = offset2[1] - offset1[1];
 

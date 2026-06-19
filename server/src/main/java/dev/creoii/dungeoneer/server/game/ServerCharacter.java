@@ -35,12 +35,12 @@ public class ServerCharacter implements Character {
 
     @Override
     public float getCenterX() {
-        return 0; // TODO: Implement collision box
+        return getX() + 4f; // TODO: Implement collision box
     }
 
     @Override
     public float getCenterY() {
-        return 0; // TODO: Implement collision box
+        return getY() + 4f; // TODO: Implement collision box
     }
 
     @Override

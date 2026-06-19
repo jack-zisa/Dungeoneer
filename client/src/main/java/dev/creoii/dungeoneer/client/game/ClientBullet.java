@@ -37,4 +37,34 @@ public class ClientBullet extends Bullet {
         correction[0] = x;
         correction[1] = y;
     }
+
+    @Override
+    public float getCenterX() {
+        return getRenderX() + getType().scale() * 4f;
+    }
+
+    @Override
+    public float getCenterY() {
+        return getRenderY() + getType().scale() * 4f;
+    }
+
+    @Override
+    public void applyTransform(float originX, float originY, float dirX, float dirY) {
+        float perpX = -dirY;
+        float perpY = dirX;
+
+        float worldOffsetX = dirX * getLocalY() + perpX * getLocalX();
+        float worldOffsetY = dirY * getLocalY() + perpY * getLocalX();
+
+        setRenderPos(originX + worldOffsetX, originY + worldOffsetY);
+
+        setLocalDirection(dirX, dirY);
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        setRenderPos(0f, 0f);
+        setCorrection(0f, 0f);
+    }
 }

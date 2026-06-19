@@ -23,7 +23,7 @@ public record StraightBulletPathType(String id) implements BulletPathType<Straig
         }
 
         @Override
-        public float[] getOffset(BulletNode node, float t) {
+        public float[] getOffset(BulletNode<?> node, float t) {
             return new float[]{0f, t};
         }
     }

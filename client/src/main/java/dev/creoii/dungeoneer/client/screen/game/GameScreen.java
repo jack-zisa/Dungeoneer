@@ -26,7 +26,6 @@ import dev.creoii.dungeoneer.client.game.*;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Entity;
@@ -226,12 +225,12 @@ public class GameScreen extends AbstractScreen {
     }
 
     public void renderBullet(BulletNode node, Dungeoneer client, SpriteBatch batch, float dt) {
-        if (node instanceof BulletGroup group) {
+        if (node instanceof ClientBulletGroup group) {
             group.getChildren().forEach(child -> renderBullet(child, client, batch, dt));
             return;
         }
 
-        Bullet bullet = (Bullet) node;
+        ClientBullet bullet = (ClientBullet) node;
 
         Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getType().id());
 
@@ -249,7 +248,7 @@ public class GameScreen extends AbstractScreen {
         float height = texture.getHeight() * scale;
 
         batch.draw(texture,
-            bullet.getX() - width * .5f, bullet.getY() - height * .5f,
+            bullet.getRenderX() - width * .5f, bullet.getRenderY() - height * .5f,
             width * .5f, height * .5f,
             width, height,
             1f, 1f,
