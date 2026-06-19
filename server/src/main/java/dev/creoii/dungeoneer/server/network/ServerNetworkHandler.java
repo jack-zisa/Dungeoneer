@@ -251,7 +251,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof StartRaidC2S(long raidId, CharacterDefinition character)) {
             RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
-                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(character.accountId());
+                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raid.target().id());
                 if (dungeonMap != null) {
                     server.getState().getRaids().put(raidId, new ServerRaid(raidId, server, new ServerDungeon(dungeonMap.mapData()), new ServerCharacter(character), raid));
                 }

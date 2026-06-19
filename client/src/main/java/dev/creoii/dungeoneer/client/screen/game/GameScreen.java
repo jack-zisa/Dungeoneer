@@ -10,6 +10,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -217,6 +218,12 @@ public class GameScreen extends AbstractScreen {
             shapeRenderer.setColor(character.isAttackPending() ? Color.GREEN : Color.WHITE);
             float[] mouseDir = inputListener.getDirectionToMouse(x, y);
             shapeRenderer.line(x, y, x + mouseDir[0] * 32f, y + mouseDir[1] * 32f);
+
+            shapeRenderer.setColor(Color.GREEN);
+            shapeRenderer.rect(character.getRenderX(), character.getRenderY(), character.getSprite().getWidth(), character.getSprite().getHeight());
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.rect(character.getX(), character.getY(), character.getSprite().getWidth(), character.getSprite().getHeight());
+
             shapeRenderer.end();
         }
 
