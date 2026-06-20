@@ -19,6 +19,7 @@ import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.RaidCharacterWaitStatusS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidWaitingStateS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
@@ -246,13 +247,26 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 RaidDefinition raidDefinition = availableRaids.getFirst();
                 DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raidDefinition.target().id());
                 if (dungeonMap != null) {
+                    ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
+                    ServerRaid serverRaid = server.getState().getRaids().get(raidDefinition.id());
+                    raidDefinition = serverRaid.get();
                     raidDefinition.attackers().add(account);
-                    server.getState().getRaids().get(raidDefinition.id()).getCharacters().add(new ServerCharacter(connection.getID(), character));
+                    serverRaid.addCharacter(account.id(), serverCharacter);
                     server.getDatabase().getRaids().updateAttackers(raidDefinition);
                     server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raidDefinition, dungeonMap.mapData()));
+
+                    for (ServerCharacter existing : serverRaid.getCharacters().values()) {
+                        if (existing.get().accountId() == account.id())
+                            continue;
+                        server.get().sendToTCP(connection.getID(), new RaidCharacterWaitStatusS2C(existing.get(), existing.get().accountId()));
+                    }
+
                     raidDefinition.attackers().forEach(account1 -> {
                         int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
-                        if (connectionId != -1) server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(raidDefinition));
+                        if (connectionId != -1) {
+                            server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
+                            server.get().sendToTCP(connectionId, new RaidCharacterWaitStatusS2C(character, account.id()));
+                        }
                     });
                 }
             } else { // Create a new raid
@@ -262,8 +276,9 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     if (dungeonMap != null) {
                         RaidDefinition raid = server.getDatabase().getRaids().create(account, target, requiredCharacters, LocalDateTime.now());
                         if (raid != null) {
+                            ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
                             server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.mapData()));
-                            server.getState().getRaids().put(raid.id(), new ServerRaid(raid.id(), server, new ServerDungeon(dungeonMap.mapData()), new ServerCharacter(connection.getID(), character), raid));
+                            server.getState().getRaids().put(raid.id(), new ServerRaid(raid.id(), server, new ServerDungeon(dungeonMap.mapData()), serverCharacter, raid));
                         }
                     }
                 }
@@ -384,8 +399,10 @@ public class ServerNetworkHandler implements Listener, Tickable {
 
                 serverRaid.get().attackers().forEach(account1 -> {
                     int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
-                    if (connectionId != -1)
+                    if (connectionId != -1) {
                         server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
+                        server.get().sendToTCP(connectionId, new RaidCharacterWaitStatusS2C(null, accountId));
+                    }
                 });
             }
         }

@@ -5,6 +5,7 @@ import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
@@ -14,14 +15,14 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
+public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final long id;
     private final DungeoneerServer server;
     private final ServerDungeon dungeon;
-    private final List<ServerCharacter> characters;
     private Status status;
     private float timer;
+    private final List<MoveRaidCharactersS2C.Entry> moveEntries;
 
     private final Pool<Bullet> bulletPool = new Pool<>() {
         @Override
@@ -41,11 +42,11 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
         this.id = id;
         this.server = server;
         this.dungeon = dungeon;
-        characters = new ArrayList<>();
-        characters.add(character);
+        getCharacters().put(character.get().accountId(), character);
         status = Status.WAITING;
         timer = SYNC_INTERVAL;
         setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
+        moveEntries = new ArrayList<>();
     }
 
     @Override
@@ -62,12 +63,12 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
         return id;
     }
 
-    public ServerDungeon getDungeon() {
-        return dungeon;
+    public DungeoneerServer getServer() {
+        return server;
     }
 
-    public List<ServerCharacter> getCharacters() {
-        return characters;
+    public ServerDungeon getDungeon() {
+        return dungeon;
     }
 
     public Status getStatus() {
@@ -78,6 +79,10 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
         this.status = status;
     }
 
+    public List<MoveRaidCharactersS2C.Entry> getMoveEntries() {
+        return moveEntries;
+    }
+
     @Override
     public void tick(float dt) {
         if (status == Status.ACTIVE) {
@@ -86,22 +91,30 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
             // Update bullet positions
             super.update(dt);
 
-            for (ServerCharacter character : characters) {
+            for (ServerCharacter character : getCharacters().values()) {
                 // Sync raid timer
                 if (timer <= 0f) {
                     timer += SYNC_INTERVAL;
                     server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(character.get().accountId()), new SyncRaidTimerS2C(getRemainingTimeMs()));
                 }
-                character.tick(server, dt);
+                character.tick(this, dt);
             }
-        } else if (status == Status.WAITING && characters.size() == get().requiredCharacters()) {
+
+            if (!moveEntries.isEmpty()) {
+                getCharacters().values().forEach(serverCharacter -> {
+                    server.get().sendToUDP(serverCharacter.getConnectionId(), new MoveRaidCharactersS2C(moveEntries));
+                });
+
+                moveEntries.clear();
+            }
+        } else if (status == Status.WAITING && getCharacters().size() == get().requiredCharacters()) {
             setStatus(Status.ACTIVE);
         }
     }
 
     @Nullable
     public ServerCharacter getCharacterByAccountId(long accountId) {
-        for (ServerCharacter character : characters) {
+        for (ServerCharacter character : getCharacters().values()) {
             if (character.get().accountId() == accountId)
                 return character;
         }
@@ -110,7 +123,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup> implements Tickable {
 
     @Nullable
     public ServerCharacter getCharacterById(long characterId) {
-        for (ServerCharacter character : characters) {
+        for (ServerCharacter character : getCharacters().values()) {
             if (character.get().id() == characterId)
                 return character;
         }

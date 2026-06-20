@@ -121,11 +121,10 @@ public class DungeoneerServer {
                 while (iterator.hasNext()) {
                     ServerRaid raid = iterator.next();
 
-                    Iterator<ServerCharacter> characterIterator = raid.getCharacters().iterator();
+                    Iterator<ServerCharacter> characterIterator = raid.getCharacters().values().iterator();
                     while (characterIterator.hasNext()) {
                         ServerCharacter character = characterIterator.next();
                         int connectionId = getSessionManager().getAccountConnections().getOrDefault(character.get().accountId(), -1);
-
                         if (connectionId == -1) characterIterator.remove();
                     }
 

@@ -3,7 +3,7 @@ package dev.creoii.dungeoneer.server.game;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
-import dev.creoii.dungeoneer.server.DungeoneerServer;
+import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -69,14 +69,15 @@ public class ServerCharacter implements Character {
         this.lastAttackTime = lastAttackTime;
     }
 
-    public void tick(DungeoneerServer server, float dt) {
+    public void tick(ServerRaid raid, float dt) {
         if (isMoving()) {
             // Update character position
             float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
             updatePosition(pos, velocity, speed, dt);
 
             // Sync character movement
-            server.get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
+            raid.getMoveEntries().add(new MoveRaidCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
+            raid.getServer().get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
         }
     }
 }

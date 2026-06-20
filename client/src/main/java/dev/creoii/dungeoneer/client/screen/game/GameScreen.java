@@ -178,6 +178,8 @@ public class GameScreen extends AbstractScreen {
 
         character.render(batch);
 
+        raid.getCharacters().values().forEach(clientCharacter -> clientCharacter.render(batch));
+
         batch.setShader(null);
         batch.end();
 

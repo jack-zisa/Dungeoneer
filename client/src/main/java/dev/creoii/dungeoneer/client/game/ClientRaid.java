@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
-public class ClientRaid extends Raid<Bullet, BulletGroup> {
+public class ClientRaid extends Raid<Bullet, BulletGroup, ClientCharacter> {
     private final Dungeoneer client;
     private final ClientDungeonMap dungeon;
 
@@ -92,6 +92,8 @@ public class ClientRaid extends Raid<Bullet, BulletGroup> {
         }
 
         super.update(dt);
+
+        getCharacters().values().forEach(clientCharacter -> clientCharacter.update(dt));
 
         for (int i = lasers.size - 1; i >= 0; --i) {
             ClientLaser laser = lasers.get(i);

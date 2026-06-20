@@ -35,10 +35,7 @@ import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
-import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidWaitingStateS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SendRaidTargetS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.*;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -333,6 +330,35 @@ public class ClientNetworkHandler implements Listener {
                         client.setScreen(new GameScreen(client));
                     });
                 }
+            }
+            case MoveRaidCharactersS2C(List<MoveRaidCharactersS2C.Entry> entries) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid == null)
+                    return;
+
+                for (MoveRaidCharactersS2C.Entry entry : entries) {
+                    if (entry.accountId() == client.getState().getAccount().id())
+                        continue;
+
+                    ClientCharacter character = raid.getCharacters().get(entry.accountId());
+                    if (character != null && !character.isNull()) {
+                        character.setPos(entry.x(), entry.y());
+
+                        float errorX = character.getX() - entry.x();
+                        float errorY = character.getY() - entry.y();
+
+                        character.getCorrection()[0] += errorX;
+                        character.getCorrection()[1] += errorY;
+                    }
+                }
+            }
+            case RaidCharacterWaitStatusS2C(@Nullable CharacterDefinition characterDefinition, long accountId) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid == null)
+                    return;
+
+                if (accountId == -1L) raid.addCharacter(characterDefinition.accountId(), new ClientCharacter(client, characterDefinition));
+                else raid.getCharacters().remove(accountId);
             }
             default -> {
             }

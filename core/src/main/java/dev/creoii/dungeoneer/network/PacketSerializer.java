@@ -24,10 +24,7 @@ import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
-import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidWaitingStateS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SendRaidTargetS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -101,6 +98,8 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(AttackResultS2C.class, PacketSerializer.INSTANCE);
         kryo.register(SyncRaidTimerS2C.class, PacketSerializer.INSTANCE);
         kryo.register(SyncRaidWaitingStateS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(MoveRaidCharactersS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(RaidCharacterWaitStatusS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
@@ -141,5 +140,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(AttackResultS2C.class, AttackResultS2C::write, AttackResultS2C::read);
         PacketSerializer.INSTANCE.register(SyncRaidTimerS2C.class, SyncRaidTimerS2C::write, SyncRaidTimerS2C::read);
         PacketSerializer.INSTANCE.register(SyncRaidWaitingStateS2C.class, SyncRaidWaitingStateS2C::write, SyncRaidWaitingStateS2C::read);
+        PacketSerializer.INSTANCE.register(MoveRaidCharactersS2C.class, MoveRaidCharactersS2C::write, MoveRaidCharactersS2C::read);
+        PacketSerializer.INSTANCE.register(RaidCharacterWaitStatusS2C.class, RaidCharacterWaitStatusS2C::write, RaidCharacterWaitStatusS2C::read);
     }
 }

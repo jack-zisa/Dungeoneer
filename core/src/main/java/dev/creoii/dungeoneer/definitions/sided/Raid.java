@@ -8,12 +8,14 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
 import dev.creoii.dungeoneer.util.Constants;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Iterator;
 
-public abstract class Raid<B extends Bullet, BG extends BulletGroup> {
+public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character> {
     private RaidDefinition raid;
+    private final Long2ObjectArrayMap<C> characters;
     private long endTime;
 
     private final Int2ObjectArrayMap<B> bullets = new Int2ObjectArrayMap<>();
@@ -23,6 +25,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup> {
 
     public Raid(RaidDefinition raid) {
         this.raid = raid;
+        characters = new Long2ObjectArrayMap<>();
     }
 
     public RaidDefinition get() {
@@ -35,6 +38,14 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup> {
         if (raid != null) {
             endTime = System.currentTimeMillis() + Constants.RAID_DURATION_MS;
         } else endTime = -1L;
+    }
+
+    public Long2ObjectArrayMap<C> getCharacters() {
+        return characters;
+    }
+
+    public void addCharacter(long accountId, C character) {
+        characters.put(accountId, character);
     }
 
     public abstract Pool<B> getBulletPool();
