@@ -265,6 +265,8 @@ public class ServerNetworkHandler implements Listener, Tickable {
                         int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
                         if (connectionId != -1) {
                             server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
+                            if (account1.id() == account.id())
+                                return;
                             server.get().sendToTCP(connectionId, new RaidCharacterWaitStatusS2C(character, account.id()));
                         }
                     });
