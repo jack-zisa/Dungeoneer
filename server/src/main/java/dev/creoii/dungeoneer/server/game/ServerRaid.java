@@ -20,7 +20,6 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
     private final long id;
     private final DungeoneerServer server;
     private final ServerDungeon dungeon;
-    private Status status;
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
 
@@ -43,9 +42,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         this.server = server;
         this.dungeon = dungeon;
         getCharacters().put(character.get().accountId(), character);
-        status = Status.WAITING;
         timer = SYNC_INTERVAL;
-        setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
         moveEntries = new ArrayList<>();
     }
 
@@ -71,21 +68,13 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         return dungeon;
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     public List<MoveRaidCharactersS2C.Entry> getMoveEntries() {
         return moveEntries;
     }
 
     @Override
     public void tick(float dt) {
-        if (status == Status.ACTIVE) {
+        if (getStatus() == Status.ACTIVE) {
             timer -= dt;
 
             // Update bullet positions
@@ -107,8 +96,9 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
 
                 moveEntries.clear();
             }
-        } else if (status == Status.WAITING && getCharacters().size() == get().requiredCharacters()) {
+        } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) {
             setStatus(Status.ACTIVE);
+            setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
         }
     }
 
@@ -128,10 +118,5 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
                 return character;
         }
         return null;
-    }
-
-    public enum Status {
-        WAITING,
-        ACTIVE
     }
 }

@@ -18,6 +18,7 @@ import dev.creoii.dungeoneer.client.screen.main.PlayTab;
 import dev.creoii.dungeoneer.client.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.NetworkQueue;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
@@ -330,6 +331,7 @@ public class ClientNetworkHandler implements Listener {
                 } else if (raid.get().characters().size() == raid.get().requiredCharacters()) {
                     Gdx.app.postRunnable(() -> {
                         client.getState().setStatus(ClientState.Status.RAIDING);
+                        client.getState().getCurrentRaid().setStatus(Raid.Status.ACTIVE);
                         client.setScreen(new GameScreen(client));
                     });
                 }

@@ -112,6 +112,7 @@ public class FactionTab extends Tab {
         factionTable.add(chatScrollPane).grow();
 
         membersTable = new Table();
+        membersTable.add(new Label("Members", getSkin())).top().pad(4f).row();
         ScrollPane membersScrollPane = new ScrollPane(membersTable, getSkin());
         membersScrollPane.setFadeScrollBars(false);
         factionTable.add(membersScrollPane).width(100f).growY().row();
@@ -176,6 +177,7 @@ public class FactionTab extends Tab {
 
     public void refreshMembers(Faction faction) {
         membersTable.clearChildren();
+        membersTable.add(new Label("Members", getSkin())).top().pad(4f).row();
         for (Account account : faction.accounts()) {
             Table row = new Table();
 

@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character> {
     private RaidDefinition raid;
+    private Status status;
     private final Long2ObjectArrayMap<C> characters;
     private long endTime;
 
@@ -25,6 +26,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
     public Raid(RaidDefinition raid) {
         this.raid = raid;
+        status = Status.WAITING;
         characters = new Long2ObjectArrayMap<>();
     }
 
@@ -38,6 +40,14 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         if (raid != null) {
             endTime = System.currentTimeMillis() + Constants.RAID_DURATION_MS;
         } else endTime = -1L;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public Long2ObjectArrayMap<C> getCharacters() {
@@ -152,5 +162,10 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
             instance.setOrbitPhase(phase);
         }
         return poolBullet;
+    }
+
+    public enum Status {
+        WAITING,
+        ACTIVE
     }
 }

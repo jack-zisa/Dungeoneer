@@ -80,32 +80,36 @@ public class ClientRaid extends Raid<Bullet, BulletGroup, ClientCharacter> {
     }
 
     public void update(float dt) {
-        if (client.getScreen() instanceof GameScreen gameScreen) {
-            long remaining = getRemainingTimeMs();
-            if (remaining <= 0L) {
-                Gdx.app.postRunnable(() -> {
-                    client.getState().setStatus(ClientState.Status.LOBBY);
-                    client.getState().getCurrentRaid().end();
-                    client.setScreen(new MainScreen(client));
-                });
-            } else gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
-        }
+        if (getStatus() == Status.ACTIVE) {
+            if (client.getScreen() instanceof GameScreen gameScreen) {
+                long remaining = getRemainingTimeMs();
+                if (remaining <= 0L) {
+                    Gdx.app.postRunnable(() -> {
+                        client.getState().setStatus(ClientState.Status.LOBBY);
+                        client.getState().getCurrentRaid().end();
+                        client.setScreen(new MainScreen(client));
+                    });
+                } else gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
+            }
 
-        super.update(dt);
+            super.update(dt);
 
-        getCharacters().values().forEach(clientCharacter -> clientCharacter.update(dt));
+            getCharacters().values().forEach(clientCharacter -> clientCharacter.update(dt));
 
-        for (int i = lasers.size - 1; i >= 0; --i) {
-            ClientLaser laser = lasers.get(i);
-            if (!laser.update(dt)) {
-                lasers.removeIndex(i);
-                laserPool.free(laser);
+            for (int i = lasers.size - 1; i >= 0; --i) {
+                ClientLaser laser = lasers.get(i);
+                if (!laser.update(dt)) {
+                    lasers.removeIndex(i);
+                    laserPool.free(laser);
+                }
             }
         }
     }
 
     @Override
     public void end() {
+        setStatus(Status.WAITING);
+
         super.end();
 
         if (lasers.notEmpty()) {
