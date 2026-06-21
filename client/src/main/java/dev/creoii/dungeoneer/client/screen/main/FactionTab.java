@@ -105,16 +105,16 @@ public class FactionTab extends Tab {
         factionTable.add(factionNameLabel).row();
         factionTable.add(factionDescriptionLabel).row();
 
-        membersTable = new Table();
-        ScrollPane membersScrollPane = new ScrollPane(membersTable, getSkin());
-        membersScrollPane.setFadeScrollBars(false);
-        factionTable.add(membersScrollPane).height(150f).growX().row();
-
         chatTable = new Table();
         chatTable.top();
         chatScrollPane = new ScrollPane(chatTable, getSkin());
         chatScrollPane.setFadeScrollBars(false);
-        factionTable.add(chatScrollPane).grow().row();
+        factionTable.add(chatScrollPane).grow();
+
+        membersTable = new Table();
+        ScrollPane membersScrollPane = new ScrollPane(membersTable, getSkin());
+        membersScrollPane.setFadeScrollBars(false);
+        factionTable.add(membersScrollPane).width(100f).growY().row();
 
         chatField = new TextField("", getSkin());
         chatField.addListener(new InputListener() {
