@@ -203,7 +203,7 @@ public class VaultThroneTab extends Tab {
             classLabel.setText("");
             for (int i = 0; i < 5; i++) {
                 classIcons[i].removeActorAt(1, true);
-                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(Assets.CLASS_SILHOUETTE_TEXTURE)));
+                Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, "silhouette"))));
                 container.size(48f);
                 classIcons[i].add(container);
             }
@@ -228,7 +228,7 @@ public class VaultThroneTab extends Tab {
         for (int i = 0; i < classIcons.length; i++) {
             CharacterDefinition character = getCharacterForSlot(indices[i]);
             classIcons[i].removeActorAt(1, true);
-            Texture texture = character == null ? Assets.CLASS_SILHOUETTE_TEXTURE : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id());
+            Texture texture = character == null ? getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, "silhouette") : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id());
             Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(texture)));
             container.size(48f);
             classIcons[i].add(container);

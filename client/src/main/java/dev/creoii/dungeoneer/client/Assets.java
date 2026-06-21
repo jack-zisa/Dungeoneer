@@ -16,8 +16,6 @@ import dev.creoii.dungeoneer.util.logging.Logger;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public class Assets implements Disposable {
-    public static final Texture CLASS_SILHOUETTE_TEXTURE = new Texture("textures/character/silhouette.png");
-    public static final TextureRegion CLASS_SILHOUETTE_TEXTURE_REGION = new TextureRegion(CLASS_SILHOUETTE_TEXTURE);
     public static final Texture MISSING_TEXTURE = new Texture("textures/misc/missing.png");
     public static final TextureRegion MISSING_TEXTURE_REGION = new TextureRegion(MISSING_TEXTURE);
 
@@ -46,10 +44,10 @@ public class Assets implements Disposable {
 
     public Texture getTexture(Atlas atlas, String texture) {
         if (!atlases.containsKey(atlas.ordinal())) {
-            LOGGER.warn("Unknown texture requested from atlas '" + atlas.name() + ": " + texture);
-            return atlas == Atlas.CHARACTER ? CLASS_SILHOUETTE_TEXTURE : MISSING_TEXTURE;
+            LOGGER.warn("Unknown atlas requested from: %s", atlas.name());
+            return atlas == Atlas.CHARACTER ? getTexture(atlas, "silhouette") : MISSING_TEXTURE;
         }
-        return atlases.get(atlas.ordinal()).getTexture(texture, atlas == Atlas.CHARACTER ? CLASS_SILHOUETTE_TEXTURE_REGION : MISSING_TEXTURE_REGION).getTexture();
+        return atlases.get(atlas.ordinal()).getTexture(texture, MISSING_TEXTURE_REGION).getTexture();
     }
 
     public void load() {
@@ -109,7 +107,7 @@ public class Assets implements Disposable {
     @Override
     public void dispose() {
         for (DynamicTextureAtlas atlas : atlases.values()) {
-            atlas.getTextureAtlas().dispose();
+            atlas.dispose();
         }
     }
 

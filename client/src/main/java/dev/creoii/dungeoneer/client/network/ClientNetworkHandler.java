@@ -191,7 +191,9 @@ public class ClientNetworkHandler implements Listener {
                     });
                 }
             }
-            case SendRaidTargetS2C(RaidDefinition raid, byte[] mapData) -> client.getState().setCurrentRaid(raid, mapData);
+            case SendRaidTargetS2C(RaidDefinition raid, byte[] mapData) -> {
+                client.getState().setCurrentRaid(raid, mapData);
+            }
             case SearchFactionResultS2C(PacketResult result, List<Faction> factions) -> {
                 if (result == PacketResult.SUCCESS) {
                     Gdx.app.postRunnable(() -> {
@@ -319,12 +321,12 @@ public class ClientNetworkHandler implements Listener {
 
                 raid.set(raidDefinition);
                 client.getState().syncRaid(raidDefinition);
-                if (raidDefinition.attackers().isEmpty()) {
+                if (raidDefinition.characters().isEmpty()) {
                     Gdx.app.postRunnable(() -> {
                         client.getState().setStatus(ClientState.Status.LOBBY);
                         client.setScreen(new MainScreen(client));
                     });
-                } else if (raid.get().attackers().size() == raid.get().requiredCharacters()) {
+                } else if (raid.get().characters().size() == raid.get().requiredCharacters()) {
                     Gdx.app.postRunnable(() -> {
                         client.getState().setStatus(ClientState.Status.RAIDING);
                         client.setScreen(new GameScreen(client));

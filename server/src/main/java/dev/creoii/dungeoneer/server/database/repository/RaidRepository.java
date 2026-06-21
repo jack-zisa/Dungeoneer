@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.server.database.repository;
 
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
@@ -26,6 +27,7 @@ public class RaidRepository {
             CREATE TABLE IF NOT EXISTS raids (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 attacker_ids STRING NOT NULL,
+                character_ids STRING NOT NULL,
                 target_id INTEGER NOT NULL,
                 required_characters INTEGER NOT NULL,
                 start_time DATETIME NOT NULL,
@@ -52,11 +54,13 @@ public class RaidRepository {
         jdbi.useHandle(handle ->
             handle.createUpdate("""
             UPDATE raids
-            SET attacker_ids = :attacker_ids
+            SET attacker_ids = :attacker_ids,
+                character_ids = :character_ids
             WHERE id = :id
         """)
                 .bind("id", raidDefinition.id())
                 .bind("attacker_ids", NetworkUtils.compressIds(raidDefinition.attackers().stream().map(Account::id).collect(Collectors.toList())))
+                .bind("character_ids", NetworkUtils.compressIds(raidDefinition.characters().stream().map(CharacterDefinition::id).collect(Collectors.toList())))
                 .execute()
         );
     }
@@ -73,32 +77,31 @@ public class RaidRepository {
                 .map((rs, _) -> {
                     String endTime = rs.getString("end_time");
                     List<Account> attackerIds = database.getAccounts().getByIds(NetworkUtils.parseIds(rs.getString("attacker_ids")));
+                    List<CharacterDefinition> characterIds = database.getCharacters().getByIds(NetworkUtils.parseIds(rs.getString("character_ids")));
                     return new RaidDefinition(
                         rs.getInt("id"),
                         attackerIds,
+                        characterIds,
                         database.getAccounts().getById(rs.getInt("target_id")),
                         rs.getInt("required_characters"),
                         LocalDateTime.parse(rs.getString("start_time")),
-                        endTime == null || endTime.isBlank()
-                            ? null
-                            : LocalDateTime.parse(endTime)
+                        endTime == null || endTime.isBlank() ? null : LocalDateTime.parse(endTime)
                     );
                 })
                 .list()
                 .stream()
                 .filter(raid -> raid.attackers().size() < raid.requiredCharacters())
-                .toList()
+                .collect(Collectors.toList())
         );
     }
 
-    public boolean delete(long id) {
-        return jdbi.withHandle(handle ->
+    public void delete(long id) {
+        jdbi.withHandle(handle ->
             handle.createUpdate("""
                 DELETE FROM raids
                 WHERE id = :id
                 """)
                 .bind("id", id)
-                .execute() > 0
         );
     }
 
@@ -114,9 +117,11 @@ public class RaidRepository {
                 .map((rs, _) -> {
                     String endTime = rs.getString("end_time");
                     List<Account> attackerIds = database.getAccounts().getByIds(NetworkUtils.parseIds(rs.getString("attacker_ids")));
+                    List<CharacterDefinition> characterIds = database.getCharacters().getByIds(NetworkUtils.parseIds(rs.getString("character_ids")));
                     return new RaidDefinition(
                         rs.getInt("id"),
                         attackerIds,
+                        characterIds,
                         database.getAccounts().getById(rs.getInt("target_id")),
                         rs.getInt("required_characters"),
                         LocalDateTime.parse(rs.getString("start_time")),
@@ -128,13 +133,14 @@ public class RaidRepository {
         );
     }
 
-    public RaidDefinition create(Account attacker, Account target, int requiredCharacters, LocalDateTime startTime) {
+    public RaidDefinition create(Account attacker, CharacterDefinition character, Account target, int requiredCharacters, LocalDateTime startTime) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO raids(attacker_ids, target_id, required_characters, start_time)
-                VALUES(:attacker_ids, :target_id, :required_characters, :start_time)
+                INSERT INTO raids(attacker_ids, character_ids, target_id, required_characters, start_time)
+                VALUES(:attacker_ids, :character_ids, :target_id, :required_characters, :start_time)
             """)
                 .bind("attacker_ids", attacker.id())
+                .bind("character_ids", attacker.activeCharacterId())
                 .bind("target_id", target.id())
                 .bind("required_characters", requiredCharacters)
                 .bind("start_time", startTime.toString())
@@ -145,6 +151,8 @@ public class RaidRepository {
 
         List<Account> attackers = new ArrayList<>();
         attackers.add(attacker);
-        return new RaidDefinition(id, attackers, target, requiredCharacters, startTime, null);
+        List<CharacterDefinition> characters = new ArrayList<>();
+        characters.add(character);
+        return new RaidDefinition(id, attackers, characters, target, requiredCharacters, startTime, null);
     }
 }

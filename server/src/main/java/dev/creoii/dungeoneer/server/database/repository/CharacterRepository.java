@@ -4,8 +4,12 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
+import dev.creoii.dungeoneer.util.NetworkUtils;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class CharacterRepository {
     private final Jdbi jdbi;
@@ -41,6 +45,26 @@ public class CharacterRepository {
                 ))
                 .findOne()
                 .orElse(null)
+        );
+    }
+
+    public List<CharacterDefinition> getByIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return jdbi.withHandle(handle ->
+            handle.createQuery("""
+                SELECT *
+                FROM characters
+                WHERE id IN (<ids>)
+                """)
+                .bindList("ids", ids)
+                .map((rs, _) -> new CharacterDefinition(
+                    rs.getInt("id"),
+                    rs.getInt("account_id"),
+                    DataManager.getCharacterClass(rs.getString("class"))
+                ))
+                .list()
         );
     }
 

@@ -241,16 +241,18 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
             server.get().sendToUDP(connection.getID(), new LeaveFactionResultS2C(PacketResult.FAIL));
         } else if (object instanceof JoinOrCreateRaidC2S(Account account, CharacterDefinition character, int requiredCharacters)) {
+            ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
+
             List<RaidDefinition> availableRaids = server.getDatabase().getRaids().getAvailableRaids(requiredCharacters);
             Collections.shuffle(availableRaids);
             if (!availableRaids.isEmpty()) { // Join an existing raid
                 RaidDefinition raidDefinition = availableRaids.getFirst();
                 DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raidDefinition.target().id());
                 if (dungeonMap != null) {
-                    ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
                     ServerRaid serverRaid = server.getState().getRaids().get(raidDefinition.id());
                     raidDefinition = serverRaid.get();
                     raidDefinition.attackers().add(account);
+                    raidDefinition.characters().add(character);
                     serverRaid.addCharacter(account.id(), serverCharacter);
                     server.getDatabase().getRaids().updateAttackers(raidDefinition);
                     server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raidDefinition, dungeonMap.mapData()));
@@ -276,9 +278,8 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 if (target != null) {
                     DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
                     if (dungeonMap != null) {
-                        RaidDefinition raid = server.getDatabase().getRaids().create(account, target, requiredCharacters, LocalDateTime.now());
+                        RaidDefinition raid = server.getDatabase().getRaids().create(account, character, target, requiredCharacters, LocalDateTime.now());
                         if (raid != null) {
-                            ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
                             server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.mapData()));
                             server.getState().getRaids().put(raid.id(), new ServerRaid(raid.id(), server, new ServerDungeon(dungeonMap.mapData()), serverCharacter, raid));
                         }
@@ -394,6 +395,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
             ServerRaid serverRaid = server.getState().getRaids().get(raidId);
             if (serverRaid != null && serverRaid.getStatus() == ServerRaid.Status.WAITING) {
                 serverRaid.get().attackers().removeIf(account -> account.id() == accountId);
+                serverRaid.get().characters().removeIf(character -> character.accountId() == accountId);
 
                 if (serverRaid.get().attackers().isEmpty()) {
                     server.getDatabase().getRaids().delete(raidId);

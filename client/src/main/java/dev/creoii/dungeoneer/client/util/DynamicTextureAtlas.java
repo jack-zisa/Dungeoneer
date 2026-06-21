@@ -4,9 +4,10 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 
-public class DynamicTextureAtlas {
+public class DynamicTextureAtlas implements Disposable {
     private final TextureAtlas textureAtlas;
     private final ObjectMap<String, TextureRegion> textures;
     private final ObjectMap<String, String> pendingTextures;
@@ -48,5 +49,10 @@ public class DynamicTextureAtlas {
 
     public TextureAtlas getTextureAtlas() {
         return textureAtlas;
+    }
+
+    @Override
+    public void dispose() {
+        textureAtlas.dispose();
     }
 }

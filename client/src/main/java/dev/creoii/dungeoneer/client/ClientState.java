@@ -92,8 +92,7 @@ public class ClientState {
 
     public void syncRaid(RaidDefinition raid) {
         if (client.getScreen() instanceof RaidLoadingScreen raidLoadingScreen) {
-            raidLoadingScreen.getTargetLabel().setText(raid.target().username());
-            raidLoadingScreen.getAttackersLabel().setText(String.format("%s / %s Attackers", raid.attackers().size(), raid.requiredCharacters()));
+            raidLoadingScreen.sync(raid);
         }
     }
 
