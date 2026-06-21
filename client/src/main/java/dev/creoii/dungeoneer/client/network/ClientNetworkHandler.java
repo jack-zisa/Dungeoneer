@@ -193,6 +193,7 @@ public class ClientNetworkHandler implements Listener {
             }
             case SendRaidTargetS2C(RaidDefinition raid, byte[] mapData) -> {
                 client.getState().setCurrentRaid(raid, mapData);
+                client.getState().syncRaid(raid);
             }
             case SearchFactionResultS2C(PacketResult result, List<Faction> factions) -> {
                 if (result == PacketResult.SUCCESS) {

@@ -129,12 +129,15 @@ public class AccountRepository {
     }
 
     @Nullable
-    public Account getRandomExcluding(long excludedId) {
+    public Account getRaidTarget(long excludedId) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
-                        SELECT *
-                        FROM accounts
-                        WHERE id != :exclude
+                        SELECT a.*
+                        FROM accounts a
+                        LEFT JOIN dungeon_maps d
+                            ON a.id = d.account_id
+                        WHERE a.id != :exclude
+                            AND d.id IS NOT NULL
                         ORDER BY RANDOM()
                         LIMIT 1
                     """)

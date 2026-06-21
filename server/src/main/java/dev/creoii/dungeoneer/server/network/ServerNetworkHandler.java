@@ -53,6 +53,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -243,19 +244,17 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof JoinOrCreateRaidC2S(Account account, CharacterDefinition character, int requiredCharacters)) {
             ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
 
-            List<RaidDefinition> availableRaids = server.getDatabase().getRaids().getAvailableRaids(requiredCharacters);
+            List<ServerRaid> availableRaids = server.getState().getRaids().values().stream().filter(raid -> raid.getStatus() != ServerRaid.Status.ACTIVE && raid.get().requiredCharacters() == requiredCharacters && raid.get().attackers().size() < raid.get().requiredCharacters()).collect(Collectors.toList());
             Collections.shuffle(availableRaids);
             if (!availableRaids.isEmpty()) { // Join an existing raid
-                RaidDefinition raidDefinition = availableRaids.getFirst();
-                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(raidDefinition.target().id());
+                ServerRaid serverRaid = availableRaids.getFirst();
+                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(serverRaid.get().target().id());
                 if (dungeonMap != null) {
-                    ServerRaid serverRaid = server.getState().getRaids().get(raidDefinition.id());
-                    raidDefinition = serverRaid.get();
-                    raidDefinition.attackers().add(account);
-                    raidDefinition.characters().add(character);
+                    serverRaid.get().attackers().add(account);
+                    serverRaid.get().characters().add(character);
                     serverRaid.addCharacter(account.id(), serverCharacter);
-                    server.getDatabase().getRaids().updateAttackers(raidDefinition);
-                    server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raidDefinition, dungeonMap.mapData()));
+                    server.getDatabase().getRaids().updateAttackers(serverRaid.get());
+                    server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(serverRaid.get(), dungeonMap.mapData()));
 
                     for (ServerCharacter existing : serverRaid.getCharacters().values()) {
                         if (existing.get().accountId() == account.id())
@@ -263,7 +262,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                         server.get().sendToTCP(connection.getID(), new RaidCharacterWaitStatusS2C(existing.get(), existing.get().accountId()));
                     }
 
-                    raidDefinition.attackers().forEach(account1 -> {
+                    serverRaid.get().attackers().forEach(account1 -> {
                         int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
                         if (connectionId != -1) {
                             server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
@@ -274,7 +273,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     });
                 }
             } else { // Create a new raid
-                Account target = server.getDatabase().getAccounts().getRandomExcluding(account.id());
+                Account target = server.getDatabase().getAccounts().getRaidTarget(account.id());
                 if (target != null) {
                     DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
                     if (dungeonMap != null) {
@@ -399,6 +398,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
 
                 if (serverRaid.get().attackers().isEmpty()) {
                     server.getDatabase().getRaids().delete(raidId);
+                    server.getState().getRaids().remove(raidId);
                 } else server.getDatabase().getRaids().updateAttackers(serverRaid.get());
 
                 serverRaid.get().attackers().forEach(account1 -> {
