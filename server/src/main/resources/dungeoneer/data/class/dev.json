@@ -1,0 +1,13 @@
+{
+  "id": "dev",
+  "base_stats": {
+    "health": 1000,
+    "speed": 100,
+    "attack_speed": 100
+  },
+  "max_stats": {
+    "health": 1000,
+    "speed": 100,
+    "attack_speed": 100
+  }
+}
