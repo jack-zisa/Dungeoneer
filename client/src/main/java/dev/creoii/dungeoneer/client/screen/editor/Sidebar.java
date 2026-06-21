@@ -167,6 +167,10 @@ public class Sidebar extends Table {
         return selection;
     }
 
+    public void setSelectedTile(TileProvider selectedTile) {
+        this.selectedTile = selectedTile;
+    }
+
     private TextButton addSelectionButton(Table table, ButtonGroup<TextButton> group, String label, Selection newSelection) {
         TextButton button = new TextButton(label, getSkin());
         group.add(button);
@@ -198,30 +202,28 @@ public class Sidebar extends Table {
         return button;
     }
 
-    private ImageButton addTileButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TiledMapTile tile) {
+    private void addTileButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TiledMapTile tile) {
         ImageButton button = new ImageButton(new TextureRegionDrawable(texture));
         group.add(button);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 String id = ClientTiles.TILES.inverse().get(tile);
-                selectedTile = button.isChecked() ? new SimpleTileProvider(id, DataManager.getTile(id)) : null;
+                setSelectedTile(button.isChecked() ? new SimpleTileProvider(id, DataManager.getTile(id)) : null);
             }
         });
         table.add(button);
-        return button;
     }
 
-    private ImageButton addTileProviderButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TileProvider tileProvider) {
+    private void addTileProviderButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TileProvider tileProvider) {
         ImageButton button = new ImageButton(new TextureRegionDrawable(texture));
         group.add(button);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                selectedTile = button.isChecked() ? tileProvider : null;
+                setSelectedTile(button.isChecked() ? tileProvider : null);
             }
         });
         table.add(button);
-        return button;
     }
 }

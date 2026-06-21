@@ -32,4 +32,9 @@ public final class ClientTiles {
     public static TiledMapTile getTile(String id) {
         return TILES.getOrDefault(id, null);
     }
+
+    @Nullable
+    public static String getTileId(TiledMapTile tile) {
+        return TILES.inverse().getOrDefault(tile, null);
+    }
 }

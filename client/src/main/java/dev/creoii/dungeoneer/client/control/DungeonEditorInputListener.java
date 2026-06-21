@@ -15,6 +15,7 @@ import dev.creoii.dungeoneer.client.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.util.InputUtils;
 import dev.creoii.dungeoneer.util.UndoRedoList;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
 import java.awt.*;
@@ -81,6 +82,20 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        Point point = screen.getHoveredPos();
+
+        if (button == Input.Buttons.MIDDLE) {
+            if (point != null) {
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
+                TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
+                if (cell != null) {
+                    String tileId = ClientTiles.getTileId(cell.getTile());
+                    screen.getSidebar().setSelectedTile(new SimpleTileProvider(tileId, DataManager.getTile(tileId)));
+                } else screen.getSidebar().setSelectedTile(null);
+                return true;
+            }
+        }
+
         lastX = screenX;
         lastY = screenY;
 
@@ -90,15 +105,14 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
         }
 
         if (button == Input.Buttons.LEFT) {
-            Point point = screen.getHoveredPos();
             if (InputUtils.isCtrl() && screen.getSidebar().getSelection() instanceof AreaSelection areaSelection) {
                 selecting = true;
                 areaSelection.setMin(point.x, point.y);
                 areaSelection.setMax(point.x, point.y);
                 return true;
             } else if (!selecting) {
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
                 if (point != null) {
+                    TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
                     placeTilesAt(tileLayer, point.x, point.y);
                     return true;
                 }
