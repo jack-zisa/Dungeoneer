@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Scaling;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
@@ -203,27 +204,47 @@ public class Sidebar extends Table {
     }
 
     private void addTileButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TiledMapTile tile) {
-        ImageButton button = new ImageButton(new TextureRegionDrawable(texture));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(texture);
+        drawable.setMinSize(24f, 24f);
+        ImageButton button = new ImageButton(drawable);
         group.add(button);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                if (button.isChecked()) {
+                    button.getImage().setColor(0.7f, 0.7f, 0.7f, 1f);
+                    button.getImage().setScale(1.1f);
+                } else {
+                    button.getImage().setColor(1f, 1f, 1f, 1f);
+                    button.getImage().setScale(1f);
+                }
+
                 String id = ClientTiles.TILES.inverse().get(tile);
                 setSelectedTile(button.isChecked() ? new SimpleTileProvider(id, DataManager.getTile(id)) : null);
             }
         });
-        table.add(button);
+        table.add(button).pad(2f);
     }
 
     private void addTileProviderButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TileProvider tileProvider) {
-        ImageButton button = new ImageButton(new TextureRegionDrawable(texture));
+        TextureRegionDrawable drawable = new TextureRegionDrawable(texture);
+        drawable.setMinSize(24f, 24f);
+        ImageButton button = new ImageButton(drawable);
         group.add(button);
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                if (button.isChecked()) {
+                    button.getImage().setColor(0.7f, 0.7f, 0.7f, 1f);
+                    button.getImage().setScale(1.1f);
+                } else {
+                    button.getImage().setColor(1f, 1f, 1f, 1f);
+                    button.getImage().setScale(1f);
+                }
+
                 setSelectedTile(button.isChecked() ? tileProvider : null);
             }
         });
-        table.add(button);
+        table.add(button).pad(2f);
     }
 }
