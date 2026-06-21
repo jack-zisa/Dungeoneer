@@ -16,6 +16,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.selection.Selection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
+import dev.creoii.dungeoneer.definitions.Tile;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
@@ -113,28 +114,23 @@ public class Sidebar extends Table {
         add(toolsTable).grow().row();
 
         add(new Label("Tiles", getSkin())).center().row();
-        Table tilesTable = new Table();
-        ButtonGroup<ImageButton> tiles = new ButtonGroup<>();
-        tiles.setMinCheckCount(0);
-        tiles.setMaxCheckCount(1);
-        tiles.setUncheckLast(true);
-
-        int index = 0;
-
-        for (TiledMapTile tile : ClientTiles.TILES.values()) {
-            addTileButton(tilesTable, tiles, tile.getTextureRegion(), tile);
-            if (++index % 6 == 0) {
-                tilesTable.row();
-            }
-        }
-        add(tilesTable).grow().row();
-
-        add(new Label("Tile Providers", getSkin())).center().row();
         Table tileProvidersTable = new Table();
         ButtonGroup<ImageButton> tileProviders = new ButtonGroup<>();
         tileProviders.setMinCheckCount(0);
         tileProviders.setMaxCheckCount(1);
         tileProviders.setUncheckLast(true);
+
+        int index = 0;
+        for (TiledMapTile tile : ClientTiles.TILES.values()) {
+            String tileId = ClientTiles.getTileId(tile);
+            TileProvider tileProvider = new SimpleTileProvider(tileId, DataManager.getTile(tileId));
+            addTileProviderButton(tileProvidersTable, tileProviders, tile.getTextureRegion(), tileProvider);
+            if (++index % 6 == 0) {
+                tileProvidersTable.row();
+            }
+        }
+
+        tileProvidersTable.row();
 
         for (Identifiable identifiable : DataManager.getTileProviders().values()) {
             TileProvider tileProvider = (TileProvider) identifiable;
@@ -201,29 +197,6 @@ public class Sidebar extends Table {
         });
         table.add(button);
         return button;
-    }
-
-    private void addTileButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TiledMapTile tile) {
-        TextureRegionDrawable drawable = new TextureRegionDrawable(texture);
-        drawable.setMinSize(24f, 24f);
-        ImageButton button = new ImageButton(drawable);
-        group.add(button);
-        button.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    button.getImage().setColor(0.7f, 0.7f, 0.7f, 1f);
-                    button.getImage().setScale(1.1f);
-                } else {
-                    button.getImage().setColor(1f, 1f, 1f, 1f);
-                    button.getImage().setScale(1f);
-                }
-
-                String id = ClientTiles.TILES.inverse().get(tile);
-                setSelectedTile(button.isChecked() ? new SimpleTileProvider(id, DataManager.getTile(id)) : null);
-            }
-        });
-        table.add(button).pad(2f);
     }
 
     private void addTileProviderButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, TileProvider tileProvider) {
