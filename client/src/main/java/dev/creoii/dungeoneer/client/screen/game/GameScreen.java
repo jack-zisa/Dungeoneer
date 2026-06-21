@@ -30,10 +30,13 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import javax.annotation.Nullable;
 
 public class GameScreen extends AbstractScreen {
+    private final ObjectList<ClientCharacter> visibleCharacters;
     private OrthographicCamera camera;
     private CharacterInputListener inputListener;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -44,6 +47,9 @@ public class GameScreen extends AbstractScreen {
 
     public GameScreen(Dungeoneer client) {
         super(client);
+        visibleCharacters = new ObjectArrayList<>();
+        visibleCharacters.add(getClient().getState().getActiveCharacter());
+        visibleCharacters.addAll(client.getState().getCurrentRaid().getCharacters().values());
     }
 
     public OrthographicCamera getCamera() {
@@ -176,9 +182,8 @@ public class GameScreen extends AbstractScreen {
             );
         }
 
-        character.render(batch);
-
-        raid.getCharacters().values().forEach(clientCharacter -> clientCharacter.render(batch));
+        visibleCharacters.sort((a, b) -> Float.compare(b.getRenderY(), a.getRenderY()));
+        visibleCharacters.forEach(clientCharacter -> clientCharacter.render(batch));
 
         batch.setShader(null);
         batch.end();
