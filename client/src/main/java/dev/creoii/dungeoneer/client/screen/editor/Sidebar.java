@@ -10,13 +10,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Scaling;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.selection.Selection;
 import dev.creoii.dungeoneer.client.screen.AbstractScreen;
-import dev.creoii.dungeoneer.definitions.Tile;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
@@ -29,6 +27,7 @@ public class Sidebar extends Table {
     private final DungeonEditorScreen screen;
     private int brushSize;
     private String selectedLayer;
+    private Table tilesTable;
     private TileProvider selectedTile;
     private Selection selection;
 
@@ -114,7 +113,7 @@ public class Sidebar extends Table {
         add(toolsTable).grow().row();
 
         add(new Label("Tiles", getSkin())).center().row();
-        Table tileProvidersTable = new Table();
+        tilesTable = new Table();
         ButtonGroup<ImageButton> tileProviders = new ButtonGroup<>();
         tileProviders.setMinCheckCount(0);
         tileProviders.setMaxCheckCount(1);
@@ -124,22 +123,22 @@ public class Sidebar extends Table {
         for (TiledMapTile tile : ClientTiles.TILES.values()) {
             String tileId = ClientTiles.getTileId(tile);
             TileProvider tileProvider = new SimpleTileProvider(tileId, DataManager.getTile(tileId));
-            addTileProviderButton(tileProvidersTable, tileProviders, tile.getTextureRegion(), tileProvider);
+            addTileProviderButton(tilesTable, tileProviders, tile.getTextureRegion(), tileProvider);
             if (++index % 6 == 0) {
-                tileProvidersTable.row();
+                tilesTable.row();
             }
         }
 
-        tileProvidersTable.row();
+        tilesTable.row();
 
         for (Identifiable identifiable : DataManager.getTileProviders().values()) {
             TileProvider tileProvider = (TileProvider) identifiable;
-            addTileProviderButton(tileProvidersTable, tileProviders, ClientTiles.getTile(tileProvider.getTile().id()).getTextureRegion(), tileProvider);
+            addTileProviderButton(tilesTable, tileProviders, ClientTiles.getTile(tileProvider.getTile().id()).getTextureRegion(), tileProvider);
             if (++index % 6 == 0) {
-                tileProvidersTable.row();
+                tilesTable.row();
             }
         }
-        add(tileProvidersTable).grow();
+        add(tilesTable).grow();
 
         setBackground(TAB_BACKGROUND);
     }
@@ -166,6 +165,18 @@ public class Sidebar extends Table {
 
     public void setSelectedTile(TileProvider selectedTile) {
         this.selectedTile = selectedTile;
+
+        tilesTable.getChildren().forEach(actor -> {
+            if (actor instanceof ImageButton button) {
+                if (button.getName().equals(selectedTile.getTile().id())) {
+                    button.getImage().setColor(.7f, .7f, .7f, 1f);
+                    button.getImage().setScale(1.1f);
+                } else {
+                    button.getImage().setColor(1f, 1f, 1f, 1f);
+                    button.getImage().setScale(1f);
+                }
+            }
+        });
     }
 
     private TextButton addSelectionButton(Table table, ButtonGroup<TextButton> group, String label, Selection newSelection) {
@@ -203,6 +214,7 @@ public class Sidebar extends Table {
         TextureRegionDrawable drawable = new TextureRegionDrawable(texture);
         drawable.setMinSize(24f, 24f);
         ImageButton button = new ImageButton(drawable);
+        button.setName(tileProvider.getTile().id());
         group.add(button);
         button.addListener(new ChangeListener() {
             @Override
