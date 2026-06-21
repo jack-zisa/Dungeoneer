@@ -43,6 +43,10 @@ public class DynamicTextureAtlas implements Disposable {
         pendingTextures.clear();
     }
 
+    public ObjectMap<String, TextureRegion> getTextures() {
+        return textures;
+    }
+
     public TextureRegion getTexture(String id, TextureRegion defaultTexture) {
         return textures.get(id, defaultTexture);
     }

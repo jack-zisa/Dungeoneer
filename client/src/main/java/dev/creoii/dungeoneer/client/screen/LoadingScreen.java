@@ -36,6 +36,7 @@ public class LoadingScreen extends AbstractScreen {
             initialized = true;
 
             getClient().getAssets().bindAtlases();
+            getClient().getAssets().createTiledWalls();
 
             PacketSerializer.registerDefault(getClient().get().getKryo());
 

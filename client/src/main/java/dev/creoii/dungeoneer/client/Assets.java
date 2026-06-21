@@ -6,14 +6,22 @@ import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
 import dev.creoii.dungeoneer.client.util.ConditionalPaddedTextureLoader;
 import dev.creoii.dungeoneer.client.util.DynamicTextureAtlas;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Assets implements Disposable {
     public static final Texture MISSING_TEXTURE = new Texture("textures/misc/missing.png");
@@ -28,6 +36,8 @@ public class Assets implements Disposable {
     public static final NinePatch HEALTH_BAR_EMPTY_9PATCH = new NinePatch(new Texture("textures/ui/health_bar_empty.png"), 4, 4, 4,4);
 
     public static final ShaderProgram BORDER_SHADER = new ShaderProgram(Gdx.files.internal("shaders/border.vert"), Gdx.files.internal("shaders/border.frag"));
+
+    public static final Map<String, Model> WALLS = new HashMap<>();
 
     public static final Logger LOGGER = new Logger(AssetManager.class.getSimpleName());
     private final AssetManager manager;
@@ -86,7 +96,8 @@ public class Assets implements Disposable {
                     atlases.put(atlas.ordinal(), new DynamicTextureAtlas());
                 }
 
-                atlases.get(atlas.ordinal()).addTexture(path, parts[2].replace(".png", ""));
+                String id = parts[2].replace(".png", "");
+                atlases.get(atlas.ordinal()).addTexture(path, id);
             } catch (IllegalArgumentException _) {
 
             }
@@ -104,8 +115,16 @@ public class Assets implements Disposable {
         }
     }
 
+    public void createTiledWalls() {
+        final ModelBuilder modelBuilder = new ModelBuilder();
+        atlases.get(Atlas.TILE.ordinal()).getTextures().forEach(entry -> {
+            WALLS.put(entry.key, modelBuilder.createBox(4f, 4f, 4f, new Material(TextureAttribute.createDiffuse(entry.value)), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates));
+        });
+    }
+
     @Override
     public void dispose() {
+        WALLS.clear();
         for (DynamicTextureAtlas atlas : atlases.values()) {
             atlas.dispose();
         }

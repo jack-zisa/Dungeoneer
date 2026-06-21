@@ -168,7 +168,7 @@ public class Sidebar extends Table {
 
         tilesTable.getChildren().forEach(actor -> {
             if (actor instanceof ImageButton button) {
-                if (button.getName().equals(selectedTile.getTile().id())) {
+                if (selectedTile != null && button.getName().equals(selectedTile.getTile().id())) {
                     button.getImage().setColor(.7f, .7f, .7f, 1f);
                     button.getImage().setScale(1.1f);
                 } else {

@@ -83,10 +83,10 @@ public class ClientState {
     public void setCurrentRaid(@Nullable RaidDefinition raid, byte[] mapData) {
         currentRaid.set(raid);
 
-        if (raid == null) currentRaid.getDungeon().clearMap();
+        if (raid == null) currentRaid.getDungeon().clear();
         else {
             syncRaid(raid);
-            currentRaid.getDungeon().build(mapData);
+            currentRaid.getDungeon().build(client, mapData);
         }
     }
 

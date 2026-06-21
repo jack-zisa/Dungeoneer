@@ -80,7 +80,7 @@ public class Dungeoneer extends Game {
 
     @Override
     public void render() {
-        ScreenUtils.clear(0, 0, 0, 1);
+        ScreenUtils.clear(0, 0, 0, 1, true);
 
         float dt = Gdx.graphics.getDeltaTime();
 
