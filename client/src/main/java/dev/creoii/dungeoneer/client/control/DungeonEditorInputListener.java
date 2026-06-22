@@ -5,16 +5,21 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.mojang.datafixers.util.Either;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.editor.action.CompositeAction;
+import dev.creoii.dungeoneer.client.editor.action.SetObjectAction;
 import dev.creoii.dungeoneer.client.editor.action.SetTileAction;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.action.EditorAction;
 import dev.creoii.dungeoneer.client.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.util.InputUtils;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.UndoRedoList;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.provider.mapobjectprovider.MapObjectProvider;
+import dev.creoii.dungeoneer.util.provider.mapobjectprovider.SimpleMapObjectProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
@@ -86,13 +91,19 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
 
         if (button == Input.Buttons.MIDDLE) {
             if (point != null) {
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
+                TiledMapTileLayer tileLayer = screen.getSidebar().getActiveLayer();
                 TiledMapTileLayer.Cell cell = tileLayer.getCell(point.x, point.y);
                 if (cell != null) {
-                    String tileId = ClientTiles.getTileId(cell.getTile());
-                    screen.getSidebar().setSelectedTile(new SimpleTileProvider(tileId, DataManager.getTile(tileId)));
+                    if (screen.getSidebar().getSelectedLayer().equals(Constants.MAP_LAYER_OBJECT)) {
+                        String tileId = ClientTiles.getObjectId(cell.getTile());
+                        screen.getSidebar().setSelectedTile(new SimpleMapObjectProvider(tileId, DataManager.getMapObject(tileId)));
+                        System.out.println("set object to: " + tileId);
+                    } else {
+                        String tileId = ClientTiles.getTileId(cell.getTile());
+                        screen.getSidebar().setSelectedTile(new SimpleTileProvider(tileId, DataManager.getTile(tileId)));
+                    }
+                    return true;
                 } else screen.getSidebar().setSelectedTile(null);
-                return true;
             }
         }
 
@@ -112,7 +123,7 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
                 return true;
             } else if (!selecting) {
                 if (point != null) {
-                    TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
+                    TiledMapTileLayer tileLayer = screen.getSidebar().getActiveLayer();
                     placeTilesAt(tileLayer, point.x, point.y);
                     return true;
                 }
@@ -140,7 +151,7 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
         lastY = screenY;
 
         if (!selecting && Gdx.input.isButtonPressed(Input.Buttons.LEFT) && point != null) {
-            TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(screen.getSidebar().getSelectedLayer());
+            TiledMapTileLayer tileLayer = screen.getSidebar().getActiveLayer();
             placeTilesAt(tileLayer, point.x, point.y);
         }
 
@@ -162,34 +173,44 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
     }
 
     public void placeTilesAt(TiledMapTileLayer tileLayer, int x, int y) {
-        TileProvider tile = screen.getSidebar().getSelectedTile();
-        if (screen.getSidebar().getBrushSize() == 1) {
-            TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
-            if (cell == null) {
-                cell = new TiledMapTileLayer.Cell();
-            }
-            TiledMapTile old = cell.getTile();
-            SetTileAction action = new SetTileAction(tileLayer, x, y, old == null ? null : DataManager.getTile(ClientTiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
-            action.redo();
-            currentActions.add(action);
-        } else {
-            int radius = screen.getSidebar().getBrushSize() - 1;
+        Either<TileProvider, MapObjectProvider> selected = screen.getSidebar().getSelectedTile();
 
-            CompositeAction compositeAction = new CompositeAction();
-            for (int yo = -radius; yo <= radius; ++yo) {
-                for (int xo = -radius; xo <= radius; ++xo) {
-                    TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
-                    if (cell == null) {
-                        cell = new TiledMapTileLayer.Cell();
-                    }
+        int radius = screen.getSidebar().getBrushSize() - 1;
+        CompositeAction composite = radius > 0 ? new CompositeAction() : null;
 
-                    TiledMapTile old = cell.getTile();
-                    SetTileAction action = new SetTileAction(tileLayer, x + xo, y + yo, old == null ? null : DataManager.getTile(ClientTiles.TILES.inverse().get(old)), tile == null ? null : tile.get(new Random()));
-                    action.redo();
-                    compositeAction.add(action);
+        boolean objectLayer = screen.getSidebar().getSelectedLayer().equals(Constants.MAP_LAYER_OBJECT);
+
+        for (int yo = -radius; yo <= radius; yo++) {
+            for (int xo = -radius; xo <= radius; xo++) {
+                int tx = x + xo;
+                int ty = y + yo;
+
+                TiledMapTileLayer.Cell cell = tileLayer.getCell(tx, ty);
+                TiledMapTile oldTile = cell == null ? null : cell.getTile();
+
+                EditorAction action;
+                if (selected == null) {
+                    if (objectLayer) {
+                        action = new SetObjectAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getMapObject(ClientTiles.getObjectId(oldTile)), null);
+                    } else action = new SetTileAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getTile(ClientTiles.getTileId(oldTile)), null);
+                } else if (selected.left().isPresent()) {
+                    TileProvider provider = selected.left().get();
+                    action = new SetTileAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getTile(ClientTiles.getTileId(oldTile)), provider.get(new Random()));
+                } else {
+                    MapObjectProvider provider = selected.right().get();
+                    action = new SetObjectAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getMapObject(ClientTiles.getObjectId(oldTile)), provider.get(new Random()));
                 }
+
+                action.redo();
+
+                if (composite != null) {
+                    composite.add(action);
+                } else currentActions.add(action);
             }
-            currentActions.add(compositeAction);
+        }
+
+        if (composite != null) {
+            currentActions.add(composite);
         }
     }
 

@@ -147,6 +147,20 @@ public final class RenderUtils {
         drawQuad(batch, texture, bl, br, tr, tl);
     }
 
+    public static void drawObjectTile(Camera camera, PolygonSpriteBatch batch, TextureRegion texture, int tileX, int tileY, float rotation) {
+        float x = tileX * ClientDungeonMap.TILE_SIZE;
+        float y = tileY * ClientDungeonMap.TILE_SIZE;
+
+        float centerX = x + ClientDungeonMap.TILE_SIZE * 0.5f;
+        float centerY = y + ClientDungeonMap.TILE_SIZE * 0.5f;
+
+        float[] pos = {centerX, centerY};
+
+        VectorUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
+
+        batch.draw(texture, pos[0] - texture.getRegionWidth() * 0.5f, pos[1], texture.getRegionWidth(), texture.getRegionHeight());
+    }
+
     private static void drawQuad(PolygonSpriteBatch batch, TextureRegion texture, Vector2 bl, Vector2 br, Vector2 tr, Vector2 tl) {
         float color = Color.WHITE.toFloatBits();
 

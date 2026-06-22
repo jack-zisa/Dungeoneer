@@ -9,6 +9,7 @@ import com.google.common.collect.HashBiMap;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.definitions.MapObject;
 import dev.creoii.dungeoneer.definitions.Tile;
 
 import javax.annotation.Nullable;
@@ -16,6 +17,7 @@ import javax.annotation.Nullable;
 public final class ClientTiles {
     public static final TiledMapTileSet TILESET = new TiledMapTileSet();
     public static final BiMap<String, TiledMapTile> TILES = HashBiMap.create();
+    public static final BiMap<String, TiledMapTile> OBJECTS = HashBiMap.create();
 
     public static void load(Dungeoneer client) {
         DataManager.getTiles().forEach((_, identifiable) -> {
@@ -25,6 +27,14 @@ public final class ClientTiles {
             tile1.setId(tile.tileId());
             TILES.put(tile.id(), tile1);
             TILESET.putTile(tile.tileId(), tile1);
+        });
+
+        DataManager.getMapObjects().forEach((_, identifiable) -> {
+            MapObject mapObject = (MapObject) identifiable;
+            TiledMapTile tile1 = new StaticTiledMapTile(new TextureRegion(client.getAssets().getTexture(Assets.Atlas.OBJECT, mapObject.id())));
+            tile1.setId(mapObject.tileId());
+            OBJECTS.put(mapObject.id(), tile1);
+            TILESET.putTile(mapObject.tileId(), tile1);
         });
     }
 
@@ -36,5 +46,15 @@ public final class ClientTiles {
     @Nullable
     public static String getTileId(TiledMapTile tile) {
         return TILES.inverse().getOrDefault(tile, null);
+    }
+
+    @Nullable
+    public static TiledMapTile getObject(String id) {
+        return OBJECTS.getOrDefault(id, null);
+    }
+
+    @Nullable
+    public static String getObjectId(TiledMapTile tile) {
+        return OBJECTS.inverse().getOrDefault(tile, null);
     }
 }

@@ -134,6 +134,7 @@ public class Assets implements Disposable {
         CHARACTER(true),
         BULLET(true),
         TILE,
+        OBJECT,
         UI;
 
         private final boolean hasOutline;

@@ -177,6 +177,16 @@ public class GameScreen extends AbstractScreen {
             }
         }
 
+        TiledMapTileLayer object = ((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_OBJECT));
+        for (int x = 0; x < object.getWidth(); x++) {
+            for (int y = 0; y < object.getHeight(); y++) {
+                TiledMapTileLayer.Cell cell = object.getCell(x, y);
+                if (cell != null) {
+                    RenderUtils.drawObjectTile(camera, polygonBatch, cell.getTile().getTextureRegion(), x, y, inputListener.getRotation());
+                }
+            }
+        }
+
         for (WallRenderable renderable : renderables) {
             if (renderable instanceof ClientDungeonMap.WallTop(TextureRegion texture, int x, int y)) {
                 RenderUtils.drawWallTop(camera, polygonBatch, texture, x, y, inputListener.getRotation());

@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.creoii.dungeoneer.definitions.MapObject;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
@@ -59,6 +60,10 @@ public class DataManager {
         return DATA.get(SchemaType.TILE_PROVIDER);
     }
 
+    public static Object2ObjectArrayMap<String, Identifiable> getMapObjects() {
+        return DATA.get(SchemaType.MAP_OBJECT);
+    }
+
     @Nullable
     public static BulletType getBullet(String id) {
         BulletType value = (BulletType) getBullets().get(id);
@@ -103,6 +108,16 @@ public class DataManager {
         TileProvider value = (TileProvider) getTileProviders().get(id);
         if (value == null) {
             if (DEBUG) LOGGER.error("Unknown Tile Provider: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static MapObject getMapObject(String id) {
+        MapObject value = (MapObject) getMapObjects().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Map Object: '" + id + "'");
             return null;
         }
         return value;
@@ -172,7 +187,8 @@ public class DataManager {
         ATTACK("attack"),
         CLASS("class"),
         TILE("tile"),
-        TILE_PROVIDER("tile_provider");
+        TILE_PROVIDER("tile_provider"),
+        MAP_OBJECT("object");
 
         private final String path;
 
@@ -191,6 +207,7 @@ public class DataManager {
         SCHEMA.put(SchemaType.CLASS, CharacterClass.CODEC);
         SCHEMA.put(SchemaType.TILE, Tile.CODEC);
         SCHEMA.put(SchemaType.TILE_PROVIDER, TileProvider.CODEC);
+        SCHEMA.put(SchemaType.MAP_OBJECT, MapObject.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {
             DATA.put(schemaType, new Object2ObjectArrayMap<>());

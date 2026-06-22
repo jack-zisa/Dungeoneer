@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.definitions.Tile;
 import java.util.Random;
 
 public record SimpleTileProvider(String id, Tile value) implements TileProvider {
-    public static final SimpleTileProvider EMPTY = new SimpleTileProvider("empty", DataManager.getTile("air"));
+    public static final SimpleTileProvider EMPTY = new SimpleTileProvider("empty", DataManager.getTile("stone"));
     public static final MapCodec<SimpleTileProvider> CODEC = RecordCodecBuilder.mapCodec(instance ->
         instance.group(
             Codec.STRING.fieldOf("id").forGetter(SimpleTileProvider::id),
