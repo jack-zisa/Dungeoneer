@@ -9,7 +9,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.control.MousePosListener;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.sided.Character;
@@ -180,8 +179,8 @@ public class ClientCharacter implements Character {
     }
 
     @Override
-    public void updateVelocity(float[] velocity, int movementFlags) {
-        Character.super.updateVelocity(velocity, movementFlags);
+    public void updateVelocity(float[] velocity, int movementFlags, float rotation) {
+        Character.super.updateVelocity(velocity, movementFlags, rotation);
 
         AnimationState to;
         if (VectorUtils.isZero(velocity)) {
@@ -220,9 +219,5 @@ public class ClientCharacter implements Character {
         shapeRenderer.rect(getRenderX(), getRenderY(), sprite.getWidth(), sprite.getHeight());
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(getX(), getY(), sprite.getWidth(), sprite.getHeight());
-    }
-
-    public float[] getDirectionToMouse(MousePosListener mousePosListener) {
-        return mousePosListener.getDirectionToMouse(getCenterX(), getCenterY());
     }
 }

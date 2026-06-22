@@ -311,14 +311,14 @@ public class ServerNetworkHandler implements Listener, Tickable {
             if (account != null) {
                 server.getDatabase().getAccounts().updateActiveCharacter(accountId, activeCharacterId);
             }
-        } else if (object instanceof CharacterMoveC2S(long raidId, long characterId, int movementFlags)) {
+        } else if (object instanceof CharacterMoveC2S(long raidId, long characterId, int movementFlags, float rotation)) {
             CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
             if (character != null && server.getState().getRaids().containsKey(raidId)) {
                 ServerRaid raid = server.getState().getRaids().get(raidId);
                 ServerCharacter serverCharacter = raid.getCharacterById(characterId);
                 if (serverCharacter == null)
                     return;
-                serverCharacter.updateVelocity(serverCharacter.getVelocity(), movementFlags);
+                serverCharacter.updateVelocity(serverCharacter.getVelocity(), movementFlags, rotation);
             }
         } else if (object instanceof ChatMessageC2S(long localId, Message message)) {
             Faction faction = server.getDatabase().getFactions().getById(message.factionId());

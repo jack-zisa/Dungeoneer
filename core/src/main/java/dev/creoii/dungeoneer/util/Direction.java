@@ -1,10 +1,10 @@
 package dev.creoii.dungeoneer.util;
 
 public enum Direction {
-    UP(new float[]{1f, 0f}),
-    DOWN(new float[]{-1f, 0f}),
-    LEFT(new float[]{0f, -1f}),
-    RIGHT(new float[]{0f, 1f});
+    UP(new float[]{0f, 1f}),
+    DOWN(new float[]{0f, -1f}),
+    LEFT(new float[]{-1f, 0f}),
+    RIGHT(new float[]{1f, 0f});
 
     private final float[] vector;
 

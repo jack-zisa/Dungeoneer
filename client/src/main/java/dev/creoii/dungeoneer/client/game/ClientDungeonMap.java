@@ -1,12 +1,17 @@
 package dev.creoii.dungeoneer.client.game;
 
-import com.badlogic.gdx.graphics.g2d.PolygonRegion;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.util.Constants;
@@ -18,14 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClientDungeonMap implements Disposable {
-    public static final float WALL_HEIGHT = 8f;
+    public static final float WALL_HEIGHT = 4f;
     public static final float TILE_SIZE = 8f;
+    private static final float WALL_PITCH = 1f;
     private TiledMap map;
+    private List<WallTop> wallTops;
     private List<WallFace> wallFaces;
 
     public void build(Dungeoneer client, byte[] mapData) {
         try {
             map = DungeonMapUtils.deserializeMap(mapData, ClientTiles.TILESET);
+            wallTops = new ArrayList<>();
             wallFaces = new ArrayList<>();
 
             TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(Constants.MAP_LAYER_WALL);
@@ -33,7 +41,14 @@ public class ClientDungeonMap implements Disposable {
                 for (int y = 0; y < layer.getHeight(); ++y) {
                     TiledMapTileLayer.Cell cell = layer.getCell(x, y);
                     if (cell != null) {
-                        TextureRegion texture = cell.getTile().getTextureRegion();
+                        TiledMapTile tile = cell.getTile();
+                        TextureRegion texture = tile.getTextureRegion();
+
+                        String topTextureId = DataManager.getTile(ClientTiles.getTileId(tile)).id() + "_top";
+                        Texture top = client.getAssets().getTexture(Assets.Atlas.TILE, topTextureId);
+                        TextureRegion topTexture = top == Assets.MISSING_TEXTURE ? texture : new TextureRegion(top);
+
+                        wallTops.add(new WallTop(topTexture, x, y));
 
                         if (layer.getCell(x + 1, y) == null) wallFaces.add(new WallFace(texture, x, y, Direction.RIGHT));
                         if (layer.getCell(x - 1, y) == null) wallFaces.add(new WallFace(texture, x, y, Direction.LEFT));
@@ -54,6 +69,11 @@ public class ClientDungeonMap implements Disposable {
     public void clear() {
         map = null;
         wallFaces.clear();
+        wallTops.clear();
+    }
+
+    public List<WallTop> getWallTops() {
+        return wallTops;
     }
 
     public List<WallFace> getWallFaces() {
@@ -76,19 +96,49 @@ public class ClientDungeonMap implements Disposable {
     }
 
     public static Vector2 project(float x, float y, float z, float angle, float originX, float originY) {
-        float dx = x - originX;
-        float dy = y - originY;
-        float cos = MathUtils.cosDeg(angle);
-        float sin = MathUtils.sinDeg(angle);
-        float rx = dx * cos - dy * sin;
-        float ry = dx * sin + dy * cos;
-        return new Vector2(rx + originX, ry + originY - z);
+        float rad = angle * MathUtils.degreesToRadians;
+        x -= originX;
+        y -= originY;
+        float rx = x * MathUtils.cos(rad) - y * MathUtils.sin(rad);
+        float ry = x * MathUtils.sin(rad) + y * MathUtils.cos(rad);
+        rx += z * .5f;
+        ry -= z;
+        rx += originX;
+        ry += originY;
+        return new Vector2(rx, ry);
     }
 
-    public record WallFace(TextureRegion texture, float x, float y, Direction direction) {
+    public record WallTop(TextureRegion texture, int x, int y) implements WallRenderable {
+        public static boolean isVisible(int x, int y, float rotation, Camera camera) {
+            Vector2 forward = new Vector2(MathUtils.sinDeg(rotation), MathUtils.cosDeg(rotation));
+            float wallCenterX = x * TILE_SIZE + TILE_SIZE * .5f;
+            float wallCenterY = y * TILE_SIZE + TILE_SIZE * .5f;
+            Vector2 toWall = new Vector2(wallCenterX - camera.position.x, wallCenterY - camera.position.y);
+            return toWall.dot(forward) > 0f;
+        }
+
+        @Override
+        public float depth(float rotation, OrthographicCamera camera) {
+            float worldX = x * ClientDungeonMap.TILE_SIZE;
+            float worldY = y * ClientDungeonMap.TILE_SIZE;
+            Vector2 p = ClientDungeonMap.project(worldX, worldY, ClientDungeonMap.WALL_HEIGHT, rotation, camera.position.x, camera.position.y);
+            return p.y;
+        }
+    }
+
+    public record WallFace(TextureRegion texture, int x, int y, Direction direction) implements WallRenderable {
         public static boolean isVisible(Direction direction, float rotation) {
-            Vector2 cameraDir = new Vector2(MathUtils.cosDeg(rotation), MathUtils.sinDeg(rotation));
-            return direction.getVector()[1] * cameraDir.x + direction.getVector()[0] * cameraDir.y < 0f;
+            Vector2 normal = new Vector2(direction.getVector()[0], direction.getVector()[1]);
+            normal.rotateDeg(rotation);
+            return normal.y < 0;
+        }
+
+        @Override
+        public float depth(float rotation, OrthographicCamera camera) {
+            float worldX = x * ClientDungeonMap.TILE_SIZE;
+            float worldY = y * ClientDungeonMap.TILE_SIZE;
+            Vector2 p = ClientDungeonMap.project(worldX, worldY, ClientDungeonMap.WALL_HEIGHT, rotation, camera.position.x, camera.position.y);
+            return p.y;
         }
     }
 }

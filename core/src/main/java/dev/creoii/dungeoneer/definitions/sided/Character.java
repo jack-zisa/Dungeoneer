@@ -70,7 +70,7 @@ public interface Character extends Entity {
         }
     }
 
-    default void updateVelocity(float[] velocity, int movementFlags) {
+    default void updateVelocity(float[] velocity, int movementFlags, float rotation) {
         float dx = 0;
         float dy = 0;
 
@@ -84,6 +84,7 @@ public interface Character extends Entity {
 
         if (!VectorUtils.isZero(velocity)) {
             VectorUtils.nor(velocity);
+            VectorUtils.rotateDeg(velocity, -rotation);
         }
     }
 

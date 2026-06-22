@@ -1,7 +1,8 @@
 package dev.creoii.dungeoneer.util;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 
 public final class VectorUtils {
     public static final float[] ZERO = zero();
@@ -50,5 +51,32 @@ public final class VectorUtils {
         final float l_w = 1f / (vec[0] * l_mat[Matrix4.M30] + vec[1] * l_mat[Matrix4.M31] + 0f * l_mat[Matrix4.M32] + l_mat[Matrix4.M33]);
         vec[0] = (vec[0] * l_mat[Matrix4.M00] + vec[1] * l_mat[Matrix4.M01] + 0f * l_mat[Matrix4.M02] + l_mat[Matrix4.M03]) * l_w;
         vec[1] = (vec[0] * l_mat[Matrix4.M10] + vec[1] * l_mat[Matrix4.M11] + 0f * l_mat[Matrix4.M12] + l_mat[Matrix4.M13]) * l_w;
+    }
+
+    public static void prj2(float[] vec, float z, float angle, float originX, float originY) {
+        float rad = angle * MathUtils.degreesToRadians;
+        vec[0] -= originX;
+        vec[1] -= originY;
+        float rx = vec[0] * MathUtils.cos(rad) - vec[1] * MathUtils.sin(rad);
+        float ry = vec[0] * MathUtils.sin(rad) + vec[1] * MathUtils.cos(rad);
+        rx += z * .5f;
+        ry -= z;
+        rx += originX;
+        ry += originY;
+        vec[0] = rx;
+        vec[1] = ry;
+    }
+
+    public static void rotateDeg(float[] vec, float degrees) {
+        rotateRad(vec, degrees * MathUtils.degreesToRadians);
+    }
+
+    public static void rotateRad(float[] vec, float radians) {
+        float cos = (float) Math.cos(radians);
+        float sin = (float) Math.sin(radians);
+        float newX = vec[0] * cos - vec[1] * sin;
+        float newY = vec[0] * sin + vec[1] * cos;
+        vec[0] = newX;
+        vec[1] = newY;
     }
 }

@@ -158,7 +158,7 @@ public class DungeonEditorScreen extends AbstractScreen {
         }
         shapeRenderer.end();
 
-        inputListener.updateMousePos(camera);
+        inputListener.updateMousePos(camera, 0f);
         if (inputListener != null) {
             hoverPosLabel.setText(getHoveredPos().x + "," + getHoveredPos().y);
         }
