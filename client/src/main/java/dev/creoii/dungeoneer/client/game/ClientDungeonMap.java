@@ -24,7 +24,6 @@ import java.util.List;
 public class ClientDungeonMap implements Disposable {
     public static final float WALL_HEIGHT = -4f;
     public static final float TILE_SIZE = 8f;
-    private static final float WALL_PITCH = 1f;
     private TiledMap map;
     private List<WallTop> wallTops;
     private List<WallFace> wallFaces;
@@ -121,7 +120,7 @@ public class ClientDungeonMap implements Disposable {
         public static boolean isVisible(Direction direction, float rotation) {
             Vector2 normal = new Vector2(direction.getVector()[0], direction.getVector()[1]);
             normal.rotateDeg(rotation);
-            return normal.y < 0;
+            return normal.y <= 0f;
         }
 
         @Override
