@@ -139,7 +139,7 @@ public class ClientDungeonMap implements Disposable {
 
         @Override
         public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
-            RenderUtils.drawWall(camera, batch, this, rotation);
+            RenderUtils.drawWallSide(camera, batch, this, rotation);
         }
 
         @Override

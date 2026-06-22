@@ -24,7 +24,7 @@ public final class RenderUtils {
     };
     private static final float[] QUAD_VERTICES = new float[20];
 
-    public static void drawWall(Camera camera, PolygonSpriteBatch batch, ClientDungeonMap.WallFace face, float rotation) {
+    public static void drawWallSide(Camera camera, PolygonSpriteBatch batch, ClientDungeonMap.WallFace face, float rotation) {
         float x = face.x() * ClientDungeonMap.TILE_SIZE;
         float y = face.y() * ClientDungeonMap.TILE_SIZE;
 
@@ -40,35 +40,27 @@ public final class RenderUtils {
             case DOWN -> {
                 bl = ClientDungeonMap.project(x, y, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
-
                 tl = ClientDungeonMap.project(x, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
                 tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
-
             case UP -> {
                 bl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-
                 tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
                 tr = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
-
             case LEFT -> {
                 bl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x, y, 0f, rotation, centerX, centerY);
-
                 tl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
                 tr = ClientDungeonMap.project(x, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
-
             case RIGHT -> {
                 bl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-
                 tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
                 tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
-
             default -> throw new IllegalStateException();
         }
 
@@ -79,7 +71,7 @@ public final class RenderUtils {
         float u2 = tex.getU2();
         float v2 = tex.getV();
 
-        float color = Color.WHITE.toFloatBits();
+        float color = Color.LIGHT_GRAY.toFloatBits();
 
         int i = 0;
 
