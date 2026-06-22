@@ -183,20 +183,20 @@ public class GameScreen extends AbstractScreen {
         polygonBatch.setProjectionMatrix(camera.combined);
         polygonBatch.begin();
 
-        ShaderProgram currentShader = null;
+        ShaderProgram shader = null;
         for (Renderable renderable : renderables) {
-            ShaderProgram desiredShader = renderable.renderLayer() == RenderLayer.OBJECT_OUTLINED ? Assets.BORDER_SHADER : null;
-            if (desiredShader != currentShader) {
+            ShaderProgram toShader = renderable.renderLayer() == RenderLayer.OBJECT_OUTLINED ? Assets.BORDER_SHADER : null;
+            if (toShader != shader) {
                 polygonBatch.end();
-                polygonBatch.setShader(desiredShader);
+                polygonBatch.setShader(toShader);
 
-                if (desiredShader == Assets.BORDER_SHADER) {
+                if (toShader == Assets.BORDER_SHADER) {
                     Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
                     Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
                 }
 
                 polygonBatch.begin();
-                currentShader = desiredShader;
+                shader = toShader;
             }
             renderable.render(getClient(), polygonBatch, camera, inputListener.getRotation(), dt);
         }

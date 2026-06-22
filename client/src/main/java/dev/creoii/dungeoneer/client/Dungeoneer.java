@@ -15,10 +15,13 @@ import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.util.logging.Logger;
 
+import java.util.Random;
+
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Dungeoneer extends Game {
     public static final Logger LOGGER = new Logger(Dungeoneer.class.getSimpleName());
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static final Random RANDOM = new Random();
     private final Client client;
     private final ClientState state;
     private final InputMultiplexer inputMultiplexer;

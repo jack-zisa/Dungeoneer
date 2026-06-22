@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.mojang.datafixers.util.Either;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.editor.action.CompositeAction;
 import dev.creoii.dungeoneer.client.editor.action.SetObjectAction;
 import dev.creoii.dungeoneer.client.editor.action.SetTileAction;
@@ -24,7 +25,6 @@ import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
 import java.awt.*;
-import java.util.Random;
 
 public class DungeonEditorInputListener extends InputAdapter implements MousePosListener {
     private static final float[] ZOOM_LEVELS = {.2f, .25f, .35f, .5f, .7f, .95f, 1.25f, 1.6f, 2f, 2.45f};
@@ -195,10 +195,10 @@ public class DungeonEditorInputListener extends InputAdapter implements MousePos
                     } else action = new SetTileAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getTile(ClientTiles.getTileId(oldTile)), null);
                 } else if (selected.left().isPresent()) {
                     TileProvider provider = selected.left().get();
-                    action = new SetTileAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getTile(ClientTiles.getTileId(oldTile)), provider.get(new Random()));
+                    action = new SetTileAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getTile(ClientTiles.getTileId(oldTile)), provider.get(Dungeoneer.RANDOM));
                 } else {
                     MapObjectProvider provider = selected.right().get();
-                    action = new SetObjectAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getMapObject(ClientTiles.getObjectId(oldTile)), provider.get(new Random()));
+                    action = new SetObjectAction(tileLayer, tx, ty, oldTile == null ? null : DataManager.getMapObject(ClientTiles.getObjectId(oldTile)), provider.get(Dungeoneer.RANDOM));
                 }
 
                 action.redo();

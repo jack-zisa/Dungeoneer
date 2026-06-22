@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.mojang.datafixers.util.Either;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
+import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.selection.Selection;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
@@ -120,10 +121,10 @@ public class Sidebar extends Table {
                     if (cell != null) {
                         if (selectedTile.left().isPresent()) {
                             TileProvider provider = selectedTile.left().get();
-                            cell.setTile(ClientTiles.getTile(provider.get(new Random()).id()));
+                            cell.setTile(ClientTiles.getTile(provider.get(Dungeoneer.RANDOM).id()));
                         } else if (selectedTile.right().isPresent()) {
                             MapObjectProvider provider = selectedTile.right().get();
-                            cell.setTile(ClientTiles.getObject(provider.get(new Random()).id()));
+                            cell.setTile(ClientTiles.getObject(provider.get(Dungeoneer.RANDOM).id()));
                         }
                     }
                 });
