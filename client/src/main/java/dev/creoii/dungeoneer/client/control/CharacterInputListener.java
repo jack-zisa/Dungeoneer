@@ -130,11 +130,12 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     }
 
     public void updateRotation() {
-        if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            rotation -= 1f;
+        int rotationSpeed = client.getSettings().cameraRotationSpeed().value();
+        if (Gdx.input.isKeyPressed(client.getSettings().rotateLeftKey().value())) {
+            rotation -= rotationSpeed;
             rotation %= 360f;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-            rotation += 1f;
+        } else if (Gdx.input.isKeyPressed(client.getSettings().rotateRightKey().value())) {
+            rotation += rotationSpeed;
             rotation %= 360f;
         }
     }

@@ -9,29 +9,43 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 
-public record Settings(IntegerOption upKey, IntegerOption leftKey, IntegerOption downKey, IntegerOption rightKey, IntegerOption favoriteCharacter, BooleanOption debug) {
+public record Settings(
+    IntegerOption upKey, IntegerOption leftKey, IntegerOption downKey, IntegerOption rightKey,
+    IntegerOption rotateLeftKey, IntegerOption rotateRightKey, IntegerOption cameraRotationSpeed,
+    IntegerOption favoriteCharacter,
+    BooleanOption debug
+) {
     public static final Settings DEFAULT = new Settings(
         new IntegerOption("up_key", Input.Keys.W),
         new IntegerOption("left_key", Input.Keys.A),
         new IntegerOption("down_key", Input.Keys.S),
         new IntegerOption("right_key", Input.Keys.D),
+        new IntegerOption("rotate_left_key", Input.Keys.Q),
+        new IntegerOption("rotate_right_key", Input.Keys.E),
+        new IntegerOption("camera_rotation_speed", 1),
         new IntegerOption("favorite_character", 0),
         new BooleanOption("debug", true)
     );
     public static final Codec<Settings> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                Codec.INT.fieldOf("up_key").forGetter(s -> s.upKey.value()),
-                Codec.INT.fieldOf("left_key").forGetter(s -> s.leftKey.value()),
-                Codec.INT.fieldOf("down_key").forGetter(s -> s.downKey.value()),
-                Codec.INT.fieldOf("right_key").forGetter(s -> s.rightKey.value()),
-                Codec.INT.fieldOf("favorite_character").forGetter(s -> s.favoriteCharacter.value()),
-                Codec.BOOL.fieldOf("debug").forGetter(s -> s.debug.value())
-            ).apply(instance, (up, left, down, right, favoriteCharacter, debug) ->
+                Codec.INT.fieldOf("up_key").orElse(DEFAULT.upKey.value()).forGetter(s -> s.upKey.value()),
+                Codec.INT.fieldOf("left_key").orElse(DEFAULT.leftKey.value()).forGetter(s -> s.leftKey.value()),
+                Codec.INT.fieldOf("down_key").orElse(DEFAULT.downKey.value()).forGetter(s -> s.downKey.value()),
+                Codec.INT.fieldOf("right_key").orElse(DEFAULT.rightKey.value()).forGetter(s -> s.rightKey.value()),
+                Codec.INT.fieldOf("rotate_left_key").orElse(DEFAULT.rotateLeftKey.value()).forGetter(s -> s.rotateLeftKey.value()),
+                Codec.INT.fieldOf("rotate_right_key").orElse(DEFAULT.rotateRightKey.value()).forGetter(s -> s.rotateRightKey.value()),
+                Codec.INT.fieldOf("camera_rotation_speed").orElse(DEFAULT.cameraRotationSpeed.value()).forGetter(s -> s.cameraRotationSpeed.value()),
+                Codec.INT.fieldOf("favorite_character").orElse(DEFAULT.favoriteCharacter.value()).forGetter(s -> s.favoriteCharacter.value()),
+                Codec.BOOL.fieldOf("debug").orElse(DEFAULT.debug.value()).forGetter(s -> s.debug.value())
+            ).apply(instance, (up, left, down, right, rotateLeft, rotateRight, cameraRotationSpeed, favoriteCharacter, debug) ->
                 new Settings(
                     new IntegerOption("up_key", up),
                     new IntegerOption("left_key", left),
                     new IntegerOption("down_key", down),
                     new IntegerOption("right_key", right),
+                    new IntegerOption("rotate_left_key", rotateLeft),
+                    new IntegerOption("rotate_right_key", rotateRight),
+                    new IntegerOption("camera_rotation_speed", cameraRotationSpeed),
                     new IntegerOption("favorite_character", favoriteCharacter),
                     new BooleanOption("debug", debug)
                 )
@@ -50,6 +64,9 @@ public record Settings(IntegerOption upKey, IntegerOption leftKey, IntegerOption
             leftKey.setValue(loaded.leftKey.value());
             downKey.setValue(loaded.downKey.value());
             rightKey.setValue(loaded.rightKey.value());
+            rotateLeftKey.setValue(loaded.rotateLeftKey.value());
+            rotateRightKey.setValue(loaded.rotateRightKey.value());
+            cameraRotationSpeed.setValue(loaded.cameraRotationSpeed.value());
             favoriteCharacter.setValue(loaded.favoriteCharacter.value());
             debug.setValue(loaded.debug.value());
         }

@@ -17,6 +17,9 @@ public class SettingsDialog extends Dialog {
     private final TextButton leftButton;
     private final TextButton downButton;
     private final TextButton rightButton;
+    private final TextButton rotateLeftButton;
+    private final TextButton rotateRightButton;
+    private final Slider cameraRotationSpeedButton;
     private final CheckBox debugButton;
 
     private IntegerOption listeningFor;
@@ -31,6 +34,9 @@ public class SettingsDialog extends Dialog {
         leftButton = createKeyButton(client.getSettings().leftKey(), skin);
         downButton = createKeyButton(client.getSettings().downKey(), skin);
         rightButton = createKeyButton(client.getSettings().rightKey(), skin);
+        rotateLeftButton = createKeyButton(client.getSettings().rotateLeftKey(), skin);
+        rotateRightButton = createKeyButton(client.getSettings().rotateRightKey(), skin);
+        cameraRotationSpeedButton = createSlider(client.getSettings().cameraRotationSpeed(), 0f, 3f, 1f, skin);
         debugButton = createToggleButton(client.getSettings().debug(), skin);
 
         content.add("Move Up");
@@ -44,6 +50,15 @@ public class SettingsDialog extends Dialog {
 
         content.add("Move Right");
         content.add(rightButton).padTop(5f).row();
+
+        content.add("Rotate Left");
+        content.add(rotateLeftButton).padTop(5f).row();
+
+        content.add("Rotate Right");
+        content.add(rotateRightButton).padTop(5f).row();
+
+        content.add("Rotation Speed");
+        content.add(cameraRotationSpeedButton).padTop(5f).row();
 
         content.add("Debug");
         content.add(debugButton).padTop(5f).row();
@@ -61,6 +76,8 @@ public class SettingsDialog extends Dialog {
                     leftButton.setText(Input.Keys.toString(client.getSettings().leftKey().value()));
                     downButton.setText(Input.Keys.toString(client.getSettings().downKey().value()));
                     rightButton.setText(Input.Keys.toString(client.getSettings().rightKey().value()));
+                    rotateLeftButton.setText(Input.Keys.toString(client.getSettings().rotateLeftKey().value()));
+                    rotateRightButton.setText(Input.Keys.toString(client.getSettings().rotateRightKey().value()));
 
                     listeningFor = null;
                     return true;
@@ -87,6 +104,17 @@ public class SettingsDialog extends Dialog {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 listeningFor = option;
                 button.setText("Press key...");
+            }
+        });
+        return button;
+    }
+
+    private Slider createSlider(IntegerOption option, float min, float max, float stepSize, Skin skin) {
+        Slider button = new Slider(min, max, stepSize, false, skin);
+        button.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                option.setValue((int) button.getValue());
             }
         });
         return button;
