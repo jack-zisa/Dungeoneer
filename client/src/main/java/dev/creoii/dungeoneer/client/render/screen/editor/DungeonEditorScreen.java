@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.screen.editor;
+package dev.creoii.dungeoneer.client.render.screen.editor;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -14,8 +14,8 @@ import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.DungeonEditorInputListener;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
-import dev.creoii.dungeoneer.client.screen.AbstractScreen;
-import dev.creoii.dungeoneer.client.screen.main.MainScreen;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
 import dev.creoii.dungeoneer.util.Constants;
 
 import java.awt.*;

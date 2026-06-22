@@ -1,7 +1,9 @@
 package dev.creoii.dungeoneer.client.game;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
@@ -12,7 +14,10 @@ import com.badlogic.gdx.utils.Disposable;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.screen.editor.ClientTiles;
+import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
+import dev.creoii.dungeoneer.client.util.RenderLayer;
+import dev.creoii.dungeoneer.client.util.RenderUtils;
+import dev.creoii.dungeoneer.client.util.Renderable;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Direction;
 import dev.creoii.dungeoneer.util.DungeonMapUtils;
@@ -106,7 +111,17 @@ public class ClientDungeonMap implements Disposable {
         return new Vector2(rx, ry);
     }
 
-    public record WallTop(TextureRegion texture, int x, int y) implements WallRenderable {
+    public record WallTop(TextureRegion texture, int x, int y) implements Renderable {
+        @Override
+        public RenderLayer renderLayer() {
+            return RenderLayer.OBJECT;
+        }
+
+        @Override
+        public void render(PolygonSpriteBatch batch, Camera camera, float rotation) {
+            RenderUtils.drawWallTop(camera, batch, texture, x, y, rotation);
+        }
+
         @Override
         public float depth(float rotation, OrthographicCamera camera) {
             float worldX = x * ClientDungeonMap.TILE_SIZE;
@@ -116,11 +131,15 @@ public class ClientDungeonMap implements Disposable {
         }
     }
 
-    public record WallFace(TextureRegion texture, int x, int y, Direction direction) implements WallRenderable {
-        public static boolean isVisible(Direction direction, float rotation) {
-            Vector2 normal = new Vector2(direction.getVector()[0], direction.getVector()[1]);
-            normal.rotateDeg(rotation);
-            return normal.y <= 0f;
+    public record WallFace(TextureRegion texture, int x, int y, Direction direction) implements Renderable {
+        @Override
+        public RenderLayer renderLayer() {
+            return RenderLayer.OBJECT;
+        }
+
+        @Override
+        public void render(PolygonSpriteBatch batch, Camera camera, float rotation) {
+            RenderUtils.drawWall(camera, batch, this, rotation);
         }
 
         @Override
@@ -129,6 +148,12 @@ public class ClientDungeonMap implements Disposable {
             float worldY = y * ClientDungeonMap.TILE_SIZE;
             Vector2 p = ClientDungeonMap.project(worldX, worldY, ClientDungeonMap.WALL_HEIGHT, rotation, camera.position.x, camera.position.y);
             return p.y;
+        }
+
+        public static boolean isVisible(Direction direction, float rotation) {
+            Vector2 normal = new Vector2(direction.getVector()[0], direction.getVector()[1]);
+            normal.rotateDeg(rotation);
+            return normal.y <= 0f;
         }
     }
 }

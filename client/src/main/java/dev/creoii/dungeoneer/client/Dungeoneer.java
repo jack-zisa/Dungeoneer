@@ -10,8 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.creoii.dungeoneer.client.network.ClientNetworkHandler;
 import dev.creoii.dungeoneer.client.option.Settings;
-import dev.creoii.dungeoneer.client.screen.LoadingScreen;
-import dev.creoii.dungeoneer.client.screen.game.GameScreen;
+import dev.creoii.dungeoneer.client.render.screen.LoadingScreen;
+import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.util.logging.Logger;
 

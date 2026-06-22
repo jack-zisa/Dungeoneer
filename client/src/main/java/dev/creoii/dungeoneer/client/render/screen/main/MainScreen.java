@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.screen.main;
+package dev.creoii.dungeoneer.client.render.screen.main;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 
 import java.util.HashMap;
 import java.util.Map;

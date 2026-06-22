@@ -1,7 +1,7 @@
 package dev.creoii.dungeoneer.client.editor.action;
 
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import dev.creoii.dungeoneer.client.screen.editor.ClientTiles;
+import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.definitions.Tile;
 
 import javax.annotation.Nullable;

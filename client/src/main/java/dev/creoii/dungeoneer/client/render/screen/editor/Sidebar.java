@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.screen.editor;
+package dev.creoii.dungeoneer.client.render.screen.editor;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
@@ -15,7 +15,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
 import dev.creoii.dungeoneer.client.editor.selection.Selection;
-import dev.creoii.dungeoneer.client.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.Provider;

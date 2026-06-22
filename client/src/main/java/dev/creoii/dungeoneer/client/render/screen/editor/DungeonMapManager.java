@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.screen.editor;
+package dev.creoii.dungeoneer.client.render.screen.editor;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import dev.creoii.dungeoneer.client.Dungeoneer;

@@ -1,10 +1,9 @@
-package dev.creoii.dungeoneer.client.screen.game;
+package dev.creoii.dungeoneer.client.render.screen.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -21,9 +20,12 @@ import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientLaser;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.game.*;
-import dev.creoii.dungeoneer.client.screen.AbstractScreen;
-import dev.creoii.dungeoneer.client.screen.main.MainScreen;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
+import dev.creoii.dungeoneer.client.util.GroundTileRenderable;
+import dev.creoii.dungeoneer.client.util.ObjectTileRenderable;
 import dev.creoii.dungeoneer.client.util.RenderUtils;
+import dev.creoii.dungeoneer.client.util.Renderable;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
@@ -142,6 +144,7 @@ public class GameScreen extends AbstractScreen {
 
         character.update(dt);
 
+        inputListener.updateRotation();
         inputListener.updateMousePos(camera, inputListener.getRotation());
         if (inputListener.isAttacking())
             inputListener.tryAttack();
@@ -150,29 +153,20 @@ public class GameScreen extends AbstractScreen {
         camera.position.y = character.getRenderY() + character.getSprite().getHeight() * .5f;
         camera.update();
 
-        //mapRenderer.setView(camera);
-        //mapRenderer.render();
-
-        inputListener.updateRotation();
-
-        java.util.List<WallRenderable> renderables = new ArrayList<>(getClient().getState().getCurrentRaid().getDungeon().getWallTops());
+        java.util.List<Renderable> renderables = new ArrayList<>(visibleCharacters);
+        renderables.addAll(getClient().getState().getCurrentRaid().getDungeon().getWallTops());
         for (ClientDungeonMap.WallFace face : getClient().getState().getCurrentRaid().getDungeon().getWallFaces()) {
             if (ClientDungeonMap.WallFace.isVisible(face.direction(), inputListener.getRotation())) {
                 renderables.add(face);
             }
         }
 
-        renderables.sort(Comparator.comparingDouble(r -> -r.depth(inputListener.getRotation(), camera)));
-
-        polygonBatch.setProjectionMatrix(camera.combined);
-        polygonBatch.begin();
-
         TiledMapTileLayer ground = ((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_GROUND));
         for (int x = 0; x < ground.getWidth(); x++) {
             for (int y = 0; y < ground.getHeight(); y++) {
                 TiledMapTileLayer.Cell cell = ground.getCell(x, y);
                 if (cell != null) {
-                    RenderUtils.drawGroundTile(camera, polygonBatch, cell.getTile().getTextureRegion(), x, y, inputListener.getRotation());
+                    renderables.add(new GroundTileRenderable(cell.getTile().getTextureRegion(), x, y));
                 }
             }
         }
@@ -182,17 +176,17 @@ public class GameScreen extends AbstractScreen {
             for (int y = 0; y < object.getHeight(); y++) {
                 TiledMapTileLayer.Cell cell = object.getCell(x, y);
                 if (cell != null) {
-                    RenderUtils.drawObjectTile(camera, polygonBatch, cell.getTile().getTextureRegion(), x, y, inputListener.getRotation());
+                    renderables.add(new ObjectTileRenderable(cell.getTile().getTextureRegion(), x, y));
                 }
             }
         }
 
-        for (WallRenderable renderable : renderables) {
-            if (renderable instanceof ClientDungeonMap.WallTop(TextureRegion texture, int x, int y)) {
-                RenderUtils.drawWallTop(camera, polygonBatch, texture, x, y, inputListener.getRotation());
-            } else if (renderable instanceof ClientDungeonMap.WallFace face) {
-                RenderUtils.drawWall(camera, polygonBatch, face, inputListener.getRotation());
-            }
+        renderables.sort(Comparator.comparingInt((Renderable r) -> r.renderLayer().ordinal()).thenComparingDouble(r -> -r.depth(inputListener.getRotation(), camera)));
+
+        polygonBatch.setProjectionMatrix(camera.combined);
+        polygonBatch.begin();
+        for (Renderable renderable : renderables) {
+            renderable.render(polygonBatch, camera, inputListener.getRotation());
         }
         polygonBatch.end();
 
@@ -222,13 +216,6 @@ public class GameScreen extends AbstractScreen {
                 laser.getDirection().angleDeg()
             );
         }
-
-        visibleCharacters.sort((a, b) -> {
-            float ay = ClientDungeonMap.project(a.getRenderX(), a.getRenderY(), 0f, inputListener.getRotation(), camera.position.x, camera.position.y).y;
-            float by = ClientDungeonMap.project(b.getRenderX(), b.getRenderY(), 0f, inputListener.getRotation(), camera.position.x, camera.position.y).y;
-            return Float.compare(by, ay);
-        });
-        visibleCharacters.forEach(clientCharacter -> clientCharacter.render(batch, camera, inputListener.getRotation()));
 
         batch.setShader(null);
         batch.end();

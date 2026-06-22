@@ -2,14 +2,17 @@ package dev.creoii.dungeoneer.client.game;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.util.RenderLayer;
+import dev.creoii.dungeoneer.client.util.Renderable;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.sided.Character;
@@ -20,7 +23,7 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
 
-public class ClientCharacter implements Character {
+public class ClientCharacter implements Character, Renderable {
     private final Dungeoneer client;
     @Nullable private CharacterDefinition character;
     private Sprite sprite;
@@ -207,7 +210,13 @@ public class ClientCharacter implements Character {
         setRenderPos(MathUtils.lerp(getRenderX(), targetX, alpha), MathUtils.lerp(getRenderY(), targetY, alpha));
     }
 
-    public void render(SpriteBatch batch, Camera camera, float rotation) {
+    @Override
+    public RenderLayer renderLayer() {
+        return RenderLayer.OBJECT;
+    }
+
+    @Override
+    public void render(PolygonSpriteBatch batch, Camera camera, float rotation) {
         float cx = getRenderX() + sprite.getWidth() * .5f;
         float cy = getRenderY() + sprite.getHeight() * .5f;
         float[] pos = {cx, cy};
@@ -216,6 +225,7 @@ public class ClientCharacter implements Character {
         sprite.draw(batch);
     }
 
+    @Override
     public void renderDebug(ShapeRenderer shapeRenderer, float[] mouseDir) {
         shapeRenderer.setColor(isAttackPending() ? Color.GREEN : Color.WHITE);
         shapeRenderer.line(getCenterX(), getCenterY(), getCenterX() + mouseDir[0] * 32f, getCenterY() + mouseDir[1] * 32f);
@@ -224,5 +234,10 @@ public class ClientCharacter implements Character {
         shapeRenderer.rect(getRenderX(), getRenderY(), sprite.getWidth(), sprite.getHeight());
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(getX(), getY(), sprite.getWidth(), sprite.getHeight());
+    }
+
+    @Override
+    public float depth(float rotation, OrthographicCamera camera) {
+        return ClientDungeonMap.project(getRenderX() + sprite.getWidth() * .5f, getRenderY() + sprite.getHeight() * .5f, 0f, rotation, camera.position.x, camera.position.y).y;
     }
 }

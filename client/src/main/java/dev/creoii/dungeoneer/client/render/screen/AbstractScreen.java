@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.screen;
+package dev.creoii.dungeoneer.client.render.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
