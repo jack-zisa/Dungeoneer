@@ -5,6 +5,7 @@ import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.network.s2c.raid.AttacksS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
@@ -21,6 +22,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
     private final ServerDungeon dungeon;
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
+    private final List<AttacksS2C.Entry> attacks;
 
     private final Pool<Bullet> bulletPool = new Pool<>() {
         @Override
@@ -42,6 +44,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         getCharacters().put(character.get().accountId(), character);
         timer = SYNC_INTERVAL;
         moveEntries = new ArrayList<>();
+        attacks = new ArrayList<>();
     }
 
     @Override
@@ -64,6 +67,10 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
 
     public List<MoveRaidCharactersS2C.Entry> getMoveEntries() {
         return moveEntries;
+    }
+
+    public List<AttacksS2C.Entry> getAttacks() {
+        return attacks;
     }
 
     @Override
@@ -89,11 +96,13 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
             }
 
             if (!moveEntries.isEmpty()) {
-                getCharacters().values().forEach(serverCharacter -> {
-                    server.get().sendToUDP(serverCharacter.getConnectionId(), new MoveRaidCharactersS2C(moveEntries));
-                });
-
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new MoveRaidCharactersS2C(moveEntries)));
                 moveEntries.clear();
+            }
+
+            if (!attacks.isEmpty()) {
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new AttacksS2C(attacks)));
+                attacks.clear();
             }
         } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) {
             setStatus(Status.ACTIVE);
@@ -106,6 +115,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         super.end();
 
         moveEntries.clear();
+        attacks.clear();
         timer = 0f;
     }
 

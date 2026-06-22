@@ -18,9 +18,7 @@ import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
-import dev.creoii.dungeoneer.network.s2c.raid.AttackResultS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.RaidCharacterWaitStatusS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidWaitingStateS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
@@ -35,7 +33,6 @@ import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SendRaidTargetS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerDungeon;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
@@ -381,6 +378,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                             Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
 
                             character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
+                            serverRaid.getAttacks().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
 
                             character.setLastAttackTime(currentTime);
                             server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));

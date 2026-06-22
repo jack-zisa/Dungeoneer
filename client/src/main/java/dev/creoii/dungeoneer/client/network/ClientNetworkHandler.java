@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.render.screen.LoginScreen;
@@ -18,6 +19,7 @@ import dev.creoii.dungeoneer.client.render.screen.main.PlayTab;
 import dev.creoii.dungeoneer.client.render.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.NetworkQueue;
 import dev.creoii.dungeoneer.network.PacketResult;
@@ -37,6 +39,7 @@ import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
+import dev.creoii.dungeoneer.util.Constants;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -363,6 +366,21 @@ public class ClientNetworkHandler implements Listener {
                 if (accountId == -1L) raid.addCharacter(characterDefinition.accountId(), new ClientCharacter(client, characterDefinition));
                 else raid.getCharacters().remove(accountId);
             }
+            case AttacksS2C(List<AttacksS2C.Entry> entries) -> entries.forEach(entry -> {
+                if (entry.accountId() == client.getState().getAccount().id())
+                    return;
+
+                ClientCharacter character = client.getState().getCurrentRaid().getCharacters().get(entry.accountId());
+                if (character == null)
+                    return;
+
+                AnimationState animationState = character.getAnimationState();
+
+                Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
+
+                character.setAnimationState(AnimationState.toAttacking(animationState));
+            });
             default -> {
             }
         }

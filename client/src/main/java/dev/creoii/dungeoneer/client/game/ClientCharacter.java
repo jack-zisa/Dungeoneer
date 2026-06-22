@@ -175,14 +175,6 @@ public class ClientCharacter implements Character, Renderable {
     }
 
     @Override
-    public boolean attack(Attack attack, Raid raid, float[] mouseDir) {
-        if (Character.super.attack(attack, raid, mouseDir)) {
-            client.get().sendTCP(new AttackC2S(raid.get().id(), character.accountId(), mouseDir[0], mouseDir[1]));
-        }
-        return false;
-    }
-
-    @Override
     public void updateVelocity(float[] velocity, int movementFlags, float rotation) {
         Character.super.updateVelocity(velocity, movementFlags, rotation);
 

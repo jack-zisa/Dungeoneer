@@ -8,8 +8,10 @@ import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -56,16 +58,20 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     public void tryAttack() {
         ClientCharacter character = client.getState().getActiveCharacter();
         AnimationState animationState = character.getAnimationState();
+        ClientRaid raid = client.getState().getCurrentRaid();
 
         long currentTime = System.currentTimeMillis();
         long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
 
-        if (client.getState().getStatus() == ClientState.Status.RAIDING && !client.getState().getCurrentRaid().isNull()) {
+        if (client.getState().getStatus() == ClientState.Status.RAIDING && !raid.isNull()) {
             if (!character.isAttackPending() && (currentTime - character.getLastAttackTime()) >= cooldown) {
                 character.setAttackPending(true);
 
                 Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
-                character.attack(attack, client.getState().getCurrentRaid(), getDirectionToMouse(character.getCenterX(), character.getCenterY()));
+                float[] mouseDir = getDirectionToMouse(character.getCenterX(), character.getCenterY());
+                if (character.attack(attack, raid, mouseDir)) {
+                    client.get().sendTCP(new AttackC2S(raid.get().id(), character.get().accountId(), mouseDir[0], mouseDir[1]));
+                }
             }
             character.setAnimationState(AnimationState.toAttacking(animationState));
         } else character.setAnimationState(character.isMoving() ? AnimationState.toMoving(animationState) : AnimationState.toIdle(animationState));

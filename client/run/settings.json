@@ -1,7 +1,7 @@
 {
-  "camera_rotation_speed": 2,
+  "camera_rotation_speed": 1,
   "favorite_character": 4,
-  "debug": true,
+  "debug": false,
   "rotate_left_key": 45,
   "rotate_right_key": 33,
   "up_key": 51,
