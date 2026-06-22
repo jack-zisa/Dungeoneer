@@ -209,13 +209,14 @@ public final class RenderUtils {
             spin = bullet.getAngle();
         }
 
-        VectorUtils.prj2(bullet.getPos(), 0f, rotation, camera.position.x, camera.position.y);
+        float[] projected = bullet.getPos().clone();
+        VectorUtils.prj2(projected, 0f, rotation, camera.position.x, camera.position.y);
 
         float width = texture.getWidth() * scale;
         float height = texture.getHeight() * scale;
 
         batch.draw(texture,
-            bullet.getX() - width * .5f, bullet.getY() - height * .5f,
+            projected[0] - width * .5f, projected[1] - height * .5f,
             width * .5f, height * .5f,
             width, height,
             1f, 1f,

@@ -155,13 +155,7 @@ public class GameScreen extends AbstractScreen {
 
         inputListener.updateRotation();
 
-        java.util.List<WallRenderable> renderables = new ArrayList<>();
-
-        for (ClientDungeonMap.WallTop top : getClient().getState().getCurrentRaid().getDungeon().getWallTops()) {
-            if (ClientDungeonMap.WallTop.isVisible(top.x(), top.y(), inputListener.getRotation(), camera)) {
-                renderables.add(top);
-            }
-        }
+        java.util.List<WallRenderable> renderables = new ArrayList<>(getClient().getState().getCurrentRaid().getDungeon().getWallTops());
         for (ClientDungeonMap.WallFace face : getClient().getState().getCurrentRaid().getDungeon().getWallFaces()) {
             if (ClientDungeonMap.WallFace.isVisible(face.direction(), inputListener.getRotation())) {
                 renderables.add(face);

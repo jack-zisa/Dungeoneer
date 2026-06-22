@@ -1,6 +1,5 @@
 package dev.creoii.dungeoneer.client.game;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClientDungeonMap implements Disposable {
-    public static final float WALL_HEIGHT = 4f;
+    public static final float WALL_HEIGHT = -4f;
     public static final float TILE_SIZE = 8f;
     private static final float WALL_PITCH = 1f;
     private TiledMap map;
@@ -101,22 +100,14 @@ public class ClientDungeonMap implements Disposable {
         y -= originY;
         float rx = x * MathUtils.cos(rad) - y * MathUtils.sin(rad);
         float ry = x * MathUtils.sin(rad) + y * MathUtils.cos(rad);
-        rx += z * .5f;
-        ry -= z;
+        rx += z * .15f;
+        ry -= z * .85f;
         rx += originX;
         ry += originY;
         return new Vector2(rx, ry);
     }
 
     public record WallTop(TextureRegion texture, int x, int y) implements WallRenderable {
-        public static boolean isVisible(int x, int y, float rotation, Camera camera) {
-            Vector2 forward = new Vector2(MathUtils.sinDeg(rotation), MathUtils.cosDeg(rotation));
-            float wallCenterX = x * TILE_SIZE + TILE_SIZE * .5f;
-            float wallCenterY = y * TILE_SIZE + TILE_SIZE * .5f;
-            Vector2 toWall = new Vector2(wallCenterX - camera.position.x, wallCenterY - camera.position.y);
-            return toWall.dot(forward) > 0f;
-        }
-
         @Override
         public float depth(float rotation, OrthographicCamera camera) {
             float worldX = x * ClientDungeonMap.TILE_SIZE;
