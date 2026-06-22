@@ -280,7 +280,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                         RaidDefinition raid = server.getDatabase().getRaids().create(account, character, target, requiredCharacters, LocalDateTime.now());
                         if (raid != null) {
                             server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.mapData()));
-                            server.getState().getRaids().put(raid.id(), new ServerRaid(raid.id(), server, new ServerDungeon(dungeonMap.mapData()), serverCharacter, raid));
+                            server.getState().getRaids().put(raid.id(), new ServerRaid(server, new ServerDungeon(dungeonMap.mapData()), serverCharacter, raid));
                         }
                     }
                 }

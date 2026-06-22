@@ -116,6 +116,11 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
             bulletGroups.values().forEach(bg -> getBulletGroupPool().free(bg));
             bulletGroups.clear();
         }
+
+        status = Status.WAITING;
+        characters.clear();
+        nextBulletId = 0;
+        endTime = -1L;
     }
 
     @SuppressWarnings("unchecked")

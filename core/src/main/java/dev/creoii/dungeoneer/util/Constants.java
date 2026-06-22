@@ -12,7 +12,8 @@ public final class Constants {
     public static final String MAP_LAYER_OVERLAY = "overlay";
     public static final String[] MAP_LAYERS = {MAP_LAYER_GROUND, MAP_LAYER_OBJECT, MAP_LAYER_WALL, MAP_LAYER_OVERLAY};
 
-    public static final long RAID_DURATION_MS = 5L * 60L * 1000L;
+    private static final long RAID_DURATION_MINUTES = 5L;
+    public static final long RAID_DURATION_MS = RAID_DURATION_MINUTES * 60L * 1000L;
 
     public static final String TEST_ATTACK = "staff";
     public static final String TEST_BULLET = "ice_magic_blade";

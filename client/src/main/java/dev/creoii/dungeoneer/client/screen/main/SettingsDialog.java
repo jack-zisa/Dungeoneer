@@ -111,6 +111,7 @@ public class SettingsDialog extends Dialog {
 
     private Slider createSlider(IntegerOption option, float min, float max, float stepSize, Skin skin) {
         Slider button = new Slider(min, max, stepSize, false, skin);
+        button.setValue(option.value().floatValue());
         button.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {

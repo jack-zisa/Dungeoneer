@@ -310,9 +310,7 @@ public class ClientNetworkHandler implements Listener {
             case SyncRaidTimerS2C(long timeRemaining) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (!raid.isNull() && timeRemaining != raid.getRemainingTimeMs()) {
-                    if (client.getSettings().debug().value()) {
-                        Dungeoneer.LOGGER.debug("Synced remaining raid time from %s to %s.", raid.getRemainingTimeMs(), timeRemaining);
-                    }
+                    if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Synced remaining raid time from %s to %s.", raid.getRemainingTimeMs(), timeRemaining);
                     raid.syncTimer(timeRemaining);
                 }
             }

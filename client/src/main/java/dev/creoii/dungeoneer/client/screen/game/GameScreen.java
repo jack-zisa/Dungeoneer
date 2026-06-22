@@ -213,8 +213,12 @@ public class GameScreen extends AbstractScreen {
             );
         }
 
-        visibleCharacters.sort(Comparator.comparingDouble(clientCharacter -> -clientCharacter.getRenderY()));
-        visibleCharacters.forEach(clientCharacter -> clientCharacter.render(batch));
+        visibleCharacters.sort((a, b) -> {
+            float ay = ClientDungeonMap.project(a.getRenderX(), a.getRenderY(), 0f, inputListener.getRotation(), camera.position.x, camera.position.y).y;
+            float by = ClientDungeonMap.project(b.getRenderX(), b.getRenderY(), 0f, inputListener.getRotation(), camera.position.x, camera.position.y).y;
+            return Float.compare(by, ay);
+        });
+        visibleCharacters.forEach(clientCharacter -> clientCharacter.render(batch, camera, inputListener.getRotation()));
 
         batch.setShader(null);
         batch.end();

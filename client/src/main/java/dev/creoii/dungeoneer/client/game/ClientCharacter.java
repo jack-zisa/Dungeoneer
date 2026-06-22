@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.client.game;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -206,8 +207,12 @@ public class ClientCharacter implements Character {
         setRenderPos(MathUtils.lerp(getRenderX(), targetX, alpha), MathUtils.lerp(getRenderY(), targetY, alpha));
     }
 
-    public void render(SpriteBatch batch) {
-        sprite.setPosition(getRenderX(), getRenderY());
+    public void render(SpriteBatch batch, Camera camera, float rotation) {
+        float cx = getRenderX() + sprite.getWidth() * .5f;
+        float cy = getRenderY() + sprite.getHeight() * .5f;
+        float[] pos = {cx, cy};
+        VectorUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
+        sprite.setPosition(pos[0] - sprite.getWidth() * .5f, pos[1] - sprite.getHeight() * .5f);
         sprite.draw(batch);
     }
 

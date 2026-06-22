@@ -86,8 +86,8 @@ public class ClientRaid extends Raid<Bullet, BulletGroup, ClientCharacter> {
                 if (remaining <= 0L) {
                     Gdx.app.postRunnable(() -> {
                         client.getState().setStatus(ClientState.Status.LOBBY);
-                        client.getState().getCurrentRaid().end();
                         client.setScreen(new MainScreen(client));
+                        end();
                     });
                 } else gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
             }
@@ -108,14 +108,15 @@ public class ClientRaid extends Raid<Bullet, BulletGroup, ClientCharacter> {
 
     @Override
     public void end() {
-        setStatus(Status.WAITING);
-
         super.end();
 
         if (lasers.notEmpty()) {
             laserPool.freeAll(lasers);
             lasers.clear();
         }
+
+        client.getState().getActiveCharacter().setPos(0f, 0f);
+        client.getState().getActiveCharacter().setRenderPos(0f, 0f);
     }
 
     public void addLaser(float x, float y, float angleOffset, float width, float length, float lifetime, @Nullable ClientCharacter character) {

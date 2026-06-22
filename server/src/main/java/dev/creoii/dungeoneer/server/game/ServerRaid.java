@@ -17,7 +17,6 @@ import java.util.List;
 
 public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
-    private final long id;
     private final DungeoneerServer server;
     private final ServerDungeon dungeon;
     private float timer;
@@ -36,9 +35,8 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         }
     };
 
-    public ServerRaid(long id, DungeoneerServer server, ServerDungeon dungeon, ServerCharacter character, RaidDefinition raid) {
+    public ServerRaid(DungeoneerServer server, ServerDungeon dungeon, ServerCharacter character, RaidDefinition raid) {
         super(raid);
-        this.id = id;
         this.server = server;
         this.dungeon = dungeon;
         getCharacters().put(character.get().accountId(), character);
@@ -56,10 +54,6 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         return bulletGroupPool;
     }
 
-    public long getId() {
-        return id;
-    }
-
     public DungeoneerServer getServer() {
         return server;
     }
@@ -75,6 +69,11 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
     @Override
     public void tick(float dt) {
         if (getStatus() == Status.ACTIVE) {
+            if (getRemainingTimeMs() <= 0L) {
+                end();
+                return;
+            }
+
             timer -= dt;
 
             // Update bullet positions
@@ -100,6 +99,14 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
         }
+    }
+
+    @Override
+    public void end() {
+        super.end();
+
+        moveEntries.clear();
+        timer = 0f;
     }
 
     @Nullable
