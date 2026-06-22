@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -203,7 +202,7 @@ public final class RenderUtils {
         batch.draw(texture.getTexture(), QUAD_VERTICES, 0, 20, QUAD_INDICES, 0, 6);
     }
 
-    public static void renderBullet(BulletNode<?> node, Dungeoneer client, Camera camera, float rotation, SpriteBatch batch, float dt) {
+    public static void renderBullet(BulletNode<?> node, Dungeoneer client, Camera camera, float rotation, PolygonSpriteBatch batch, float dt) {
         if (node instanceof BulletGroup group) {
             group.getChildren().forEach(child -> renderBullet(child, client, camera, rotation, batch, dt));
             return;

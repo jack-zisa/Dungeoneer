@@ -1,7 +1,6 @@
 package dev.creoii.dungeoneer.client.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -10,34 +9,25 @@ import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.definitions.attack.bullet.*;
-import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
-public class ClientRaid extends Raid<Bullet, BulletGroup, ClientCharacter> {
+public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientCharacter> {
     private final Dungeoneer client;
     private final ClientDungeonMap dungeon;
 
-    private final Pool<Bullet> bulletPool = new Pool<>() {
+    private final Pool<ClientBullet> bulletPool = new Pool<>() {
         @Override
-        protected Bullet newObject() {
-            return new Bullet();
+        protected ClientBullet newObject() {
+            return new ClientBullet();
         }
     };
-    private final Pool<BulletGroup> bulletGroupPool = new Pool<>() {
+    private final Pool<ClientBulletGroup> bulletGroupPool = new Pool<>() {
         @Override
-        protected BulletGroup newObject() {
-            return new BulletGroup();
+        protected ClientBulletGroup newObject() {
+            return new ClientBulletGroup();
         }
     };
-
-    private final Pool<ClientLaser> laserPool = new Pool<>() {
-        @Override
-        protected ClientLaser newObject() {
-            return new ClientLaser();
-        }
-    };
-    private final Array<ClientLaser> lasers = new Array<>();
 
     public ClientRaid(Dungeoneer client, RaidDefinition raid) {
         super(raid);
@@ -46,17 +36,13 @@ public class ClientRaid extends Raid<Bullet, BulletGroup, ClientCharacter> {
     }
 
     @Override
-    public Pool<Bullet> getBulletPool() {
+    public Pool<ClientBullet> getBulletPool() {
         return bulletPool;
     }
 
     @Override
-    public Pool<BulletGroup> getBulletGroupPool() {
+    public Pool<ClientBulletGroup> getBulletGroupPool() {
         return bulletGroupPool;
-    }
-
-    public Array<ClientLaser> getLasers() {
-        return lasers;
     }
 
     public ClientDungeonMap getDungeon() {
@@ -95,38 +81,13 @@ public class ClientRaid extends Raid<Bullet, BulletGroup, ClientCharacter> {
             super.update(dt);
 
             getCharacters().values().forEach(clientCharacter -> clientCharacter.update(dt));
-
-            for (int i = lasers.size - 1; i >= 0; --i) {
-                ClientLaser laser = lasers.get(i);
-                if (!laser.update(dt)) {
-                    lasers.removeIndex(i);
-                    laserPool.free(laser);
-                }
-            }
         }
     }
 
     @Override
     public void end() {
         super.end();
-
-        if (lasers.notEmpty()) {
-            laserPool.freeAll(lasers);
-            lasers.clear();
-        }
-
         client.getState().getActiveCharacter().setPos(0f, 0f);
         client.getState().getActiveCharacter().setRenderPos(0f, 0f);
-    }
-
-    public void addLaser(float x, float y, float angleOffset, float width, float length, float lifetime, @Nullable ClientCharacter character) {
-        ClientLaser poolLaser = laserPool.obtain();
-        poolLaser.setPos(x, y);
-        poolLaser.setAngleOffset(angleOffset);
-        poolLaser.setAttached(character);
-        poolLaser.setWidth(width);
-        poolLaser.setLength(length);
-        poolLaser.setLifetime(lifetime);
-        lasers.add(poolLaser);
     }
 }

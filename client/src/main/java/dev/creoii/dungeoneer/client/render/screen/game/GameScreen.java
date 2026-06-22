@@ -3,11 +3,10 @@ package dev.creoii.dungeoneer.client.render.screen.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -17,17 +16,14 @@ import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.game.ClientLaser;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.game.*;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
 import dev.creoii.dungeoneer.client.util.GroundTileRenderable;
 import dev.creoii.dungeoneer.client.util.ObjectTileRenderable;
-import dev.creoii.dungeoneer.client.util.RenderUtils;
+import dev.creoii.dungeoneer.client.util.RenderLayer;
 import dev.creoii.dungeoneer.client.util.Renderable;
-import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -42,7 +38,6 @@ public class GameScreen extends AbstractScreen {
     private OrthographicCamera camera;
     private CharacterInputListener inputListener;
     private OrthogonalTiledMapRenderer mapRenderer;
-    private SpriteBatch batch;
     private PolygonSpriteBatch polygonBatch;
     private ShapeRenderer shapeRenderer;
     private Label timeRemainingLabel;
@@ -70,7 +65,6 @@ public class GameScreen extends AbstractScreen {
         camera.zoom = .25f;
         camera.update();
 
-        batch = new SpriteBatch();
         polygonBatch = new PolygonSpriteBatch();
 
         mapRenderer = new OrthogonalTiledMapRenderer(getClient().getState().getCurrentRaid().getDungeon().getMap());
@@ -181,44 +175,33 @@ public class GameScreen extends AbstractScreen {
             }
         }
 
-        renderables.sort(Comparator.comparingInt((Renderable r) -> r.renderLayer().ordinal()).thenComparingDouble(r -> -r.depth(inputListener.getRotation(), camera)));
+        renderables.addAll(raid.getBullets().values());
+        renderables.addAll(raid.getBulletGroups().values());
+
+        renderables.sort(Comparator.comparingInt((Renderable r) -> r.renderLayer().getPriority()).thenComparingDouble(r -> -r.depth(inputListener.getRotation(), camera)));
 
         polygonBatch.setProjectionMatrix(camera.combined);
         polygonBatch.begin();
+
+        ShaderProgram currentShader = null;
         for (Renderable renderable : renderables) {
-            renderable.render(polygonBatch, camera, inputListener.getRotation());
+            ShaderProgram desiredShader = renderable.renderLayer() == RenderLayer.OBJECT_OUTLINED ? Assets.BORDER_SHADER : null;
+            if (desiredShader != currentShader) {
+                polygonBatch.end();
+                polygonBatch.setShader(desiredShader);
+
+                if (desiredShader == Assets.BORDER_SHADER) {
+                    Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
+                    Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
+                }
+
+                polygonBatch.begin();
+                currentShader = desiredShader;
+            }
+            renderable.render(getClient(), polygonBatch, camera, inputListener.getRotation(), dt);
         }
+
         polygonBatch.end();
-
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-
-        batch.setShader(Assets.BORDER_SHADER);
-        Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
-        Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
-
-        for (Bullet bullet : raid.getBullets().values()) {
-            RenderUtils.renderBullet(bullet, getClient(), camera, inputListener.getRotation(), batch, dt);
-        }
-
-        for (BulletGroup bulletGroup : raid.getBulletGroups().values()) {
-            bulletGroup.getChildren().forEach(child -> RenderUtils.renderBullet(child, getClient(), camera, inputListener.getRotation(), batch, dt));
-        }
-
-        for (ClientLaser laser : raid.getLasers()) {
-            Vector2 laserPos = laser.getPos();
-            batch.draw(
-                Assets.PURPLE_LASER_REGION,
-                laserPos.x, laserPos.y - laser.getWidth() * .5f,
-                0, laser.getWidth() * .5f,
-                laser.getLength(), laser.getWidth(),
-                1f, 1f,
-                laser.getDirection().angleDeg()
-            );
-        }
-
-        batch.setShader(null);
-        batch.end();
 
         if (getClient().getSettings().debug().value()) {
             shapeRenderer.setProjectionMatrix(camera.combined);
@@ -237,7 +220,6 @@ public class GameScreen extends AbstractScreen {
         super.dispose();
         SKIN.dispose();
         mapRenderer.dispose();
-        batch.dispose();
         polygonBatch.dispose();
     }
 

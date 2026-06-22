@@ -212,11 +212,11 @@ public class ClientCharacter implements Character, Renderable {
 
     @Override
     public RenderLayer renderLayer() {
-        return RenderLayer.OBJECT;
+        return RenderLayer.OBJECT_OUTLINED;
     }
 
     @Override
-    public void render(PolygonSpriteBatch batch, Camera camera, float rotation) {
+    public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
         float cx = getRenderX() + sprite.getWidth() * .5f;
         float cy = getRenderY() + sprite.getHeight() * .5f;
         float[] pos = {cx, cy};

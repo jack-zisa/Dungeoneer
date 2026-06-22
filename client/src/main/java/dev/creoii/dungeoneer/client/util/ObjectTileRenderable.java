@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 
 public record ObjectTileRenderable(TextureRegion texture, int tileX, int tileY) implements Renderable {
@@ -13,7 +14,7 @@ public record ObjectTileRenderable(TextureRegion texture, int tileX, int tileY) 
     }
 
     @Override
-    public void render(PolygonSpriteBatch batch, Camera camera, float rotation) {
+    public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
         RenderUtils.drawObjectTile(camera, batch, texture, tileX, tileY, rotation);
     }
 
