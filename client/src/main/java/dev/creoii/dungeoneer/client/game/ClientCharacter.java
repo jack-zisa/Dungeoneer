@@ -14,7 +14,6 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.Renderable;
-import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.util.VectorUtils;
@@ -51,16 +50,8 @@ public class ClientCharacter implements Character, Renderable {
             stats = StatContainer.ZERO.copy();
             maxStats = StatContainer.ZERO.copy();
         } else {
-            stats = new StatContainer(
-                character.characterClass().baseStats().health().value(),
-                character.characterClass().baseStats().speed().value(),
-                character.characterClass().baseStats().attackSpeed().value()
-            );
-            maxStats = new StatContainer(
-                character.characterClass().maxStats().health().value(),
-                character.characterClass().maxStats().speed().value(),
-                character.characterClass().maxStats().attackSpeed().value()
-            );
+            stats = character.characterClass().baseStats().copy();
+            maxStats = character.characterClass().maxStats().copy();
         }
         correction = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
@@ -92,11 +83,13 @@ public class ClientCharacter implements Character, Renderable {
             stats.setHealth(0);
             stats.setSpeed(0);
             stats.setAttackSpeed(0);
+            maxStats.setHealth(0);
+            maxStats.setSpeed(0);
+            maxStats.setAttackSpeed(0);
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
-            stats.setHealth(character.characterClass().baseStats().health().value());
-            stats.setSpeed(character.characterClass().baseStats().speed().value());
-            stats.setAttackSpeed(character.characterClass().baseStats().attackSpeed().value());
+            stats.set(character.characterClass().baseStats());
+            maxStats.set(character.characterClass().maxStats());
         }
     }
 
@@ -197,15 +190,6 @@ public class ClientCharacter implements Character, Renderable {
 
     public void setAnimationState(AnimationState animationState) {
         this.animationState = animationState;
-    }
-
-    @Override
-    public void damage(int damage) {
-        Character.super.damage(damage);
-        if (client.getScreen() instanceof GameScreen gameScreen) {
-            float percent = (float) getStats().health().value() / getMaxStats().health().value();
-            gameScreen.getHealthBar().setPercent(percent);
-        }
     }
 
     @Override

@@ -294,5 +294,10 @@ public class GameScreen extends AbstractScreen {
                 amount.draw(batch, parentAlpha);
             }
         }
+
+        public void update() {
+            float percent = (float) character.getStats().health().value() / character.getMaxStats().health().value();
+            setPercent(percent);
+        }
     }
 }

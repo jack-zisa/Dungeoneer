@@ -46,6 +46,10 @@ public record StatContainer(Stat health, Stat speed, Stat attackSpeed) {
     }
 
     public StatContainer copy() {
-        return new StatContainer(health, speed, attackSpeed);
+        return new StatContainer(
+            new Stat(Stat.Type.HEALTH, health.base()),
+            new Stat(Stat.Type.SPEED, speed.base()),
+            new Stat(Stat.Type.ATTACK_SPEED, attackSpeed.base())
+        );
     }
 }

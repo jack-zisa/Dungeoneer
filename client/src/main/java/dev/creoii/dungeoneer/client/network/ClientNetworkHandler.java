@@ -382,14 +382,20 @@ public class ClientNetworkHandler implements Listener {
                 character.setAnimationState(AnimationState.toAttacking(animationState));
             });
             case DamageCharacterS2C(long accountId, int damage) -> {
-                ClientCharacter character;
-                if (accountId == client.getState().getAccount().id()) character = client.getState().getActiveCharacter();
-                else character = client.getState().getCurrentRaid().getCharacters().get(accountId);
-
-                if (character == null)
-                    return;
-
-                character.damage(damage);
+                if (accountId == client.getState().getAccount().id()) {
+                    ClientCharacter character = client.getState().getActiveCharacter();
+                    if (character.isNull()) return;
+                    character.damage(damage);
+                    Gdx.app.postRunnable(() -> {
+                        if (client.getScreen() instanceof GameScreen gameScreen) {
+                            gameScreen.getHealthBar().update();
+                        }
+                    });
+                } else {
+                    ClientCharacter character = client.getState().getCurrentRaid().getCharacters().get(accountId);
+                    if (character == null || character.isNull()) return;
+                    character.damage(damage);
+                }
             }
             default -> {
             }
