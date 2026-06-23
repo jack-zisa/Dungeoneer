@@ -64,6 +64,8 @@ public class ServerDungeon {
 
     @Nullable
     public Tile getTileAt(String layer, int tileX, int tileY) {
+        if (tileX < 0 || tileX > 255 || tileY < 0 || tileY > 255)
+            return null;
         int id = switch (layer) {
             case Constants.MAP_LAYER_GROUND -> ground[tileX][tileY];
             case Constants.MAP_LAYER_OBJECT -> objects[tileX][tileY];
@@ -76,8 +78,8 @@ public class ServerDungeon {
         return ServerTiles.TILES_BY_ID.getOrDefault(id, null);
     }
 
-    public boolean isSolid(int tileX, int tileY) {
-        if (tileX < 0 || tileY < 0 || tileX >= walls.length || tileY >= walls[0].length) {
+    public boolean isSolid(int tileX, int tileY, boolean bounded) {
+        if (bounded && (tileX < 0 || tileY < 0 || tileX >= walls.length || tileY >= walls[0].length)) {
             return true;
         }
 

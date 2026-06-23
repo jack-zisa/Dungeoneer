@@ -88,9 +88,9 @@ public class ClientDungeonMap implements Disposable {
         map.dispose();
     }
 
-    public boolean isSolid(int tileX, int tileY) {
+    public boolean isSolid(int tileX, int tileY, boolean bounded) {
         TiledMapTileLayer wallLayer = (TiledMapTileLayer) map.getLayers().get(Constants.MAP_LAYER_WALL);
-        if (tileX < 0 || tileY < 0 || tileX >= wallLayer.getWidth() || tileY >= wallLayer.getHeight()) {
+        if (bounded && (tileX < 0 || tileY < 0 || tileX >= wallLayer.getWidth() || tileY >= wallLayer.getHeight())) {
             return true;
         }
 

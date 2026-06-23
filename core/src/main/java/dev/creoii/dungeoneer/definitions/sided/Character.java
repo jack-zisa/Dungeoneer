@@ -10,6 +10,7 @@ import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
 import java.util.List;
+import java.util.function.BiPredicate;
 
 public interface Character extends Entity {
     float[] getVelocity();
@@ -29,10 +30,10 @@ public interface Character extends Entity {
         return getVelocity()[0] != 0f || getVelocity()[1] != 0f;
     }
 
-    default boolean attack(Attack attack, Raid raid, float[] mouseDir) {
+    default boolean attack(Attack attack, Raid raid, float[] mouseDir, BiPredicate<Integer, Integer> willHitWallRightAway) {
         switch (attack) {
             case ReferenceAttack(String id) -> {
-                return attack(DataManager.getAttack(id), raid, mouseDir);
+                return attack(DataManager.getAttack(id), raid, mouseDir, willHitWallRightAway);
             }
             case BulletAttack(_, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
                 BulletType bullet = DataManager.getBullet(Constants.TEST_BULLET);
@@ -45,6 +46,7 @@ public interface Character extends Entity {
                 float x = getCenterX() + mouseDir[0] * offset.x + up.x * offset.y;
                 float y = getCenterY() + mouseDir[1] * offset.x + up.y * offset.y;
 
+                boolean success = false;
                 for (int i = 0; i < bulletCount; ++i) {
                     float angle = (baseAngle + i * arcGap) + angleOffset;
 
@@ -55,19 +57,33 @@ public interface Character extends Entity {
                     float rotatedX = mouseDir[0] * cos - mouseDir[1] * sin;
                     float rotatedY = mouseDir[1] * cos + mouseDir[0] * sin;
 
+                    if (willHitWallRightAway(x, y, rotatedX, rotatedY, willHitWallRightAway)) continue;
+
                     raid.addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, this);
+                    success = true;
                 }
-                return true;
+                return success;
             }
             case CompositeAttack(_, List<Attack> attacks) -> {
                 boolean success = false;
                 for (Attack attack1 : attacks) {
-                    success |= attack(attack1, raid, mouseDir);
+                    success |= attack(attack1, raid, mouseDir, willHitWallRightAway);
                 }
                 return success;
             }
             case null, default -> throw new IllegalStateException("Unexpected attack value: " + attack);
         }
+    }
+
+    private boolean willHitWallRightAway(float startX, float startY, float dirX, float dirY, BiPredicate<Integer, Integer> predicate) {
+        for (float d = 0f; d <= 1f; d += 1f) {
+            float x = startX + dirX * d;
+            float y = startY + dirY * d;
+            if (predicate.test((int)(x / 8f), (int)(y / 8f))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     default void updateVelocity(float[] velocity, int movementFlags, float rotation) {

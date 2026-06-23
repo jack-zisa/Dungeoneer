@@ -377,7 +377,7 @@ public class ClientNetworkHandler implements Listener {
                 AnimationState animationState = character.getAnimationState();
 
                 Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
-                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
+                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()}, (integer, integer2) -> client.getState().getCurrentRaid().getDungeon().isSolid(integer, integer2, false));
 
                 character.setAnimationState(AnimationState.toAttacking(animationState));
             });
