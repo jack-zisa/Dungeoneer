@@ -1,6 +1,8 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
-public interface Entity {
+import dev.creoii.dungeoneer.util.collision.Collidable;
+
+public interface Entity extends Collidable {
     float[] getPos();
 
     default float getX() {

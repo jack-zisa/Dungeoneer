@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.util;
+package dev.creoii.dungeoneer.client.render;
 
 public enum RenderLayer {
     GROUND(0),

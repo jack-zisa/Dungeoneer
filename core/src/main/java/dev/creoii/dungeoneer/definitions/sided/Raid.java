@@ -124,21 +124,21 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     @SuppressWarnings("unchecked")
-    public void addBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, @Nullable Character shooter) {
-        BulletNode<?> poolBullet = createHierarchy(x, y, dirX, dirY, bullet, index, 1);
+    public void addBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
+        BulletNode<?> poolBullet = createHierarchy(x, y, dirX, dirY, bullet, index, enemy, 1);
         if (bullet instanceof SingleBulletType) {
             bullets.put(nextBulletId++, (B) poolBullet);
         } else bulletGroups.put(nextBulletId++, (BG) poolBullet);
     }
 
-    private BulletNode<?> createHierarchy(float x, float y, float dirX, float dirY, BulletType bullet, int index, int siblings) {
-        BulletNode<?> node = createBullet(x, y, dirX, dirY, bullet, index, siblings);
+    private BulletNode<?> createHierarchy(float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
+        BulletNode<?> node = createBullet(x, y, dirX, dirY, bullet, index, enemy, siblings);
         if (node instanceof BulletGroup group) {
             GroupBulletType def = (GroupBulletType) bullet;
             int nodeSiblings = def.children().size();
             for (int i = 0; i < nodeSiblings; i++) {
                 GroupBulletType.Child childDef = def.children().get(i);
-                BulletNode<?> child = createHierarchy(x, y, dirX, dirY, childDef.definition(), i, nodeSiblings);
+                BulletNode<?> child = createHierarchy(x, y, dirX, dirY, childDef.definition(), i, enemy, nodeSiblings);
                 child.setOffset(childDef.offset().x, childDef.offset().y);
                 child.setParent(group);
                 group.addChild(child);
@@ -148,10 +148,11 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     @SuppressWarnings("unchecked")
-    public BulletNode<?> createBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, int siblings) {
+    public BulletNode<?> createBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
         BulletNode<?> poolBullet;
         if (bullet instanceof SingleBulletType singleBulletType) {
             poolBullet = getBulletPool().obtain();
+            ((Bullet) poolBullet).setEnemy(enemy);
             ((BulletNode<SingleBulletType>) poolBullet).setType(singleBulletType);
         } else {
             poolBullet = getBulletGroupPool().obtain();

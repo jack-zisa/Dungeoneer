@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.util;
+package dev.creoii.dungeoneer.client.render;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -7,15 +7,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 
-public record ObjectTileRenderable(TextureRegion texture, int tileX, int tileY) implements Renderable {
+public record GroundTileRenderable(TextureRegion texture, int tileX, int tileY) implements Renderable {
     @Override
     public RenderLayer renderLayer() {
-        return RenderLayer.OBJECT;
+        return RenderLayer.GROUND;
     }
 
     @Override
     public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
-        RenderUtils.drawObjectTile(camera, batch, texture, tileX, tileY, rotation);
+        RenderUtils.drawGroundTile(camera, batch, texture, tileX, tileY, rotation);
     }
 
     @Override

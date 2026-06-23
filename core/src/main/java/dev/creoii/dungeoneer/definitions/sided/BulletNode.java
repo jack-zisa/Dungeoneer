@@ -1,7 +1,9 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
+import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +24,7 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
     private int index;
     private float age;
     private float angle;
+    private final Rectangle bounds;
     @Nullable private BulletNode<?> parent;
 
     public BulletNode() {
@@ -32,6 +35,7 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         startDirection = VectorUtils.zero();
         localDirection = VectorUtils.zero();
         offset = VectorUtils.zero();
+        bounds = new Rectangle(0f, 0f, 0f, 0f);
     }
 
     public T getType() {
@@ -45,6 +49,10 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
     public void setType(T type) {
         this.type = type;
         path = type.path().create();
+
+        if (type instanceof SingleBulletType singleBulletType) {
+            bounds.setSize(8f * singleBulletType.scale(), 8f * singleBulletType.scale());
+        }
     }
 
     @Override
@@ -184,6 +192,12 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         this.parent = parent;
     }
 
+    @Override
+    public Rectangle getBounds() {
+        bounds.setPosition(getX(), getY());
+        return bounds;
+    }
+
     public boolean update(float dt) {
         if ((lifetime -= dt) <= 0f)
             return false;
@@ -230,5 +244,6 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         speed = 0f;
         angle = 0f;
         parent = null;
+        bounds.set(0f, 0f, 0f, 0f);
     }
 }

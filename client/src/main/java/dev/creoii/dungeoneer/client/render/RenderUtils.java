@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.util;
+package dev.creoii.dungeoneer.client.render;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;

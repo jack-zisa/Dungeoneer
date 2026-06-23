@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.server.game;
 
+import com.badlogic.gdx.math.Rectangle;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
@@ -13,7 +14,9 @@ public class ServerCharacter implements Character {
     private final CharacterDefinition character;
     private final float[] pos;
     private final float[] velocity;
+    private final Rectangle bounds;
     private final StatContainer stats;
+    private final StatContainer maxStats;
     private long lastAttackTime;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
@@ -21,17 +24,25 @@ public class ServerCharacter implements Character {
         this.character = character;
         pos = VectorUtils.zero();
         velocity = VectorUtils.zero();
+        bounds = new Rectangle(0f, 0f, 8f, 8f);
         stats = new StatContainer(
             character.characterClass().baseStats().health().value(),
             character.characterClass().baseStats().speed().value(),
             character.characterClass().baseStats().attackSpeed().value()
         );
+        maxStats = new StatContainer(
+            character.characterClass().maxStats().health().value(),
+            character.characterClass().maxStats().speed().value(),
+            character.characterClass().maxStats().attackSpeed().value()
+        );
     }
 
+    @Override
     public int getConnectionId() {
         return connectionId;
     }
 
+    @Override
     public CharacterDefinition get() {
         return character;
     }
@@ -43,12 +54,12 @@ public class ServerCharacter implements Character {
 
     @Override
     public float getCenterX() {
-        return getX() + 4f; // TODO: Implement collision box
+        return getX() + bounds.width / 2f;
     }
 
     @Override
     public float getCenterY() {
-        return getY() + 4f; // TODO: Implement collision box
+        return getY() + bounds.height / 2f;
     }
 
     @Override
@@ -57,8 +68,19 @@ public class ServerCharacter implements Character {
     }
 
     @Override
+    public Rectangle getBounds() {
+        bounds.setPosition(getX(), getY());
+        return bounds;
+    }
+
+    @Override
     public StatContainer getStats() {
         return stats;
+    }
+
+    @Override
+    public StatContainer getMaxStats() {
+        return maxStats;
     }
 
     public long getLastAttackTime() {

@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.util.RenderLayer;
-import dev.creoii.dungeoneer.client.util.RenderUtils;
-import dev.creoii.dungeoneer.client.util.Renderable;
+import dev.creoii.dungeoneer.client.render.RenderLayer;
+import dev.creoii.dungeoneer.client.render.RenderUtils;
+import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 
 public class ClientBullet extends Bullet implements Renderable {

@@ -2,15 +2,17 @@ package dev.creoii.dungeoneer.client.render.screen.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -20,10 +22,10 @@ import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.game.*;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
-import dev.creoii.dungeoneer.client.util.GroundTileRenderable;
-import dev.creoii.dungeoneer.client.util.ObjectTileRenderable;
-import dev.creoii.dungeoneer.client.util.RenderLayer;
-import dev.creoii.dungeoneer.client.util.Renderable;
+import dev.creoii.dungeoneer.client.render.GroundTileRenderable;
+import dev.creoii.dungeoneer.client.render.ObjectTileRenderable;
+import dev.creoii.dungeoneer.client.render.RenderLayer;
+import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -56,6 +58,10 @@ public class GameScreen extends AbstractScreen {
 
     public Label getTimeRemainingLabel() {
         return timeRemainingLabel;
+    }
+
+    public HealthBar getHealthBar() {
+        return healthBar;
     }
 
     @Override
@@ -102,8 +108,8 @@ public class GameScreen extends AbstractScreen {
         root.add(surrenderButton).left().row();
         root.add(new Table()).grow().row();
 
-        healthBar = new HealthBar(getClient().getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, false);
-        root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f);
+        healthBar = new HealthBar(getClient().getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, 20f, false);
+        root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f).height(24f);
 
         getStage().addActor(root);
 
@@ -223,47 +229,69 @@ public class GameScreen extends AbstractScreen {
         polygonBatch.dispose();
     }
 
-    public static class HealthBar extends Stack {
+    public static class HealthBar extends Widget {
         private final ClientCharacter character;
-        private final Container<Table> fillContainer;
-        private float percent;
-        @Nullable
-        private Label amount;
+        private final NinePatch emptyPatch;
+        private final NinePatch filledPatch;
+        private float percent = 1f;
+        @Nullable private final Label amount;
 
-        public HealthBar(ClientCharacter character, float width, boolean displayAmount) {
+        public HealthBar(ClientCharacter character, float width, float height, boolean displayAmount) {
             this.character = character;
-            percent = 1f;
 
-            setWidth(width);
-            Table background = new Table();
-            background.setBackground(new NinePatchDrawable(Assets.HEALTH_BAR_EMPTY_9PATCH));
+            emptyPatch = Assets.HEALTH_BAR_EMPTY_9PATCH;
+            filledPatch = Assets.HEALTH_BAR_9PATCH;
 
-            Table fill = new Table();
-            fill.setBackground(new NinePatchDrawable(Assets.HEALTH_BAR_9PATCH));
-
-            fillContainer = new Container<>(fill);
-            fillContainer.width(getWidth() * percent);
-            fillContainer.left();
-
-            add(background);
-            add(fillContainer);
+            setSize(width, height);
 
             if (displayAmount) {
-                add(amount = new Label(String.valueOf(character.getStats().health().value()), SKIN));
-            }
+                amount = new Label("", SKIN);
+                updateAmount();
+            } else amount = null;
         }
 
         public void setPercent(float percent) {
-            if (percent == 0f) {
-                fillContainer.setVisible(false);
-            } else if (!fillContainer.isVisible()) fillContainer.setVisible(true);
+            this.percent = MathUtils.clamp(percent, 0f, 1f);
+            if (amount != null) {
+                updateAmount();
+            }
+        }
 
-            this.percent = percent;
-            fillContainer.width(getWidth() * percent);
-            fillContainer.left();
+        private void updateAmount() {
+            if (amount != null) amount.setText(character.getStats().health().value() + "/" + character.getMaxStats().health().value());
+        }
+
+        @Override
+        public float getPrefWidth() {
+            return getWidth();
+        }
+
+        @Override
+        public float getPrefHeight() {
+            return getHeight();
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            validate();
+
+            Color color = getColor();
+            batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
+
+            float x = getX();
+            float y = getY();
+            float width = getWidth();
+            float height = getHeight();
+
+            emptyPatch.draw(batch, x, y, width, height);
+
+            if (percent > 0f) {
+                filledPatch.draw(batch, x, y, width * percent, height);
+            }
 
             if (amount != null) {
-                amount.setText(character.getStats().health().value());
+                amount.setBounds(x, y, width, height);
+                amount.draw(batch, parentAlpha);
             }
         }
     }

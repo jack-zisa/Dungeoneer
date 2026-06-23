@@ -9,12 +9,13 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.util.RenderLayer;
-import dev.creoii.dungeoneer.client.util.Renderable;
+import dev.creoii.dungeoneer.client.render.RenderLayer;
+import dev.creoii.dungeoneer.client.render.Renderable;
+import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
-import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -29,7 +30,9 @@ public class ClientCharacter implements Character, Renderable {
     private final float[] renderPos;
     private final float[] velocity;
     private final StatContainer stats;
+    private final StatContainer maxStats;
     private final float[] correction;
+    private final Rectangle bounds;
     private long lastAttackTime;
     private boolean attackPending;
     private AnimationState animationState;
@@ -46,21 +49,34 @@ public class ClientCharacter implements Character, Renderable {
         velocity = VectorUtils.zero();
         if (character == null) {
             stats = StatContainer.ZERO.copy();
+            maxStats = StatContainer.ZERO.copy();
         } else {
             stats = new StatContainer(
                 character.characterClass().baseStats().health().value(),
                 character.characterClass().baseStats().speed().value(),
                 character.characterClass().baseStats().attackSpeed().value()
             );
+            maxStats = new StatContainer(
+                character.characterClass().maxStats().health().value(),
+                character.characterClass().maxStats().speed().value(),
+                character.characterClass().maxStats().attackSpeed().value()
+            );
         }
         correction = VectorUtils.zero();
+        bounds = new Rectangle(0f, 0f, 8f, 8f);
         animationState = AnimationState.IDLE_DOWN;
+    }
+
+    @Override
+    public int getConnectionId() {
+        return client.get().getID();
     }
 
     public Dungeoneer getClient() {
         return client;
     }
 
+    @Override
     public @Nullable CharacterDefinition get() {
         return character;
     }
@@ -139,6 +155,11 @@ public class ClientCharacter implements Character, Renderable {
         return stats;
     }
 
+    @Override
+    public StatContainer getMaxStats() {
+        return maxStats;
+    }
+
     public float[] getCorrection() {
         return correction;
     }
@@ -146,6 +167,12 @@ public class ClientCharacter implements Character, Renderable {
     public void setCorrection(float x, float y) {
         correction[0] = x;
         correction[1] = y;
+    }
+
+    @Override
+    public Rectangle getBounds() {
+        bounds.setPosition(getX(), getY());
+        return bounds;
     }
 
     public void setLastAttackTime(long lastAttackTime) {
@@ -170,6 +197,15 @@ public class ClientCharacter implements Character, Renderable {
 
     public void setAnimationState(AnimationState animationState) {
         this.animationState = animationState;
+    }
+
+    @Override
+    public void damage(int damage) {
+        Character.super.damage(damage);
+        if (client.getScreen() instanceof GameScreen gameScreen) {
+            float percent = (float) getStats().health().value() / getMaxStats().health().value();
+            gameScreen.getHealthBar().setPercent(percent);
+        }
     }
 
     @Override
@@ -221,9 +257,9 @@ public class ClientCharacter implements Character, Renderable {
         shapeRenderer.line(getCenterX(), getCenterY(), getCenterX() + mouseDir[0] * 32f, getCenterY() + mouseDir[1] * 32f);
 
         shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.rect(getRenderX(), getRenderY(), sprite.getWidth(), sprite.getHeight());
+        shapeRenderer.rect(getRenderX(), getRenderY(), bounds.width, bounds.height);
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(getX(), getY(), sprite.getWidth(), sprite.getHeight());
+        shapeRenderer.rect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
     @Override

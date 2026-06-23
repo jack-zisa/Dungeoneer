@@ -2,7 +2,6 @@ package dev.creoii.dungeoneer.server.game;
 
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
-import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.raid.AttacksS2C;
@@ -11,23 +10,25 @@ import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
+import dev.creoii.dungeoneer.util.collision.CollisionManager;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> implements Tickable {
+public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final DungeoneerServer server;
     private final ServerDungeon dungeon;
+    private final CollisionManager collisionManager;
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
     private final List<AttacksS2C.Entry> attacks;
 
-    private final Pool<Bullet> bulletPool = new Pool<>() {
+    private final Pool<ServerBullet> bulletPool = new Pool<>() {
         @Override
-        protected Bullet newObject() {
-            return new Bullet();
+        protected ServerBullet newObject() {
+            return new ServerBullet(ServerRaid.this);
         }
     };
     private final Pool<BulletGroup> bulletGroupPool = new Pool<>() {
@@ -41,6 +42,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         super(raid);
         this.server = server;
         this.dungeon = dungeon;
+        collisionManager = new CollisionManager(this);
         getCharacters().put(character.get().accountId(), character);
         timer = SYNC_INTERVAL;
         moveEntries = new ArrayList<>();
@@ -48,7 +50,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
     }
 
     @Override
-    public Pool<Bullet> getBulletPool() {
+    public Pool<ServerBullet> getBulletPool() {
         return bulletPool;
     }
 
@@ -82,6 +84,8 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
             }
 
             timer -= dt;
+
+            collisionManager.update();
 
             // Update bullet positions
             super.update(dt);
@@ -117,6 +121,7 @@ public class ServerRaid extends Raid<Bullet, BulletGroup, ServerCharacter> imple
         moveEntries.clear();
         attacks.clear();
         timer = 0f;
+        collisionManager.getCollidables().clear();
     }
 
     @Nullable

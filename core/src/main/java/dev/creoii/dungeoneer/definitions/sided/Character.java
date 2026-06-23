@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.definitions.sided;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.util.Constants;
@@ -13,6 +14,10 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 public interface Character extends Entity {
+    int getConnectionId();
+
+    CharacterDefinition get();
+
     float[] getVelocity();
 
     default void setVelocity(float x, float y) {
@@ -22,12 +27,18 @@ public interface Character extends Entity {
 
     StatContainer getStats();
 
+    StatContainer getMaxStats();
+
     default boolean canMove() {
         return getStats().speed().value() > 0f;
     }
 
     default boolean isMoving() {
         return getVelocity()[0] != 0f || getVelocity()[1] != 0f;
+    }
+
+    default void damage(int damage) {
+        getStats().setHealth(getStats().health().value() - damage);
     }
 
     default boolean attack(Attack attack, Raid raid, float[] mouseDir, BiPredicate<Integer, Integer> willHitWallRightAway) {
@@ -59,7 +70,7 @@ public interface Character extends Entity {
 
                     if (willHitWallRightAway(x, y, rotatedX, rotatedY, willHitWallRightAway)) continue;
 
-                    raid.addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, this);
+                    raid.addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, true);
                     success = true;
                 }
                 return success;
@@ -76,14 +87,9 @@ public interface Character extends Entity {
     }
 
     private boolean willHitWallRightAway(float startX, float startY, float dirX, float dirY, BiPredicate<Integer, Integer> predicate) {
-        for (float d = 0f; d <= 1f; d += 1f) {
-            float x = startX + dirX * d;
-            float y = startY + dirY * d;
-            if (predicate.test((int)(x / 8f), (int)(y / 8f))) {
-                return true;
-            }
-        }
-        return false;
+        float x = startX + dirX;
+        float y = startY + dirY;
+        return predicate.test((int) (x / 8f), (int) (y / 8f));
     }
 
     default void updateVelocity(float[] velocity, int movementFlags, float rotation) {
