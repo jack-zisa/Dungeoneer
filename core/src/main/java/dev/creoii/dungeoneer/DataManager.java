@@ -6,12 +6,9 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.creoii.dungeoneer.definitions.MapObject;
-import dev.creoii.dungeoneer.definitions.Tileset;
+import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
-import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.definitions.Tile;
 import dev.creoii.dungeoneer.definitions.attack.ReferenceAttack;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.logging.Logger;
@@ -63,6 +60,14 @@ public class DataManager {
 
     public static Object2ObjectArrayMap<String, Identifiable> getMapObjects() {
         return DATA.get(SchemaType.MAP_OBJECT);
+    }
+
+    public static Object2ObjectArrayMap<String, Identifiable> getTilesets() {
+        return DATA.get(SchemaType.TILESET);
+    }
+
+    public static Object2ObjectArrayMap<String, Identifiable> getMapTemplates() {
+        return DATA.get(SchemaType.MAP_TEMPLATE);
     }
 
     @Nullable
@@ -195,7 +200,8 @@ public class DataManager {
         TILE("tile"),
         TILE_PROVIDER("tile_provider"),
         TILESET("tileset"),
-        MAP_OBJECT("object");
+        MAP_OBJECT("object"),
+        MAP_TEMPLATE("map_template");
 
         private final String path;
 
@@ -216,6 +222,7 @@ public class DataManager {
         SCHEMA.put(SchemaType.TILE_PROVIDER, TileProvider.CODEC);
         SCHEMA.put(SchemaType.TILESET, Tileset.CODEC);
         SCHEMA.put(SchemaType.MAP_OBJECT, MapObject.CODEC);
+        SCHEMA.put(SchemaType.MAP_TEMPLATE, DungeonMapTemplate.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {
             DATA.put(schemaType, new Object2ObjectArrayMap<>());
