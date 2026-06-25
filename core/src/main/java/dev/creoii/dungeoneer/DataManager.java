@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.creoii.dungeoneer.definitions.MapObject;
+import dev.creoii.dungeoneer.definitions.Tileset;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
@@ -148,10 +149,15 @@ public class DataManager {
                                 continue;
                             }
 
+                            String id = file.getFileName().toString();
+                            id = id.substring(0, id.lastIndexOf('.'));
+
                             Identifiable obj = (Identifiable) result.getOrThrow();
+                            obj = obj.withId(id);
                             data.put(obj.id(), obj);
                         } catch (Exception e) {
                             LOGGER.error("Error parsing " + file.getFileName() + " in '/" + folder + "': " + e);
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -188,6 +194,7 @@ public class DataManager {
         CLASS("class"),
         TILE("tile"),
         TILE_PROVIDER("tile_provider"),
+        TILESET("tileset"),
         MAP_OBJECT("object");
 
         private final String path;
@@ -207,6 +214,7 @@ public class DataManager {
         SCHEMA.put(SchemaType.CLASS, CharacterClass.CODEC);
         SCHEMA.put(SchemaType.TILE, Tile.CODEC);
         SCHEMA.put(SchemaType.TILE_PROVIDER, TileProvider.CODEC);
+        SCHEMA.put(SchemaType.TILESET, Tileset.CODEC);
         SCHEMA.put(SchemaType.MAP_OBJECT, MapObject.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {

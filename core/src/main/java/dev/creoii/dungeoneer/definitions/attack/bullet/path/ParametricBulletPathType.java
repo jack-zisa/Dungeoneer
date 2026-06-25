@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Codecs;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 public record ParametricBulletPathType(String id, ParametricType parametricType, Vector2 scale) implements BulletPathType<ParametricBulletPathType.ParametricBulletPathInstance> {
     public static final MapCodec<ParametricBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).and(instance.group(
@@ -22,6 +23,11 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
     @Override
     public ParametricBulletPathInstance create() {
         return new ParametricBulletPathInstance(this);
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new ParametricBulletPathType(id, parametricType, scale);
     }
 
     public static class ParametricBulletPathInstance extends Instance<ParametricBulletPathType> {

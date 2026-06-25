@@ -8,14 +8,14 @@ import dev.creoii.dungeoneer.util.Identifiable;
 public record Tile(String id, int tileId) implements Identifiable {
     public static final Codec<Tile> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
-            Codec.STRING.fieldOf("id").forGetter(Tile::id),
+            Codec.STRING.optionalFieldOf("id", "").forGetter(Tile::id),
             Codec.INT.fieldOf("tile_id").forGetter(Tile::tileId)
         ).apply(instance, Tile::new);
     });
     public static final Codec<Tile> ID_CODEC = Codec.STRING.xmap(DataManager::getTile, Tile::id);
 
     @Override
-    public String toString() {
-        return id;
+    public Identifiable withId(String id) {
+        return new Tile(id, tileId);
     }
 }

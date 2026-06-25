@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 public record OrbitBulletPathType(String id, int sides, float orbitRadius) implements BulletPathType<OrbitBulletPathType.OrbitBulletPathInstance> {
     public static final MapCodec<OrbitBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).and(instance.group(
@@ -20,6 +21,11 @@ public record OrbitBulletPathType(String id, int sides, float orbitRadius) imple
     @Override
     public OrbitBulletPathInstance create() {
         return new OrbitBulletPathInstance(this);
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new OrbitBulletPathType(id, sides, orbitRadius);
     }
 
     public static class OrbitBulletPathInstance extends Instance<OrbitBulletPathType> {

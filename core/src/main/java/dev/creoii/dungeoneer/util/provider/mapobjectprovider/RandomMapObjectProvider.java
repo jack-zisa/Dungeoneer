@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.MapObject;
 import dev.creoii.dungeoneer.definitions.Tile;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Random;
 public class RandomMapObjectProvider implements MapObjectProvider {
     public static final MapCodec<RandomMapObjectProvider> CODEC = RecordCodecBuilder.mapCodec(instance ->
         instance.group(
-            Codec.STRING.fieldOf("id").forGetter(RandomMapObjectProvider::id),
+            Codec.STRING.optionalFieldOf("id", "").forGetter(RandomMapObjectProvider::id),
             MapObjectProvider.CODEC.listOf().fieldOf("values").forGetter(RandomMapObjectProvider::values)
         ).apply(instance, RandomMapObjectProvider::new)
     );
@@ -48,5 +49,10 @@ public class RandomMapObjectProvider implements MapObjectProvider {
     @Override
     public MapObject getMapObject() {
         return values.getFirst().getMapObject();
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new RandomMapObjectProvider(id, values);
     }
 }

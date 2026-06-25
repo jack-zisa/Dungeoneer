@@ -4,10 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.*;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 public record SingleBulletType(String id, Type type, float scale, float angleOffset, float speed, float lifetime, float rotationSpeed, float acceleration, BulletPathType<?> path) implements BulletType {
     public static final MapCodec<SingleBulletType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        Codec.STRING.fieldOf("id").forGetter(SingleBulletType::id),
+        Codec.STRING.optionalFieldOf("id", "").forGetter(SingleBulletType::id),
         Type.CODEC.fieldOf("type").orElse(Type.SINGLE).forGetter(SingleBulletType::type),
         Codec.FLOAT.fieldOf("scale").orElse(1f).forGetter(SingleBulletType::scale),
         Codec.FLOAT.fieldOf("angle_offset").orElse(0f).forGetter(SingleBulletType::angleOffset),
@@ -17,4 +18,9 @@ public record SingleBulletType(String id, Type type, float scale, float angleOff
         Codec.FLOAT.fieldOf("acceleration").orElse(0f).forGetter(SingleBulletType::acceleration),
         BulletPathType.CODEC.fieldOf("path").orElse(BulletPathType.EMPTY).forGetter(SingleBulletType::path)
     ).apply(instance, SingleBulletType::new));
+
+    @Override
+    public Identifiable withId(String id) {
+        return new SingleBulletType(id, type, scale, angleOffset, speed, lifetime, rotationSpeed, acceleration, path);
+    }
 }

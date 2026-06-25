@@ -22,7 +22,7 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
     T create();
 
     static <P extends BulletPathType<?>> Products.P1<RecordCodecBuilder.Mu<P>, String> addDefaultFields(RecordCodecBuilder.Instance<P> instance) {
-        return instance.group(Codec.STRING.fieldOf("id").forGetter(BulletPathType::id));
+        return instance.group(Codec.STRING.optionalFieldOf("id", "").forGetter(BulletPathType::id));
     }
 
     abstract class Instance<T extends BulletPathType<?>> implements Pool.Poolable {

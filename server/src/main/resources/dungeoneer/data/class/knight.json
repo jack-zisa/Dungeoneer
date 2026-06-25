@@ -1,5 +1,4 @@
 {
-  "id": "knight",
   "base_stats": {
     "health": 200,
     "speed": 17,

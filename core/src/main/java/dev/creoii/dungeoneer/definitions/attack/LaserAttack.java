@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.util.Codecs;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 public record LaserAttack(String id, Vector2 size, int laserCount, float arcGap, float angleOffset, float lifetime, boolean attached) implements Attack {
     public static final MapCodec<LaserAttack> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
@@ -21,5 +22,10 @@ public record LaserAttack(String id, Vector2 size, int laserCount, float arcGap,
     @Override
     public AttackType type() {
         return AttackType.LASER;
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new LaserAttack(id, size, laserCount, arcGap, angleOffset, lifetime, attached);
     }
 }

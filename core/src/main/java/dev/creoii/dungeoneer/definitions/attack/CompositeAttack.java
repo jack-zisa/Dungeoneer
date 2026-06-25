@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.definitions.attack;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.List;
 
@@ -13,5 +14,10 @@ public record CompositeAttack(String id, List<Attack> attacks) implements Attack
     @Override
     public AttackType type() {
         return AttackType.COMPOSITE;
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new CompositeAttack(id, attacks);
     }
 }

@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.MapObject;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.Random;
 
@@ -12,7 +13,7 @@ public record SimpleMapObjectProvider(String id, MapObject value) implements Map
     public static final SimpleMapObjectProvider EMPTY = new SimpleMapObjectProvider("empty", DataManager.getMapObject("short_grass"));
     public static final MapCodec<SimpleMapObjectProvider> CODEC = RecordCodecBuilder.mapCodec(instance ->
         instance.group(
-            Codec.STRING.fieldOf("id").forGetter(SimpleMapObjectProvider::id),
+            Codec.STRING.optionalFieldOf("id", "").forGetter(SimpleMapObjectProvider::id),
             MapObject.ID_CODEC.fieldOf("value").forGetter(SimpleMapObjectProvider::value)
         ).apply(instance, SimpleMapObjectProvider::new)
     );
@@ -30,5 +31,10 @@ public record SimpleMapObjectProvider(String id, MapObject value) implements Map
     @Override
     public MapObject getMapObject() {
         return value;
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new SimpleMapObjectProvider(id, value);
     }
 }

@@ -26,6 +26,6 @@ import java.util.function.Function;
     }, Either::right);
 
     static <T extends Attack> Products.P1<RecordCodecBuilder.Mu<T>, String> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {
-        return instance.group(Codec.STRING.fieldOf("id").forGetter(Attack::id));
+        return instance.group(Codec.STRING.optionalFieldOf("id", "").forGetter(Attack::id));
     }
 }

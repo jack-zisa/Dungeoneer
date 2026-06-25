@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 public record WavyBulletPathType(String id, WaveType waveType, float amplitude, float frequency, boolean indexPhase) implements BulletPathType<WavyBulletPathType.WavyBulletPathInstance> {
     public static final MapCodec<WavyBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).and(instance.group(
@@ -22,6 +23,11 @@ public record WavyBulletPathType(String id, WaveType waveType, float amplitude, 
     @Override
     public WavyBulletPathInstance create() {
         return new WavyBulletPathInstance(this);
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new WavyBulletPathType(id, waveType, amplitude, frequency, indexPhase);
     }
 
     public static class WavyBulletPathInstance extends Instance<WavyBulletPathType> {

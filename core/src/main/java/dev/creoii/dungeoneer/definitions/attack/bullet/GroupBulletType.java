@@ -6,12 +6,13 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
 import dev.creoii.dungeoneer.util.Codecs;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.List;
 
 public record GroupBulletType(String id, Type type, float speed, float lifetime, float acceleration, BulletPathType<?> path, List<Child> children) implements BulletType {
     public static final MapCodec<GroupBulletType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        Codec.STRING.fieldOf("id").forGetter(GroupBulletType::id),
+        Codec.STRING.optionalFieldOf("id", "").forGetter(GroupBulletType::id),
         Type.CODEC.fieldOf("type").orElse(Type.SINGLE).forGetter(GroupBulletType::type),
         Codec.FLOAT.fieldOf("speed").forGetter(GroupBulletType::speed),
         Codec.FLOAT.fieldOf("lifetime").forGetter(GroupBulletType::lifetime),
@@ -19,6 +20,11 @@ public record GroupBulletType(String id, Type type, float speed, float lifetime,
         BulletPathType.CODEC.fieldOf("path").orElse(BulletPathType.EMPTY).forGetter(GroupBulletType::path),
         Child.CODEC.listOf().fieldOf("children").forGetter(GroupBulletType::children)
     ).apply(instance, GroupBulletType::new));
+
+    @Override
+    public Identifiable withId(String id) {
+        return new GroupBulletType(id, type, speed, lifetime, acceleration, path, children);
+    }
 
     public record Child(Vector2 offset, BulletType definition) {
         public static final Codec<Child> CODEC = RecordCodecBuilder.create(instance -> instance.group(

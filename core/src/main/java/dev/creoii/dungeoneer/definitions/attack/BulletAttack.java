@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.util.Codecs;
+import dev.creoii.dungeoneer.util.Identifiable;
 
 public record BulletAttack(String id, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) implements Attack {
     public static final MapCodec<BulletAttack> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
@@ -20,5 +21,10 @@ public record BulletAttack(String id, int bulletCount, float arcGap, float angle
     @Override
     public AttackType type() {
         return AttackType.BULLET;
+    }
+
+    @Override
+    public Identifiable withId(String id) {
+        return new BulletAttack(id, bulletCount, arcGap, angleOffset, offset, indexOffset);
     }
 }

@@ -1,5 +1,4 @@
 {
-  "id": "fire_shot",
   "type": "single",
   "speed": 50,
   "acceleration": 200,
