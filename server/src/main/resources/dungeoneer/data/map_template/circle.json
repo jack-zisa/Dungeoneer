@@ -3,7 +3,7 @@
     "GROUND": {
       "palette": {
         "palette": {
-          ".": 0
+          ".": "necropolis_rock"
         }
       },
       "map": [
@@ -78,7 +78,7 @@
     "WALL": {
       "palette": {
         "palette": {
-          "#": 0
+          "#": "necropolis_tile"
         }
       },
       "map": [
@@ -152,7 +152,7 @@
     "OBJECT": {
       "palette": {
         "palette": {
-          "O": 0
+          "O": "fire"
         }
       },
       "map": [

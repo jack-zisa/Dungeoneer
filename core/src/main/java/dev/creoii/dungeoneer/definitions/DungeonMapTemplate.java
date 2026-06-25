@@ -40,9 +40,9 @@ public record DungeonMapTemplate(String id, Map<LayerType, Layer> layers) implem
         ).apply(instance, Layer::new));
     }
 
-    public record Palette(Map<Character, Integer> palette) {
+    public record Palette(Map<Character, String> palette) {
         public static final Codec<Palette> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(Codec.STRING.xmap(s -> s.charAt(0), String::valueOf), Codec.INT).fieldOf("palette").forGetter(Palette::palette)
+            Codec.unboundedMap(Codec.STRING.xmap(s -> s.charAt(0), String::valueOf), Codec.STRING).fieldOf("palette").forGetter(Palette::palette)
         ).apply(instance, Palette::new));
     }
 
