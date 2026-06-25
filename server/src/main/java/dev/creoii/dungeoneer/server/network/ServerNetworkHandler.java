@@ -209,9 +209,14 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
 
+                Message message = server.getDatabase().getChatMessages().create(account.factionId(), -1L, String.format("%s joined the faction", account.username()));
+                faction.recentMessages().put(message.messageId(), message);
+
                 faction.accounts().forEach(account1 -> {
                     if (account1.id() != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1.id())) {
-                        server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(account1.id()), new SendFactionS2C(faction));
+                        int connectionId = server.getSessionManager().getAccountConnections().get(account1.id());
+                        server.get().sendToUDP(connectionId, new SendFactionS2C(faction));
+                        server.get().sendToTCP(connectionId, new ChatMessageS2C(message));
                     }
                 });
 
@@ -227,9 +232,14 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     server.getDatabase().getAccounts().updateFaction(account, -1L);
                     server.getDatabase().getFactions().updateAccounts(faction);
 
+                    Message message = server.getDatabase().getChatMessages().create(account.factionId(), -1L, String.format("%s left the faction", account.username()));
+                    faction.recentMessages().put(message.messageId(), message);
+
                     faction.accounts().forEach(account1 -> {
                         if (account1.id() != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1.id())) {
-                            server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(account1.id()), new SendFactionS2C(faction));
+                            int connectionId = server.getSessionManager().getAccountConnections().get(account1.id());
+                            server.get().sendToUDP(connectionId, new SendFactionS2C(faction));
+                            server.get().sendToTCP(connectionId, new ChatMessageS2C(message));
                         }
                     });
 

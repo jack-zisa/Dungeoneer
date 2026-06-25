@@ -42,15 +42,33 @@ public class ChatMessageRepository {
                 INSERT INTO chat_messages(faction_id, account_id, text, flagged)
                 VALUES(:faction_id, :account_id, :text, :flagged)
             """)
-            .bind("faction_id", message.factionId())
-            .bind("account_id", message.accountId())
-            .bind("text", message.text())
-            .bind("flagged", message.flagged())
-            .executeAndReturnGeneratedKeys("id")
-            .mapTo(Long.class)
-            .one()
+                .bind("faction_id", message.factionId())
+                .bind("account_id", message.accountId())
+                .bind("text", message.text())
+                .bind("flagged", message.flagged())
+                .executeAndReturnGeneratedKeys("id")
+                .mapTo(Long.class)
+                .one()
         );
 
         return new Message(id, message.factionId(), message.accountId(), message.text(), message.flagged());
+    }
+
+    public Message create(long factionId, long accountId, String message) {
+        long id = jdbi.withHandle(handle ->
+            handle.createUpdate("""
+                INSERT INTO chat_messages(faction_id, account_id, text, flagged)
+                VALUES(:faction_id, :account_id, :text, :flagged)
+            """)
+                .bind("faction_id", factionId)
+                .bind("account_id", accountId)
+                .bind("text", message)
+                .bind("flagged", false)
+                .executeAndReturnGeneratedKeys("id")
+                .mapTo(Long.class)
+                .one()
+        );
+
+        return new Message(id, factionId, accountId, message, false);
     }
 }

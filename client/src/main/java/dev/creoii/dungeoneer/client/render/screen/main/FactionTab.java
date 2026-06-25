@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.client.render.screen.main;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -194,12 +195,17 @@ public class FactionTab extends Tab {
             return;
 
         for (Message message : faction.recentMessages().values()) {
-            Optional<Account> account = getClient().getState().getFaction().accounts().stream().filter(account1 -> account1.id() == message.accountId()).findFirst();
-            String username;
-            if (account.isPresent()) {
-                 username = account.get().username();
-            } else username = "Unknown";
-            chatTable.add(new Label(username + ": " + message.text(), getSkin())).left().growX().row();
+            if (message.accountId() != -1L) {
+                Optional<Account> account = getClient().getState().getFaction().accounts().stream().filter(account1 -> account1.id() == message.accountId()).findFirst();
+                account.ifPresent(value -> {
+                    Label messageLabel = new Label(String.format("%s: %s", value.username(), message.text()), getSkin());
+                    chatTable.add(messageLabel).left().growX().row();
+                });
+            } else {
+                Label messageLabel = new Label(message.text(), getSkin());
+                messageLabel.setColor(Color.YELLOW);
+                chatTable.add(messageLabel).left().growX().row();
+            }
         }
 
         chatScrollPane.layout();
