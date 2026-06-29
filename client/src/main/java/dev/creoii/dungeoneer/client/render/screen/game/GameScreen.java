@@ -47,9 +47,19 @@ public class GameScreen extends AbstractScreen {
 
     public GameScreen(Dungeoneer client) {
         super(client);
+
+        ClientRaid raid = client.getState().getCurrentRaid();
+        float spawnX = raid.getDungeonMap().getTemplate().spawnPos().x * 8f;
+        float spawnY = raid.getDungeonMap().getTemplate().spawnPos().y * 8f;
+        raid.updateSpawnPositions(spawnX, spawnY);
+        raid.getCharacters().values().forEach(clientCharacter -> {
+            clientCharacter.setPos(spawnX, spawnY);
+            clientCharacter.setRenderPos(spawnX, spawnY);
+        });
+
         visibleCharacters = new ObjectArrayList<>();
         visibleCharacters.add(getClient().getState().getActiveCharacter());
-        visibleCharacters.addAll(client.getState().getCurrentRaid().getCharacters().values());
+        visibleCharacters.addAll(raid.getCharacters().values());
     }
 
     public OrthographicCamera getCamera() {
@@ -69,6 +79,9 @@ public class GameScreen extends AbstractScreen {
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.setToOrtho(false);
         camera.zoom = .25f;
+        ClientCharacter character = getClient().getState().getActiveCharacter();
+        camera.position.x = character.getRenderX() + character.getBounds().width * .5f;
+        camera.position.y = character.getRenderY() + character.getBounds().height * .5f;
         camera.update();
 
         polygonBatch = new PolygonSpriteBatch();
@@ -149,8 +162,8 @@ public class GameScreen extends AbstractScreen {
         if (inputListener.isAttacking())
             inputListener.tryAttack();
 
-        camera.position.x = character.getRenderX() + character.getSprite().getWidth() * .5f;
-        camera.position.y = character.getRenderY() + character.getSprite().getHeight() * .5f;
+        camera.position.x = character.getRenderX() + character.getBounds().width * .5f;
+        camera.position.y = character.getRenderY() + character.getBounds().height * .5f;
         camera.update();
 
         java.util.List<Renderable> renderables = new ArrayList<>(visibleCharacters);

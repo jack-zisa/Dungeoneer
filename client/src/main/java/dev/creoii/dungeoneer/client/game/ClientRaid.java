@@ -64,6 +64,14 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
         setEndTime(System.currentTimeMillis() + timeRemaining);
     }
 
+    @Override
+    public void updateSpawnPositions(float spawnX, float spawnY) {
+        getCharacters().values().forEach(c -> {
+            c.setPos(spawnX, spawnY);
+            c.setRenderPos(spawnX, spawnY);
+        });
+    }
+
     public void update(float dt) {
         if (getStatus() == Status.ACTIVE) {
             if (client.getScreen() instanceof GameScreen gameScreen) {

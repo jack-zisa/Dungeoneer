@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.render.screen.editor.DungeonEditorScreen2;
+import dev.creoii.dungeoneer.client.render.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.render.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.network.c2s.raid.JoinOrCreateRaidC2S;
 
@@ -79,7 +79,7 @@ public class PlayTab extends Tab {
         buildButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                getClient().setScreen(new DungeonEditorScreen2(getClient()));
+                getClient().setScreen(new DungeonEditorScreen(getClient()));
                 getClient().getState().setStatus(ClientState.Status.EDITING_DUNGEON);
             }
         });

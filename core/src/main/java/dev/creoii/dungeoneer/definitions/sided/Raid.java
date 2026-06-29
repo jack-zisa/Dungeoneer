@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.*;
@@ -80,6 +81,10 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
     public void setEndTime(long endTime) {
         this.endTime = endTime;
+    }
+
+    public void updateSpawnPositions(float spawnX, float spawnY) {
+        characters.values().forEach(c -> c.setPos(spawnX, spawnY));
     }
 
     public void update(float dt) {

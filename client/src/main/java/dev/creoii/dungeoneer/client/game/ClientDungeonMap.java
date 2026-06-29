@@ -20,6 +20,7 @@ import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
 import dev.creoii.dungeoneer.util.Constants;
@@ -37,6 +38,7 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
     private final Dungeoneer client;
     private final Map<Integer, String> tileIds;
     private DungeonMapDefinition definition;
+    private DungeonMapTemplate template;
     private OrthogonalTiledMapRenderer mapRenderer;
     private List<WallTop> wallTops;
     private List<WallFace> wallFaces;
@@ -47,7 +49,8 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
     }
 
     public void build(Dungeoneer client, long seed, String templateId, String tilesetId) {
-        mapRenderer = new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(seed, templateId, tilesetId, ClientTiles.TILESET, ClientTiles::getTile));
+        template = DataManager.getMapTemplate(templateId);
+        mapRenderer = new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(seed, template, tilesetId, ClientTiles.TILESET, ClientTiles::getTile));
 
         wallTops = new ArrayList<>();
         wallFaces = new ArrayList<>();
@@ -86,6 +89,11 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
     @Override
     public void set(DungeonMapDefinition definition) {
         this.definition = definition;
+    }
+
+    @Override
+    public DungeonMapTemplate getTemplate() {
+        return template;
     }
 
     public TiledMap getMap() {

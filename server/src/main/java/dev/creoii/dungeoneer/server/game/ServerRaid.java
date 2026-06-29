@@ -44,6 +44,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
         this.dungeon = dungeon;
         collisionManager = new CollisionManager(this);
         getCharacters().put(character.get().accountId(), character);
+        character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
         timer = SYNC_INTERVAL;
         moveEntries = new ArrayList<>();
         attacks = new ArrayList<>();
@@ -73,6 +74,12 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
 
     public List<AttacksS2C.Entry> getAttacks() {
         return attacks;
+    }
+
+    @Override
+    public void addCharacter(long accountId, ServerCharacter character) {
+        super.addCharacter(accountId, character);
+        character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
     }
 
     @Override

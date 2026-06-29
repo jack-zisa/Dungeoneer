@@ -17,14 +17,14 @@ import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public class Sidebar2 extends Table {
+public class Sidebar extends Table {
     protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(Assets.TAB_9PATCH);
-    private final DungeonEditorScreen2 screen;
+    private final DungeonEditorScreen screen;
     private String selectedLayer;
     private final Table tilesetsTable;
     private final ButtonGroup<ImageButton> tilesets;
 
-    public Sidebar2(DungeonEditorScreen2 screen) {
+    public Sidebar(DungeonEditorScreen screen) {
         super(AbstractScreen.SKIN);
         this.screen = screen;
         selectedLayer = Constants.MAP_LAYER_GROUND;

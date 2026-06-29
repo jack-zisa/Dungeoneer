@@ -2,20 +2,18 @@ package dev.creoii.dungeoneer.server.game;
 
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.util.Constants;
 import org.jspecify.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.InflaterInputStream;
 
 public class ServerDungeonMap implements DungeonMap {
     private final DungeonMapDefinition definition;
+    private final DungeonMapTemplate template;
     private final Map<Integer, String> tileIds;
     private final int[][] ground;
     private final int[][] walls;
@@ -24,6 +22,7 @@ public class ServerDungeonMap implements DungeonMap {
 
     public ServerDungeonMap(DungeonMapDefinition definition) {
         this.definition = definition;
+        template = DataManager.getMapTemplate(definition.templateId());
         tileIds = new HashMap<>();
         ground = new int[256][256];
         walls = new int[256][256];
@@ -41,21 +40,13 @@ public class ServerDungeonMap implements DungeonMap {
     }
 
     @Override
-    public Map<Integer, String> getTileIds() {
-        return tileIds;
+    public DungeonMapTemplate getTemplate() {
+        return template;
     }
 
-    private void deserializeLayer(byte[] blob, int[][] tiles) throws IOException {
-        try (DataInputStream dis = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(blob)))) {
-            int width = dis.readInt();
-            int height = dis.readInt();
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    tiles[x][y] = dis.readInt();
-                }
-            }
-        }
+    @Override
+    public Map<Integer, String> getTileIds() {
+        return tileIds;
     }
 
     @Nullable

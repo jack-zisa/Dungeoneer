@@ -1,6 +1,8 @@
 package dev.creoii.dungeoneer.client;
 
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
@@ -58,7 +60,7 @@ public class ClientState {
 
     public void setDungeonMap(DungeonMapDefinition definition) {
         dungeonMap.set(definition);
-        dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(definition.accountId(), dungeonMap.get().templateId(), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles::getTile)));
+        dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(definition.accountId(), DataManager.getMapTemplate(dungeonMap.get().templateId()), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles::getTile)));
     }
 
     public List<CharacterDefinition> getCharacters() {
@@ -94,6 +96,9 @@ public class ClientState {
         else {
             syncRaid(raid);
             currentRaid.getDungeonMap().build(client, currentRaid.get().target().id(), templateId, tilesetId);
+
+            Vector2 spawnPos = currentRaid.getDungeonMap().getTemplate().spawnPos();
+            currentRaid.updateSpawnPositions(spawnPos.x, spawnPos.y);
         }
     }
 

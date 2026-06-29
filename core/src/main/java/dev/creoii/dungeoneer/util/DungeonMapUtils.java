@@ -24,10 +24,9 @@ public final class DungeonMapUtils {
         return map;
     }
 
-    public static TiledMap deserializeMap2(long seed, String templateId, String tilesetId, TiledMapTileSet tileSet, Function<String, TiledMapTile> tileFunction) {
+    public static TiledMap deserializeMap2(long seed, DungeonMapTemplate template, String tilesetId, TiledMapTileSet tileSet, Function<String, TiledMapTile> tileFunction) {
         TiledMap map = new TiledMap();
 
-        DungeonMapTemplate template = DataManager.getMapTemplate(templateId);
         Tileset tileset = DataManager.getTileset(tilesetId);
 
         if (template == null || tileset == null) {

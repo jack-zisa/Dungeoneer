@@ -15,12 +15,12 @@ import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 
 import java.time.LocalDateTime;
 
-public class DungeonEditorScreen2 extends AbstractScreen {
+public class DungeonEditorScreen extends AbstractScreen {
     private Label selectedLayerLabel;
     private OrthographicCamera camera;
-    private Sidebar2 sidebar;
+    private Sidebar sidebar;
 
-    public DungeonEditorScreen2(Dungeoneer client) {
+    public DungeonEditorScreen(Dungeoneer client) {
         super(client);
     }
 
@@ -28,7 +28,7 @@ public class DungeonEditorScreen2 extends AbstractScreen {
         return camera;
     }
 
-    public Sidebar2 getSidebar() {
+    public Sidebar getSidebar() {
         return sidebar;
     }
 
@@ -52,7 +52,7 @@ public class DungeonEditorScreen2 extends AbstractScreen {
         Table root = new Table();
         root.setFillParent(true);
 
-        sidebar = new Sidebar2(this);
+        sidebar = new Sidebar(this);
 
         Table content = new Table();
 
