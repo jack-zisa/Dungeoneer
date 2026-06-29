@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.definitions;
+package dev.creoii.dungeoneer.definitions.map.tile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

@@ -1,8 +1,8 @@
 package dev.creoii.dungeoneer.server.game;
 
 import dev.creoii.dungeoneer.DataManager;
-import dev.creoii.dungeoneer.definitions.DungeonMapDefinition;
-import dev.creoii.dungeoneer.definitions.Tile;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.util.Constants;
 import org.jspecify.annotations.Nullable;

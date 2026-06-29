@@ -11,9 +11,8 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
-import dev.creoii.dungeoneer.definitions.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 
 public class DungeonEditorScreen2 extends AbstractScreen {

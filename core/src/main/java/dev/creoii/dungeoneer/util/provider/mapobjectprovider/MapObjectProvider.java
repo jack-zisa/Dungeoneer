@@ -2,7 +2,7 @@ package dev.creoii.dungeoneer.util.provider.mapobjectprovider;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import dev.creoii.dungeoneer.definitions.MapObject;
+import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.Provider;
 

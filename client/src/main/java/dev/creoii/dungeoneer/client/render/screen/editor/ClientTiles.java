@@ -9,8 +9,8 @@ import com.google.common.collect.HashBiMap;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.definitions.MapObject;
-import dev.creoii.dungeoneer.definitions.Tile;
+import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
+import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 
 import javax.annotation.Nullable;
 

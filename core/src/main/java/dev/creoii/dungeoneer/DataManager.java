@@ -10,8 +10,13 @@ import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.attack.ReferenceAttack;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
+import dev.creoii.dungeoneer.definitions.map.tile.Tile;
+import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.logging.Logger;
+import dev.creoii.dungeoneer.util.noise.FastNoiseParameters;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 
@@ -68,6 +73,10 @@ public class DataManager {
 
     public static Object2ObjectArrayMap<String, Identifiable> getMapTemplates() {
         return DATA.get(SchemaType.MAP_TEMPLATE);
+    }
+
+    public static Object2ObjectArrayMap<String, Identifiable> getNoiseParameters() {
+        return DATA.get(SchemaType.NOISE_PARAMETERS);
     }
 
     @Nullable
@@ -149,6 +158,16 @@ public class DataManager {
         return value;
     }
 
+    @Nullable
+    public static FastNoiseParameters getNoiseParameters(String id) {
+        FastNoiseParameters value = (FastNoiseParameters) getMapTemplates().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Noise Parameters: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
     public static void load(Path path) {
         try {
             for (Map.Entry<SchemaType, Codec<? extends Identifiable>> entry : SCHEMA.entrySet()) {
@@ -221,7 +240,8 @@ public class DataManager {
         TILE_PROVIDER("tile_provider"),
         TILESET("tileset"),
         MAP_OBJECT("object"),
-        MAP_TEMPLATE("map_template");
+        MAP_TEMPLATE("map_template"),
+        NOISE_PARAMETERS("noise_parameters");
 
         private final String path;
 
@@ -243,6 +263,7 @@ public class DataManager {
         SCHEMA.put(SchemaType.TILESET, Tileset.CODEC);
         SCHEMA.put(SchemaType.MAP_OBJECT, MapObject.CODEC);
         SCHEMA.put(SchemaType.MAP_TEMPLATE, DungeonMapTemplate.CODEC);
+        SCHEMA.put(SchemaType.NOISE_PARAMETERS, FastNoiseParameters.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {
             DATA.put(schemaType, new Object2ObjectArrayMap<>());

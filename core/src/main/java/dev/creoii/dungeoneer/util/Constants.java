@@ -6,6 +6,9 @@ public final class Constants {
     public static final int CHARACTER_MOVEMENT_FLAG_UP = 4;
     public static final int CHARACTER_MOVEMENT_FLAG_DOWN = 8;
 
+    public static final int MAP_HEIGHT = 256;
+    public static final int MAP_WIDTH = 256;
+
     public static final String MAP_LAYER_GROUND = "ground";
     public static final String MAP_LAYER_OBJECT = "object";
     public static final String MAP_LAYER_WALL = "wall";

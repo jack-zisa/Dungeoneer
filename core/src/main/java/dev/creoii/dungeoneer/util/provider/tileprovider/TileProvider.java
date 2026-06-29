@@ -2,7 +2,7 @@ package dev.creoii.dungeoneer.util.provider.tileprovider;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import dev.creoii.dungeoneer.definitions.Tile;
+import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.Provider;
 

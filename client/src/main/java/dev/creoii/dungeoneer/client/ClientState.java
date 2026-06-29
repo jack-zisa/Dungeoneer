@@ -8,6 +8,7 @@ import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.render.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.network.c2s.character.SelectActiveCharacterC2S;
 import dev.creoii.dungeoneer.util.DungeonMapUtils;
 import org.jspecify.annotations.Nullable;

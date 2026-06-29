@@ -3,8 +3,7 @@ package dev.creoii.dungeoneer.util.provider.mapobjectprovider;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.creoii.dungeoneer.definitions.MapObject;
-import dev.creoii.dungeoneer.definitions.Tile;
+import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 import javax.annotation.Nullable;

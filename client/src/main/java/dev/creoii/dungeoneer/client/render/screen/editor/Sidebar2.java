@@ -13,8 +13,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
-import dev.creoii.dungeoneer.definitions.DungeonMapTemplate;
-import dev.creoii.dungeoneer.definitions.Tileset;
+import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Identifiable;
 

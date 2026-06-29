@@ -1,9 +1,8 @@
-package dev.creoii.dungeoneer.definitions;
+package dev.creoii.dungeoneer.definitions.map.tile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.util.Identifiable;
-import dev.creoii.dungeoneer.util.provider.mapobjectprovider.MapObjectProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
 public record Tileset(String id, TileProvider ground, TileProvider wall) implements Identifiable {

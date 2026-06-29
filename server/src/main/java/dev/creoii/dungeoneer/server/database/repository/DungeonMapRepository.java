@@ -1,6 +1,6 @@
 package dev.creoii.dungeoneer.server.database.repository;
 
-import dev.creoii.dungeoneer.definitions.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 

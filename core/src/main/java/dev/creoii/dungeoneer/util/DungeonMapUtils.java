@@ -5,12 +5,12 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import dev.creoii.dungeoneer.DataManager;
-import dev.creoii.dungeoneer.definitions.DungeonMapTemplate;
-import dev.creoii.dungeoneer.definitions.Tile;
-import dev.creoii.dungeoneer.definitions.Tileset;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.generator.MapGenerator;
+import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
-import java.io.*;
+import java.util.Random;
 import java.util.function.Function;
 
 public final class DungeonMapUtils {
@@ -34,22 +34,11 @@ public final class DungeonMapUtils {
             return map;
         }
 
-        int width = 0;
-        int height = 0;
-
-        for (DungeonMapTemplate.Layer layer : template.layers().values()) {
-            if (layer.map().length == 0)
-                continue;
-
-            height = Math.max(height, layer.map().length);
-            width = Math.max(width, layer.map()[0].length);
-        }
-
         for (DungeonMapTemplate.LayerType layerType : DungeonMapTemplate.LayerType.values()) {
-            TiledMapTileLayer tiledLayer = new TiledMapTileLayer(width, height, 8, 8);
-            DungeonMapTemplate.Layer layer = template.layers().get(layerType);
+            TiledMapTileLayer tiledLayer = new TiledMapTileLayer(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, 8, 8);
+            MapGenerator generator = template.layers().get(layerType);
 
-            if (layer != null) {
+            if (generator != null) {
                 TileProvider provider = switch (layerType) {
                     case GROUND -> tileset.ground();
                     case WALL -> tileset.wall();
@@ -59,23 +48,7 @@ public final class DungeonMapUtils {
                 if (provider == null)
                     continue;
 
-                char[][] chars = layer.map();
-                for (int y = 0; y < chars.length; ++y) {
-                    for (int x = 0; x < chars[y].length; ++x) {
-
-                        char c = chars[y][x];
-                        if (c == ' ')
-                            continue;
-
-                        Tile tile = provider.getTile();
-                        if (tile == null)
-                            continue;
-
-                        TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                        cell.setTile(tileFunction.apply(tile.id()));
-                        tiledLayer.setCell(x, height - y - 1, cell);
-                    }
-                }
+                generator.apply(tiledLayer, layerType, new Random(), tileFunction);
             }
 
             tiledLayer.setName(layerType.name().toLowerCase());

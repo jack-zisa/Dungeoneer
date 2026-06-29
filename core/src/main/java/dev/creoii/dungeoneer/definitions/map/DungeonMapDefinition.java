@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.definitions;
+package dev.creoii.dungeoneer.definitions.map;
 
 import java.time.LocalDateTime;
 
@@ -6,6 +6,7 @@ public record DungeonMapDefinition(long id, long accountId, String templateId, S
     public DungeonMapDefinition withTemplateId(String templateId) {
         return new DungeonMapDefinition(id, accountId, templateId, tilesetId, lastEditDate);
     }
+
     public DungeonMapDefinition withTilesetId(String tilesetId) {
         return new DungeonMapDefinition(id, accountId, templateId, tilesetId, lastEditDate);
     }

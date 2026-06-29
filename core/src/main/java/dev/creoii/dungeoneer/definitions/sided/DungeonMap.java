@@ -1,6 +1,6 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
-import dev.creoii.dungeoneer.definitions.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 
 import java.util.Map;
 
