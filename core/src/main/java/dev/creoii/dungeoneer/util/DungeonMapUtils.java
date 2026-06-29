@@ -1,88 +1,88 @@
 package dev.creoii.dungeoneer.util;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.definitions.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.Tile;
+import dev.creoii.dungeoneer.definitions.Tileset;
+import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
 import java.io.*;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.InflaterInputStream;
+import java.util.function.Function;
 
 public final class DungeonMapUtils {
-    public static byte[] serializeMap(TiledMap map) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (DataOutputStream dos = new DataOutputStream(baos)) {
-            for (String layerName : Constants.MAP_LAYERS) {
-                TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(layerName);
-                dos.writeUTF(layerName);
-                if (layer == null) {
-                    dos.writeInt(0);
-                    continue;
-                }
-                byte[] layerBlob = serializeLayer(layer);
-                dos.writeInt(layerBlob.length);
-                dos.write(layerBlob);
-            }
+    public static TiledMap buildEmptyMap() {
+        TiledMap map = new TiledMap();
+        for (String layerName : Constants.MAP_LAYERS) {
+            TiledMapTileLayer layer = new TiledMapTileLayer(256, 256, 8, 8);
+            layer.setName(layerName);
+            map.getLayers().add(layer);
         }
-        return baos.toByteArray();
+        return map;
     }
 
-    public static byte[] serializeLayer(TiledMapTileLayer layer) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (DataOutputStream dos = new DataOutputStream(new DeflaterOutputStream(baos))) {
-            dos.writeInt(layer.getWidth());
-            dos.writeInt(layer.getHeight());
-            for (int y = 0; y < layer.getHeight(); ++y) {
-                for (int x = 0; x < layer.getWidth(); ++x) {
-                    TiledMapTileLayer.Cell cell = layer.getCell(x, y);
-                    int tileId = cell == null || cell.getTile() == null ? 0 : cell.getTile().getId();
-                    dos.writeInt(tileId);
-                }
-            }
-        }
-        return baos.toByteArray();
-    }
-
-    public static TiledMap deserializeMap(byte[] blob, TiledMapTileSet tileSet) throws IOException {
+    public static TiledMap deserializeMap2(String templateId, String tilesetId, TiledMapTileSet tileSet, Function<String, TiledMapTile> tileFunction) {
         TiledMap map = new TiledMap();
 
-        try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(blob))) {
-            for (int i = 0; i < Constants.MAP_LAYERS.length; i++) {
-                String layerName = dis.readUTF();
-                int length = dis.readInt();
-                if (length == 0)
+        DungeonMapTemplate template = DataManager.getMapTemplate(templateId);
+        Tileset tileset = DataManager.getTileset(tilesetId);
+
+        if (template == null || tileset == null) {
+            return map;
+        }
+
+        int width = 0;
+        int height = 0;
+
+        for (DungeonMapTemplate.Layer layer : template.layers().values()) {
+            if (layer.map().length == 0)
+                continue;
+
+            height = Math.max(height, layer.map().length);
+            width = Math.max(width, layer.map()[0].length);
+        }
+
+        for (DungeonMapTemplate.LayerType layerType : DungeonMapTemplate.LayerType.values()) {
+            TiledMapTileLayer tiledLayer = new TiledMapTileLayer(width, height, 8, 8);
+            DungeonMapTemplate.Layer layer = template.layers().get(layerType);
+
+            if (layer != null) {
+                TileProvider provider = switch (layerType) {
+                    case GROUND -> tileset.ground();
+                    case WALL -> tileset.wall();
+                    case OBJECT -> null;
+                };
+
+                if (provider == null)
                     continue;
 
-                byte[] layerBlob = new byte[length];
-                dis.readFully(layerBlob);
+                char[][] chars = layer.map();
+                for (int y = 0; y < chars.length; ++y) {
+                    for (int x = 0; x < chars[y].length; ++x) {
 
-                TiledMapTileLayer layer = deserializeLayer(layerBlob, tileSet);
-                layer.setName(layerName);
-                map.getLayers().add(layer);
+                        char c = chars[y][x];
+                        if (c == ' ')
+                            continue;
+
+                        Tile tile = provider.getTile();
+                        if (tile == null)
+                            continue;
+
+                        TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                        cell.setTile(tileFunction.apply(tile.id()));
+                        tiledLayer.setCell(x, height - y - 1, cell);
+                    }
+                }
             }
+
+            tiledLayer.setName(layerType.name().toLowerCase());
+            map.getLayers().add(tiledLayer);
         }
 
         map.getTileSets().addTileSet(tileSet);
         return map;
-    }
-
-    public static TiledMapTileLayer deserializeLayer(byte[] blob, TiledMapTileSet tileSet) throws IOException {
-        try (DataInputStream dis = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(blob)))) {
-            int width = dis.readInt();
-            int height = dis.readInt();
-            TiledMapTileLayer layer = new TiledMapTileLayer(width, height, 8, 8);
-            for (int y = 0; y < height; ++y) {
-                for (int x = 0; x < width; ++x) {
-                    int tileId;
-                    if ((tileId = dis.readInt()) == 0)
-                        continue;
-
-                    TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                    cell.setTile(tileSet.getTile(tileId));
-                    layer.setCell(x, y, cell);
-                }
-            }
-            return layer;
-        }
     }
 }

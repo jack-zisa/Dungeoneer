@@ -8,13 +8,12 @@ import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
-import dev.creoii.dungeoneer.definitions.attack.bullet.*;
 
 import java.time.Duration;
 
 public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientCharacter> {
     private final Dungeoneer client;
-    private final ClientDungeonMap dungeon;
+    private final ClientDungeonMap dungeonMap;
 
     private final Pool<ClientBullet> bulletPool = new Pool<>() {
         @Override
@@ -32,7 +31,7 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     public ClientRaid(Dungeoneer client, RaidDefinition raid) {
         super(raid);
         this.client = client;
-        dungeon = new ClientDungeonMap();
+        dungeonMap = new ClientDungeonMap(client);
     }
 
     @Override
@@ -45,8 +44,8 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
         return bulletGroupPool;
     }
 
-    public ClientDungeonMap getDungeon() {
-        return dungeon;
+    public ClientDungeonMap getDungeonMap() {
+        return dungeonMap;
     }
 
     public String getRemainingTimeString() {

@@ -25,8 +25,6 @@ import dev.creoii.dungeoneer.util.provider.mapobjectprovider.SimpleMapObjectProv
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
-import java.util.Random;
-
 public class Sidebar extends Table {
     protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(Assets.TAB_9PATCH);
     private final DungeonEditorScreen screen;
@@ -116,7 +114,7 @@ public class Sidebar extends Table {
 
         TextButton fillButton = addToolButton(toolsTable, tools, "Fill", () -> {
             if (selection != null && selectedTile != null) {
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(selectedLayer);
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) screen.getClient().getState().getDungeonMap().getMap().getLayers().get(selectedLayer);
                 selection.forEach(tileLayer, cell -> {
                     if (cell != null) {
                         if (selectedTile.left().isPresent()) {
@@ -132,7 +130,7 @@ public class Sidebar extends Table {
         });
         TextButton deleteButton = addToolButton(toolsTable, tools, "Delete", () -> {
             if (selection != null) {
-                selection.forEach((TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(selectedLayer), cell -> {
+                selection.forEach((TiledMapTileLayer) screen.getClient().getState().getDungeonMap().getMap().getLayers().get(selectedLayer), cell -> {
                     if (cell != null) cell.setTile(null);
                 });
             }
@@ -158,7 +156,7 @@ public class Sidebar extends Table {
     }
 
     public TiledMapTileLayer getActiveLayer() {
-        return (TiledMapTileLayer) screen.getMapRenderer().getMap().getLayers().get(selectedLayer);
+        return (TiledMapTileLayer) screen.getClient().getState().getDungeonMap().getMap().getLayers().get(selectedLayer);
     }
 
     public int getBrushSize() {

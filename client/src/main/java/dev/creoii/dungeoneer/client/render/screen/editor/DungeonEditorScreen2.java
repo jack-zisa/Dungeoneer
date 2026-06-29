@@ -1,9 +1,6 @@
 package dev.creoii.dungeoneer.client.render.screen.editor;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -11,36 +8,33 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.control.DungeonEditorInputListener;
-import dev.creoii.dungeoneer.client.editor.selection.AreaSelection;
+import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
-import dev.creoii.dungeoneer.util.DungeonMapUtils;
+import dev.creoii.dungeoneer.definitions.DungeonMapDefinition;
 
 import java.awt.*;
+import java.time.LocalDateTime;
 
-public class DungeonEditorScreen extends AbstractScreen {
-    private DungeonEditorInputListener inputListener;
+public class DungeonEditorScreen2 extends AbstractScreen {
+    private Label selectedLayerLabel;
     private OrthographicCamera camera;
-    private ShapeRenderer shapeRenderer;
+    private Sidebar2 sidebar;
 
-    private Sidebar sidebar;
-    private Label hoverPosLabel;
-
-    public DungeonEditorScreen(Dungeoneer client) {
+    public DungeonEditorScreen2(Dungeoneer client) {
         super(client);
-    }
-
-    public DungeonEditorInputListener getInputListener() {
-        return inputListener;
     }
 
     public OrthographicCamera getCamera() {
         return camera;
     }
 
-    public Sidebar getSidebar() {
+    public Sidebar2 getSidebar() {
         return sidebar;
+    }
+
+    public Label getSelectedLayerLabel() {
+        return selectedLayerLabel;
     }
 
     @Override
@@ -49,16 +43,22 @@ public class DungeonEditorScreen extends AbstractScreen {
         camera.setToOrtho(false);
         camera.zoom = 1f;
 
-        shapeRenderer = new ShapeRenderer();
-        shapeRenderer.setAutoShapeType(true);
+        ClientDungeonMap dungeonMap = getClient().getState().getDungeonMap();
+        if (dungeonMap.get() == null) {
+            // TODO: Default map template
+            getClient().getState().setDungeonMap(new DungeonMapDefinition(-1, getClient().getState().getAccount().id(), "circle", "necropolis", LocalDateTime.now()));
+        }
+        dungeonMap.build(getClient(), dungeonMap.get().templateId(), dungeonMap.get().tilesetId());
 
         Table root = new Table();
         root.setFillParent(true);
 
-        sidebar = new Sidebar(this);
+        sidebar = new Sidebar2(this);
 
         Table content = new Table();
-        content.add(hoverPosLabel = new Label("", SKIN)).left().row();
+
+        selectedLayerLabel = new Label(sidebar.getSelectedLayer(), SKIN);
+        content.add(selectedLayerLabel).top().left().row();
 
         Table buttons = new Table();
         TextButton finishButton = new TextButton("Finish", SKIN);
@@ -88,50 +88,18 @@ public class DungeonEditorScreen extends AbstractScreen {
 
         getStage().addActor(root);
         getClient().getInputMultiplexer().addProcessor(getStage());
-        getClient().getInputMultiplexer().addProcessor(inputListener = new DungeonEditorInputListener(this));
         super.show();
     }
 
     @Override
     public void hide() {
         getClient().getInputMultiplexer().removeProcessor(getStage());
-        getClient().getInputMultiplexer().removeProcessor(inputListener);
     }
 
     @Override
     public void render(float delta) {
         getClient().getState().getDungeonMap().getMapRenderer().setView(camera);
         getClient().getState().getDungeonMap().getMapRenderer().render();
-
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin();
-        shapeRenderer.setColor(1f, 0f, 1f, 1f);
-        shapeRenderer.rect(0f, 0f, 256f * 8f, 256f * 8f); // editor bounds
-        shapeRenderer.setColor(0f, 1f, 1f, 1f);
-        if (sidebar.getSelection() != null && inputListener.isSelecting()) {
-            switch (sidebar.getSelection().getType()) {
-                case AREA -> {
-                    AreaSelection areaSelection = (AreaSelection) sidebar.getSelection();
-                    shapeRenderer.rect(areaSelection.area.x * 8f, areaSelection.area.y * 8f, areaSelection.area.width * 8f, areaSelection.area.height * 8f);
-                }
-            }
-        } else {
-            Point hover = getHoveredPos();
-            if (hover.getX() >= 0f && hover.getY() >= 0f && hover.getX() < 256f && hover.getY() < 256f) {
-                int radius = sidebar.getBrushSize() - 1;
-                float x = (hover.x - radius) * 8f;
-                float y = (hover.y - radius) * 8f;
-                float size = (radius * 2f + 1f) * 8f;
-                shapeRenderer.rect(x, y, size, size);
-            }
-        }
-        shapeRenderer.end();
-
-        inputListener.updateMousePos(camera, 0f);
-        if (inputListener != null) {
-            hoverPosLabel.setText(getHoveredPos().x + "," + getHoveredPos().y);
-        }
-
         super.render(delta);
     }
 
@@ -139,10 +107,5 @@ public class DungeonEditorScreen extends AbstractScreen {
     public void dispose() {
         super.dispose();
         SKIN.dispose();
-    }
-
-    public Point getHoveredPos() {
-        float[] mousePos = inputListener.getMousePos();
-        return new Point((int) Math.floor(mousePos[0] / 8f), (int) Math.floor(mousePos[1] / 8f));
     }
 }

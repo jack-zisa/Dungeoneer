@@ -129,6 +129,26 @@ public class DataManager {
         return value;
     }
 
+    @Nullable
+    public static Tileset getTileset(String id) {
+        Tileset value = (Tileset) getTilesets().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Tileset: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static DungeonMapTemplate getMapTemplate(String id) {
+        DungeonMapTemplate value = (DungeonMapTemplate) getMapTemplates().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Map Template: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
     public static void load(Path path) {
         try {
             for (Map.Entry<SchemaType, Codec<? extends Identifiable>> entry : SCHEMA.entrySet()) {

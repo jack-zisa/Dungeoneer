@@ -93,20 +93,20 @@ public final class PacketUtils {
         }
     }
 
-    public static DungeonMap readDungeonMap(Input input) {
+    public static DungeonMapDefinition readDungeonMap(Input input) {
         long id = input.readLong();
         long accountId = input.readLong();
-        int len = input.readInt();
-        byte[] dungeonMap = input.readBytes(len);
+        String templateId = input.readString();
+        String tilesetId = input.readString();
         String lastEditDate = input.readString();
-        return new DungeonMap(id, accountId, dungeonMap, lastEditDate.isBlank() ? null : LocalDateTime.parse(lastEditDate));
+        return new DungeonMapDefinition(id, accountId, templateId, tilesetId, lastEditDate.isBlank() ? null : LocalDateTime.parse(lastEditDate));
     }
 
-    public static void writeDungeonMap(Output output, DungeonMap dungeonMap) {
+    public static void writeDungeonMap(Output output, DungeonMapDefinition dungeonMap) {
         output.writeLong(dungeonMap.id());
         output.writeLong(dungeonMap.accountId());
-        output.writeInt(dungeonMap.mapData() == null ? 0 : dungeonMap.mapData().length);
-        output.writeBytes(dungeonMap.mapData() == null ? new byte[]{} : dungeonMap.mapData());
+        output.writeString(dungeonMap.templateId());
+        output.writeString(dungeonMap.tilesetId());
         output.writeString(dungeonMap.lastEditDate() == null ? "" : dungeonMap.lastEditDate().toString());
     }
 

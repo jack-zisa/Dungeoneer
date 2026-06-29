@@ -1,56 +1,52 @@
 package dev.creoii.dungeoneer.server.game;
 
+import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.definitions.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.Tile;
-import dev.creoii.dungeoneer.server.util.ServerTiles;
+import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.util.Constants;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.InflaterInputStream;
 
-public class ServerDungeon {
+public class ServerDungeonMap implements DungeonMap {
+    private final DungeonMapDefinition definition;
+    private final Map<Integer, String> tileIds;
     private final int[][] ground;
     private final int[][] walls;
     private final int[][] objects;
     private final int[][] overlays;
 
-    public ServerDungeon(byte[] mapData) {
+    public ServerDungeonMap(DungeonMapDefinition definition) {
+        this.definition = definition;
+        tileIds = new HashMap<>();
         ground = new int[256][256];
         walls = new int[256][256];
         objects = new int[256][256];
         overlays = new int[256][256];
-
-        try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(mapData))) {
-            for (int i = 0; i < Constants.MAP_LAYERS.length; i++) {
-                String layerName = dis.readUTF();
-
-                int len = dis.readInt();
-                if (len == 0)
-                    continue;
-
-                byte[] layerBlob = new byte[len];
-                dis.readFully(layerBlob);
-
-                int[][] target = switch (layerName) {
-                    case Constants.MAP_LAYER_GROUND -> ground;
-                    case Constants.MAP_LAYER_WALL -> walls;
-                    case Constants.MAP_LAYER_OBJECT -> objects;
-                    case Constants.MAP_LAYER_OVERLAY -> overlays;
-                    default -> throw new IOException("Unknown layer: " + layerName);
-                };
-
-                deserializeLayer(layerBlob, target);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
-    private static void deserializeLayer(byte[] blob, int[][] tiles) throws IOException {
-        try (DataInputStream dis = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(blob)))) {
+    @Override
+    public DungeonMapDefinition get() {
+        return definition;
+    }
 
+    @Override
+    public void set(DungeonMapDefinition definition) {
+    }
+
+    @Override
+    public Map<Integer, String> getTileIds() {
+        return tileIds;
+    }
+
+    private void deserializeLayer(byte[] blob, int[][] tiles) throws IOException {
+        try (DataInputStream dis = new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(blob)))) {
             int width = dis.readInt();
             int height = dis.readInt();
 
@@ -75,7 +71,7 @@ public class ServerDungeon {
         };
         if (id == 0)
             return null;
-        return ServerTiles.TILES_BY_ID.getOrDefault(id, null);
+        return DataManager.getTile(tileIds.get(id));
     }
 
     public boolean isSolid(int tileX, int tileY, boolean bounded) {

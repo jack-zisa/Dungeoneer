@@ -19,7 +19,7 @@ public record DungeonMapTemplate(String id, Map<LayerType, Layer> layers) implem
         return new DungeonMapTemplate(id, layers);
     }
 
-    public record Layer(Palette palette, char[][] map) {
+    public record Layer(char[][] map) {
         private static final Codec<char[][]> MAP_CODEC = Codec.list(Codec.STRING).xmap(rows -> {
             char[][] map = new char[rows.size()][];
             for (int i = 0; i < rows.size(); i++) {
@@ -35,15 +35,7 @@ public record DungeonMapTemplate(String id, Map<LayerType, Layer> layers) implem
             return rows;
         });
 
-        public static final Codec<Layer> CODEC = RecordCodecBuilder.create(instance -> instance.group(Palette.CODEC.fieldOf("palette").forGetter(Layer::palette),
-            MAP_CODEC.fieldOf("map").forGetter(Layer::map)
-        ).apply(instance, Layer::new));
-    }
-
-    public record Palette(Map<Character, String> palette) {
-        public static final Codec<Palette> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(Codec.STRING.xmap(s -> s.charAt(0), String::valueOf), Codec.STRING).fieldOf("palette").forGetter(Palette::palette)
-        ).apply(instance, Palette::new));
+        public static final Codec<Layer> CODEC = MAP_CODEC.xmap(Layer::new, Layer::map);
     }
 
     public enum LayerType {
@@ -51,6 +43,6 @@ public record DungeonMapTemplate(String id, Map<LayerType, Layer> layers) implem
         OBJECT,
         WALL;
 
-        public static final Codec<LayerType> CODEC = Codec.STRING.xmap(LayerType::valueOf, LayerType::name);
+        public static final Codec<LayerType> CODEC = Codec.STRING.xmap(s -> LayerType.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
     }
 }

@@ -40,26 +40,26 @@ public final class RenderUtils {
             case DOWN -> {
                 bl = ClientDungeonMap.project(x, y, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tl = ClientDungeonMap.project(x, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
                 tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             case UP -> {
                 bl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
-                tr = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tr = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             case LEFT -> {
                 bl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x, y, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
-                tr = ClientDungeonMap.project(x, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tr = ClientDungeonMap.project(x, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             case RIGHT -> {
                 bl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
                 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
-                tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             default -> throw new IllegalStateException();
         }
@@ -115,10 +115,10 @@ public final class RenderUtils {
         float centerX = camera.position.x;
         float centerY = camera.position.y;
 
-        Vector2 bl = ClientDungeonMap.project(x, y, ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
-        Vector2 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
-        Vector2 tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
-        Vector2 tl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 bl = ClientDungeonMap.project(x, y, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 tl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
 
         drawQuad(batch, texture, bl, br, tr, tl);
     }

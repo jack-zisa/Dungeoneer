@@ -34,7 +34,7 @@ import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
-import dev.creoii.dungeoneer.server.game.ServerDungeon;
+import dev.creoii.dungeoneer.server.game.ServerDungeonMap;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
@@ -255,13 +255,13 @@ public class ServerNetworkHandler implements Listener, Tickable {
             Collections.shuffle(availableRaids);
             if (!availableRaids.isEmpty()) { // Join an existing raid
                 ServerRaid serverRaid = availableRaids.getFirst();
-                DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(serverRaid.get().target().id());
+                DungeonMapDefinition dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(serverRaid.get().target().id());
                 if (dungeonMap != null) {
                     serverRaid.get().attackers().add(account);
                     serverRaid.get().characters().add(character);
                     serverRaid.addCharacter(account.id(), serverCharacter);
                     server.getDatabase().getRaids().updateAttackers(serverRaid.get());
-                    server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(serverRaid.get(), dungeonMap.mapData()));
+                    server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(serverRaid.get(), dungeonMap.templateId(), dungeonMap.tilesetId()));
 
                     for (ServerCharacter existing : serverRaid.getCharacters().values()) {
                         if (existing.get().accountId() == account.id())
@@ -282,12 +282,12 @@ public class ServerNetworkHandler implements Listener, Tickable {
             } else { // Create a new raid
                 Account target = server.getDatabase().getAccounts().getRaidTarget(account.id());
                 if (target != null) {
-                    DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
+                    DungeonMapDefinition dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(target.id());
                     if (dungeonMap != null) {
                         RaidDefinition raid = server.getDatabase().getRaids().create(account, character, target, requiredCharacters, LocalDateTime.now());
                         if (raid != null) {
-                            server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.mapData()));
-                            server.getState().getRaids().put(raid.id(), new ServerRaid(server, new ServerDungeon(dungeonMap.mapData()), serverCharacter, raid));
+                            server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.templateId(), dungeonMap.tilesetId()));
+                            server.getState().getRaids().put(raid.id(), new ServerRaid(server, new ServerDungeonMap(dungeonMap), serverCharacter, raid));
                         }
                     }
                 }
@@ -355,22 +355,22 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     server.get().sendToTCP(connectionId, new ChatMessageS2C(finalMessage));
                 }
             });
-        } else if (object instanceof SaveDungeonMapC2S(long accountId, byte[] mapData)) {
+        } else if (object instanceof SaveDungeonMapC2S(long accountId, String templateId, String tilesetId)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
-            DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(accountId);
+            DungeonMapDefinition dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(accountId);
             if (account != null && dungeonMap != null) {
                 server.getDatabase().getDungeonMaps().updateLastEditDate(accountId, LocalDateTime.now());
-                server.getDatabase().getDungeonMaps().updateDungeonMap(accountId, mapData);
-                dungeonMap = new DungeonMap(dungeonMap.id(), accountId, mapData, LocalDateTime.now());
+                server.getDatabase().getDungeonMaps().updateDungeonMap(accountId, templateId, tilesetId);
+                dungeonMap = new DungeonMapDefinition(dungeonMap.id(), accountId, templateId, tilesetId, LocalDateTime.now());
             } else {
-                dungeonMap = server.getDatabase().getDungeonMaps().create(accountId, mapData, LocalDateTime.now());
+                dungeonMap = server.getDatabase().getDungeonMaps().create(accountId, templateId, tilesetId, LocalDateTime.now());
             }
 
             if (dungeonMap != null) {
                 server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
             }
         } else if (object instanceof RequestDungeonMapC2S(long accountId)) {
-            DungeonMap dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(accountId);
+            DungeonMapDefinition dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(accountId);
             if (dungeonMap != null) {
                 server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
             }

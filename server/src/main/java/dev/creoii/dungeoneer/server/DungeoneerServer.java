@@ -3,13 +3,11 @@ package dev.creoii.dungeoneer.server;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
 import dev.creoii.dungeoneer.DataManager;
-import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.server.network.ServerNetworkHandler;
-import dev.creoii.dungeoneer.server.util.ServerTiles;
 import dev.creoii.dungeoneer.util.logging.Logger;
 
 import java.io.IOException;
@@ -52,7 +50,6 @@ public class DungeoneerServer {
         database = new Database();
         DataManager.setDebug(isDebug());
         DataManager.load();
-        ServerTiles.load();
         sessionManager = new SessionManager(this);
         state = new ServerState(this);
 

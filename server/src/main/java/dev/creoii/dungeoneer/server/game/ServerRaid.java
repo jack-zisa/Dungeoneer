@@ -19,7 +19,7 @@ import java.util.List;
 public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final DungeoneerServer server;
-    private final ServerDungeon dungeon;
+    private final ServerDungeonMap dungeon;
     private final CollisionManager collisionManager;
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
@@ -38,7 +38,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
         }
     };
 
-    public ServerRaid(DungeoneerServer server, ServerDungeon dungeon, ServerCharacter character, RaidDefinition raid) {
+    public ServerRaid(DungeoneerServer server, ServerDungeonMap dungeon, ServerCharacter character, RaidDefinition raid) {
         super(raid);
         this.server = server;
         this.dungeon = dungeon;
@@ -63,7 +63,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
         return server;
     }
 
-    public ServerDungeon getDungeon() {
+    public ServerDungeonMap getDungeon() {
         return dungeon;
     }
 

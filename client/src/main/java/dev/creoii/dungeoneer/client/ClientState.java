@@ -1,11 +1,15 @@
 package dev.creoii.dungeoneer.client;
 
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
+import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.render.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.character.SelectActiveCharacterC2S;
+import dev.creoii.dungeoneer.util.DungeonMapUtils;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -15,7 +19,7 @@ public class ClientState {
     private final Dungeoneer client;
     private Status status;
     private Account account;
-    private DungeonMap dungeonMap;
+    private final ClientDungeonMap dungeonMap;
     private final List<CharacterDefinition> characters;
     private final ClientCharacter activeCharacter;
     private final ClientRaid currentRaid;
@@ -23,6 +27,7 @@ public class ClientState {
 
     public ClientState(Dungeoneer client) {
         this.client = client;
+        dungeonMap = new ClientDungeonMap(client);
         characters = new ArrayList<>();
         activeCharacter = new ClientCharacter(client, null);
         currentRaid = new ClientRaid(client, null);
@@ -46,12 +51,13 @@ public class ClientState {
         return account;
     }
 
-    public void setDungeonMap(DungeonMap dungeonMap) {
-        this.dungeonMap = dungeonMap;
+    public ClientDungeonMap getDungeonMap() {
+        return dungeonMap;
     }
 
-    public DungeonMap getDungeonMap() {
-        return dungeonMap;
+    public void setDungeonMap(DungeonMapDefinition definition) {
+        dungeonMap.set(definition);
+        dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(dungeonMap.get().templateId(), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles::getTile)));
     }
 
     public List<CharacterDefinition> getCharacters() {
@@ -80,13 +86,13 @@ public class ClientState {
         return currentRaid;
     }
 
-    public void setCurrentRaid(@Nullable RaidDefinition raid, byte[] mapData) {
+    public void setCurrentRaid(@Nullable RaidDefinition raid, String templateId, String tilesetId) {
         currentRaid.set(raid);
 
-        if (raid == null) currentRaid.getDungeon().clear();
+        if (raid == null) currentRaid.getDungeonMap().clear();
         else {
             syncRaid(raid);
-            currentRaid.getDungeon().build(client, mapData);
+            currentRaid.getDungeonMap().build(client, templateId, tilesetId);
         }
     }
 

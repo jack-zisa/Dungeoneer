@@ -73,7 +73,7 @@ public class GameScreen extends AbstractScreen {
 
         polygonBatch = new PolygonSpriteBatch();
 
-        mapRenderer = new OrthogonalTiledMapRenderer(getClient().getState().getCurrentRaid().getDungeon().getMap());
+        mapRenderer = new OrthogonalTiledMapRenderer(getClient().getState().getCurrentRaid().getDungeonMap().getMap());
 
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
@@ -154,8 +154,8 @@ public class GameScreen extends AbstractScreen {
         camera.update();
 
         java.util.List<Renderable> renderables = new ArrayList<>(visibleCharacters);
-        renderables.addAll(getClient().getState().getCurrentRaid().getDungeon().getWallTops());
-        for (ClientDungeonMap.WallFace face : getClient().getState().getCurrentRaid().getDungeon().getWallFaces()) {
+        renderables.addAll(getClient().getState().getCurrentRaid().getDungeonMap().getWallTops());
+        for (ClientDungeonMap.WallFace face : getClient().getState().getCurrentRaid().getDungeonMap().getWallFaces()) {
             if (ClientDungeonMap.WallFace.isVisible(face.direction(), inputListener.getRotation())) {
                 renderables.add(face);
             }
@@ -172,11 +172,13 @@ public class GameScreen extends AbstractScreen {
         }
 
         TiledMapTileLayer object = ((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_OBJECT));
-        for (int x = 0; x < object.getWidth(); x++) {
-            for (int y = 0; y < object.getHeight(); y++) {
-                TiledMapTileLayer.Cell cell = object.getCell(x, y);
-                if (cell != null) {
-                    renderables.add(new ObjectTileRenderable(cell.getTile().getTextureRegion(), x, y));
+        if (object != null) {
+            for (int x = 0; x < object.getWidth(); x++) {
+                for (int y = 0; y < object.getHeight(); y++) {
+                    TiledMapTileLayer.Cell cell = object.getCell(x, y);
+                    if (cell != null) {
+                        renderables.add(new ObjectTileRenderable(cell.getTile().getTextureRegion(), x, y));
+                    }
                 }
             }
         }

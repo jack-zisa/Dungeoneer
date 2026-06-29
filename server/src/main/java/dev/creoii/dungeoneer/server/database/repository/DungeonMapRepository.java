@@ -1,6 +1,6 @@
 package dev.creoii.dungeoneer.server.database.repository;
 
-import dev.creoii.dungeoneer.definitions.DungeonMap;
+import dev.creoii.dungeoneer.definitions.DungeonMapDefinition;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
@@ -18,7 +18,8 @@ public class DungeonMapRepository {
             CREATE TABLE IF NOT EXISTS dungeon_maps (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 account_id INTEGER UNIQUE NOT NULL,
-                map_data BLOB,
+                template_id STRING NOT NULL,
+                tileset_id STRING NOT NULL,
                 last_edit_date DATETIME NOT NULL
             )
         """)
@@ -26,7 +27,7 @@ public class DungeonMapRepository {
     }
 
     @Nullable
-    public DungeonMap getByAccountId(long accountId) {
+    public DungeonMapDefinition getByAccountId(long accountId) {
         return jdbi.withHandle(handle ->
             handle.createQuery("""
                         SELECT *
@@ -36,10 +37,11 @@ public class DungeonMapRepository {
                 .bind("id", accountId)
                 .map((rs, _) -> {
                     String lastEditDate = rs.getString("last_edit_date");
-                    return new DungeonMap(
+                    return new DungeonMapDefinition(
                         rs.getInt("id"),
                         rs.getInt("account_id"),
-                        rs.getBytes("map_data"),
+                        rs.getString("template_id"),
+                        rs.getString("tileset_id"),
                         lastEditDate == null || lastEditDate.isBlank() ? null : LocalDateTime.parse(lastEditDate)
                     );
                 })
@@ -48,15 +50,17 @@ public class DungeonMapRepository {
         );
     }
 
-    public void updateDungeonMap(long accountId, byte[] blob) {
+    public void updateDungeonMap(long accountId, String templateId, String tilesetId) {
         jdbi.useHandle(handle ->
             handle.createUpdate("""
             UPDATE dungeon_maps
-            SET map_data = :map_data
+            SET template_id = :template_id,
+                tileset_id = :tileset_id
             WHERE account_id = :id
         """)
                 .bind("id", accountId)
-                .bind("map_data", blob)
+                .bind("template_id", templateId)
+                .bind("tileset_id", tilesetId)
                 .execute()
         );
     }
@@ -74,19 +78,20 @@ public class DungeonMapRepository {
         );
     }
 
-    public DungeonMap create(long accountId, byte[] mapData, LocalDateTime lastEditDate) {
+    public DungeonMapDefinition create(long accountId, String templateId, String tilesetId, LocalDateTime lastEditDate) {
         long id = jdbi.withHandle(handle ->
             handle.createUpdate("""
-                INSERT INTO dungeon_maps(account_id, map_data, last_edit_date)
-                VALUES(:account_id, :map_data, :last_edit_date)
+                INSERT INTO dungeon_maps(account_id, template_id, tileset_id, last_edit_date)
+                VALUES(:account_id, :template_id, :tileset_id, :last_edit_date)
             """)
             .bind("account_id", accountId)
-            .bind("map_data", mapData)
+            .bind("template_id", templateId)
+            .bind("tileset_id", tilesetId)
             .bind("last_edit_date", lastEditDate.toString())
             .executeAndReturnGeneratedKeys("id")
             .mapTo(Long.class)
             .one()
         );
-        return new DungeonMap(id, accountId, mapData, lastEditDate);
+        return new DungeonMapDefinition(id, accountId, templateId, tilesetId, lastEditDate);
     }
 }

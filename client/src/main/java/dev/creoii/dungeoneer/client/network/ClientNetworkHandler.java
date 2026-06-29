@@ -10,7 +10,6 @@ import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.render.screen.LoginScreen;
-import dev.creoii.dungeoneer.client.render.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.FactionTab;
@@ -195,8 +194,8 @@ public class ClientNetworkHandler implements Listener {
                     });
                 }
             }
-            case SendRaidTargetS2C(RaidDefinition raid, byte[] mapData) -> {
-                client.getState().setCurrentRaid(raid, mapData);
+            case SendRaidTargetS2C(RaidDefinition raid, String templateId, String tilesetId) -> {
+                client.getState().setCurrentRaid(raid, templateId, tilesetId);
                 client.getState().syncRaid(raid);
             }
             case SearchFactionResultS2C(PacketResult result, List<Faction> factions) -> {
@@ -249,15 +248,7 @@ public class ClientNetworkHandler implements Listener {
                     });
                 }
             }
-            case SendDungeonMapS2C(DungeonMap dungeonMap) -> {
-                client.getState().setDungeonMap(dungeonMap);
-
-                Gdx.app.postRunnable(() -> {
-                    if (client.getScreen() instanceof DungeonEditorScreen dungeonEditorScreen) {
-                        dungeonEditorScreen.getMapRenderer().setMap(dungeonEditorScreen.getMapManager().read(dungeonMap.mapData()));
-                    }
-                });
-            }
+            case SendDungeonMapS2C(DungeonMapDefinition definition) -> client.getState().setDungeonMap(definition);
             case SyncDataS2C(String schema, byte[] data) -> {
                 Path cacheRoot = Paths.get(System.getProperty("user.dir"), "cache", "data");
                 Path schemaRoot = cacheRoot.resolve(schema);
@@ -377,7 +368,7 @@ public class ClientNetworkHandler implements Listener {
                 AnimationState animationState = character.getAnimationState();
 
                 Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
-                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()}, (integer, integer2) -> client.getState().getCurrentRaid().getDungeon().isSolid(integer, integer2, false));
+                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()}, (integer, integer2) -> client.getState().getCurrentRaid().getDungeonMap().isSolid(integer, integer2, false));
 
                 character.setAnimationState(AnimationState.toAttacking(animationState));
             });
