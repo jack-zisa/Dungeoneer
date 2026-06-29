@@ -58,7 +58,7 @@ public class ClientState {
 
     public void setDungeonMap(DungeonMapDefinition definition) {
         dungeonMap.set(definition);
-        dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(dungeonMap.get().templateId(), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles::getTile)));
+        dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(definition.accountId(), dungeonMap.get().templateId(), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles::getTile)));
     }
 
     public List<CharacterDefinition> getCharacters() {
@@ -93,7 +93,7 @@ public class ClientState {
         if (raid == null) currentRaid.getDungeonMap().clear();
         else {
             syncRaid(raid);
-            currentRaid.getDungeonMap().build(client, templateId, tilesetId);
+            currentRaid.getDungeonMap().build(client, currentRaid.get().target().id(), templateId, tilesetId);
         }
     }
 

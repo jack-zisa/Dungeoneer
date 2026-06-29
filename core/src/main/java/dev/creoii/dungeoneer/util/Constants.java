@@ -9,6 +9,8 @@ public final class Constants {
     public static final int MAP_HEIGHT = 256;
     public static final int MAP_WIDTH = 256;
 
+    public static final long DEFAULT_MAP_SEED = 1337L;
+
     public static final String MAP_LAYER_GROUND = "ground";
     public static final String MAP_LAYER_OBJECT = "object";
     public static final String MAP_LAYER_WALL = "wall";

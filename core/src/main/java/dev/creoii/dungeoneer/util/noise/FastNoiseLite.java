@@ -143,7 +143,11 @@ public class FastNoiseLite {
     public FastNoiseLite() { }
 
     public FastNoiseLite(FastNoiseParameters parameters) {
-        seed(parameters.seed());
+        this(parameters, parameters.seed());
+    }
+
+    public FastNoiseLite(FastNoiseParameters parameters, long seed) {
+        seed(seed);
         frequency(parameters.frequency());
         noiseType(parameters.noiseType());
         rotationType3D(parameters.rotationType3D());

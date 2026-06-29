@@ -5,13 +5,15 @@ import com.mojang.serialization.Codec;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.Provider;
+import dev.creoii.dungeoneer.util.provider.TileContext;
 
 import java.util.function.Function;
 
-public interface TileProvider extends Provider<Tile>, Identifiable {
+public interface TileProvider extends Provider<Tile, TileContext>, Identifiable {
     Codec<TileProvider> TYPE_CODEC = Type.CODEC.dispatch(TileProvider::getType, type -> switch (type) {
         case SIMPLE -> SimpleTileProvider.CODEC;
         case RANDOM -> RandomTileProvider.CODEC;
+        case NOISE -> NoiseTileProvider.CODEC;
     });
     Codec<TileProvider> CODEC = Codec.either(Tile.ID_CODEC, TYPE_CODEC).xmap(either -> {
         return either.map(tile -> new SimpleTileProvider(tile.id(), tile), Function.identity());
@@ -23,7 +25,8 @@ public interface TileProvider extends Provider<Tile>, Identifiable {
 
     enum Type {
         SIMPLE,
-        RANDOM;
+        RANDOM,
+        NOISE;
 
         public static final Codec<Type> CODEC = Codec.STRING.xmap(s -> Type.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
     }

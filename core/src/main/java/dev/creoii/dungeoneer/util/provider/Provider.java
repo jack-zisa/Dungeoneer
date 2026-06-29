@@ -1,7 +1,5 @@
 package dev.creoii.dungeoneer.util.provider;
 
-import java.util.Random;
-
-public interface Provider<T> {
-    T get(Random random);
+public interface Provider<T, C extends ProviderContext> {
+    T get(C context);
 }

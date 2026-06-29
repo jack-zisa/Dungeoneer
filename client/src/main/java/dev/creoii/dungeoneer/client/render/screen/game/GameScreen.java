@@ -165,9 +165,8 @@ public class GameScreen extends AbstractScreen {
         for (int x = 0; x < ground.getWidth(); x++) {
             for (int y = 0; y < ground.getHeight(); y++) {
                 TiledMapTileLayer.Cell cell = ground.getCell(x, y);
-                if (cell != null) {
-                    renderables.add(new GroundTileRenderable(cell.getTile().getTextureRegion(), x, y));
-                }
+                if (cell == null || cell.getTile().getId() == 0) continue; // air
+                renderables.add(new GroundTileRenderable(cell.getTile().getTextureRegion(), x, y));
             }
         }
 
@@ -176,9 +175,8 @@ public class GameScreen extends AbstractScreen {
             for (int x = 0; x < object.getWidth(); x++) {
                 for (int y = 0; y < object.getHeight(); y++) {
                     TiledMapTileLayer.Cell cell = object.getCell(x, y);
-                    if (cell != null) {
-                        renderables.add(new ObjectTileRenderable(cell.getTile().getTextureRegion(), x, y));
-                    }
+                    if (cell == null || cell.getTile().getId() == 0) continue; // air
+                    renderables.add(new ObjectTileRenderable(cell.getTile().getTextureRegion(), x, y));
                 }
             }
         }

@@ -8,7 +8,7 @@ public record FastNoiseParameters(String id, long seed, float frequency, FastNoi
     public static final Codec<FastNoiseParameters> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.STRING.optionalFieldOf("id", "").forGetter(FastNoiseParameters::id),
-            Codec.LONG.optionalFieldOf("seed", 1337L).forGetter(FastNoiseParameters::seed),
+            Codec.LONG.optionalFieldOf("seed", -1L).forGetter(FastNoiseParameters::seed),
             Codec.FLOAT.fieldOf("frequency").orElse(.01f).forGetter(FastNoiseParameters::frequency),
             FastNoiseLite.NoiseType.CODEC.fieldOf("noise_type").orElse(FastNoiseLite.NoiseType.OPEN_SIMPLEX_2).forGetter(FastNoiseParameters::noiseType),
             FastNoiseLite.RotationType3D.CODEC.fieldOf("rotation_type_3d").orElse(FastNoiseLite.RotationType3D.NONE).forGetter(FastNoiseParameters::rotationType3D),

@@ -46,8 +46,8 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
         tileIds = new HashMap<>();
     }
 
-    public void build(Dungeoneer client, String templateId, String tilesetId) {
-        mapRenderer = new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(templateId, tilesetId, ClientTiles.TILESET, ClientTiles::getTile));
+    public void build(Dungeoneer client, long seed, String templateId, String tilesetId) {
+        mapRenderer = new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(seed, templateId, tilesetId, ClientTiles.TILESET, ClientTiles::getTile));
 
         wallTops = new ArrayList<>();
         wallFaces = new ArrayList<>();

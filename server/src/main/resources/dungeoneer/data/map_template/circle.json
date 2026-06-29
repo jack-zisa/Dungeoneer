@@ -2,14 +2,35 @@
   "layers": {
     "ground": {
       "type": "circle",
-      "tile": "necropolis_rock",
-      "pos": [32, 32],
+      "tile": {
+        "type": "noise",
+        "noise": {
+          "frequency": 0.035,
+          "noise_type": "open_simplex_2",
+          "fractal": {
+            "type": "f_bm",
+            "octaves": 4
+          }
+        },
+        "entries": [
+          {
+            "max": 0.5,
+            "tile": "necropolis_rock"
+          },
+          {
+            "max": 2,
+            "tile": "dark_dirt"
+          }
+        ],
+        "fallback": "necropolis_rock"
+      },
+      "center": [32, 32],
       "radius": 32
     },
     "wall": {
       "type": "circle",
       "tile": "necropolis_tile",
-      "pos": [32, 32],
+      "center": [32, 32],
       "radius": 32,
       "thickness": 2
     },

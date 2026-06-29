@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.util.Codecs;
+import dev.creoii.dungeoneer.util.provider.TileContext;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
@@ -27,12 +28,12 @@ public record SimpleTileMapGenerator(Vector2 pos, TileProvider tile) implements 
     }
 
     @Override
-    public void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, Random random, Function<String, TiledMapTile> tileFunction) {
+    public void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
         int x = Math.round(pos.x);
         int y = Math.round(pos.y);
 
         TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-        cell.setTile(tileFunction.apply(tile.get(random).id()));
+        cell.setTile(tileFunction.apply(tile.get(new TileContext(random, x, y, seed)).id()));
         layer.setCell(x, y, cell);
     }
 }

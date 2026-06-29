@@ -6,11 +6,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.util.Identifiable;
-
-import java.util.Random;
+import dev.creoii.dungeoneer.util.provider.TileContext;
 
 public record SimpleTileProvider(String id, Tile value) implements TileProvider {
-    public static final SimpleTileProvider EMPTY = new SimpleTileProvider("empty", DataManager.getTile("stone"));
+    public static final SimpleTileProvider EMPTY = new SimpleTileProvider("empty", DataManager.getTile("air"));
     public static final MapCodec<SimpleTileProvider> CODEC = RecordCodecBuilder.mapCodec(instance ->
         instance.group(
             Codec.STRING.optionalFieldOf("id", "").forGetter(SimpleTileProvider::id),
@@ -24,7 +23,7 @@ public record SimpleTileProvider(String id, Tile value) implements TileProvider 
     }
 
     @Override
-    public Tile get(Random random) {
+    public Tile get(TileContext context) {
         return value;
     }
 

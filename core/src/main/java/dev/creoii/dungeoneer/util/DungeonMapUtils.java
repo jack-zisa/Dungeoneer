@@ -24,7 +24,7 @@ public final class DungeonMapUtils {
         return map;
     }
 
-    public static TiledMap deserializeMap2(String templateId, String tilesetId, TiledMapTileSet tileSet, Function<String, TiledMapTile> tileFunction) {
+    public static TiledMap deserializeMap2(long seed, String templateId, String tilesetId, TiledMapTileSet tileSet, Function<String, TiledMapTile> tileFunction) {
         TiledMap map = new TiledMap();
 
         DungeonMapTemplate template = DataManager.getMapTemplate(templateId);
@@ -48,7 +48,7 @@ public final class DungeonMapUtils {
                 if (provider == null)
                     continue;
 
-                generator.apply(tiledLayer, layerType, new Random(), tileFunction);
+                generator.apply(tiledLayer, layerType, seed, new Random(), tileFunction);
             }
 
             tiledLayer.setName(layerType.name().toLowerCase());

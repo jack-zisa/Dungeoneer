@@ -18,6 +18,6 @@ public record EmptyMapGenerator() implements MapGenerator {
     }
 
     @Override
-    public void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, Random random, Function<String, TiledMapTile> tileFunction) {
+    public void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
     }
 }

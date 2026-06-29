@@ -17,7 +17,7 @@ public interface MapGenerator {
 
     Type getType();
 
-    void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, Random random, Function<String, TiledMapTile> tileFunction);
+    void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction);
 
     enum Type {
         EMPTY,

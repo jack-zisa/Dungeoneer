@@ -47,7 +47,7 @@ public class DungeonEditorScreen2 extends AbstractScreen {
             // TODO: Default map template
             getClient().getState().setDungeonMap(new DungeonMapDefinition(-1, getClient().getState().getAccount().id(), "circle", "necropolis", LocalDateTime.now()));
         }
-        dungeonMap.build(getClient(), dungeonMap.get().templateId(), dungeonMap.get().tilesetId());
+        dungeonMap.build(getClient(), getClient().getState().getAccount().id(), dungeonMap.get().templateId(), dungeonMap.get().tilesetId());
 
         Table root = new Table();
         root.setFillParent(true);
