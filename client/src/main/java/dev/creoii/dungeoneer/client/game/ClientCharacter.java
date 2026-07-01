@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.client.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -11,12 +12,14 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import dev.creoii.dungeoneer.client.Assets;
+import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.Renderable;
-import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
+import dev.creoii.dungeoneer.client.render.screen.game.DeathScreen;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
+import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterDieC2S;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -225,9 +228,10 @@ public class ClientCharacter implements Character, Renderable {
     public void update(float dt) {
         if (dead && this == client.getState().getActiveCharacter()) {
             ClientRaid raid = client.getState().getCurrentRaid();
+            raid.setStatus(Raid.Status.END);
+            client.getState().setStatus(ClientState.Status.RAID_END);
             client.get().sendTCP(new CharacterDieC2S(raid.get().id(), character.id()));
-            client.setScreen(new MainScreen(client));
-            raid.end();
+            Gdx.app.postRunnable(() -> client.setScreen(new DeathScreen(client)));
             return;
         }
 

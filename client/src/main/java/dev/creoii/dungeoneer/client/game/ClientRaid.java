@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
+import dev.creoii.dungeoneer.client.render.screen.game.RaidEndScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
@@ -80,11 +81,10 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
             if (client.getScreen() instanceof GameScreen gameScreen) {
                 long remaining = getRemainingTimeMs();
                 if (remaining <= 0L) {
-                    Gdx.app.postRunnable(() -> {
-                        client.getState().setStatus(ClientState.Status.LOBBY);
-                        client.setScreen(new MainScreen(client));
-                        end();
-                    });
+                    client.getState().getCurrentRaid().setStatus(Raid.Status.END);
+                    client.getState().setStatus(ClientState.Status.RAID_END);
+                    end();
+                    Gdx.app.postRunnable(() -> client.setScreen(new RaidEndScreen(client)));
                 } else gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
             }
 

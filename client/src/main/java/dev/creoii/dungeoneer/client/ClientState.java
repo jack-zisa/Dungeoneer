@@ -128,6 +128,7 @@ public class ClientState {
         LOBBY,
         RAID_SEARCHING,
         RAIDING,
-        EDITING_DUNGEON
+        EDITING_DUNGEON,
+        RAID_END
     }
 }

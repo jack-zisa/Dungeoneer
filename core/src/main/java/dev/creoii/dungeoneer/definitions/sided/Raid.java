@@ -177,6 +177,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
     public enum Status {
         WAITING,
-        ACTIVE
+        ACTIVE,
+        END
     }
 }
