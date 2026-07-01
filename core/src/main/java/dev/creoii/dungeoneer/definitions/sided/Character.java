@@ -29,6 +29,10 @@ public interface Character extends Entity {
 
     StatContainer getMaxStats();
 
+    void setDead(boolean dead);
+
+    boolean isDead();
+
     default boolean canMove() {
         return getStats().speed().value() > 0f;
     }
@@ -39,6 +43,10 @@ public interface Character extends Entity {
 
     default void damage(int damage) {
         getStats().setHealth(getStats().health().value() - damage);
+
+        if (getStats().health().value() <= 0) {
+            setDead(true);
+        }
     }
 
     default boolean attack(Attack attack, Raid raid, float[] mouseDir, BiPredicate<Integer, Integer> willHitWallRightAway) {

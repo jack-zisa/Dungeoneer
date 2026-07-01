@@ -10,7 +10,7 @@ import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.Iterator;
 
 public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientCharacter> {
     private final Dungeoneer client;
@@ -90,14 +90,26 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
 
             super.update(dt);
 
-            getCharacters().values().forEach(clientCharacter -> clientCharacter.update(dt));
+            Iterator<ClientCharacter> iterator = getCharacters().values().iterator();
+            while (iterator.hasNext()) {
+                ClientCharacter character = iterator.next();
+                if (character.isDead()) {
+                    iterator.remove();
+                    continue;
+                }
+                character.update(dt);
+            }
         }
     }
 
     @Override
     public void end() {
         super.end();
-        client.getState().getActiveCharacter().setPos(0f, 0f);
-        client.getState().getActiveCharacter().setRenderPos(0f, 0f);
+
+        ClientCharacter character = client.getState().getActiveCharacter();
+        character.setPos(0f, 0f);
+        character.setRenderPos(0f, 0f);
+        character.setDead(false);
+        character.getStats().set(character.getMaxStats());
     }
 }

@@ -14,6 +14,7 @@ import dev.creoii.dungeoneer.util.collision.CollisionManager;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter> implements Tickable {
@@ -96,7 +97,14 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
             // Update bullet positions
             super.update(dt);
 
-            for (ServerCharacter character : getCharacters().values()) {
+            Iterator<ServerCharacter> iterator = getCharacters().values().iterator();
+            while (iterator.hasNext()) {
+                ServerCharacter character = iterator.next();
+                if (character.isDead()) {
+                    iterator.remove();
+                    continue;
+                }
+
                 // Sync raid timer
                 if (timer <= 0f) {
                     timer += SYNC_INTERVAL;

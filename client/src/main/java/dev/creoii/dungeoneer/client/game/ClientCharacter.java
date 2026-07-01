@@ -14,8 +14,10 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.Renderable;
+import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
+import dev.creoii.dungeoneer.network.c2s.character.CharacterDieC2S;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -35,6 +37,7 @@ public class ClientCharacter implements Character, Renderable {
     private long lastAttackTime;
     private boolean attackPending;
     private AnimationState animationState;
+    private boolean dead;
 
     public ClientCharacter(Dungeoneer client, @Nullable CharacterDefinition character) {
         this.client = client;
@@ -56,6 +59,7 @@ public class ClientCharacter implements Character, Renderable {
         correction = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
         animationState = AnimationState.IDLE_DOWN;
+        dead = false;
     }
 
     @Override
@@ -153,6 +157,16 @@ public class ClientCharacter implements Character, Renderable {
         return maxStats;
     }
 
+    @Override
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
+    @Override
+    public boolean isDead() {
+        return dead;
+    }
+
     public float[] getCorrection() {
         return correction;
     }
@@ -194,6 +208,8 @@ public class ClientCharacter implements Character, Renderable {
 
     @Override
     public void updateVelocity(float[] velocity, int movementFlags, float rotation) {
+        if (dead) return;
+
         Character.super.updateVelocity(velocity, movementFlags, rotation);
 
         AnimationState to;
@@ -207,6 +223,14 @@ public class ClientCharacter implements Character, Renderable {
     }
 
     public void update(float dt) {
+        if (dead && this == client.getState().getActiveCharacter()) {
+            ClientRaid raid = client.getState().getCurrentRaid();
+            client.get().sendTCP(new CharacterDieC2S(raid.get().id(), character.id()));
+            client.setScreen(new MainScreen(client));
+            raid.end();
+            return;
+        }
+
         float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
         updatePosition(pos, velocity, speed, dt);
 
@@ -227,6 +251,8 @@ public class ClientCharacter implements Character, Renderable {
 
     @Override
     public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
+        if (dead) return;
+
         float cx = getRenderX() + sprite.getWidth() * .5f;
         float cy = getRenderY() + sprite.getHeight() * .5f;
         float[] pos = {cx, cy};
@@ -237,6 +263,8 @@ public class ClientCharacter implements Character, Renderable {
 
     @Override
     public void renderDebug(ShapeRenderer shapeRenderer, float[] mouseDir) {
+        if (dead) return;
+
         shapeRenderer.setColor(isAttackPending() ? Color.GREEN : Color.WHITE);
         shapeRenderer.line(getCenterX(), getCenterY(), getCenterX() + mouseDir[0] * 32f, getCenterY() + mouseDir[1] * 32f);
 

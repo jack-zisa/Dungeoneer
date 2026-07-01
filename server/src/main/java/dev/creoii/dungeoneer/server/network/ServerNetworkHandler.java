@@ -418,6 +418,15 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     }
                 });
             }
+        } else if (object instanceof CharacterDieC2S(long raidId, long characterId)) {
+            CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
+            if (character != null && server.getState().getRaids().containsKey(raidId)) {
+                ServerRaid raid = server.getState().getRaids().get(raidId);
+                ServerCharacter serverCharacter = raid.getCharacterById(characterId);
+                if (serverCharacter == null)
+                    return;
+                serverCharacter.setDead(true);
+            }
         }
     }
 }

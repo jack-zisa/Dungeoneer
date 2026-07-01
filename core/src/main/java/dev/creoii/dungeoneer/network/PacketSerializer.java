@@ -78,6 +78,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(RequestDungeonMapC2S.class, PacketSerializer.INSTANCE);
         kryo.register(AttackC2S.class, PacketSerializer.INSTANCE);
         kryo.register(CancelJoinRaidC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(CharacterDieC2S.class, PacketSerializer.INSTANCE);
 
         kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
@@ -122,6 +123,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(RequestDungeonMapC2S.class, RequestDungeonMapC2S::write, RequestDungeonMapC2S::read);
         PacketSerializer.INSTANCE.register(AttackC2S.class, AttackC2S::write, AttackC2S::read);
         PacketSerializer.INSTANCE.register(CancelJoinRaidC2S.class, CancelJoinRaidC2S::write, CancelJoinRaidC2S::read);
+        PacketSerializer.INSTANCE.register(CharacterDieC2S.class, CharacterDieC2S::write, CharacterDieC2S::read);
 
         PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);

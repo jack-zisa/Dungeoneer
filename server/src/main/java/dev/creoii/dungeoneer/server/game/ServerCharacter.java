@@ -18,6 +18,7 @@ public class ServerCharacter implements Character {
     private final StatContainer stats;
     private final StatContainer maxStats;
     private long lastAttackTime;
+    private boolean dead;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
         this.connectionId = connectionId;
@@ -35,6 +36,7 @@ public class ServerCharacter implements Character {
             character.characterClass().maxStats().speed().value(),
             character.characterClass().maxStats().attackSpeed().value()
         );
+        dead = false;
     }
 
     @Override
@@ -83,6 +85,16 @@ public class ServerCharacter implements Character {
         return maxStats;
     }
 
+    @Override
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
+    @Override
+    public boolean isDead() {
+        return dead;
+    }
+
     public long getLastAttackTime() {
         return lastAttackTime;
     }
@@ -92,7 +104,7 @@ public class ServerCharacter implements Character {
     }
 
     public void tick(ServerRaid raid, float dt) {
-        if (isMoving()) {
+        if (isMoving() && !dead) {
             // Update character position
             float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
             updatePosition(pos, velocity, speed, dt);
