@@ -19,13 +19,12 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.control.CharacterInputListener;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
-import dev.creoii.dungeoneer.client.game.*;
+import dev.creoii.dungeoneer.client.render.*;
+import dev.creoii.dungeoneer.client.render.object.GroundTileRenderable;
+import dev.creoii.dungeoneer.client.render.object.ObjectTileRenderable;
+import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
-import dev.creoii.dungeoneer.client.render.GroundTileRenderable;
-import dev.creoii.dungeoneer.client.render.ObjectTileRenderable;
-import dev.creoii.dungeoneer.client.render.RenderLayer;
-import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -162,8 +161,8 @@ public class GameScreen extends AbstractScreen {
 
         java.util.List<Renderable> renderables = new ArrayList<>(visibleCharacters);
         renderables.addAll(getClient().getState().getCurrentRaid().getDungeonMap().getWallTops());
-        for (ClientDungeonMap.WallFace face : getClient().getState().getCurrentRaid().getDungeonMap().getWallFaces()) {
-            if (ClientDungeonMap.WallFace.isVisible(face.direction(), inputListener.getRotation())) {
+        for (WallFaceRenderable face : getClient().getState().getCurrentRaid().getDungeonMap().getWallFaces()) {
+            if (WallFaceRenderable.isVisible(face.direction(), inputListener.getRotation())) {
                 renderables.add(face);
             }
         }

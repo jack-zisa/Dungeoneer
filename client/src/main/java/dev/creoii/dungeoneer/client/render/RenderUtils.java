@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
+import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
@@ -24,7 +25,7 @@ public final class RenderUtils {
     };
     private static final float[] QUAD_VERTICES = new float[20];
 
-    public static void drawWallSide(Camera camera, PolygonSpriteBatch batch, ClientDungeonMap.WallFace face, float rotation) {
+    public static void drawWallSide(Camera camera, PolygonSpriteBatch batch, WallFaceRenderable face, float rotation) {
         float x = face.x() * ClientDungeonMap.TILE_SIZE;
         float y = face.y() * ClientDungeonMap.TILE_SIZE;
 

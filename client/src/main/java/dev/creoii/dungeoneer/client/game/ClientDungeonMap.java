@@ -1,9 +1,6 @@
 package dev.creoii.dungeoneer.client.game;
 
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
@@ -15,10 +12,9 @@ import com.badlogic.gdx.utils.Disposable;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
+import dev.creoii.dungeoneer.client.render.object.WallTopRenderable;
 import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
-import dev.creoii.dungeoneer.client.render.RenderLayer;
-import dev.creoii.dungeoneer.client.render.RenderUtils;
-import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
@@ -40,8 +36,8 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
     private DungeonMapDefinition definition;
     private DungeonMapTemplate template;
     private OrthogonalTiledMapRenderer mapRenderer;
-    private List<WallTop> wallTops;
-    private List<WallFace> wallFaces;
+    private List<WallTopRenderable> wallTops;
+    private List<WallFaceRenderable> wallFaces;
 
     public ClientDungeonMap(Dungeoneer client) {
         this.client = client;
@@ -70,12 +66,12 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
                     Texture top = client.getAssets().getTexture(Assets.Atlas.TILE, topTextureId);
                     TextureRegion topTexture = top == Assets.MISSING_TEXTURE ? texture : new TextureRegion(top);
 
-                    wallTops.add(new WallTop(topTexture, x, y));
+                    wallTops.add(new WallTopRenderable(topTexture, x, y));
 
-                    if (layer.getCell(x + 1, y) == null) wallFaces.add(new WallFace(texture, x, y, Direction.RIGHT));
-                    if (layer.getCell(x - 1, y) == null) wallFaces.add(new WallFace(texture, x, y, Direction.LEFT));
-                    if (layer.getCell(x, y + 1) == null) wallFaces.add(new WallFace(texture, x, y, Direction.UP));
-                    if (layer.getCell(x, y - 1) == null) wallFaces.add(new WallFace(texture, x, y, Direction.DOWN));
+                    if (layer.getCell(x + 1, y) == null) wallFaces.add(new WallFaceRenderable(texture, x, y, Direction.RIGHT));
+                    if (layer.getCell(x - 1, y) == null) wallFaces.add(new WallFaceRenderable(texture, x, y, Direction.LEFT));
+                    if (layer.getCell(x, y + 1) == null) wallFaces.add(new WallFaceRenderable(texture, x, y, Direction.UP));
+                    if (layer.getCell(x, y - 1) == null) wallFaces.add(new WallFaceRenderable(texture, x, y, Direction.DOWN));
                 }
             }
         }
@@ -123,11 +119,11 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
         wallTops.clear();
     }
 
-    public List<WallTop> getWallTops() {
+    public List<WallTopRenderable> getWallTops() {
         return wallTops;
     }
 
-    public List<WallFace> getWallFaces() {
+    public List<WallFaceRenderable> getWallFaces() {
         return wallFaces;
     }
 
@@ -161,51 +157,5 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
 
     public void save() {
         client.get().sendTCP(new SaveDungeonMapC2S(client.getState().getAccount().id(), definition.templateId(), definition.tilesetId()));
-    }
-
-    public record WallTop(TextureRegion texture, int x, int y) implements Renderable {
-        @Override
-        public RenderLayer renderLayer() {
-            return RenderLayer.OBJECT;
-        }
-
-        @Override
-        public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
-            RenderUtils.drawWallTop(camera, batch, texture, x, y, rotation);
-        }
-
-        @Override
-        public float depth(float rotation, OrthographicCamera camera) {
-            float worldX = x * ClientDungeonMap.TILE_SIZE;
-            float worldY = y * ClientDungeonMap.TILE_SIZE;
-            Vector2 p = ClientDungeonMap.project(worldX, worldY, -ClientDungeonMap.WALL_HEIGHT, rotation, camera.position.x, camera.position.y);
-            return p.y;
-        }
-    }
-
-    public record WallFace(TextureRegion texture, int x, int y, Direction direction) implements Renderable {
-        @Override
-        public RenderLayer renderLayer() {
-            return RenderLayer.OBJECT;
-        }
-
-        @Override
-        public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
-            RenderUtils.drawWallSide(camera, batch, this, rotation);
-        }
-
-        @Override
-        public float depth(float rotation, OrthographicCamera camera) {
-            float worldX = x * ClientDungeonMap.TILE_SIZE;
-            float worldY = y * ClientDungeonMap.TILE_SIZE;
-            Vector2 p = ClientDungeonMap.project(worldX, worldY, -ClientDungeonMap.WALL_HEIGHT, rotation, camera.position.x, camera.position.y);
-            return p.y;
-        }
-
-        public static boolean isVisible(Direction direction, float rotation) {
-            Vector2 normal = new Vector2(direction.getVector()[0], direction.getVector()[1]);
-            normal.rotateDeg(rotation);
-            return normal.y <= 0f;
-        }
     }
 }
