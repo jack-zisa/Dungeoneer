@@ -138,7 +138,7 @@ public class ClientNetworkHandler implements Listener {
             case CreateCharacterResultS2C(PacketResult result, int index, @Nullable CharacterDefinition character) -> {
                 if (result == PacketResult.SUCCESS) {
                     client.getState().getCharacters().set(index, character);
-                    client.getState().setActiveCharacter(character);
+                    client.getState().getActiveCharacter().set(character);
 
                     Dungeoneer.LOGGER.info("Created new character of class: %s", character.characterClass().id());
 

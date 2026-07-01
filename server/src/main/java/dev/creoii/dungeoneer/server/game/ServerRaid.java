@@ -79,7 +79,6 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
     @Override
     public void addCharacter(long accountId, ServerCharacter character) {
         super.addCharacter(accountId, character);
-        character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
     }
 
     @Override
@@ -118,6 +117,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
         } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) {
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
+            updateSpawnPositions(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
         }
     }
 

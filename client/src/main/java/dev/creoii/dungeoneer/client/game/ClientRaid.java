@@ -10,6 +10,7 @@ import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 
 import java.time.Duration;
+import java.util.Arrays;
 
 public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientCharacter> {
     private final Dungeoneer client;
@@ -66,6 +67,8 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
 
     @Override
     public void updateSpawnPositions(float spawnX, float spawnY) {
+        client.getState().getActiveCharacter().setPos(spawnX, spawnY);
+        client.getState().getActiveCharacter().setRenderPos(spawnX, spawnY);
         getCharacters().values().forEach(c -> {
             c.setPos(spawnX, spawnY);
             c.setRenderPos(spawnX, spawnY);

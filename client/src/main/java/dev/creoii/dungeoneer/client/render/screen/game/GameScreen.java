@@ -47,19 +47,7 @@ public class GameScreen extends AbstractScreen {
 
     public GameScreen(Dungeoneer client) {
         super(client);
-
-        ClientRaid raid = client.getState().getCurrentRaid();
-        float spawnX = raid.getDungeonMap().getTemplate().spawnPos().x * 8f;
-        float spawnY = raid.getDungeonMap().getTemplate().spawnPos().y * 8f;
-        raid.updateSpawnPositions(spawnX, spawnY);
-        raid.getCharacters().values().forEach(clientCharacter -> {
-            clientCharacter.setPos(spawnX, spawnY);
-            clientCharacter.setRenderPos(spawnX, spawnY);
-        });
-
         visibleCharacters = new ObjectArrayList<>();
-        visibleCharacters.add(getClient().getState().getActiveCharacter());
-        visibleCharacters.addAll(raid.getCharacters().values());
     }
 
     public OrthographicCamera getCamera() {
@@ -99,6 +87,10 @@ public class GameScreen extends AbstractScreen {
             return;
         }
 
+        ClientRaid raid = getClient().getState().getCurrentRaid();
+        visibleCharacters.add(getClient().getState().getActiveCharacter());
+        visibleCharacters.addAll(raid.getCharacters().values());
+
         Table root = new Table();
         root.setFillParent(true);
         root.top().left();
@@ -134,6 +126,8 @@ public class GameScreen extends AbstractScreen {
     public void hide() {
         getClient().getInputMultiplexer().removeProcessor(inputListener);
         getClient().getInputMultiplexer().removeProcessor(getStage());
+
+        visibleCharacters.clear();
     }
 
     @Override

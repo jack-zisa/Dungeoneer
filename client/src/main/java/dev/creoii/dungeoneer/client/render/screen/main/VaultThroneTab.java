@@ -82,8 +82,6 @@ public class VaultThroneTab extends Tab {
                     return;
 
                 classIndex = (classIndex - 2 + characterSlots) % characterSlots;
-
-                getClient().getState().setActiveCharacter(characters.get(classIndex));
                 updateSelectedCharacter();
             }
         });
@@ -95,8 +93,6 @@ public class VaultThroneTab extends Tab {
                     return;
 
                 classIndex = (classIndex - 1 + characterSlots) % characterSlots;
-
-                getClient().getState().setActiveCharacter(characters.get(classIndex));
                 updateSelectedCharacter();
             }
         });
@@ -108,8 +104,6 @@ public class VaultThroneTab extends Tab {
                     return;
 
                 classIndex = (classIndex + 1) % characterSlots;
-
-                getClient().getState().setActiveCharacter(characters.get(classIndex));
                 updateSelectedCharacter();
             }
         });
@@ -121,8 +115,6 @@ public class VaultThroneTab extends Tab {
                     return;
 
                 classIndex = (classIndex + 2) % characterSlots;
-
-                getClient().getState().setActiveCharacter(characters.get(classIndex));
                 updateSelectedCharacter();
             }
         });
@@ -169,9 +161,9 @@ public class VaultThroneTab extends Tab {
     }
 
     private void updateStatsTable() {
-        CharacterDefinition selected = characters.get(classIndex);
         statsTable.clearChildren();
 
+        CharacterDefinition selected = characters.get(classIndex);
         if (selected != null) {
             statsTable.add(new Label(String.format("Health: %s", selected.characterClass().baseStats().health()), getSkin())).row();
             statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().baseStats().speed()), getSkin()));
@@ -186,15 +178,14 @@ public class VaultThroneTab extends Tab {
             classLabel.setText(classIndex + ": " + selected.characterClass().id());
             statsTable.setVisible(true);
             updateStatsTable();
-            getClient().getState().setActiveCharacter(selected);
         } else {
             createCharacterButton.setText("Create Character");
             classLabel.setText(classIndex + ": Empty");
             statsTable.setVisible(false);
             updateStatsTable();
-            getClient().getState().setActiveCharacter(null);
         }
 
+        getClient().getState().setActiveCharacter(selected);
         updateCharacterDisplay();
     }
 
