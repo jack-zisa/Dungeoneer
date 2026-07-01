@@ -17,10 +17,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter> implements Tickable {
+public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final DungeoneerServer server;
-    private final ServerDungeonMap dungeon;
     private final CollisionManager collisionManager;
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
@@ -40,9 +39,8 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
     };
 
     public ServerRaid(DungeoneerServer server, ServerDungeonMap dungeon, ServerCharacter character, RaidDefinition raid) {
-        super(raid);
+        super(raid, dungeon);
         this.server = server;
-        this.dungeon = dungeon;
         collisionManager = new CollisionManager(this);
         getCharacters().put(character.get().accountId(), character);
         character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
@@ -63,10 +61,6 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
 
     public DungeoneerServer getServer() {
         return server;
-    }
-
-    public ServerDungeonMap getDungeon() {
-        return dungeon;
     }
 
     public List<MoveRaidCharactersS2C.Entry> getMoveEntries() {
@@ -125,7 +119,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter>
         } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) {
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
-            updateSpawnPositions(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
+            updateSpawnPositions(getDungeonMap().getTemplate().spawnPos().x * 8f, getDungeonMap().getTemplate().spawnPos().y * 8f);
         }
     }
 

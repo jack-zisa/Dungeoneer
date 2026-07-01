@@ -19,8 +19,7 @@ public class ServerBullet extends Bullet {
             character.damage(damage);
 
             raid.getCharacters().values().forEach(character1 -> {
-                DamageCharacterS2C packet = new DamageCharacterS2C(character.get().accountId(), damage);
-                raid.getServer().get().sendToTCP(character1.getConnectionId(), packet);
+                raid.getServer().get().sendToTCP(character1.getConnectionId(), new DamageCharacterS2C(character.get().accountId(), damage));
             });
         }
     }

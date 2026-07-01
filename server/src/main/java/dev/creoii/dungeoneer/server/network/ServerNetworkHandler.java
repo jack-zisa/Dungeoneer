@@ -388,7 +388,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                         if (currentTime - lastAttackTime >= cooldown) {
                             Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
 
-                            character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY}, (integer, integer2) -> serverRaid.getDungeon().isSolid(integer, integer2, false));
+                            character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY}, (integer, integer2) -> serverRaid.getDungeonMap().isSolid(integer, integer2, false));
                             serverRaid.getAttacks().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
 
                             character.setLastAttackTime(currentTime);

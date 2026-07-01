@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.definitions.sided;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
@@ -12,11 +13,13 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Iterator;
 
-public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character> {
+public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character, D extends DungeonMap> {
     private RaidDefinition raid;
     private Status status;
+    private final D dungeonMap;
     private final Long2ObjectArrayMap<C> characters;
     private long endTime;
 
@@ -25,8 +28,9 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
     private int nextBulletId = 0;
 
-    public Raid(RaidDefinition raid) {
+    public Raid(RaidDefinition raid, D dungeonMap) {
         this.raid = raid;
+        this.dungeonMap = dungeonMap;
         status = Status.WAITING;
         characters = new Long2ObjectArrayMap<>();
     }
@@ -49,6 +53,10 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public D getDungeonMap() {
+        return dungeonMap;
     }
 
     public Long2ObjectArrayMap<C> getCharacters() {
@@ -88,6 +96,12 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     public void update(float dt) {
+        Duration duration = Duration.ofMillis(getRemainingTimeMs()); // TODO: Remove as this is just testing
+        if (duration.toSecondsPart() % 2 == 0) {
+            Vector2 spawnPos = dungeonMap.getTemplate().spawnPos();
+            addBullet(spawnPos.x * 8f, spawnPos.y * 8f, 1f, 0f, DataManager.getBullet("fire_shot"), 0, true);
+        }
+
         Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();
         while (bulletIterator.hasNext()) {
             Int2ObjectMap.Entry<B> entry = bulletIterator.next();

@@ -78,7 +78,7 @@ public interface Character extends Entity {
 
                     if (willHitWallRightAway(x, y, rotatedX, rotatedY, willHitWallRightAway)) continue;
 
-                    raid.addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, true);
+                    raid.addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, false);
                     success = true;
                 }
                 return success;

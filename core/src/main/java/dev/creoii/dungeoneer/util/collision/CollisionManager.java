@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 
 public class CollisionManager {
     private static final boolean[][] MATRIX = buildMatrix();
-    private final Raid<?, ?, ?> raid;
+    private final Raid<?, ?, ?, ?> raid;
     private final Map<CollisionLayer, List<Collidable>> collidables;
     private final Set<CollisionPair> activeCollisions;
 
-    public CollisionManager(Raid<?, ?, ?> raid) {
+    public CollisionManager(Raid<?, ?, ?, ?> raid) {
         this.raid = raid;
         collidables = new HashMap<>();
         activeCollisions = new HashSet<>();
@@ -33,7 +33,6 @@ public class CollisionManager {
         collidables.put(CollisionLayer.CHARACTER_BULLET, characterBullets);
 
         Set<CollisionPair> currentCollisions = new HashSet<>();
-
         CollisionLayer[] layers = CollisionLayer.values();
         for (int i = 0; i < layers.length; i++) {
             CollisionLayer layerA = layers[i];
