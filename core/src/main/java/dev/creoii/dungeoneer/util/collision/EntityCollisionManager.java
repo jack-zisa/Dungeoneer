@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class EntityCollisionManager {
     private static final boolean[][] MATRIX = buildMatrix();
     private final Raid<?, ?, ?, ?> raid;
-    private final Map<CollisionLayer, List<Collidable>> collidables;
+    private final Map<EntityCollisionLayer, List<Collidable>> collidables;
     private final Set<CollisionPair> activeCollisions;
 
     public EntityCollisionManager(Raid<?, ?, ?, ?> raid) {
@@ -18,28 +18,28 @@ public class EntityCollisionManager {
         activeCollisions = new HashSet<>();
     }
 
-    public Map<CollisionLayer, List<Collidable>> getCollidables() {
+    public Map<EntityCollisionLayer, List<Collidable>> getCollidables() {
         return collidables;
     }
 
     public void update() {
         List<Collidable> characters = raid.getCharacters().values().stream().collect(Collectors.toUnmodifiableList());
-        collidables.put(CollisionLayer.CHARACTER, characters);
+        collidables.put(EntityCollisionLayer.CHARACTER, characters);
 
         List<Collidable> enemyBullets = raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet bullet1 && bullet1.isEnemy()).collect(Collectors.toUnmodifiableList());
-        collidables.put(CollisionLayer.ENEMY_BULLET, enemyBullets);
+        collidables.put(EntityCollisionLayer.ENEMY_BULLET, enemyBullets);
 
         List<Collidable> characterBullets = raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet bullet1 && !bullet1.isEnemy()).collect(Collectors.toUnmodifiableList());
-        collidables.put(CollisionLayer.CHARACTER_BULLET, characterBullets);
+        collidables.put(EntityCollisionLayer.CHARACTER_BULLET, characterBullets);
 
         Set<CollisionPair> currentCollisions = new HashSet<>();
-        CollisionLayer[] layers = CollisionLayer.values();
+        EntityCollisionLayer[] layers = EntityCollisionLayer.values();
         for (int i = 0; i < layers.length; i++) {
-            CollisionLayer layerA = layers[i];
+            EntityCollisionLayer layerA = layers[i];
             List<Collidable> listA = collidables.getOrDefault(layerA, Collections.emptyList());
 
             for (int j = i; j < layers.length; j++) {
-                CollisionLayer layerB = layers[j];
+                EntityCollisionLayer layerB = layers[j];
                 if (!MATRIX[layerA.ordinal()][layerB.ordinal()]) {
                     continue;
                 }
@@ -80,16 +80,16 @@ public class EntityCollisionManager {
     }
 
     private static boolean[][] buildMatrix() {
-        boolean[][] matrix = new boolean[CollisionLayer.values().length][CollisionLayer.values().length];
+        boolean[][] matrix = new boolean[EntityCollisionLayer.values().length][EntityCollisionLayer.values().length];
 
-        for (int i = 0; i < CollisionLayer.values().length; ++i) {
+        for (int i = 0; i < EntityCollisionLayer.values().length; ++i) {
             Arrays.fill(matrix[i], false);
         }
 
-        matrix[CollisionLayer.ENEMY_BULLET.ordinal()][CollisionLayer.CHARACTER.ordinal()] = true;
-        matrix[CollisionLayer.CHARACTER.ordinal()][CollisionLayer.ENEMY_BULLET.ordinal()] = true;
-        matrix[CollisionLayer.CHARACTER_BULLET.ordinal()][CollisionLayer.ENEMY.ordinal()] = true;
-        matrix[CollisionLayer.ENEMY.ordinal()][CollisionLayer.CHARACTER_BULLET.ordinal()] = true;
+        matrix[EntityCollisionLayer.ENEMY_BULLET.ordinal()][EntityCollisionLayer.CHARACTER.ordinal()] = true;
+        matrix[EntityCollisionLayer.CHARACTER.ordinal()][EntityCollisionLayer.ENEMY_BULLET.ordinal()] = true;
+        matrix[EntityCollisionLayer.CHARACTER_BULLET.ordinal()][EntityCollisionLayer.ENEMY.ordinal()] = true;
+        matrix[EntityCollisionLayer.ENEMY.ordinal()][EntityCollisionLayer.CHARACTER_BULLET.ordinal()] = true;
 
         return matrix;
     }

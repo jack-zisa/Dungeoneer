@@ -26,6 +26,7 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
     private int index;
     private float age;
     private float angle;
+    private boolean dead;
     private final Rectangle bounds;
     @Nullable private BulletNode<?> parent;
 
@@ -37,6 +38,7 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         startDirection = VectorUtils.zero();
         localDirection = VectorUtils.zero();
         offset = VectorUtils.zero();
+        setDead(false);
         bounds = new Rectangle(0f, 0f, 0f, 0f);
     }
 
@@ -200,8 +202,24 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         return bounds;
     }
 
+    @Override
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
+    @Override
+    public boolean isDead() {
+        return dead;
+    }
+
+    @Override
+    public void onTileCollision() {
+        setParent(null);
+        setDead(true);
+    }
+
     public boolean update(float dt) {
-        if ((lifetime -= dt) <= 0f)
+        if (isDead() || (lifetime -= dt) <= 0f)
             return false;
 
         age += dt;
@@ -250,6 +268,7 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         speed = 0f;
         angle = 0f;
         parent = null;
+        setDead(false);
         bounds.set(0f, 0f, 0f, 0f);
     }
 }

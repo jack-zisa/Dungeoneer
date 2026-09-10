@@ -29,10 +29,6 @@ public interface Character extends Entity {
 
     StatContainer getMaxStats();
 
-    void setDead(boolean dead);
-
-    boolean isDead();
-
     default boolean canMove() {
         return getStats().speed().value() > 0f;
     }

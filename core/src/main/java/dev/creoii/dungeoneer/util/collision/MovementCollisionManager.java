@@ -20,7 +20,7 @@ public final class MovementCollisionManager {
         float dy = y - current.y;
 
         if (Math.abs(dx) < HALF_TILE && Math.abs(dy) < HALF_TILE) {
-            return modifyStep(map, current, x, y, bounded);
+            return modifyStep(map, entity, current, x, y, bounded);
         }
 
         Vector2 result = new Vector2(current);
@@ -35,14 +35,14 @@ public final class MovementCollisionManager {
             float targetX = result.x + dx * step;
             float targetY = result.y + dy * step;
 
-            result = modifyStep(map, result, targetX, targetY, bounded);
+            result = modifyStep(map, entity, result, targetX, targetY, bounded);
 
             progress += step;
         }
         return result;
     }
 
-    private static Vector2 modifyStep(DungeonMap map, Vector2 position, float x, float y, boolean bounded) {
+    private static Vector2 modifyStep(DungeonMap map, Entity entity, Vector2 position, float x, float y, boolean bounded) {
         boolean xCross = (position.x % HALF_TILE == 0f && x != position.x) || (int) (position.x / HALF_TILE) != (int) (x / HALF_TILE);
         boolean yCross = (position.y % HALF_TILE == 0f && y != position.y) || (int) (position.y / HALF_TILE) != (int) (y / HALF_TILE);
         boolean targetSolid = map.isSolid(MathUtils.floor(x * .125f), MathUtils.floor(y * .125f), bounded);
@@ -55,7 +55,7 @@ public final class MovementCollisionManager {
                     return new Vector2(x, y);
                 }
             } else return new Vector2(x, y);
-        }
+        } else entity.onTileCollision();
 
         float nextXBorder = position.x;
         float nextYBorder = position.y;

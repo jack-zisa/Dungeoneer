@@ -1,10 +1,9 @@
 package dev.creoii.dungeoneer.util.collision;
 
-public enum CollisionLayer {
+public enum EntityCollisionLayer {
     CHARACTER,
     CHARACTER_BULLET,
     ENEMY_BULLET,
     OBJECT,
-    WALL,
     ENEMY
 }

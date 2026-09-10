@@ -21,4 +21,11 @@ public interface Entity extends Collidable {
     float getCenterX();
 
     float getCenterY();
+
+    void setDead(boolean dead);
+
+    boolean isDead();
+
+    default void onTileCollision() {
+    }
 }
