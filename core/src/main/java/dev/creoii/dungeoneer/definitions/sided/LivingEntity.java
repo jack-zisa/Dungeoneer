@@ -8,7 +8,7 @@ public interface LivingEntity extends Entity {
      * @return True if the effect was successfully added, False if not.
      */
     boolean addStatusEffect(StatusEffectInstance instance);
-    
+
     /**
      * @return True if the effect was successfully removed, False if not.
      */
