@@ -46,7 +46,7 @@ import java.util.function.BiPredicate;
     }
 
     default boolean attack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
-        if (AttackEvents.PRE.invoker().onPreAttack(this, attack, raid))
+        if (!AttackEvents.PRE.invoker().onPreAttack(this, attack, raid))
             return false;
 
         switch (attack) {
