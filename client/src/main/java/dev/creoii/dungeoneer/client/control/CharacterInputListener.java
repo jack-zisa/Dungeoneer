@@ -14,6 +14,7 @@ import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class CharacterInputListener extends InputAdapter implements MousePosListener {
@@ -69,7 +70,8 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
 
                 Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
                 float[] mouseDir = getDirectionToMouse(character.getCenterX(), character.getCenterY());
-                if (character.attack(attack, raid, mouseDir, (integer, integer2) -> client.getState().getCurrentRaid().getDungeonMap().isSolid(integer, integer2, false))) {
+                if (character.attack(attack, raid, mouseDir)) {
+                    AttackEvents.POST.invoker().onPostAttack(character, attack, raid);
                     client.get().sendTCP(new AttackC2S(raid.get().id(), character.get().accountId(), mouseDir[0], mouseDir[1]));
                 } else character.setAttackPending(false);
             }

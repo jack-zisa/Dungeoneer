@@ -39,6 +39,7 @@ import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.event.AttackEvents;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -355,7 +356,8 @@ public class ClientNetworkHandler extends NetworkHandler {
                 AnimationState animationState = character.getAnimationState();
 
                 Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
-                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()}, (integer, integer2) -> client.getState().getCurrentRaid().getDungeonMap().isSolid(integer, integer2, false));
+                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
+                AttackEvents.POST.invoker().onPostAttack(character, attack, client.getState().getCurrentRaid());
 
                 character.setAnimationState(AnimationState.toAttacking(animationState));
             });

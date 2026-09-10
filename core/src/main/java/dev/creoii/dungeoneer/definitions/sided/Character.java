@@ -8,12 +8,12 @@ import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
 import java.util.List;
 import java.util.function.BiPredicate;
 
-public interface Character extends Entity {
     int getConnectionId();
 
     CharacterDefinition get();
@@ -45,10 +45,13 @@ public interface Character extends Entity {
         }
     }
 
-    default boolean attack(Attack attack, Raid raid, float[] mouseDir, BiPredicate<Integer, Integer> willHitWallRightAway) {
+    default boolean attack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
+        if (AttackEvents.PRE.invoker().onPreAttack(this, attack, raid))
+            return false;
+
         switch (attack) {
             case ReferenceAttack(String id) -> {
-                return attack(DataManager.getAttack(id), raid, mouseDir, willHitWallRightAway);
+                return attack(DataManager.getAttack(id), raid, mouseDir);
             }
             case BulletAttack(_, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
                 BulletType bullet = DataManager.getBullet(Constants.TEST_BULLET);
@@ -72,7 +75,7 @@ public interface Character extends Entity {
                     float rotatedX = mouseDir[0] * cos - mouseDir[1] * sin;
                     float rotatedY = mouseDir[1] * cos + mouseDir[0] * sin;
 
-                    if (willHitWallRightAway(x, y, rotatedX, rotatedY, willHitWallRightAway)) continue;
+                    if (willHitWallRightAway(raid.getDungeonMap(), x, y, rotatedX, rotatedY)) continue;
 
                     raid.addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, false);
                     success = true;
@@ -82,7 +85,7 @@ public interface Character extends Entity {
             case CompositeAttack(_, List<Attack> attacks) -> {
                 boolean success = false;
                 for (Attack attack1 : attacks) {
-                    success |= attack(attack1, raid, mouseDir, willHitWallRightAway);
+                    success |= attack(attack1, raid, mouseDir);
                 }
                 return success;
             }
@@ -90,10 +93,10 @@ public interface Character extends Entity {
         }
     }
 
-    private boolean willHitWallRightAway(float startX, float startY, float dirX, float dirY, BiPredicate<Integer, Integer> predicate) {
+    private boolean willHitWallRightAway(DungeonMap map, float startX, float startY, float dirX, float dirY) {
         float x = startX + dirX;
         float y = startY + dirY;
-        return predicate.test((int) (x / 8f), (int) (y / 8f));
+        return map.isSolid((int) (x / 8f), (int) (y / 8f), false);
     }
 
     default void updateVelocity(float[] velocity, int movementFlags, float rotation) {

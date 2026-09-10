@@ -37,6 +37,7 @@ import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerDungeonMap;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -372,7 +373,8 @@ public class ServerNetworkHandler extends NetworkHandler {
                         if (currentTime - lastAttackTime >= cooldown) {
                             Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
 
-                            character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY}, (integer, integer2) -> serverRaid.getDungeonMap().isSolid(integer, integer2, false));
+                            character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
+                            AttackEvents.POST.invoker().onPostAttack(character, attack, serverRaid);
                             serverRaid.getAttacks().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
 
                             character.setLastAttackTime(currentTime);
