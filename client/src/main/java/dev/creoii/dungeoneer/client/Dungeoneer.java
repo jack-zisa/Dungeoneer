@@ -87,7 +87,7 @@ public class Dungeoneer extends Game {
 
         float dt = Gdx.graphics.getDeltaTime();
 
-        networkHandler.update(dt);
+        networkHandler.tick(dt);
 
         if (state.getStatus() == ClientState.Status.RAIDING && !state.getCurrentRaid().isNull() && !state.getActiveCharacter().isNull() && screen instanceof GameScreen gameScreen) {
             state.getCurrentRaid().update(dt);

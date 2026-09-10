@@ -1,12 +1,11 @@
 package dev.creoii.dungeoneer.server.network;
 
 import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
 import com.password4j.Password;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
-import dev.creoii.dungeoneer.network.NetworkQueue;
+import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
@@ -38,7 +37,6 @@ import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerDungeonMap;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Constants;
-import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -56,24 +54,14 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ServerNetworkHandler implements Listener, Tickable {
+public class ServerNetworkHandler extends NetworkHandler {
     private final DungeoneerServer server;
-    private final NetworkQueue networkQueue;
 
     public ServerNetworkHandler(DungeoneerServer server) {
+        super();
         this.server = server;
-        networkQueue = new NetworkQueue();
         server.get().addListener(this);
-
         PacketSerializer.registerDefault(server.get().getKryo());
-    }
-
-    @Override
-    public void tick(float dt) {
-        NetworkQueue.QueuedPacket packet;
-        while ((packet = networkQueue.queue().poll()) != null && PacketSerializer.INSTANCE.isValidPacket(packet.data())) {
-            handlePacket(packet.connection(), packet.data());
-        }
     }
 
     @Override
@@ -130,10 +118,6 @@ public class ServerNetworkHandler implements Listener, Tickable {
     }
 
     @Override
-    public void received(Connection connection, Object object) {
-        networkQueue.queuePacket(connection, object);
-    }
-
     public void handlePacket(Connection connection, Object object) {
         if (server.isDebug())
             DungeoneerServer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());

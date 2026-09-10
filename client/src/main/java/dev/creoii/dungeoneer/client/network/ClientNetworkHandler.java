@@ -2,7 +2,6 @@ package dev.creoii.dungeoneer.client.network;
 
 import com.badlogic.gdx.Gdx;
 import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Listener;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -21,7 +20,7 @@ import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
-import dev.creoii.dungeoneer.network.NetworkQueue;
+import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
@@ -55,23 +54,14 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class ClientNetworkHandler implements Listener {
+public class ClientNetworkHandler extends NetworkHandler {
     private final Dungeoneer client;
-    private final NetworkQueue networkQueue;
 
     public ClientNetworkHandler(Dungeoneer client) {
+        super();
         this.client = client;
-        networkQueue = new NetworkQueue();
         client.get().addListener(this);
-
         PacketSerializer.registerDefault(client.get().getKryo());
-    }
-
-    public void update(float dt) {
-        NetworkQueue.QueuedPacket packet;
-        while ((packet = networkQueue.queue().poll()) != null && PacketSerializer.INSTANCE.isValidPacket(packet.data())) {
-            handlePacket(packet.connection(), packet.data());
-        }
     }
 
     @Override
@@ -80,10 +70,6 @@ public class ClientNetworkHandler implements Listener {
     }
 
     @Override
-    public void received(Connection connection, Object object) {
-        networkQueue.queuePacket(connection, object);
-    }
-
     public void handlePacket(Connection connection, Object object) {
         if (!PacketSerializer.INSTANCE.isValidPacket(object))
             return;
