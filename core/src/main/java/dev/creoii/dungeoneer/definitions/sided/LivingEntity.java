@@ -9,6 +9,18 @@ public interface LivingEntity extends Entity {
      */
     boolean addStatusEffect(StatusEffectInstance instance);
 
+    default boolean addStatusEffect(StatusEffect effect) {
+        return addStatusEffect(new StatusEffectInstance(effect, 0, 0, System.currentTimeMillis()));
+    }
+
+    default boolean addStatusEffect(StatusEffect effect, int duration) {
+        return addStatusEffect(new StatusEffectInstance(effect, 0, duration, System.currentTimeMillis()));
+    }
+
+    default boolean addStatusEffect(StatusEffect effect, int amplifier, int duration) {
+        return addStatusEffect(new StatusEffectInstance(effect, amplifier, duration, System.currentTimeMillis()));
+    }
+
     /**
      * @return True if the effect was successfully removed, False if not.
      */

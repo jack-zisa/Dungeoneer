@@ -10,6 +10,7 @@ import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.DamageCharacterS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.action.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
@@ -30,6 +31,8 @@ public class ServerCharacter implements Character<ServerRaid> {
     @Nullable private ServerRaid raid;
     private long lastAttackTime;
     private final Long2ObjectArrayMap<StatusEffectInstance> statusEffects;
+    private long pendingStatusEffectAdds;
+    private long pendingStatusEffectRemoves;
     private boolean dead;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
@@ -52,8 +55,8 @@ public class ServerCharacter implements Character<ServerRaid> {
         statusEffects = new Long2ObjectArrayMap<>();
         dead = false;
 
-        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("poison"), 0, 0, 0));
-        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("speedy"), 0, 0, 0));
+        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("poison"), 0, 0, System.currentTimeMillis()));
+        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("speedy"), 0, 0, System.currentTimeMillis()));
     }
 
     @Override
@@ -102,9 +105,14 @@ public class ServerCharacter implements Character<ServerRaid> {
         return maxStats;
     }
 
+    public boolean hasPendingStatusEffectChanges() {
+        return pendingStatusEffectAdds != 0L || pendingStatusEffectRemoves != 0L;
+    }
+
     @Override
     public boolean addStatusEffect(StatusEffectInstance instance) {
-        StatusEffectInstance previous = statusEffects.put(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, instance.statusEffect().id()), instance);
+        long internalId = DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, instance.statusEffect().id());
+        StatusEffectInstance previous = statusEffects.put(internalId, instance);
         if (previous != null) {
             return false;
         }
@@ -113,6 +121,10 @@ public class ServerCharacter implements Character<ServerRaid> {
             .set(ValueType.CHARACTER, this)
             .set(ValueType.HEALTH, stats.health().value());
 
+        long mask = 1L << internalId;
+        pendingStatusEffectAdds |= mask;
+        pendingStatusEffectRemoves &= ~mask;
+
         instance.statusEffect().applier().apply(raid, context);
 
         return true;
@@ -120,13 +132,18 @@ public class ServerCharacter implements Character<ServerRaid> {
 
     @Override
     public boolean removeStatusEffect(StatusEffect statusEffect) {
-        StatusEffectInstance removed = statusEffects.remove(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()));
+        long internalId = DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id());
+        StatusEffectInstance removed = statusEffects.remove(internalId);
         if (removed == null)
             return false;
 
         Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
             .set(ValueType.CHARACTER, this)
             .set(ValueType.HEALTH, stats.health().value());
+
+        long mask = 1L << internalId;
+        pendingStatusEffectRemoves |= mask;
+        pendingStatusEffectAdds &= ~mask;
 
         removed.statusEffect().remover().apply(raid, context);
         return true;
@@ -192,6 +209,12 @@ public class ServerCharacter implements Character<ServerRaid> {
             // Sync character movement
             raid.getMoveEntries().add(new MoveRaidCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
             raid.getServer().get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
+
+            if (hasPendingStatusEffectChanges()) {
+                raid.getStatusEffectEntries().add(new StatusEffectsS2C.Entry(character.accountId(), pendingStatusEffectAdds, pendingStatusEffectRemoves));
+                pendingStatusEffectAdds = 0L;
+                pendingStatusEffectRemoves = 0L;
+            }
         }
 
         Context context = new Context() // TODO: Add Contextual interface to cache Context at any level

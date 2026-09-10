@@ -7,6 +7,7 @@ import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.AttacksS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
@@ -24,6 +25,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     private final EntityCollisionManager entityCollisionManager;
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
+    private final List<StatusEffectsS2C.Entry> statusEffectEntries;
     private final List<AttacksS2C.Entry> attacks;
 
     private final Pool<ServerBullet> bulletPool = new Pool<>() {
@@ -47,6 +49,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
         timer = SYNC_INTERVAL;
         moveEntries = new ArrayList<>();
+        statusEffectEntries = new ArrayList<>();
         attacks = new ArrayList<>();
         set(raid);
     }
@@ -67,6 +70,10 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
 
     public List<MoveRaidCharactersS2C.Entry> getMoveEntries() {
         return moveEntries;
+    }
+
+    public List<StatusEffectsS2C.Entry> getStatusEffectEntries() {
+        return statusEffectEntries;
     }
 
     public List<AttacksS2C.Entry> getAttacks() {
@@ -116,6 +123,11 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
                 moveEntries.clear();
             }
 
+            if (!statusEffectEntries.isEmpty()) {
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new StatusEffectsS2C(statusEffectEntries)));
+                statusEffectEntries.clear();
+            }
+
             if (!attacks.isEmpty()) {
                 getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new AttacksS2C(attacks)));
                 attacks.clear();
@@ -135,6 +147,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         super.end();
 
         moveEntries.clear();
+        statusEffectEntries.clear();
         attacks.clear();
         timer = 0f;
         entityCollisionManager.getCollidables().clear();

@@ -377,16 +377,18 @@ public class ClientNetworkHandler extends NetworkHandler {
                     character.damage(damage);
                 }
             }
-            case StatusEffectsS2C(long accountId, long add, long remove) -> {
-                ClientCharacter character;
-                if (accountId == client.getState().getAccount().id()) {
-                    character = client.getState().getActiveCharacter();
-                    if (character.isNull()) return;
-                } else {
-                    character = client.getState().getCurrentRaid().getCharacters().get(accountId);
-                    if (character == null || character.isNull()) return;
+            case StatusEffectsS2C(List<StatusEffectsS2C.Entry> entries) -> {
+                for (StatusEffectsS2C.Entry entry : entries) {
+                    ClientCharacter character;
+                    if (entry.accountId() == client.getState().getAccount().id()) {
+                        character = client.getState().getActiveCharacter();
+                        if (character.isNull()) return;
+                    } else {
+                        character = client.getState().getCurrentRaid().getCharacters().get(entry.accountId());
+                        if (character == null || character.isNull()) return;
+                    }
+                    character.updateStatusEffects(entry.add(), entry.remove());
                 }
-                character.updateStatusEffects(add, remove);
             }
             default -> {
             }
