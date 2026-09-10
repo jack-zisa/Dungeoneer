@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.AttacksS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
@@ -116,10 +117,13 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
                 getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new AttacksS2C(attacks)));
                 attacks.clear();
             }
-        } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) {
+        } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) { // Start raid
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
             updateSpawnPositions(getDungeonMap().getTemplate().spawnPos().x * 8f, getDungeonMap().getTemplate().spawnPos().y * 8f);
+            getCharacters().values().forEach(serverCharacter -> {
+                server.get().sendToUDP(serverCharacter.getConnectionId(), new CharacterMoveS2C(serverCharacter.get().id(), serverCharacter.getX(), serverCharacter.getY()));
+            });
         }
     }
 
