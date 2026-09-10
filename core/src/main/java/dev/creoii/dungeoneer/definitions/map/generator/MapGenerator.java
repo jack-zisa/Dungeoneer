@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.mojang.serialization.Codec;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 
 import java.util.Random;
 import java.util.function.Function;
@@ -17,7 +18,7 @@ public interface MapGenerator {
 
     Type getType();
 
-    void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction);
+    void apply(TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction);
 
     enum Type {
         EMPTY,

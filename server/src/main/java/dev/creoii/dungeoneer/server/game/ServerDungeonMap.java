@@ -3,9 +3,9 @@ package dev.creoii.dungeoneer.server.game;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
-import dev.creoii.dungeoneer.util.Constants;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
@@ -50,14 +50,14 @@ public class ServerDungeonMap implements DungeonMap {
     }
 
     @Nullable
-    public Tile getTileAt(String layer, int tileX, int tileY) {
+    public Tile getTileAt(MapLayerType layer, int tileX, int tileY) {
         if (tileX < 0 || tileX > 255 || tileY < 0 || tileY > 255)
             return null;
         int id = switch (layer) {
-            case Constants.MAP_LAYER_GROUND -> ground[tileX][tileY];
-            case Constants.MAP_LAYER_OBJECT -> objects[tileX][tileY];
-            case Constants.MAP_LAYER_WALL -> walls[tileX][tileY];
-            case Constants.MAP_LAYER_OVERLAY -> overlays[tileX][tileY];
+            case GROUND -> ground[tileX][tileY];
+            case OBJECT -> objects[tileX][tileY];
+            case WALL -> walls[tileX][tileY];
+            case OVERLAY -> overlays[tileX][tileY];
             default -> throw new IllegalArgumentException("Unknown tile layer: " + layer);
         };
         if (id == 0)
@@ -71,7 +71,7 @@ public class ServerDungeonMap implements DungeonMap {
             return true;
         }
 
-        Tile tile = getTileAt(Constants.MAP_LAYER_WALL, tileX, tileY);
+        Tile tile = getTileAt(MapLayerType.WALL, tileX, tileY);
         return tile != null;
     }
 }

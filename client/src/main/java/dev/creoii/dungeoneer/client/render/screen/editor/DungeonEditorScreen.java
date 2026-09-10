@@ -16,7 +16,6 @@ import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import java.time.LocalDateTime;
 
 public class DungeonEditorScreen extends AbstractScreen {
-    private Label selectedLayerLabel;
     private OrthographicCamera camera;
     private Sidebar sidebar;
 
@@ -30,10 +29,6 @@ public class DungeonEditorScreen extends AbstractScreen {
 
     public Sidebar getSidebar() {
         return sidebar;
-    }
-
-    public Label getSelectedLayerLabel() {
-        return selectedLayerLabel;
     }
 
     @Override
@@ -55,9 +50,6 @@ public class DungeonEditorScreen extends AbstractScreen {
         sidebar = new Sidebar(this);
 
         Table content = new Table();
-
-        selectedLayerLabel = new Label(sidebar.getSelectedLayer(), SKIN);
-        content.add(selectedLayerLabel).top().left().row();
 
         Table buttons = new Table();
         TextButton finishButton = new TextButton("Finish", SKIN);

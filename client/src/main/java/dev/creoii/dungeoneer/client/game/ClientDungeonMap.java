@@ -17,9 +17,9 @@ import dev.creoii.dungeoneer.client.render.object.WallTopRenderable;
 import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
-import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Direction;
 import dev.creoii.dungeoneer.util.DungeonMapUtils;
 
@@ -51,7 +51,7 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
         wallTops = new ArrayList<>();
         wallFaces = new ArrayList<>();
 
-        TiledMapTileLayer layer = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_WALL);
+        TiledMapTileLayer layer = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get(MapLayerType.WALL.id());
         if (layer == null)
             return;
 
@@ -134,7 +134,7 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
 
     @Override
     public boolean isSolid(int tileX, int tileY, boolean bounded) {
-        TiledMapTileLayer wallLayer = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_WALL);
+        TiledMapTileLayer wallLayer = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get(MapLayerType.WALL.id());
         if (bounded && (tileX < 0 || tileY < 0 || tileX >= wallLayer.getWidth() || tileY >= wallLayer.getHeight())) {
             return true;
         }

@@ -1,12 +1,9 @@
 package dev.creoii.dungeoneer.client.render.screen.editor;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.DataManager;
@@ -14,20 +11,17 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
-import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public class Sidebar extends Table {
     protected static final NinePatchDrawable TAB_BACKGROUND = new NinePatchDrawable(Assets.TAB_9PATCH);
     private final DungeonEditorScreen screen;
-    private String selectedLayer;
     private final Table tilesetsTable;
     private final ButtonGroup<ImageButton> tilesets;
 
     public Sidebar(DungeonEditorScreen screen) {
         super(AbstractScreen.SKIN);
         this.screen = screen;
-        selectedLayer = Constants.MAP_LAYER_GROUND;
 
         Table layerTable = new Table();
         layerTable.add(new Label("Layer", getSkin())).row();
@@ -36,43 +30,6 @@ public class Sidebar extends Table {
         layers.setMinCheckCount(1);
         layers.setMaxCheckCount(1);
         layers.setUncheckLast(true);
-
-        TextButton groundButton = new TextButton(Constants.MAP_LAYER_GROUND, getSkin());
-        groundButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                selectedLayer = Constants.MAP_LAYER_GROUND;
-                screen.getSelectedLayerLabel().setText(selectedLayer);
-                refreshTilesTable();
-            }
-        });
-        layers.add(groundButton);
-        layerTable.add(groundButton);
-
-        TextButton objectButton = new TextButton(Constants.MAP_LAYER_OBJECT, getSkin());
-        objectButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                selectedLayer = Constants.MAP_LAYER_OBJECT;
-                screen.getSelectedLayerLabel().setText(selectedLayer);
-                refreshTilesTable();
-            }
-        });
-        layers.add(objectButton);
-        layerTable.add(objectButton).row();
-
-        TextButton wallButton = new TextButton(Constants.MAP_LAYER_WALL, getSkin());
-        wallButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                selectedLayer = Constants.MAP_LAYER_WALL;
-                screen.getSelectedLayerLabel().setText(selectedLayer);
-                refreshTilesTable();
-            }
-        });
-        layers.add(wallButton);
-        layerTable.add(wallButton);
-        add(layerTable).grow().row();
 
         add(new Label("Map Templates", getSkin())).top().center().row();
         SelectBox<String> templateSelectBox = new SelectBox<>(getSkin());
@@ -100,14 +57,6 @@ public class Sidebar extends Table {
         add(tilesetsTable).grow();
 
         setBackground(TAB_BACKGROUND);
-    }
-
-    public String getSelectedLayer() {
-        return selectedLayer;
-    }
-
-    public TiledMapTileLayer getActiveLayer() {
-        return (TiledMapTileLayer) screen.getClient().getState().getEditorDungeonMap().getMap().getLayers().get(selectedLayer);
     }
 
     private void addTilesetButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, Tileset tileset) {

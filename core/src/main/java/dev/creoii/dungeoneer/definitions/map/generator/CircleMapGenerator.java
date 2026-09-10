@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.util.Codecs;
 import dev.creoii.dungeoneer.util.provider.TileContext;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
@@ -31,7 +32,7 @@ public record CircleMapGenerator(Vector2 center, TileProvider tile, int radius, 
     }
 
     @Override
-    public void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
+    public void apply(TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
         random.setSeed(seed);
 
         int centerX = Math.round(center.x);

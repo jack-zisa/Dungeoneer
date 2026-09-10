@@ -6,6 +6,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.map.generator.MapGenerator;
 import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
@@ -16,9 +17,9 @@ import java.util.function.Function;
 public final class DungeonMapUtils {
     public static TiledMap buildEmptyMap() {
         TiledMap map = new TiledMap();
-        for (String layerName : Constants.MAP_LAYERS) {
+        for (MapLayerType layerName : MapLayerType.values()) {
             TiledMapTileLayer layer = new TiledMapTileLayer(256, 256, 8, 8);
-            layer.setName(layerName);
+            layer.setName(layerName.id());
             map.getLayers().add(layer);
         }
         return map;
@@ -33,7 +34,7 @@ public final class DungeonMapUtils {
             return map;
         }
 
-        for (DungeonMapTemplate.LayerType layerType : DungeonMapTemplate.LayerType.values()) {
+        for (MapLayerType layerType : MapLayerType.values()) {
             TiledMapTileLayer tiledLayer = new TiledMapTileLayer(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, 8, 8);
             MapGenerator generator = template.layers().get(layerType);
 
@@ -41,7 +42,7 @@ public final class DungeonMapUtils {
                 TileProvider provider = switch (layerType) {
                     case GROUND -> tileset.ground();
                     case WALL -> tileset.wall();
-                    case OBJECT -> null;
+                    case OBJECT, OVERLAY -> null; // TODO: Implement object/overlay map deserialization
                 };
 
                 if (provider == null)

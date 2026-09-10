@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.mojang.serialization.MapCodec;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 
 import java.util.Random;
 import java.util.function.Function;
@@ -18,6 +19,6 @@ public record EmptyMapGenerator() implements MapGenerator {
     }
 
     @Override
-    public void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
+    public void apply(TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
     }
 }

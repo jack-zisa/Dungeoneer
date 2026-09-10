@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.util.Codecs;
 import dev.creoii.dungeoneer.util.provider.TileContext;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
@@ -28,7 +29,7 @@ public record SimpleTileMapGenerator(Vector2 pos, TileProvider tile) implements 
     }
 
     @Override
-    public void apply(TiledMapTileLayer layer, DungeonMapTemplate.LayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
+    public void apply(TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
         int x = Math.round(pos.x);
         int y = Math.round(pos.y);
 

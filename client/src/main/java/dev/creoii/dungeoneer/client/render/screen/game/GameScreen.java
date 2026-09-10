@@ -25,8 +25,8 @@ import dev.creoii.dungeoneer.client.render.object.ObjectTileRenderable;
 import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
-import dev.creoii.dungeoneer.util.Constants;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
@@ -167,7 +167,7 @@ public class GameScreen extends AbstractScreen {
             }
         }
 
-        TiledMapTileLayer ground = ((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_GROUND));
+        TiledMapTileLayer ground = ((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(MapLayerType.GROUND.id()));
         for (int x = 0; x < ground.getWidth(); x++) {
             for (int y = 0; y < ground.getHeight(); y++) {
                 TiledMapTileLayer.Cell cell = ground.getCell(x, y);
@@ -176,7 +176,7 @@ public class GameScreen extends AbstractScreen {
             }
         }
 
-        TiledMapTileLayer object = ((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_OBJECT));
+        TiledMapTileLayer object = ((TiledMapTileLayer) mapRenderer.getMap().getLayers().get(MapLayerType.OBJECT.id()));
         if (object != null) {
             for (int x = 0; x < object.getWidth(); x++) {
                 for (int y = 0; y < object.getHeight(); y++) {
