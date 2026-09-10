@@ -10,11 +10,12 @@ import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiPredicate;
 
-public interface Character extends LivingEntity {
+public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
     int getConnectionId();
 
     CharacterDefinition get();
@@ -38,7 +39,21 @@ public interface Character extends LivingEntity {
         return getVelocity()[0] != 0f || getVelocity()[1] != 0f;
     }
 
+    default boolean inRaid() {
+        return getRaid() != null && !getRaid().isNull();
+    }
+
+    @Nullable
+    R getRaid();
+
+    void setRaid(@Nullable R raid);
+
+    void tick(float dt);
+
     default void damage(int damage) {
+        if (!inRaid())
+            return;
+
         getStats().setHealth(getStats().health().value() - damage);
 
         if (getStats().health().value() <= 0) {

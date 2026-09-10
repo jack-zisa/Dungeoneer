@@ -17,10 +17,6 @@ public class ServerBullet extends Bullet {
         if (other instanceof Character character) {
             int damage = 5;
             character.damage(damage);
-
-            raid.getCharacters().values().forEach(character1 -> {
-                raid.getServer().get().sendToTCP(character1.getConnectionId(), new DamageCharacterS2C(character.get().accountId(), damage));
-            });
         }
     }
 }

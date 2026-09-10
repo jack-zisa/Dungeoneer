@@ -60,6 +60,12 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     }
 
     @Override
+    public void addCharacter(long accountId, ClientCharacter character) {
+        super.addCharacter(accountId, character);
+        character.setRaid(this);
+    }
+
+    @Override
     public void updateSpawnPositions(float spawnX, float spawnY) {
         client.getState().getActiveCharacter().setPos(spawnX, spawnY);
         client.getState().getActiveCharacter().setRenderPos(spawnX, spawnY);
@@ -90,7 +96,7 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
                     iterator.remove();
                     continue;
                 }
-                character.update(dt);
+                character.tick(dt);
             }
         }
     }

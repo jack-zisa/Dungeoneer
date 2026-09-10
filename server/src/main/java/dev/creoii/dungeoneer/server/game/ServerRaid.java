@@ -43,11 +43,12 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         super(raid, dungeon);
         this.server = server;
         entityCollisionManager = new EntityCollisionManager(this);
-        getCharacters().put(character.get().accountId(), character);
+        addCharacter(character.get().accountId(), character);
         character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
         timer = SYNC_INTERVAL;
         moveEntries = new ArrayList<>();
         attacks = new ArrayList<>();
+        set(raid);
     }
 
     @Override
@@ -75,6 +76,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     @Override
     public void addCharacter(long accountId, ServerCharacter character) {
         super.addCharacter(accountId, character);
+        character.setRaid(this);
     }
 
     @Override
@@ -96,6 +98,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             while (iterator.hasNext()) {
                 ServerCharacter character = iterator.next();
                 if (character.isDead()) {
+                    character.setRaid(null);
                     iterator.remove();
                     continue;
                 }
@@ -105,7 +108,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
                     timer += SYNC_INTERVAL;
                     server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(character.get().accountId()), new SyncRaidTimerS2C(getRemainingTimeMs()));
                 }
-                character.tick(this, dt);
+                character.tick(dt);
             }
 
             if (!moveEntries.isEmpty()) {
@@ -121,7 +124,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
             updateSpawnPositions(getDungeonMap().getTemplate().spawnPos().x * 8f, getDungeonMap().getTemplate().spawnPos().y * 8f);
-            getCharacters().values().forEach(serverCharacter -> {
+            getCharacters().values().forEach(serverCharacter -> { // TODO: Should not have to sync position on raid start
                 server.get().sendToUDP(serverCharacter.getConnectionId(), new CharacterMoveS2C(serverCharacter.get().id(), serverCharacter.getX(), serverCharacter.getY()));
             });
         }

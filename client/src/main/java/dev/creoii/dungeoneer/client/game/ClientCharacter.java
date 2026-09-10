@@ -31,7 +31,7 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
 
-public class ClientCharacter implements Character, Renderable {
+public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private final Dungeoneer client;
     @Nullable private CharacterDefinition character;
     private Sprite sprite;
@@ -213,6 +213,15 @@ public class ClientCharacter implements Character, Renderable {
         return bounds;
     }
 
+    @Override
+    public ClientRaid getRaid() {
+        return client.getState().getCurrentRaid();
+    }
+
+    @Override
+    public void setRaid(ClientRaid raid) {
+    }
+
     public void setLastAttackTime(long lastAttackTime) {
         this.lastAttackTime = lastAttackTime;
     }
@@ -253,12 +262,15 @@ public class ClientCharacter implements Character, Renderable {
         animationState = AnimationState.toMoving(to);
     }
 
-    public void update(float dt) {
-        ClientRaid raid = client.getState().getCurrentRaid();
+    @Override
+    public void tick(float dt) {
+        if (!inRaid())
+            return;
+
         if (dead && this == client.getState().getActiveCharacter()) {
-            raid.setStatus(Raid.Status.END);
+            getRaid().setStatus(Raid.Status.END);
             client.getState().setStatus(ClientState.Status.RAID_END);
-            client.get().sendTCP(new CharacterDieC2S(raid.get().id(), character.id()));
+            client.get().sendTCP(new CharacterDieC2S(getRaid().get().id(), character.id()));
             Gdx.app.postRunnable(() -> client.setScreen(new DeathScreen(client)));
             return;
         }
@@ -266,7 +278,7 @@ public class ClientCharacter implements Character, Renderable {
         float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
         float[] target = getTargetPosition(pos, velocity, speed, dt);
 
-        Vector2 modified = MovementCollisionManager.modifyMove(raid.getDungeonMap(), this, target[0], target[1], true);
+        Vector2 modified = MovementCollisionManager.modifyMove(getRaid().getDungeonMap(), this, target[0], target[1], true);
         setPos(modified.x, modified.y);
 
         correction[0] *= Math.max(0f, 1f - dt);

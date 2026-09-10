@@ -148,7 +148,7 @@ public class GameScreen extends AbstractScreen {
         if (raid.isNull())
             return;
 
-        character.update(dt);
+        character.tick(dt);
 
         inputListener.updateRotation(dt);
         inputListener.updateMousePos(camera, inputListener.getRotation());

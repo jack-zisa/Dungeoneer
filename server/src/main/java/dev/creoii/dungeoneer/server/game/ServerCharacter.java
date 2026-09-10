@@ -8,6 +8,7 @@ import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.DamageCharacterS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.action.Context;
@@ -16,8 +17,9 @@ import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
+import org.jspecify.annotations.Nullable;
 
-public class ServerCharacter implements Character {
+public class ServerCharacter implements Character<ServerRaid> {
     private final int connectionId;
     private final CharacterDefinition character;
     private final float[] pos;
@@ -25,6 +27,7 @@ public class ServerCharacter implements Character {
     private final Rectangle bounds;
     private final StatContainer stats;
     private final StatContainer maxStats;
+    @Nullable private ServerRaid raid;
     private long lastAttackTime;
     private final Long2ObjectArrayMap<StatusEffectInstance> statusEffects;
     private boolean dead;
@@ -45,6 +48,7 @@ public class ServerCharacter implements Character {
             character.characterClass().maxStats().speed().value(),
             character.characterClass().maxStats().attackSpeed().value()
         );
+        raid = null;
         statusEffects = new Long2ObjectArrayMap<>();
         dead = false;
 
@@ -113,6 +117,16 @@ public class ServerCharacter implements Character {
     }
 
     @Override
+    public ServerRaid getRaid() {
+        return raid;
+    }
+
+    @Override
+    public void setRaid(ServerRaid raid) {
+        this.raid = raid;
+    }
+
+    @Override
     public void setDead(boolean dead) {
         this.dead = dead;
     }
@@ -130,15 +144,27 @@ public class ServerCharacter implements Character {
         this.lastAttackTime = lastAttackTime;
     }
 
-    public void tick(ServerRaid raid, float dt) {
-        if (dead)
-            return;
+    @Override
+    public void damage(int damage) {
+        Character.super.damage(damage);
 
-        if (isMoving() && !dead) {
+        raid.getCharacters().values().forEach(character1 -> {
+            raid.getServer().get().sendToTCP(character1.getConnectionId(), new DamageCharacterS2C(character.accountId(), damage));
+        });
+    }
+
+    @Override
+    public void tick(float dt) {
+        if (dead) {
+            return;
+        }
+
+        if (isMoving() && !dead && inRaid()) {
             // Update character position
             float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
             float[] target = getTargetPosition(pos, velocity, speed, dt);
 
+            // Handle tile collision
             Vector2 modified = MovementCollisionManager.modifyMove(raid.getDungeonMap(), this, target[0], target[1], true);
             setPos(modified.x, modified.y);
 
@@ -148,11 +174,11 @@ public class ServerCharacter implements Character {
         }
 
         Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
-            .add(ValueType.CHARACTER, this)
-            .add(ValueType.HEALTH, stats.health().value());
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
 
         statusEffects.values().forEach(instance -> {
-            instance.statusEffect().ticker().apply(context);
+            instance.statusEffect().ticker().apply(raid, context);
         });
     }
 }

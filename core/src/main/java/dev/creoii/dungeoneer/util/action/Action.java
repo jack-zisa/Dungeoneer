@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.util.action;
 
 import com.mojang.serialization.Codec;
+import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public interface Action extends Identifiable {
@@ -11,7 +12,7 @@ public interface Action extends Identifiable {
 
     Type getType();
 
-    void apply(Context context);
+    void apply(Raid<?, ?, ?, ?> raid, Context context);
 
     enum Type {
         EMPTY,

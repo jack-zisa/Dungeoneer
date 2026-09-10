@@ -25,13 +25,18 @@ public class Context {
         return true;
     }
 
-    public Context add(ValueType valueType, Object value) {
+    public Context set(ValueType valueType, Object value) {
         Object converted = valueType.getDataType().convert(value);
         values.put(valueType, new ObjectValue<>(converted));
         return this;
     }
 
-    @SuppressWarnings("unchecked") // TODO: Don't do hacky shit like this
+    public Context remove(ValueType valueType) {
+        values.remove(valueType);
+        return this;
+    }
+
+    @SuppressWarnings("unchecked") // TODO: Don't do hacky shit like this, or at least do some safety checks
     public <T> T get(ValueType valueType) {
         return (T) values.get(valueType).get();
     }
