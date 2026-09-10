@@ -1,16 +1,19 @@
 package dev.creoii.dungeoneer.server.game;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
+import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
+import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 
 public class ServerCharacter implements Character {
     private final int connectionId;
@@ -21,6 +24,7 @@ public class ServerCharacter implements Character {
     private final StatContainer stats;
     private final StatContainer maxStats;
     private long lastAttackTime;
+    private final Long2ObjectArrayMap<StatusEffectInstance> statusEffects;
     private boolean dead;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
@@ -39,6 +43,7 @@ public class ServerCharacter implements Character {
             character.characterClass().maxStats().speed().value(),
             character.characterClass().maxStats().attackSpeed().value()
         );
+        statusEffects = new Long2ObjectArrayMap<>();
         dead = false;
     }
 
@@ -86,6 +91,21 @@ public class ServerCharacter implements Character {
     @Override
     public StatContainer getMaxStats() {
         return maxStats;
+    }
+
+    @Override
+    public boolean addStatusEffect(StatusEffectInstance instance) {
+        return statusEffects.put(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, instance.statusEffect().id()), instance) != null;
+    }
+
+    @Override
+    public boolean removeStatusEffect(StatusEffect statusEffect) {
+        return statusEffects.remove(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id())) != null;
+    }
+
+    @Override
+    public boolean hasStatusEffect(StatusEffect statusEffect) {
+        return statusEffects.containsKey(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()));
     }
 
     @Override

@@ -14,6 +14,7 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 import java.util.List;
 import java.util.function.BiPredicate;
 
+public interface Character extends LivingEntity {
     int getConnectionId();
 
     CharacterDefinition get();

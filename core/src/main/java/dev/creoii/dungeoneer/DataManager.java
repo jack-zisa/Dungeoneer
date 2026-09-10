@@ -16,6 +16,7 @@ import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
+import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import dev.creoii.dungeoneer.util.noise.FastNoiseParameters;
@@ -87,6 +88,10 @@ public class DataManager {
         return STRING_ID_DATA.get(SchemaType.NOISE_PARAMETERS);
     }
 
+    public static Object2ObjectArrayMap<String, Identifiable> getStatusEffects() {
+        return STRING_ID_DATA.get(SchemaType.STATUS_EFFECT);
+    }
+
     public static Object2ObjectArrayMap<Long, Identifiable> getBulletsInternal() {
         return INTERNAL_ID_DATA.get(SchemaType.BULLET);
     }
@@ -121,6 +126,10 @@ public class DataManager {
 
     public static Object2ObjectArrayMap<Long, Identifiable> getNoiseParametersInternal() {
         return INTERNAL_ID_DATA.get(SchemaType.NOISE_PARAMETERS);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getStatusEffectsInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.STATUS_EFFECT);
     }
 
     @Nullable
@@ -204,9 +213,19 @@ public class DataManager {
 
     @Nullable
     public static FastNoiseParameters getNoiseParameters(String id) {
-        FastNoiseParameters value = (FastNoiseParameters) getMapTemplates().get(id);
+        FastNoiseParameters value = (FastNoiseParameters) getNoiseParameters().get(id);
         if (value == null) {
             if (DEBUG) LOGGER.error("Unknown Noise Parameters: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static StatusEffect getStatusEffect(String id) {
+        StatusEffect value = (StatusEffect) getStatusEffects().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Status Effect: '" + id + "'");
             return null;
         }
         return value;
@@ -293,9 +312,19 @@ public class DataManager {
 
     @Nullable
     public static FastNoiseParameters getNoiseParameters(long id) {
-        FastNoiseParameters value = (FastNoiseParameters) getMapTemplatesInternal().get(id);
+        FastNoiseParameters value = (FastNoiseParameters) getNoiseParametersInternal().get(id);
         if (value == null) {
             if (DEBUG) LOGGER.error("Unknown Noise Parameters: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static StatusEffect getStatusEffect(long id) {
+        StatusEffect value = (StatusEffect) getStatusEffectsInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Status Effect: '" + id + "'");
             return null;
         }
         return value;
@@ -379,7 +408,8 @@ public class DataManager {
         TILESET("tileset"),
         MAP_OBJECT("object"),
         MAP_TEMPLATE("map_template"),
-        NOISE_PARAMETERS("noise_parameters");
+        NOISE_PARAMETERS("noise_parameters"),
+        STATUS_EFFECT("status_effect");
 
         private final String path;
 
@@ -402,6 +432,7 @@ public class DataManager {
         SCHEMA.put(SchemaType.MAP_OBJECT, MapObject.CODEC);
         SCHEMA.put(SchemaType.MAP_TEMPLATE, DungeonMapTemplate.CODEC);
         SCHEMA.put(SchemaType.NOISE_PARAMETERS, FastNoiseParameters.CODEC);
+        SCHEMA.put(SchemaType.STATUS_EFFECT, StatusEffect.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {
             STRING_ID_DATA.put(schemaType, new Object2ObjectArrayMap<>());

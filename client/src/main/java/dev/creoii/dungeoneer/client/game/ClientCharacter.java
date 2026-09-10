@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -21,6 +22,8 @@ import dev.creoii.dungeoneer.client.render.screen.game.DeathScreen;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
+import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterDieC2S;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
@@ -41,6 +44,7 @@ public class ClientCharacter implements Character, Renderable {
     private final Rectangle bounds;
     private long lastAttackTime;
     private boolean attackPending;
+    private long statusEffects;
     private AnimationState animationState;
     private boolean dead;
 
@@ -160,6 +164,28 @@ public class ClientCharacter implements Character, Renderable {
     @Override
     public StatContainer getMaxStats() {
         return maxStats;
+    }
+
+    @Override
+    public boolean addStatusEffect(StatusEffectInstance statusEffect) {
+        statusEffects |= 1L << DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.statusEffect().id());
+        return true;
+    }
+
+    @Override
+    public boolean removeStatusEffect(StatusEffect statusEffect) {
+        statusEffects &= ~(1L << DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()));
+        return true;
+    }
+
+    @Override
+    public boolean hasStatusEffect(StatusEffect statusEffect) {
+        return (statusEffects & (1L << DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()))) != 0;
+    }
+
+    public void updateStatusEffects(long add, long remove) {
+        statusEffects |= add;
+        statusEffects &= ~remove;
     }
 
     @Override

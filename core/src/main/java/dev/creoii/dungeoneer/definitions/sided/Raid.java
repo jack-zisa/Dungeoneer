@@ -97,10 +97,10 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
     public void update(float dt) {
         Duration duration = Duration.ofMillis(getRemainingTimeMs()); // TODO: Remove as this is just testing
-        /*if (duration.toSecondsPart() % 2 == 0) {
+        if (duration.toSecondsPart() % 2 == 0) {
             Vector2 spawnPos = dungeonMap.getTemplate().spawnPos();
             addBullet(spawnPos.x * 8f, spawnPos.y * 8f, 1f, 0f, DataManager.getBullet("fire_shot"), 0, true);
-        }*/
+        }
 
         Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();
         while (bulletIterator.hasNext()) {
