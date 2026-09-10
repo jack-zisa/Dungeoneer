@@ -132,6 +132,7 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
         mapRenderer.dispose();
     }
 
+    @Override
     public boolean isSolid(int tileX, int tileY, boolean bounded) {
         TiledMapTileLayer wallLayer = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get(Constants.MAP_LAYER_WALL);
         if (bounded && (tileX < 0 || tileY < 0 || tileX >= wallLayer.getWidth() || tileY >= wallLayer.getHeight())) {

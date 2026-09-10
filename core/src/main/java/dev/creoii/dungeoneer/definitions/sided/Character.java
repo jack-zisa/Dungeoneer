@@ -118,7 +118,10 @@ public interface Character extends Entity {
         }
     }
 
-    default void updatePosition(float[] position, float[] velocity, float speed, float dt) {
-        VectorUtils.mulAdd(position, velocity, speed * dt);
+    default float[] getTargetPosition(float[] position, float[] velocity, float speed, float dt) {
+        float[] ret = new float[2];
+        ret[0] = position[0] + velocity[0] * speed * dt;
+        ret[1] = position[1] + velocity[1] * speed * dt;
+        return ret;
     }
 }

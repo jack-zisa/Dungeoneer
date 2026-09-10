@@ -65,6 +65,7 @@ public class ServerDungeonMap implements DungeonMap {
         return DataManager.getTile(tileIds.get(id));
     }
 
+    @Override
     public boolean isSolid(int tileX, int tileY, boolean bounded) {
         if (bounded && (tileX < 0 || tileY < 0 || tileX >= walls.length || tileY >= walls[0].length)) {
             return true;

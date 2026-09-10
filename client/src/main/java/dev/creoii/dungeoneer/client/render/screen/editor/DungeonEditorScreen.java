@@ -42,7 +42,7 @@ public class DungeonEditorScreen extends AbstractScreen {
         camera.setToOrtho(false);
         camera.zoom = 1f;
 
-        ClientDungeonMap dungeonMap = getClient().getState().getDungeonMap();
+        ClientDungeonMap dungeonMap = getClient().getState().getEditorDungeonMap();
         if (dungeonMap.get() == null) {
             // TODO: Default map template
             getClient().getState().setDungeonMap(new DungeonMapDefinition(-1, getClient().getState().getAccount().id(), "circle", "necropolis", LocalDateTime.now()));
@@ -64,7 +64,7 @@ public class DungeonEditorScreen extends AbstractScreen {
         finishButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                getClient().getState().getDungeonMap().save();
+                getClient().getState().getEditorDungeonMap().save();
                 getClient().setScreen(new MainScreen(getClient()));
                 getClient().getState().setStatus(ClientState.Status.LOBBY);
             }
@@ -97,8 +97,8 @@ public class DungeonEditorScreen extends AbstractScreen {
 
     @Override
     public void render(float delta) {
-        getClient().getState().getDungeonMap().getMapRenderer().setView(camera);
-        getClient().getState().getDungeonMap().getMapRenderer().render();
+        getClient().getState().getEditorDungeonMap().getMapRenderer().setView(camera);
+        getClient().getState().getEditorDungeonMap().getMapRenderer().render();
         super.render(delta);
     }
 

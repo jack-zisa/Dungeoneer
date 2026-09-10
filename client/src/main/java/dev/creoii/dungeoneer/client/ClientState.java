@@ -54,7 +54,7 @@ public class ClientState {
         return account;
     }
 
-    public ClientDungeonMap getDungeonMap() {
+    public ClientDungeonMap getEditorDungeonMap() {
         return dungeonMap;
     }
 

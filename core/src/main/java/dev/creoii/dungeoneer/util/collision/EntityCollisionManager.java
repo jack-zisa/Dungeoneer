@@ -6,13 +6,13 @@ import dev.creoii.dungeoneer.definitions.sided.Raid;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CollisionManager {
+public class EntityCollisionManager {
     private static final boolean[][] MATRIX = buildMatrix();
     private final Raid<?, ?, ?, ?> raid;
     private final Map<CollisionLayer, List<Collidable>> collidables;
     private final Set<CollisionPair> activeCollisions;
 
-    public CollisionManager(Raid<?, ?, ?, ?> raid) {
+    public EntityCollisionManager(Raid<?, ?, ?, ?> raid) {
         this.raid = raid;
         collidables = new HashMap<>();
         activeCollisions = new HashSet<>();

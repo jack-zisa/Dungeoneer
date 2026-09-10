@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.definitions.attack.bullet;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 
 public class BulletGroup extends BulletNode<GroupBulletType> implements Pool.Poolable {
     private final Array<BulletNode<?>> children;
@@ -48,10 +49,10 @@ public class BulletGroup extends BulletNode<GroupBulletType> implements Pool.Poo
     }
 
     @Override
-    public void applyTransform(float originX, float originY, float dirX, float dirY) {
-        super.applyTransform(originX, originY, dirX, dirY);
+    public void applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
+        super.applyTransform(map, originX, originY, dirX, dirY);
         for (BulletNode<?> child : children) {
-            child.applyTransform(getX(), getY(), getLocalDirX(), getLocalDirY());
+            child.applyTransform(map, getX(), getY(), getLocalDirX(), getLocalDirY());
         }
     }
 }

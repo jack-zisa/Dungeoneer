@@ -1,11 +1,13 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import org.jspecify.annotations.Nullable;
 
 public abstract class BulletNode<T extends BulletType> implements Entity, Pool.Poolable {
@@ -215,14 +217,18 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         return true;
     }
 
-    public void applyTransform(float originX, float originY, float dirX, float dirY) {
+    public void applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
         float perpX = -dirY;
         float perpY = dirX;
 
         float worldOffsetX = dirX * localPos[1] + perpX * localPos[0];
         float worldOffsetY = dirY * localPos[1] + perpY * localPos[0];
 
-        setPos(originX + worldOffsetX, originY + worldOffsetY);
+        float targetX = originX + worldOffsetX;
+        float targetY = originY + worldOffsetY;
+
+        Vector2 modified = MovementCollisionManager.modifyMove(map, this, targetX, targetY);
+        setPos(modified.x, modified.y);
 
         localDirection[0] = dirX;
         localDirection[1] = dirY;

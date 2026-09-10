@@ -97,10 +97,10 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
     public void update(float dt) {
         Duration duration = Duration.ofMillis(getRemainingTimeMs()); // TODO: Remove as this is just testing
-        if (duration.toSecondsPart() % 2 == 0) {
+        /*if (duration.toSecondsPart() % 2 == 0) {
             Vector2 spawnPos = dungeonMap.getTemplate().spawnPos();
             addBullet(spawnPos.x * 8f, spawnPos.y * 8f, 1f, 0f, DataManager.getBullet("fire_shot"), 0, true);
-        }
+        }*/
 
         Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();
         while (bulletIterator.hasNext()) {
@@ -110,7 +110,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
             if (!bullet.update(dt)) {
                 bulletIterator.remove();
                 getBulletPool().free(bullet);
-            } else bullet.applyTransform(bullet.getStartX(), bullet.getStartY(), bullet.getDirX(), bullet.getDirY());
+            } else bullet.applyTransform(dungeonMap, bullet.getStartX(), bullet.getStartY(), bullet.getDirX(), bullet.getDirY());
         }
 
         Iterator<Int2ObjectMap.Entry<BG>> groupIterator = bulletGroups.int2ObjectEntrySet().iterator();
@@ -121,7 +121,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
             if (!bulletGroup.update(dt)) {
                 groupIterator.remove();
                 getBulletGroupPool().free(bulletGroup);
-            } else bulletGroup.applyTransform(bulletGroup.getStartX(), bulletGroup.getStartY(), bulletGroup.getDirX(), bulletGroup.getDirY());
+            } else bulletGroup.applyTransform(dungeonMap, bulletGroup.getStartX(), bulletGroup.getStartY(), bulletGroup.getDirX(), bulletGroup.getDirY());
         }
     }
 

@@ -10,7 +10,7 @@ import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
-import dev.creoii.dungeoneer.util.collision.CollisionManager;
+import dev.creoii.dungeoneer.util.collision.EntityCollisionManager;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
 public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final DungeoneerServer server;
-    private final CollisionManager collisionManager;
+    private final EntityCollisionManager entityCollisionManager;
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
     private final List<AttacksS2C.Entry> attacks;
@@ -41,7 +41,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     public ServerRaid(DungeoneerServer server, ServerDungeonMap dungeon, ServerCharacter character, RaidDefinition raid) {
         super(raid, dungeon);
         this.server = server;
-        collisionManager = new CollisionManager(this);
+        entityCollisionManager = new EntityCollisionManager(this);
         getCharacters().put(character.get().accountId(), character);
         character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
         timer = SYNC_INTERVAL;
@@ -86,7 +86,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
 
             timer -= dt;
 
-            collisionManager.update();
+            entityCollisionManager.update();
 
             // Update bullet positions
             super.update(dt);
@@ -130,7 +130,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         moveEntries.clear();
         attacks.clear();
         timer = 0f;
-        collisionManager.getCollidables().clear();
+        entityCollisionManager.getCollidables().clear();
     }
 
     @Nullable

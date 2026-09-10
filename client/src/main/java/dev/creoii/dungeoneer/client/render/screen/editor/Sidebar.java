@@ -81,7 +81,7 @@ public class Sidebar extends Table {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 String templateId = templateSelectBox.getSelected();
-                ClientDungeonMap dungeon = screen.getClient().getState().getDungeonMap();
+                ClientDungeonMap dungeon = screen.getClient().getState().getEditorDungeonMap();
                 if (dungeon != null) {
                     screen.getClient().getState().setDungeonMap(dungeon.get().withTemplateId(templateId));
                 }
@@ -107,7 +107,7 @@ public class Sidebar extends Table {
     }
 
     public TiledMapTileLayer getActiveLayer() {
-        return (TiledMapTileLayer) screen.getClient().getState().getDungeonMap().getMap().getLayers().get(selectedLayer);
+        return (TiledMapTileLayer) screen.getClient().getState().getEditorDungeonMap().getMap().getLayers().get(selectedLayer);
     }
 
     private void addTilesetButton(Table table, ButtonGroup<ImageButton> group, TextureRegion texture, Tileset tileset) {
@@ -124,7 +124,7 @@ public class Sidebar extends Table {
                     button.getImage().setScale(1.1f);
 
                     String tilesetId = button.getName();
-                    ClientDungeonMap dungeon = screen.getClient().getState().getDungeonMap();
+                    ClientDungeonMap dungeon = screen.getClient().getState().getEditorDungeonMap();
                     if (dungeon != null) {
                         screen.getClient().getState().setDungeonMap(dungeon.get().withTilesetId(tilesetId));
                     }

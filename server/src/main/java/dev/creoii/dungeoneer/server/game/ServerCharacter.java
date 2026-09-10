@@ -1,11 +1,14 @@
 package dev.creoii.dungeoneer.server.game;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
@@ -107,7 +110,10 @@ public class ServerCharacter implements Character {
         if (isMoving() && !dead) {
             // Update character position
             float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
-            updatePosition(pos, velocity, speed, dt);
+            float[] target = getTargetPosition(pos, velocity, speed, dt);
+
+            Vector2 modified = MovementCollisionManager.modifyMove(raid.getDungeonMap(), this, target[0], target[1], true);
+            setPos(modified.x, modified.y);
 
             // Sync character movement
             raid.getMoveEntries().add(new MoveRaidCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));

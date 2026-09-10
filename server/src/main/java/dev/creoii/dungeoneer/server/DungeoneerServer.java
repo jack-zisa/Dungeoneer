@@ -110,51 +110,69 @@ public class DungeoneerServer {
     public void run() {
         final long tickRate = 1000L / 20L; // 20 TPS
 
-        while (running) {
-            if (status.shouldTick()) {
-                long start = System.currentTimeMillis();
+        try {
+            while (running) {
+                if (status.shouldTick()) {
+                    long start = System.currentTimeMillis();
 
-                Iterator<ServerRaid> iterator = state.getRaids().values().iterator();
-                while (iterator.hasNext()) {
-                    ServerRaid raid = iterator.next();
+                    Iterator<ServerRaid> iterator = state.getRaids().values().iterator();
+                    while (iterator.hasNext()) {
+                        ServerRaid raid = iterator.next();
 
-                    Iterator<ServerCharacter> characterIterator = raid.getCharacters().values().iterator();
-                    while (characterIterator.hasNext()) {
-                        ServerCharacter character = characterIterator.next();
-                        int connectionId = getSessionManager().getAccountConnections().getOrDefault(character.get().accountId(), -1);
-                        if (connectionId == -1) characterIterator.remove();
+                        Iterator<ServerCharacter> characterIterator = raid.getCharacters().values().iterator();
+                        while (characterIterator.hasNext()) {
+                            ServerCharacter character = characterIterator.next();
+                            int connectionId = getSessionManager().getAccountConnections().getOrDefault(character.get().accountId(), -1);
+                            if (connectionId == -1) characterIterator.remove();
+                        }
+
+                        if (raid.getCharacters().isEmpty()) {
+                            iterator.remove();
+                            continue;
+                        }
+
+                        raid.tick(DT);
                     }
 
-                    if (raid.getCharacters().isEmpty()) {
-                        iterator.remove();
-                        continue;
-                    }
+                    networkHandler.tick(DT);
 
-                    raid.tick(DT);
-                }
+                    long sleep = tickRate - (System.currentTimeMillis() - start);
 
-                networkHandler.tick(DT);
+                    if (sleep > 0) {
+                        try {
+                            Thread.sleep(sleep);
+                        } catch (InterruptedException e) {
+                            if (!running)
+                                break;
 
-                long sleep = tickRate - (System.currentTimeMillis() - start);
-
-                if (sleep > 0) {
-                    try {
-                        Thread.sleep(sleep);
-                    } catch (InterruptedException e) {
-                        running = false;
-                        break;
+                            Thread.currentThread().interrupt();
+                        }
                     }
                 }
             }
+        } finally {
+            finish();
         }
-
-        finish();
     }
 
     public void stop() {
+        if (!running)
+            return;
+
         setStatus(Status.STOPPING);
         running = false;
-        gameThread.interrupt();
+
+        if (gameThread != null) {
+            gameThread.interrupt();
+
+            if (Thread.currentThread() != gameThread) {
+                try {
+                    gameThread.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
     }
 
     public void finish() {

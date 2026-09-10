@@ -11,6 +11,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -22,6 +23,7 @@ import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterDieC2S;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
@@ -226,8 +228,8 @@ public class ClientCharacter implements Character, Renderable {
     }
 
     public void update(float dt) {
+        ClientRaid raid = client.getState().getCurrentRaid();
         if (dead && this == client.getState().getActiveCharacter()) {
-            ClientRaid raid = client.getState().getCurrentRaid();
             raid.setStatus(Raid.Status.END);
             client.getState().setStatus(ClientState.Status.RAID_END);
             client.get().sendTCP(new CharacterDieC2S(raid.get().id(), character.id()));
@@ -236,7 +238,10 @@ public class ClientCharacter implements Character, Renderable {
         }
 
         float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
-        updatePosition(pos, velocity, speed, dt);
+        float[] target = getTargetPosition(pos, velocity, speed, dt);
+
+        Vector2 modified = MovementCollisionManager.modifyMove(raid.getDungeonMap(), this, target[0], target[1], true);
+        setPos(modified.x, modified.y);
 
         correction[0] *= Math.max(0f, 1f - dt);
         correction[1] *= Math.max(0f, 1f - dt);
