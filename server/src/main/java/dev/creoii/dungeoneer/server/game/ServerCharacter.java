@@ -54,9 +54,6 @@ public class ServerCharacter implements Character<ServerRaid> {
         raid = null;
         statusEffects = new Long2ObjectArrayMap<>();
         dead = false;
-
-        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("poison"), 0, 0, System.currentTimeMillis()));
-        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("speedy"), 0, 0, System.currentTimeMillis()));
     }
 
     @Override
@@ -152,6 +149,13 @@ public class ServerCharacter implements Character<ServerRaid> {
     @Override
     public boolean hasStatusEffect(StatusEffect statusEffect) {
         return statusEffects.containsKey(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()));
+    }
+
+    @Override
+    public void clearStatusEffects() {
+        pendingStatusEffectRemoves = 0L;
+        pendingStatusEffectAdds = 0L;
+        statusEffects.clear();
     }
 
     @Override

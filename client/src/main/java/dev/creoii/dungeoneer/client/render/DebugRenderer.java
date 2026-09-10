@@ -1,10 +1,10 @@
 package dev.creoii.dungeoneer.client.render;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
@@ -12,15 +12,10 @@ import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 public class DebugRenderer {
     private static final int TEXT_PADDING = 10;
     private static final GlyphLayout DEBUG_LAYOUT = new GlyphLayout();
-    private static BitmapFont font;
     private final Dungeoneer client;
 
     public DebugRenderer(Dungeoneer client) {
         this.client = client;
-    }
-
-    public void init() {
-        font = AbstractScreen.SKIN.getFont("default-font");
     }
 
     private String[] getDebugText() {
@@ -51,10 +46,10 @@ public class DebugRenderer {
         screen.getStage().getBatch().begin();
         for (int i = 0; i < lines.length; i++) {
             String text = lines[i];
-            DEBUG_LAYOUT.setText(font, text);
+            DEBUG_LAYOUT.setText(Assets.FONT, text);
             x = viewport.getWorldWidth() - DEBUG_LAYOUT.width - TEXT_PADDING;
             y = baseY - (i * 25);
-            font.draw(screen.getStage().getBatch(), DEBUG_LAYOUT, x, y);
+            Assets.FONT.draw(screen.getStage().getBatch(), DEBUG_LAYOUT, x, y);
         }
         screen.getStage().getBatch().end();
     }

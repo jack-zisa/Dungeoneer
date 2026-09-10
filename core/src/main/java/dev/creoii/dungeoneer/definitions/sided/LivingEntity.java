@@ -27,4 +27,6 @@ public interface LivingEntity extends Entity {
     boolean removeStatusEffect(StatusEffect statusEffect);
 
     boolean hasStatusEffect(StatusEffect statusEffect);
+
+    void clearStatusEffects();
 }

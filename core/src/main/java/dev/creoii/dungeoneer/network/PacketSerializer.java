@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import dev.creoii.dungeoneer.network.c2s.ExecuteCommandC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
@@ -79,6 +80,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(AttackC2S.class, PacketSerializer.INSTANCE);
         kryo.register(CancelJoinRaidC2S.class, PacketSerializer.INSTANCE);
         kryo.register(CharacterDieC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(ExecuteCommandC2S.class, PacketSerializer.INSTANCE);
 
         kryo.register(AuthenticateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LoginResultS2C.class, PacketSerializer.INSTANCE);
@@ -125,6 +127,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(AttackC2S.class, AttackC2S::write, AttackC2S::read);
         PacketSerializer.INSTANCE.register(CancelJoinRaidC2S.class, CancelJoinRaidC2S::write, CancelJoinRaidC2S::read);
         PacketSerializer.INSTANCE.register(CharacterDieC2S.class, CharacterDieC2S::write, CharacterDieC2S::read);
+        PacketSerializer.INSTANCE.register(ExecuteCommandC2S.class, ExecuteCommandC2S::write, ExecuteCommandC2S::read);
 
         PacketSerializer.INSTANCE.register(AuthenticateS2C.class, AuthenticateS2C::write, AuthenticateS2C::read);
         PacketSerializer.INSTANCE.register(LoginResultS2C.class, LoginResultS2C::write, LoginResultS2C::read);

@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.util.ConditionalPaddedTextureLoader;
 import dev.creoii.dungeoneer.client.util.DynamicTextureAtlas;
 import dev.creoii.dungeoneer.util.logging.Logger;
@@ -38,6 +40,8 @@ public class Assets implements Disposable {
     public static final ShaderProgram BORDER_SHADER = new ShaderProgram(Gdx.files.internal("shaders/border.vert"), Gdx.files.internal("shaders/border.frag"));
 
     public static final Map<String, Model> WALLS = new HashMap<>();
+
+    public static final BitmapFont FONT = AbstractScreen.SKIN.getFont("default-font");
 
     public static final Logger LOGGER = new Logger(AssetManager.class.getSimpleName());
     private final AssetManager manager;

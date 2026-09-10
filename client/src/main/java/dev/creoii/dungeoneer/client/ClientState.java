@@ -125,10 +125,24 @@ public class ClientState {
         STARTING,
         LOADING,
         AUTHENTICATING,
-        LOBBY,
-        RAID_SEARCHING,
-        RAIDING,
-        EDITING_DUNGEON,
-        RAID_END
+        LOBBY(true),
+        RAID_SEARCHING(true),
+        RAIDING(true),
+        EDITING_DUNGEON(true),
+        RAID_END(true);
+
+        private final boolean loaded;
+
+        Status(boolean loaded) {
+            this.loaded = loaded;
+        }
+
+        Status() {
+            this(false);
+        }
+
+        public boolean isLoaded() {
+            return loaded;
+        }
     }
 }

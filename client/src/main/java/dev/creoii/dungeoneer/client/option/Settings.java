@@ -13,7 +13,7 @@ public record Settings(
     IntegerOption upKey, IntegerOption leftKey, IntegerOption downKey, IntegerOption rightKey,
     IntegerOption rotateLeftKey, IntegerOption rotateRightKey, IntegerOption resetRotationKey, IntegerOption cameraRotationSpeed,
     IntegerOption favoriteCharacter,
-    IntegerOption debugKey,
+    IntegerOption debugKey, IntegerOption commandKey,
     BooleanOption debug
 ) {
     public static final Settings DEFAULT = new Settings(
@@ -27,6 +27,7 @@ public record Settings(
         new IntegerOption("camera_rotation_speed", 100),
         new IntegerOption("favorite_character", 0),
         new IntegerOption("debug_key", Input.Keys.F3),
+        new IntegerOption("command_key", Input.Keys.SLASH),
         new BooleanOption("debug", true)
     );
     public static final Codec<Settings> CODEC = RecordCodecBuilder.create(instance ->
@@ -41,8 +42,9 @@ public record Settings(
                 Codec.INT.fieldOf("camera_rotation_speed").orElse(DEFAULT.cameraRotationSpeed.value()).forGetter(s -> s.cameraRotationSpeed.value()),
                 Codec.INT.fieldOf("favorite_character").orElse(DEFAULT.favoriteCharacter.value()).forGetter(s -> s.favoriteCharacter.value()),
                 Codec.INT.fieldOf("debug_key").orElse(DEFAULT.debugKey.value()).forGetter(s -> s.debugKey.value()),
+                Codec.INT.fieldOf("command_key").orElse(DEFAULT.commandKey.value()).forGetter(s -> s.commandKey.value()),
                 Codec.BOOL.fieldOf("debug").orElse(DEFAULT.debug.value()).forGetter(s -> s.debug.value())
-            ).apply(instance, (up, left, down, right, rotateLeft, rotateRight, resetRotation, cameraRotationSpeed, favoriteCharacter, debugKey, debug) ->
+            ).apply(instance, (up, left, down, right, rotateLeft, rotateRight, resetRotation, cameraRotationSpeed, favoriteCharacter, debugKey, commandKey, debug) ->
                 new Settings(
                     new IntegerOption("up_key", up),
                     new IntegerOption("left_key", left),
@@ -54,6 +56,7 @@ public record Settings(
                     new IntegerOption("camera_rotation_speed", cameraRotationSpeed),
                     new IntegerOption("favorite_character", favoriteCharacter),
                     new IntegerOption("debug_key", debugKey),
+                    new IntegerOption("command_key", commandKey),
                     new BooleanOption("debug", debug)
                 )
             )
@@ -77,6 +80,7 @@ public record Settings(
             cameraRotationSpeed.setValue(loaded.cameraRotationSpeed.value());
             favoriteCharacter.setValue(loaded.favoriteCharacter.value());
             debugKey.setValue(loaded.debugKey.value());
+            commandKey.setValue(loaded.commandKey.value());
             debug.setValue(loaded.debug.value());
         }
     }

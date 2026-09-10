@@ -21,6 +21,7 @@ public class SettingsDialog extends Dialog {
     private final TextButton rotateRightButton;
     private final Slider cameraRotationSpeedButton;
     private final TextButton debugKeyButton;
+    private final TextButton commandKeyButton;
     private final CheckBox debugButton;
 
     private IntegerOption listeningFor;
@@ -39,6 +40,7 @@ public class SettingsDialog extends Dialog {
         rotateRightButton = createKeyButton(client.getSettings().rotateRightKey(), skin);
         cameraRotationSpeedButton = createSlider(client.getSettings().cameraRotationSpeed(), 0f, 3f, 1f, skin);
         debugKeyButton = createKeyButton(client.getSettings().debugKey(), skin);
+        commandKeyButton = createKeyButton(client.getSettings().commandKey(), skin);
         debugButton = createToggleButton(client.getSettings().debug(), skin);
 
         content.add("Move Up");
@@ -65,6 +67,9 @@ public class SettingsDialog extends Dialog {
         content.add("Toggle Debug Overlay");
         content.add(debugKeyButton).padTop(5f).row();
 
+        content.add("Enter Command");
+        content.add(commandKeyButton).padTop(5f).row();
+
         content.add("Debug");
         content.add(debugButton).padTop(5f).row();
 
@@ -84,6 +89,7 @@ public class SettingsDialog extends Dialog {
                     rotateLeftButton.setText(Input.Keys.toString(client.getSettings().rotateLeftKey().value()));
                     rotateRightButton.setText(Input.Keys.toString(client.getSettings().rotateRightKey().value()));
                     debugKeyButton.setText(Input.Keys.toString(client.getSettings().debugKey().value()));
+                    commandKeyButton.setText(Input.Keys.toString(client.getSettings().commandKey().value()));
 
                     listeningFor = null;
                     return true;

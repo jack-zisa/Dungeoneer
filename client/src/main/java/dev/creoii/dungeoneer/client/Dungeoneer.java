@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dev.creoii.dungeoneer.client.command.ClientCommandManager;
 import dev.creoii.dungeoneer.client.network.ClientNetworkHandler;
 import dev.creoii.dungeoneer.client.option.Settings;
 import dev.creoii.dungeoneer.client.render.DebugRenderer;
@@ -30,6 +31,7 @@ public class Dungeoneer extends Game {
     private Assets assets;
     private final Settings settings;
     private final ClientNetworkHandler networkHandler;
+    private final ClientCommandManager commandManager;
     private final DebugRenderer debugRenderer;
     private boolean debug;
 
@@ -39,6 +41,7 @@ public class Dungeoneer extends Game {
         inputMultiplexer = new InputMultiplexer();
         settings = Settings.DEFAULT;
         networkHandler = new ClientNetworkHandler(this);
+        commandManager = new ClientCommandManager(this);
         debugRenderer = new DebugRenderer(this);
     }
 
@@ -70,6 +73,8 @@ public class Dungeoneer extends Game {
     public void create() {
         Gdx.input.setInputProcessor(inputMultiplexer);
 
+        inputMultiplexer.addProcessor(commandManager);
+
         TooltipManager.getInstance().animations = false;
         TooltipManager.getInstance().resetTime = 0f;
         TooltipManager.getInstance().initialTime = 0f;
@@ -84,8 +89,6 @@ public class Dungeoneer extends Game {
         settings.load();
         assets = new Assets();
         assets.load();
-
-        debugRenderer.init();
     }
 
     @Override
@@ -102,12 +105,18 @@ public class Dungeoneer extends Game {
 
         super.render();
 
-        if (screen instanceof AbstractScreen abstractScreen) {
+        if (screen instanceof AbstractScreen abstractScreen && Assets.FONT != null) {
+            abstractScreen.getStage().getBatch().begin();
+
+            if (commandManager.isActive()) commandManager.render(abstractScreen);
+
             if (Gdx.input.isKeyJustPressed(settings.debugKey().value())) {
                 debug = !debug;
             }
 
             if (debug) debugRenderer.render(abstractScreen);
+
+            abstractScreen.getStage().getBatch().end();
         }
     }
 

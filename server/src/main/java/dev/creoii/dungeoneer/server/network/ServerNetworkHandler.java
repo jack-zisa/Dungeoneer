@@ -8,6 +8,7 @@ import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
+import dev.creoii.dungeoneer.network.c2s.ExecuteCommandC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
 import dev.creoii.dungeoneer.network.c2s.character.*;
@@ -20,6 +21,8 @@ import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
+import dev.creoii.dungeoneer.server.command.Command;
+import dev.creoii.dungeoneer.server.command.Commands;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
@@ -412,6 +415,11 @@ public class ServerNetworkHandler extends NetworkHandler {
                 if (serverCharacter == null)
                     return;
                 serverCharacter.setDead(true);
+            }
+        } else if (object instanceof ExecuteCommandC2S(long accountId, long raidId, String commandType, String[] args)) {
+            Command.Result result = Commands.tryExecute(server, accountId, raidId, commandType, args);
+            if (result != null) {
+                System.out.println(result.name());
             }
         }
     }

@@ -189,6 +189,11 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     @Override
+    public void clearStatusEffects() {
+        statusEffects = 0L;
+    }
+
+    @Override
     public void setDead(boolean dead) {
         this.dead = dead;
     }
