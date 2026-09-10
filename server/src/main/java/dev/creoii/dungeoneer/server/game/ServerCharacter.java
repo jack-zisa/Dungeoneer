@@ -10,6 +10,8 @@ import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.action.Context;
+import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -45,6 +47,8 @@ public class ServerCharacter implements Character {
         );
         statusEffects = new Long2ObjectArrayMap<>();
         dead = false;
+
+        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("poison"), 0, 0, 0));
     }
 
     @Override
@@ -127,6 +131,9 @@ public class ServerCharacter implements Character {
     }
 
     public void tick(ServerRaid raid, float dt) {
+        if (dead)
+            return;
+
         if (isMoving() && !dead) {
             // Update character position
             float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
@@ -139,5 +146,13 @@ public class ServerCharacter implements Character {
             raid.getMoveEntries().add(new MoveRaidCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
             raid.getServer().get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
         }
+
+        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
+            .add(ValueType.CHARACTER, this)
+            .add(ValueType.HEALTH, stats.health().value());
+
+        statusEffects.values().forEach(instance -> {
+            instance.statusEffect().ticker().apply(context);
+        });
     }
 }
