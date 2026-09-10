@@ -174,12 +174,12 @@ public final class PacketUtils {
     }
 
     public static Stat readStat(Input input) {
-        return new Stat(Stat.Type.values()[input.readInt()], input.readInt());
+        return new Stat(Stat.Type.values()[input.readInt()], input.readFloat());
     }
 
     public static void writeStat(Output output, Stat stat) {
         output.writeInt(stat.type().ordinal());
-        output.writeInt(stat.value());
+        output.writeFloat(stat.value());
     }
 
     public static void writeStatContainer(Output output, StatContainer container) {

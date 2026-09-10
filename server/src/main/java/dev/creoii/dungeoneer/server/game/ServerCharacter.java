@@ -53,6 +53,7 @@ public class ServerCharacter implements Character<ServerRaid> {
         dead = false;
 
         addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("poison"), 0, 0, 0));
+        addStatusEffect(new StatusEffectInstance(DataManager.getStatusEffect("speedy"), 0, 0, 0));
     }
 
     @Override
@@ -103,12 +104,32 @@ public class ServerCharacter implements Character<ServerRaid> {
 
     @Override
     public boolean addStatusEffect(StatusEffectInstance instance) {
-        return statusEffects.put(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, instance.statusEffect().id()), instance) != null;
+        StatusEffectInstance previous = statusEffects.put(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, instance.statusEffect().id()), instance);
+        if (previous != null) {
+            return false;
+        }
+
+        Context context = new Context()
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
+
+        instance.statusEffect().applier().apply(raid, context);
+
+        return true;
     }
 
     @Override
     public boolean removeStatusEffect(StatusEffect statusEffect) {
-        return statusEffects.remove(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id())) != null;
+        StatusEffectInstance removed = statusEffects.remove(DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()));
+        if (removed == null)
+            return false;
+
+        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
+
+        removed.statusEffect().remover().apply(raid, context);
+        return true;
     }
 
     @Override

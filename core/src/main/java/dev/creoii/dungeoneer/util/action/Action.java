@@ -8,6 +8,8 @@ public interface Action extends Identifiable {
     Codec<Action> CODEC = Type.CODEC.dispatch(Action::getType, type -> switch (type) {
         case EMPTY -> EmptyAction.CODEC;
         case DAMAGE -> DamageAction.CODEC;
+        case MODIFY_STAT -> ModifyStatAction.CODEC;
+        case UNMODIFY_STAT -> UnmodifyStatAction.CODEC;
     });
 
     Type getType();
@@ -16,7 +18,9 @@ public interface Action extends Identifiable {
 
     enum Type {
         EMPTY,
-        DAMAGE;
+        DAMAGE,
+        MODIFY_STAT,
+        UNMODIFY_STAT;
 
         public static final Codec<Type> CODEC = Codec.STRING.xmap(s -> Type.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
     }

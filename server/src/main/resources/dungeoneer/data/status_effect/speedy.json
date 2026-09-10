@@ -1,0 +1,17 @@
+{
+  "applier": {
+    "type": "modify_stat",
+    "modifier": {
+      "type": "speed",
+      "uuid": "e4a65aa6-183b-4bdb-b00c-5d3ae6f8ef02",
+      "amount": 1.5,
+      "operation": "multiply",
+      "modifier_type": "base"
+    }
+  },
+  "remover": {
+    "type": "unmodify_stat",
+    "stat_type": "speed",
+    "uuid": "e4a65aa6-183b-4bdb-b00c-5d3ae6f8ef02"
+  }
+}

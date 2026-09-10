@@ -1,7 +1,7 @@
 package dev.creoii.dungeoneer.util.action.value;
 
 public enum ValueType {
-    HEALTH(DataType.INTEGER),
+    HEALTH(DataType.FLOAT),
     CHARACTER(DataType.ENTITY);
 
     private final DataType dataType;

@@ -12,24 +12,24 @@ public class Stat {
     public static final Codec<Stat> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Stat.Type.CODEC.fieldOf("stat_type").forGetter(Stat::type),
-            Codec.INT.optionalFieldOf("amount").forGetter(stat -> stat.base == 0 ? Optional.empty() : Optional.of(stat.base)),
+            Codec.FLOAT.optionalFieldOf("amount").forGetter(stat -> stat.base == 0f ? Optional.empty() : Optional.of(stat.base)),
             ModifierEntry.CODEC.listOf().optionalFieldOf("modifiers").forGetter(stat -> stat.modifiers.isEmpty() ? Optional.empty() : Optional.of(stat.modifiers))
-        ).apply(instance, (type, amount, modifiers) -> modifiers.map(modifierEntries -> new Stat(type, amount.orElse(0), new ObjectArrayList<>(modifierEntries))).orElseGet(() -> new Stat(type, amount.orElse(0))));
+        ).apply(instance, (type, amount, modifiers) -> modifiers.map(modifierEntries -> new Stat(type, amount.orElse(0f), new ObjectArrayList<>(modifierEntries))).orElseGet(() -> new Stat(type, amount.orElse(0f))));
     });
     private final Type type;
-    private int base;
+    private float base;
     private final ObjectList<ModifierEntry> modifiers = new ObjectArrayList<>();
 
-    public Stat(Type type, int base) {
+    public Stat(Type type, float base) {
         this.type = type;
         this.base = base;
     }
 
     public Stat(Type type) {
-        this(type, 0);
+        this(type, 0f);
     }
 
-    public Stat(Type type, int base, ObjectList<ModifierEntry> modifiers) {
+    public Stat(Type type, float base, ObjectList<ModifierEntry> modifiers) {
         this.type = type;
         this.base = base;
         modifiers.forEach(this::addModifier);
@@ -39,7 +39,7 @@ public class Stat {
         return type;
     }
 
-    public int base() {
+    public float base() {
         return base;
     }
 
@@ -47,7 +47,7 @@ public class Stat {
         return modifiers;
     }
 
-    public void set(int value) {
+    public void set(float value) {
         this.base = value;
     }
 
@@ -59,8 +59,8 @@ public class Stat {
         modifiers.removeIf(modifier -> modifier.uuid().equals(uuid));
     }
 
-    public int value() {
-        int result = base;
+    public float value() {
+        float result = base;
         for (ModifierEntry mod : modifiers) {
             switch (mod.operation()) {
                 case ADD -> result += mod.amount();

@@ -4,14 +4,15 @@ import com.mojang.serialization.Codec;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public record StatContainer(Stat health, Stat speed, Stat attackSpeed) {
-    public static final Codec<StatContainer> INT_CODEC = Codec.unboundedMap(Codec.STRING, Codec.INT).xmap(map -> new StatContainer(
-        map.getOrDefault(Stat.Type.HEALTH.name().toLowerCase(), 0),
-        map.getOrDefault(Stat.Type.SPEED.name().toLowerCase(), 0),
-        map.getOrDefault(Stat.Type.ATTACK_SPEED.name().toLowerCase(), 0)
+    public static final Codec<StatContainer> FLOAT_CODEC = Codec.unboundedMap(Codec.STRING, Codec.FLOAT).xmap(map -> new StatContainer(
+        map.getOrDefault(Stat.Type.HEALTH.name().toLowerCase(), 0f),
+        map.getOrDefault(Stat.Type.SPEED.name().toLowerCase(), 0f),
+        map.getOrDefault(Stat.Type.ATTACK_SPEED.name().toLowerCase(), 0f)
     ), statContainer -> {
-        Map<String, Integer> map = new HashMap<>();
+        Map<String, Float> map = new HashMap<>();
         map.put(Stat.Type.HEALTH.name().toLowerCase(), statContainer.health.value());
         map.put(Stat.Type.SPEED.name().toLowerCase(), statContainer.speed.value());
         map.put(Stat.Type.ATTACK_SPEED.name().toLowerCase(), statContainer.attackSpeed.value());
@@ -20,22 +21,22 @@ public record StatContainer(Stat health, Stat speed, Stat attackSpeed) {
     public static final StatContainer ZERO = new StatContainer();
 
     public StatContainer() {
-        this(0, 0, 0);
+        this(0f, 0f, 0f);
     }
 
-    public StatContainer(int health, int speed, int attackSpeed) {
+    public StatContainer(float health, float speed, float attackSpeed) {
         this(new Stat(Stat.Type.HEALTH, health), new Stat(Stat.Type.SPEED, speed), new Stat(Stat.Type.ATTACK_SPEED, attackSpeed));
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(float speed) {
         this.speed.set(speed);
     }
 
-    public void setHealth(int health) {
+    public void setHealth(float health) {
         this.health.set(health);
     }
 
-    public void setAttackSpeed(int attackSpeed) {
+    public void setAttackSpeed(float attackSpeed) {
         this.attackSpeed.set(attackSpeed);
     }
 
@@ -43,6 +44,22 @@ public record StatContainer(Stat health, Stat speed, Stat attackSpeed) {
         setHealth(other.health.base());
         setSpeed(other.speed.base());
         setAttackSpeed(other.attackSpeed.base());
+    }
+
+    public void applyModifier(ModifierEntry modifier) {
+        switch (modifier.type()) {
+            case HEALTH -> health.addModifier(modifier);
+            case SPEED -> speed.addModifier(modifier);
+            case ATTACK_SPEED -> attackSpeed.addModifier(modifier);
+        }
+    }
+
+    public void removeModifier(Stat.Type type, UUID uuid) {
+        switch (type) {
+            case HEALTH -> health.removeModifier(uuid);
+            case SPEED -> speed.removeModifier(uuid);
+            case ATTACK_SPEED -> attackSpeed.removeModifier(uuid);
+        }
     }
 
     public StatContainer copy() {
