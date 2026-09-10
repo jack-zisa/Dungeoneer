@@ -150,7 +150,7 @@ public class GameScreen extends AbstractScreen {
 
         character.update(dt);
 
-        inputListener.updateRotation();
+        inputListener.updateRotation(dt);
         inputListener.updateMousePos(camera, inputListener.getRotation());
         if (inputListener.isAttacking())
             inputListener.tryAttack();

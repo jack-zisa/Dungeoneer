@@ -11,7 +11,7 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 
 public record Settings(
     IntegerOption upKey, IntegerOption leftKey, IntegerOption downKey, IntegerOption rightKey,
-    IntegerOption rotateLeftKey, IntegerOption rotateRightKey, IntegerOption cameraRotationSpeed,
+    IntegerOption rotateLeftKey, IntegerOption rotateRightKey, IntegerOption resetRotationKey, IntegerOption cameraRotationSpeed,
     IntegerOption favoriteCharacter,
     BooleanOption debug
 ) {
@@ -22,7 +22,8 @@ public record Settings(
         new IntegerOption("right_key", Input.Keys.D),
         new IntegerOption("rotate_left_key", Input.Keys.Q),
         new IntegerOption("rotate_right_key", Input.Keys.E),
-        new IntegerOption("camera_rotation_speed", 1),
+        new IntegerOption("reset_rotation_key", Input.Keys.Z),
+        new IntegerOption("camera_rotation_speed", 100),
         new IntegerOption("favorite_character", 0),
         new BooleanOption("debug", true)
     );
@@ -34,10 +35,11 @@ public record Settings(
                 Codec.INT.fieldOf("right_key").orElse(DEFAULT.rightKey.value()).forGetter(s -> s.rightKey.value()),
                 Codec.INT.fieldOf("rotate_left_key").orElse(DEFAULT.rotateLeftKey.value()).forGetter(s -> s.rotateLeftKey.value()),
                 Codec.INT.fieldOf("rotate_right_key").orElse(DEFAULT.rotateRightKey.value()).forGetter(s -> s.rotateRightKey.value()),
+                Codec.INT.fieldOf("reset_rotation_key").orElse(DEFAULT.resetRotationKey.value()).forGetter(s -> s.resetRotationKey.value()),
                 Codec.INT.fieldOf("camera_rotation_speed").orElse(DEFAULT.cameraRotationSpeed.value()).forGetter(s -> s.cameraRotationSpeed.value()),
                 Codec.INT.fieldOf("favorite_character").orElse(DEFAULT.favoriteCharacter.value()).forGetter(s -> s.favoriteCharacter.value()),
                 Codec.BOOL.fieldOf("debug").orElse(DEFAULT.debug.value()).forGetter(s -> s.debug.value())
-            ).apply(instance, (up, left, down, right, rotateLeft, rotateRight, cameraRotationSpeed, favoriteCharacter, debug) ->
+            ).apply(instance, (up, left, down, right, rotateLeft, rotateRight, resetRotation, cameraRotationSpeed, favoriteCharacter, debug) ->
                 new Settings(
                     new IntegerOption("up_key", up),
                     new IntegerOption("left_key", left),
@@ -45,6 +47,7 @@ public record Settings(
                     new IntegerOption("right_key", right),
                     new IntegerOption("rotate_left_key", rotateLeft),
                     new IntegerOption("rotate_right_key", rotateRight),
+                    new IntegerOption("reset_rotation_key", resetRotation),
                     new IntegerOption("camera_rotation_speed", cameraRotationSpeed),
                     new IntegerOption("favorite_character", favoriteCharacter),
                     new BooleanOption("debug", debug)
@@ -66,6 +69,7 @@ public record Settings(
             rightKey.setValue(loaded.rightKey.value());
             rotateLeftKey.setValue(loaded.rotateLeftKey.value());
             rotateRightKey.setValue(loaded.rotateRightKey.value());
+            resetRotationKey.setValue(loaded.resetRotationKey.value());
             cameraRotationSpeed.setValue(loaded.cameraRotationSpeed.value());
             favoriteCharacter.setValue(loaded.favoriteCharacter.value());
             debug.setValue(loaded.debug.value());

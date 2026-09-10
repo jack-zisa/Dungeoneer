@@ -135,15 +135,28 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
         client.get().sendUDP(new CharacterMoveC2S(client.getState().getCurrentRaid().get().id(), character.get().id(), movementFlags, rotation));
     }
 
-    public void updateRotation() {
-        int rotationSpeed = client.getSettings().cameraRotationSpeed().value();
-        if (Gdx.input.isKeyPressed(client.getSettings().rotateLeftKey().value())) {
-            rotation -= rotationSpeed;
-            rotation %= 360f;
-        } else if (Gdx.input.isKeyPressed(client.getSettings().rotateRightKey().value())) {
-            rotation += rotationSpeed;
-            rotation %= 360f;
+    public void updateRotation(float dt) {
+        float oldRotation = rotation;
+
+        if (Gdx.input.isKeyPressed(client.getSettings().resetRotationKey().value())) {
+            rotation = 0f;
+            return;
         }
+
+        int rotationSpeed = client.getSettings().cameraRotationSpeed().value() * 100;
+        if (Gdx.input.isKeyPressed(client.getSettings().rotateLeftKey().value())) {
+            rotation -= rotationSpeed * dt;
+        } else if (Gdx.input.isKeyPressed(client.getSettings().rotateRightKey().value())) {
+            rotation += rotationSpeed * dt;
+        }
+
+        rotation %= 360f;
+
+        if (rotation < 0f)
+            rotation += 360f;
+
+        if (rotation != oldRotation)
+            updateMovement();
     }
 
     public float getRotation() {
