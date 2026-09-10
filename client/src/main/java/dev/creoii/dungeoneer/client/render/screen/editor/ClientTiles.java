@@ -23,18 +23,24 @@ public final class ClientTiles {
         DataManager.getTiles().forEach((_, identifiable) -> {
             Tile tile = (Tile) identifiable;
             TiledMapTile tile1 = new StaticTiledMapTile(new TextureRegion(client.getAssets().getTexture(Assets.Atlas.TILE, tile.id())));
+
+            int id = (int) DataManager.getInternalId(DataManager.SchemaType.TILE, tile.id());
+
             tile1.setBlendMode(TiledMapTile.BlendMode.NONE);
-            tile1.setId(tile.tileId());
+            tile1.setId(id);
             TILES.put(tile.id(), tile1);
-            TILESET.putTile(tile.tileId(), tile1);
+            TILESET.putTile(id, tile1);
         });
 
         DataManager.getMapObjects().forEach((_, identifiable) -> {
             MapObject mapObject = (MapObject) identifiable;
             TiledMapTile tile1 = new StaticTiledMapTile(new TextureRegion(client.getAssets().getTexture(Assets.Atlas.OBJECT, mapObject.id())));
-            tile1.setId(mapObject.tileId());
+
+            int id = (int) DataManager.getInternalId(DataManager.SchemaType.MAP_OBJECT, mapObject.id());
+
+            tile1.setId(id);
             OBJECTS.put(mapObject.id(), tile1);
-            TILESET.putTile(mapObject.tileId(), tile1);
+            TILESET.putTile(id, tile1);
         });
     }
 

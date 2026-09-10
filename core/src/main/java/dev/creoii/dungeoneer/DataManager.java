@@ -1,5 +1,7 @@
 package dev.creoii.dungeoneer;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -36,47 +38,89 @@ public class DataManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = new Logger(DataManager.class.getSimpleName());
     private static final EnumMap<SchemaType, Codec<? extends Identifiable>> SCHEMA = new EnumMap<>(SchemaType.class);
-    private static final EnumMap<SchemaType, Object2ObjectArrayMap<String, Identifiable>> DATA = new EnumMap<>(SchemaType.class);
+    private static final EnumMap<SchemaType, Object2ObjectArrayMap<String, Identifiable>> STRING_ID_DATA = new EnumMap<>(SchemaType.class);
+    private static final EnumMap<SchemaType, Object2ObjectArrayMap<Long, Identifiable>> INTERNAL_ID_DATA = new EnumMap<>(SchemaType.class);
+    private static final EnumMap<SchemaType, BiMap<Long, String>> IDS = new EnumMap<>(SchemaType.class);
     private static boolean DEBUG = false;
 
     public static void setDebug(boolean debug) {
         DataManager.DEBUG = debug;
     }
 
+    public static long getInternalId(SchemaType type, String id) {
+        return IDS.get(type).inverse().get(id);
+    }
+
     public static Object2ObjectArrayMap<String, Identifiable> getBullets() {
-        return DATA.get(SchemaType.BULLET);
+        return STRING_ID_DATA.get(SchemaType.BULLET);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getAttacks() {
-        return DATA.get(SchemaType.ATTACK);
+        return STRING_ID_DATA.get(SchemaType.ATTACK);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getClasses() {
-        return DATA.get(SchemaType.CLASS);
+        return STRING_ID_DATA.get(SchemaType.CLASS);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getTiles() {
-        return DATA.get(SchemaType.TILE);
+        return STRING_ID_DATA.get(SchemaType.TILE);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getTileProviders() {
-        return DATA.get(SchemaType.TILE_PROVIDER);
+        return STRING_ID_DATA.get(SchemaType.TILE_PROVIDER);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getMapObjects() {
-        return DATA.get(SchemaType.MAP_OBJECT);
+        return STRING_ID_DATA.get(SchemaType.MAP_OBJECT);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getTilesets() {
-        return DATA.get(SchemaType.TILESET);
+        return STRING_ID_DATA.get(SchemaType.TILESET);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getMapTemplates() {
-        return DATA.get(SchemaType.MAP_TEMPLATE);
+        return STRING_ID_DATA.get(SchemaType.MAP_TEMPLATE);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getNoiseParameters() {
-        return DATA.get(SchemaType.NOISE_PARAMETERS);
+        return STRING_ID_DATA.get(SchemaType.NOISE_PARAMETERS);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getBulletsInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.BULLET);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getAttacksInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.ATTACK);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getClassesInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.CLASS);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getTilesInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.TILE);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getTileProvidersInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.TILE_PROVIDER);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getMapObjectsInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.MAP_OBJECT);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getTilesetsInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.TILESET);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getMapTemplatesInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.MAP_TEMPLATE);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getNoiseParametersInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.NOISE_PARAMETERS);
     }
 
     @Nullable
@@ -168,6 +212,95 @@ public class DataManager {
         return value;
     }
 
+    @Nullable
+    public static BulletType getBullet(long id) {
+        BulletType value = (BulletType) getBulletsInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Bullet: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    public static Attack getAttack(long id) {
+        Attack value = (Attack) getAttacksInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Creating reference attack: '" + id + "'");
+            return new ReferenceAttack(IDS.get(SchemaType.ATTACK).get(id));
+        }
+        return value;
+    }
+
+    @Nullable
+    public static CharacterClass getCharacterClass(long id) {
+        CharacterClass value = (CharacterClass) getClassesInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown CharacterClass: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static Tile getTile(long id) {
+        Tile value = (Tile) getTilesInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Tile: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static TileProvider getTileProvider(long id) {
+        TileProvider value = (TileProvider) getTileProvidersInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Tile Provider: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static MapObject getMapObject(long id) {
+        MapObject value = (MapObject) getMapObjectsInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Map Object: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static Tileset getTileset(long id) {
+        Tileset value = (Tileset) getTilesetsInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Tileset: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static DungeonMapTemplate getMapTemplate(long id) {
+        DungeonMapTemplate value = (DungeonMapTemplate) getMapTemplatesInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Map Template: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static FastNoiseParameters getNoiseParameters(long id) {
+        FastNoiseParameters value = (FastNoiseParameters) getMapTemplatesInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Noise Parameters: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
     public static void load(Path path) {
         try {
             for (Map.Entry<SchemaType, Codec<? extends Identifiable>> entry : SCHEMA.entrySet()) {
@@ -180,9 +313,12 @@ public class DataManager {
                     Files.createDirectories(folderPath);
                 }
 
-                Object2ObjectArrayMap<String, Identifiable> data = DATA.get(entry.getKey());
+                Object2ObjectArrayMap<String, Identifiable> data = STRING_ID_DATA.get(entry.getKey());
+                Object2ObjectArrayMap<Long, Identifiable> internalData = INTERNAL_ID_DATA.get(entry.getKey());
+                BiMap<Long, String> ids = IDS.get(entry.getKey());
                 try (Stream<Path> paths = Files.walk(folderPath)) {
                     Stream<Path> filtered = paths.filter(p -> p.toString().endsWith(".json"));
+                    long nextId = 0;
                     for (Path file : filtered.toList()) {
                         try (Reader reader = new FileReader(file.toFile())) {
                             JsonElement jsonValue = GSON.fromJson(reader, JsonElement.class);
@@ -199,6 +335,8 @@ public class DataManager {
                             Identifiable obj = (Identifiable) result.getOrThrow();
                             obj = obj.withId(id);
                             data.put(obj.id(), obj);
+                            ids.put(nextId, obj.id());
+                            internalData.put(nextId++, obj);
                         } catch (Exception e) {
                             LOGGER.error("Error parsing " + file.getFileName() + " in '/" + folder + "': " + e);
                             e.printStackTrace();
@@ -266,7 +404,9 @@ public class DataManager {
         SCHEMA.put(SchemaType.NOISE_PARAMETERS, FastNoiseParameters.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {
-            DATA.put(schemaType, new Object2ObjectArrayMap<>());
+            STRING_ID_DATA.put(schemaType, new Object2ObjectArrayMap<>());
+            INTERNAL_ID_DATA.put(schemaType, new Object2ObjectArrayMap<>());
+            IDS.put(schemaType, HashBiMap.create());
         }
     }
 }
