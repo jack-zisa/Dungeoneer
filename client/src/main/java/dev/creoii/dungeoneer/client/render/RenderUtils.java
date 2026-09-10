@@ -11,6 +11,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
+import dev.creoii.dungeoneer.client.util.ProjectionUtils;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
@@ -39,28 +40,28 @@ public final class RenderUtils {
 
         switch (face.direction()) {
             case DOWN -> {
-                bl = ClientDungeonMap.project(x, y, 0f, rotation, centerX, centerY);
-                br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
-                tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                bl = ProjectionUtils.project(x, y, 0f, rotation, centerX, centerY);
+                br = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
+                tl = ProjectionUtils.project(x, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tr = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y, ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             case UP -> {
-                bl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-                br = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
-                tr = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                bl = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
+                br = ProjectionUtils.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
+                tl = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tr = ProjectionUtils.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             case LEFT -> {
-                bl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-                br = ClientDungeonMap.project(x, y, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
-                tr = ClientDungeonMap.project(x, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                bl = ProjectionUtils.project(x, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
+                br = ProjectionUtils.project(x, y, 0f, rotation, centerX, centerY);
+                tl = ProjectionUtils.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tr = ProjectionUtils.project(x, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             case RIGHT -> {
-                bl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
-                br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
-                tl = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
-                tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                bl = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, rotation, centerX, centerY);
+                br = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, rotation, centerX, centerY);
+                tl = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
+                tr = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, rotation, centerX, centerY);
             }
             default -> throw new IllegalStateException();
         }
@@ -116,10 +117,10 @@ public final class RenderUtils {
         float centerX = camera.position.x;
         float centerY = camera.position.y;
 
-        Vector2 bl = ClientDungeonMap.project(x, y, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
-        Vector2 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
-        Vector2 tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
-        Vector2 tl = ClientDungeonMap.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 bl = ProjectionUtils.project(x, y, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 br = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 tr = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
+        Vector2 tl = ProjectionUtils.project(x, y + ClientDungeonMap.TILE_SIZE, -ClientDungeonMap.WALL_HEIGHT, angle, centerX, centerY);
 
         drawQuad(batch, texture, bl, br, tr, tl);
     }
@@ -131,10 +132,10 @@ public final class RenderUtils {
         float centerX = camera.position.x;
         float centerY = camera.position.y;
 
-        Vector2 bl = ClientDungeonMap.project(x, y, 0f, angle, centerX, centerY);
-        Vector2 br = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, angle, centerX, centerY);
-        Vector2 tr = ClientDungeonMap.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, angle, centerX, centerY);
-        Vector2 tl = ClientDungeonMap.project(x,y + ClientDungeonMap.TILE_SIZE, 0f, angle, centerX, centerY);
+        Vector2 bl = ProjectionUtils.project(x, y, 0f, angle, centerX, centerY);
+        Vector2 br = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y, 0f, angle, centerX, centerY);
+        Vector2 tr = ProjectionUtils.project(x + ClientDungeonMap.TILE_SIZE, y + ClientDungeonMap.TILE_SIZE, 0f, angle, centerX, centerY);
+        Vector2 tl = ProjectionUtils.project(x,y + ClientDungeonMap.TILE_SIZE, 0f, angle, centerX, centerY);
 
         drawQuad(batch, texture, bl, br, tr, tl);
     }
@@ -148,7 +149,7 @@ public final class RenderUtils {
 
         float[] pos = {centerX, centerY};
 
-        VectorUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
+        ProjectionUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
 
         batch.draw(texture, pos[0] - texture.getRegionWidth() * 0.5f, pos[1], texture.getRegionWidth(), texture.getRegionHeight());
     }
@@ -216,7 +217,7 @@ public final class RenderUtils {
         }
 
         float[] projected = bullet.getPos().clone();
-        VectorUtils.prj2(projected, 0f, rotation, camera.position.x, camera.position.y);
+        ProjectionUtils.prj2(projected, 0f, rotation, camera.position.x, camera.position.y);
 
         float width = texture.getWidth() * scale;
         float height = texture.getHeight() * scale;

@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.client.control;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import dev.creoii.dungeoneer.client.util.ProjectionUtils;
 import dev.creoii.dungeoneer.util.VectorUtils;
 
 public interface MousePosListener {
@@ -15,7 +16,7 @@ public interface MousePosListener {
             y = Gdx.graphics.getHeight() - getMousePos()[1];
         getMousePos()[0] = (2 * x) / Gdx.graphics.getWidth() - 1;
         getMousePos()[1] = (2 * y) / Gdx.graphics.getHeight() - 1;
-        VectorUtils.prj(getMousePos(), camera.invProjectionView);
+        ProjectionUtils.projectMouse(getMousePos(), camera.invProjectionView);
 
         getMousePos()[0] -= camera.position.x;
         getMousePos()[1] -= camera.position.y;

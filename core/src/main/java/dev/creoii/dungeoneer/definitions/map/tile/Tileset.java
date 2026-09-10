@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
-public record Tileset(String id, TileProvider ground, TileProvider wall) implements Identifiable {
+public record Tileset(String id, TileProvider ground, TileProvider wall) implements Identifiable<String> {
     public static final Codec<Tileset> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.STRING.optionalFieldOf("id", "").forGetter(Tileset::id),
@@ -15,7 +15,7 @@ public record Tileset(String id, TileProvider ground, TileProvider wall) impleme
     });
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new Tileset(id, ground, wall);
     }
 }

@@ -26,7 +26,7 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new ParametricBulletPathType(id, parametricType, scale);
     }
 

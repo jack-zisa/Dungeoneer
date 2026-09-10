@@ -17,7 +17,7 @@ public record CompositeAttack(String id, List<Attack> attacks) implements Attack
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new CompositeAttack(id, attacks);
     }
 }

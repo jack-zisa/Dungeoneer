@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.util.provider.TileContext;
 
 import java.util.function.Function;
 
-public interface TileProvider extends Provider<Tile, TileContext>, Identifiable {
+public interface TileProvider extends Provider<Tile, TileContext>, Identifiable<String> {
     Codec<TileProvider> TYPE_CODEC = Type.CODEC.dispatch(TileProvider::getType, type -> switch (type) {
         case SIMPLE -> SimpleTileProvider.CODEC;
         case RANDOM -> RandomTileProvider.CODEC;

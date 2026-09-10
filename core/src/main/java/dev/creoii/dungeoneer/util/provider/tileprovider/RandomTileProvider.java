@@ -35,7 +35,7 @@ public record RandomTileProvider(String id, List<TileProvider> values) implement
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new RandomTileProvider(id, values);
     }
 }

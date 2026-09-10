@@ -206,16 +206,16 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof JoinFactionC2S(Account account, long factionId)) {
             Faction faction = server.getDatabase().getFactions().getById(factionId);
             if (faction != null) {
-                faction.accounts().add(account);
+                faction.accounts().put(account.id(), account);
                 server.getDatabase().getAccounts().updateFaction(account, faction.id());
                 server.getDatabase().getFactions().updateAccounts(faction);
 
                 Message message = server.getDatabase().getChatMessages().create(account.factionId(), -1L, String.format("%s joined the faction", account.username()));
                 faction.recentMessages().put(message.messageId(), message);
 
-                faction.accounts().forEach(account1 -> {
-                    if (account1.id() != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1.id())) {
-                        int connectionId = server.getSessionManager().getAccountConnections().get(account1.id());
+                faction.accounts().keySet().forEach(account1Id -> {
+                    if (account1Id != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1Id)) {
+                        int connectionId = server.getSessionManager().getAccountConnections().get(account1Id);
                         server.get().sendToUDP(connectionId, new SendFactionS2C(faction));
                         server.get().sendToTCP(connectionId, new ChatMessageS2C(message));
                     }
@@ -236,9 +236,9 @@ public class ServerNetworkHandler implements Listener, Tickable {
                     Message message = server.getDatabase().getChatMessages().create(account.factionId(), -1L, String.format("%s left the faction", account.username()));
                     faction.recentMessages().put(message.messageId(), message);
 
-                    faction.accounts().forEach(account1 -> {
-                        if (account1.id() != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1.id())) {
-                            int connectionId = server.getSessionManager().getAccountConnections().get(account1.id());
+                    faction.accounts().keySet().forEach(account1Id -> {
+                        if (account1Id != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1Id)) {
+                            int connectionId = server.getSessionManager().getAccountConnections().get(account1Id);
                             server.get().sendToUDP(connectionId, new SendFactionS2C(faction));
                             server.get().sendToTCP(connectionId, new ChatMessageS2C(message));
                         }
@@ -252,7 +252,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof JoinOrCreateRaidC2S(Account account, CharacterDefinition character, int requiredCharacters)) {
             ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
 
-            List<ServerRaid> availableRaids = server.getState().getRaids().values().stream().filter(raid -> raid.getStatus() != ServerRaid.Status.ACTIVE && raid.get().requiredCharacters() == requiredCharacters && raid.get().attackers().size() < raid.get().requiredCharacters()).collect(Collectors.toList());
+            List<ServerRaid> availableRaids = server.getManager().getRaids().getValues().stream().filter(raid -> raid.getStatus() != ServerRaid.Status.ACTIVE && raid.get().requiredCharacters() == requiredCharacters && raid.get().attackers().size() < raid.get().requiredCharacters()).collect(Collectors.toList());
             Collections.shuffle(availableRaids);
             if (!availableRaids.isEmpty()) { // Join an existing raid
                 ServerRaid serverRaid = availableRaids.getFirst();
@@ -288,7 +288,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
                         RaidDefinition raid = server.getDatabase().getRaids().create(account, character, target, requiredCharacters, LocalDateTime.now());
                         if (raid != null) {
                             server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.templateId(), dungeonMap.tilesetId()));
-                            server.getState().getRaids().put(raid.id(), new ServerRaid(server, new ServerDungeonMap(dungeonMap), serverCharacter, raid));
+                            server.getManager().getRaids().add(new ServerRaid(server, new ServerDungeonMap(dungeonMap), serverCharacter, raid));
                         }
                     }
                 }
@@ -296,7 +296,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof EndRaidC2S(long raidId)) {
             RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
-                server.getState().getRaids().remove(raidId);
+                server.getManager().getRaids().remove(raidId);
                 server.getDatabase().getRaids().updateEndTime(raidId, LocalDateTime.now());
             }
         } else if (object instanceof DeleteCharacterC2S(long accountId, int index)) {
@@ -321,8 +321,8 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
         } else if (object instanceof CharacterMoveC2S(long raidId, long characterId, int movementFlags, float rotation)) {
             CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
-            if (character != null && server.getState().getRaids().containsKey(raidId)) {
-                ServerRaid raid = server.getState().getRaids().get(raidId);
+            if (character != null && server.getManager().getRaids().contains(raidId)) {
+                ServerRaid raid = server.getManager().getRaids().get(raidId);
                 ServerCharacter serverCharacter = raid.getCharacterById(characterId);
                 if (serverCharacter == null)
                     return;
@@ -347,11 +347,11 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 server.get().sendToTCP(connection.getID(), new FlagChatMessageS2C(localId, finalMessage));
             }
 
-            faction.accounts().forEach(account -> {
-                if (account.id() == finalMessage.accountId())
+            faction.accounts().keySet().forEach(accountId -> {
+                if (accountId == finalMessage.accountId())
                     return;
 
-                int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
+                int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(accountId, -1);
                 if (connectionId != -1) {
                     server.get().sendToTCP(connectionId, new ChatMessageS2C(finalMessage));
                 }
@@ -378,7 +378,7 @@ public class ServerNetworkHandler implements Listener, Tickable {
         } else if (object instanceof AttackC2S(long raidId, long accountId, float mouseDirX, float mouseDirY)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
-                ServerRaid serverRaid = server.getState().getRaids().get(raidId);
+                ServerRaid serverRaid = server.getManager().getRaids().get(raidId);
                 if (serverRaid != null) {
                     ServerCharacter character = serverRaid.getCharacterByAccountId(accountId);
                     if (character != null) {
@@ -400,14 +400,14 @@ public class ServerNetworkHandler implements Listener, Tickable {
                 }
             }
         } else if (object instanceof CancelJoinRaidC2S(long accountId, long raidId)) {
-            ServerRaid serverRaid = server.getState().getRaids().get(raidId);
+            ServerRaid serverRaid = server.getManager().getRaids().get(raidId);
             if (serverRaid != null && serverRaid.getStatus() == ServerRaid.Status.WAITING) {
                 serverRaid.get().attackers().removeIf(account -> account.id() == accountId);
                 serverRaid.get().characters().removeIf(character -> character.accountId() == accountId);
 
                 if (serverRaid.get().attackers().isEmpty()) {
                     server.getDatabase().getRaids().delete(raidId);
-                    server.getState().getRaids().remove(raidId);
+                    server.getManager().getRaids().remove(raidId);
                 } else server.getDatabase().getRaids().updateAttackers(serverRaid.get());
 
                 serverRaid.get().attackers().forEach(account1 -> {
@@ -420,8 +420,8 @@ public class ServerNetworkHandler implements Listener, Tickable {
             }
         } else if (object instanceof CharacterDieC2S(long raidId, long characterId)) {
             CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
-            if (character != null && server.getState().getRaids().containsKey(raidId)) {
-                ServerRaid raid = server.getState().getRaids().get(raidId);
+            if (character != null && server.getManager().getRaids().contains(raidId)) {
+                ServerRaid raid = server.getManager().getRaids().get(raidId);
                 ServerCharacter serverCharacter = raid.getCharacterById(characterId);
                 if (serverCharacter == null)
                     return;

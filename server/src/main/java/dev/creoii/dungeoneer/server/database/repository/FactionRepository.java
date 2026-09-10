@@ -4,12 +4,13 @@ import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.util.NetworkUtils;
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class FactionRepository {
@@ -46,7 +47,9 @@ public class FactionRepository {
                     rs.getInt("id"),
                     rs.getString("name"),
                     rs.getString("description"),
-                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList()),
+                    new Long2ObjectArrayMap<>(NetworkUtils.parseIds(rs.getString("accounts")).stream()
+                        .filter(database.getAccounts()::containsId)
+                        .collect(Collectors.toMap(Function.identity(), database.getAccounts()::getById))),
                     new LinkedHashMap<>()
                 ))
                 .findOne()
@@ -66,7 +69,9 @@ public class FactionRepository {
                     rs.getInt("id"),
                     rs.getString("name"),
                     rs.getString("description"),
-                    NetworkUtils.parseIds(rs.getString("accounts")).stream().map(database.getAccounts()::getById).collect(Collectors.toList()),
+                    new Long2ObjectArrayMap<>(NetworkUtils.parseIds(rs.getString("accounts")).stream()
+                        .filter(database.getAccounts()::containsId)
+                        .collect(Collectors.toMap(Function.identity(), database.getAccounts()::getById))),
                     new LinkedHashMap<>()
                 ))
                 .list()
@@ -81,7 +86,7 @@ public class FactionRepository {
             WHERE id = :id
         """)
                 .bind("id", faction.id())
-                .bind("accounts", NetworkUtils.compressIds(faction.accounts().stream().map(Account::id).collect(Collectors.toList())))
+                .bind("accounts", NetworkUtils.compressIds(faction.accounts().keySet().longStream()))
                 .execute()
         );
     }
@@ -100,8 +105,8 @@ public class FactionRepository {
                 .one()
         );
 
-        List<Account> accounts = new ArrayList<>();
-        accounts.add(database.getAccounts().getById(accountId));
+        Long2ObjectArrayMap<Account> accounts = new Long2ObjectArrayMap<>();
+        accounts.put(accountId, database.getAccounts().getById(accountId));
         return new Faction(id, name, description, accounts, new LinkedHashMap<>());
     }
 }

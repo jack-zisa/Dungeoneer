@@ -19,7 +19,7 @@ public record EmptyBulletPathType(String id) implements BulletPathType<EmptyBull
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new EmptyBulletPathType(id);
     }
 

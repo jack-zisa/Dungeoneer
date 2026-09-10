@@ -22,7 +22,7 @@ public record GroupBulletType(String id, Type type, float speed, float lifetime,
     ).apply(instance, GroupBulletType::new));
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new GroupBulletType(id, type, speed, lifetime, acceleration, path, children);
     }
 

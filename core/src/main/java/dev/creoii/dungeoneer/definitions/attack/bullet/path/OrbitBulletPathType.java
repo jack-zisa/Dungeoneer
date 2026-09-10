@@ -24,7 +24,7 @@ public record OrbitBulletPathType(String id, int sides, float orbitRadius) imple
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new OrbitBulletPathType(id, sides, orbitRadius);
     }
 

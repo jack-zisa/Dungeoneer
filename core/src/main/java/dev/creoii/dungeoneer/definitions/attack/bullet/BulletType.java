@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public interface BulletType extends Identifiable {
+public interface BulletType extends Identifiable<String> {
     Codec<BulletType> CODEC = Type.CODEC.dispatch(BulletType::type, type -> switch (type) {
         case SINGLE -> SingleBulletType.TYPE_CODEC;
         case GROUP -> GroupBulletType.TYPE_CODEC;

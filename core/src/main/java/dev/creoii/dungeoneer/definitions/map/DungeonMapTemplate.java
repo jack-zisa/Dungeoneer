@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.Map;
 
-public record DungeonMapTemplate(String id, Vector2 spawnPos, Map<LayerType, MapGenerator> layers) implements Identifiable {
+public record DungeonMapTemplate(String id, Vector2 spawnPos, Map<LayerType, MapGenerator> layers) implements Identifiable<String> {
     public static final Codec<DungeonMapTemplate> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.STRING.optionalFieldOf("id", "").forGetter(DungeonMapTemplate::id),
         Codecs.VECTOR_2.fieldOf("spawn_pos").forGetter(DungeonMapTemplate::spawnPos),
@@ -17,7 +17,7 @@ public record DungeonMapTemplate(String id, Vector2 spawnPos, Map<LayerType, Map
     ).apply(instance, DungeonMapTemplate::new));
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new DungeonMapTemplate(id, spawnPos, layers);
     }
 

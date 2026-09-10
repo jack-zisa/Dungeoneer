@@ -10,6 +10,8 @@ import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
+import dev.creoii.dungeoneer.client.util.ProjectionUtils;
+import dev.creoii.dungeoneer.util.VectorUtils;
 
 public record WallTopRenderable(TextureRegion texture, int x, int y) implements Renderable {
     @Override
@@ -26,7 +28,7 @@ public record WallTopRenderable(TextureRegion texture, int x, int y) implements 
     public float depth(float rotation, OrthographicCamera camera) {
         float worldX = x * ClientDungeonMap.TILE_SIZE;
         float worldY = y * ClientDungeonMap.TILE_SIZE;
-        Vector2 p = ClientDungeonMap.project(worldX, worldY, -ClientDungeonMap.WALL_HEIGHT, rotation, camera.position.x, camera.position.y);
+        Vector2 p = ProjectionUtils.project(worldX, worldY, -ClientDungeonMap.WALL_HEIGHT, rotation, camera.position.x, camera.position.y);
         return p.y;
     }
 }

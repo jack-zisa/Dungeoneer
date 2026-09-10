@@ -9,6 +9,8 @@ import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
+import dev.creoii.dungeoneer.client.util.ProjectionUtils;
+import dev.creoii.dungeoneer.util.VectorUtils;
 
 public record GroundTileRenderable(TextureRegion texture, int tileX, int tileY) implements Renderable {
     @Override
@@ -23,6 +25,6 @@ public record GroundTileRenderable(TextureRegion texture, int tileX, int tileY) 
 
     @Override
     public float depth(float rotation, OrthographicCamera camera) {
-        return ClientDungeonMap.project(tileX * ClientDungeonMap.TILE_SIZE, tileY * ClientDungeonMap.TILE_SIZE, 0f, rotation, camera.position.x, camera.position.y).y;
+        return ProjectionUtils.project(tileX * ClientDungeonMap.TILE_SIZE, tileY * ClientDungeonMap.TILE_SIZE, 0f, rotation, camera.position.x, camera.position.y).y;
     }
 }

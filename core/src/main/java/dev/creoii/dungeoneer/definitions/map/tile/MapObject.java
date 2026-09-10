@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public record MapObject(String id, int tileId) implements Identifiable {
+public record MapObject(String id, int tileId) implements Identifiable<String> {
     public static final Codec<MapObject> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.STRING.optionalFieldOf("id", "").forGetter(MapObject::id),
@@ -15,7 +15,7 @@ public record MapObject(String id, int tileId) implements Identifiable {
     public static final Codec<MapObject> ID_CODEC = Codec.STRING.xmap(DataManager::getMapObject, MapObject::id);
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new MapObject(id, tileId);
     }
 }

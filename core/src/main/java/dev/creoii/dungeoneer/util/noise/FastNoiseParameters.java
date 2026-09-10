@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public record FastNoiseParameters(String id, long seed, float frequency, FastNoiseLite.NoiseType noiseType, FastNoiseLite.RotationType3D rotationType3D, Fractal fractal, Cellular cellular, DomainWarp domainWarp) implements Identifiable {
+public record FastNoiseParameters(String id, long seed, float frequency, FastNoiseLite.NoiseType noiseType, FastNoiseLite.RotationType3D rotationType3D, Fractal fractal, Cellular cellular, DomainWarp domainWarp) implements Identifiable<String> {
     public static final Codec<FastNoiseParameters> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Codec.STRING.optionalFieldOf("id", "").forGetter(FastNoiseParameters::id),
@@ -19,7 +19,7 @@ public record FastNoiseParameters(String id, long seed, float frequency, FastNoi
     });
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new FastNoiseParameters(id, seed, frequency, noiseType, rotationType3D, fractal, cellular, domainWarp);
     }
 

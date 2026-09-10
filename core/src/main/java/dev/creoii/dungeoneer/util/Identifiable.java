@@ -1,7 +1,9 @@
 package dev.creoii.dungeoneer.util;
 
-public interface Identifiable {
-    String id();
+public interface Identifiable<T> {
+    T id();
 
-    Identifiable withId(String id);
+    default Identifiable<T> withId(T id) {
+        return this;
+    }
 }

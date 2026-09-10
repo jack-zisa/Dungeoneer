@@ -1,7 +1,8 @@
 package dev.creoii.dungeoneer.definitions;
 
-import java.util.LinkedHashMap;
-import java.util.List;
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 
-public record Faction(long id, String name, String description, List<Account> accounts, LinkedHashMap<Long, Message> recentMessages) {
+import java.util.LinkedHashMap;
+
+public record Faction(long id, String name, String description, Long2ObjectArrayMap<Account> accounts, LinkedHashMap<Long, Message> recentMessages) {
 }

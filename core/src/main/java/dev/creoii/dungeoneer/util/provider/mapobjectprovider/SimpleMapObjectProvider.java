@@ -33,7 +33,7 @@ public record SimpleMapObjectProvider(String id, MapObject value) implements Map
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new SimpleMapObjectProvider(id, value);
     }
 }

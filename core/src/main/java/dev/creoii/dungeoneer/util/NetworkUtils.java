@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.LongStream;
 
 public final class NetworkUtils {
     public static List<Long> parseIds(String s) {
@@ -20,7 +21,11 @@ public final class NetworkUtils {
         return list;
     }
 
-    public static String compressIds(List<Long> characterIds) {
-        return String.join(",", characterIds.stream().map(String::valueOf).toList());
+    public static String compressIds(List<Long> ids) {
+        return String.join(",", ids.stream().map(String::valueOf).toList());
+    }
+
+    public static String compressIds(LongStream ids) {
+        return String.join(",", ids.mapToObj(String::valueOf).toList());
     }
 }

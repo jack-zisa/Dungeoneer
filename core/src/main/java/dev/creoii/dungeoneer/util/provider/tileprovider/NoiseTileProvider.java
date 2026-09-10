@@ -77,7 +77,7 @@ public class NoiseTileProvider implements TileProvider {
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new NoiseTileProvider(id, noiseParameters, entries, fallback);
     }
 

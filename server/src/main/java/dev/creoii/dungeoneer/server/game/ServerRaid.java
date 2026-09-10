@@ -9,6 +9,7 @@ import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.collision.CollisionManager;
 import org.jspecify.annotations.Nullable;
@@ -17,8 +18,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
+public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter, ServerDungeonMap> implements Identifiable<Long>, Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
+
+    private long id;
+
     private final DungeoneerServer server;
     private final CollisionManager collisionManager;
     private float timer;
@@ -47,6 +51,17 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         timer = SYNC_INTERVAL;
         moveEntries = new ArrayList<>();
         attacks = new ArrayList<>();
+    }
+
+    @Override
+    public Long id() {
+        return id;
+    }
+
+    @Override
+    public Identifiable<Long> withId(Long id) {
+        this.id = id;
+        return this;
     }
 
     @Override

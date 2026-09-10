@@ -93,7 +93,7 @@ public class ClientNetworkHandler implements Listener {
         switch (object) {
             case AuthenticateS2C _ -> Gdx.app.postRunnable(() -> client.setScreen(new LoginScreen(client)));
             case LoginResultS2C(PacketResult result, @Nullable Account account) -> {
-                if (result == PacketResult.SUCCESS) {
+                if (result == PacketResult.SUCCESS && account != null) {
                     client.getState().setAccount(account);
                     client.getState().fillCharacters(account.characterSlots());
                     client.get().sendTCP(new RequestCharactersC2S(account.id()));

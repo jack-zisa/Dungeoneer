@@ -24,7 +24,7 @@ public record BulletAttack(String id, int bulletCount, float arcGap, float angle
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new BulletAttack(id, bulletCount, arcGap, angleOffset, offset, indexOffset);
     }
 }

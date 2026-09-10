@@ -7,7 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Identifiable {
+public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Identifiable<String> {
     Codec<BulletPathType<?>> CODEC = Type.CODEC.dispatch(BulletPathType::type, type -> switch (type) {
         case EMPTY -> EmptyBulletPathType.TYPE_CODEC;
         case STRAIGHT -> StraightBulletPathType.TYPE_CODEC;

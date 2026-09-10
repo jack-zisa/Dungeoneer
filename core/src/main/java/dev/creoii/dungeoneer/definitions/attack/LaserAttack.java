@@ -25,7 +25,7 @@ public record LaserAttack(String id, Vector2 size, int laserCount, float arcGap,
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new LaserAttack(id, size, laserCount, arcGap, angleOffset, lifetime, attached);
     }
 }

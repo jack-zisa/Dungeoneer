@@ -7,7 +7,9 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
+import dev.creoii.dungeoneer.client.util.ProjectionUtils;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
+import dev.creoii.dungeoneer.util.VectorUtils;
 
 public class ClientBullet extends Bullet implements Renderable {
     @Override
@@ -22,6 +24,6 @@ public class ClientBullet extends Bullet implements Renderable {
 
     @Override
     public float depth(float rotation, OrthographicCamera camera) {
-        return ClientDungeonMap.project(getX() + getType().scale() * .5f, getY() + getType().scale() * .5f, 0f, rotation, camera.position.x, camera.position.y).y;
+        return ProjectionUtils.project(getX() + getType().scale() * .5f, getY() + getType().scale() * .5f, 0f, rotation, camera.position.x, camera.position.y).y;
     }
 }

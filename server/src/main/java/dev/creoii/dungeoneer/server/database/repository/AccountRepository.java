@@ -34,6 +34,20 @@ public class AccountRepository {
         );
     }
 
+    public boolean containsId(Long id) {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("""
+                        SELECT 1
+                        FROM accounts
+                        WHERE id = :id
+                    """)
+                .bind("id", id)
+                .mapTo(Integer.class)
+                .findOne()
+                .isPresent()
+        );
+    }
+
     @Nullable
     public Account getByUsername(String username) {
         return jdbi.withHandle(handle ->

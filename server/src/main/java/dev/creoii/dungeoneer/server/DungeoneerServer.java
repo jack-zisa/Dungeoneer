@@ -5,25 +5,22 @@ import com.esotericsoftware.minlog.Log;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
-import dev.creoii.dungeoneer.server.game.ServerCharacter;
-import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.server.network.ServerNetworkHandler;
 import dev.creoii.dungeoneer.util.logging.Logger;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Set;
 
 public class DungeoneerServer {
     public static final int DEFAULT_TCP_PORT = 54556;
     public static final int DEFAULT_UDP_PORT = 54778;
     public static final Logger LOGGER = new Logger(DungeoneerServer.class.getSimpleName());
-    private static final float DT = 1f / 20f;
+    public static final float DT = 1f / 20f;
     private final Server server;
     private final ServerNetworkHandler networkHandler;
     private final Database database;
     private final SessionManager sessionManager;
-    private final ServerState state;
+    private final ServerManager manager;
     private volatile Status status;
     private volatile boolean running = true;
     private final Thread gameThread;
@@ -51,7 +48,7 @@ public class DungeoneerServer {
         DataManager.setDebug(isDebug());
         DataManager.load();
         sessionManager = new SessionManager(this);
-        state = new ServerState(this);
+        manager = new ServerManager(this, 4);
 
         setStatus(Status.PAUSED);
 
@@ -77,8 +74,8 @@ public class DungeoneerServer {
         return sessionManager;
     }
 
-    public ServerState getState() {
-        return state;
+    public ServerManager getManager() {
+        return manager;
     }
 
     public ServerProperties getProperties() {
@@ -114,24 +111,7 @@ public class DungeoneerServer {
             if (status.shouldTick()) {
                 long start = System.currentTimeMillis();
 
-                Iterator<ServerRaid> iterator = state.getRaids().values().iterator();
-                while (iterator.hasNext()) {
-                    ServerRaid raid = iterator.next();
-
-                    Iterator<ServerCharacter> characterIterator = raid.getCharacters().values().iterator();
-                    while (characterIterator.hasNext()) {
-                        ServerCharacter character = characterIterator.next();
-                        int connectionId = getSessionManager().getAccountConnections().getOrDefault(character.get().accountId(), -1);
-                        if (connectionId == -1) characterIterator.remove();
-                    }
-
-                    if (raid.getCharacters().isEmpty()) {
-                        iterator.remove();
-                        continue;
-                    }
-
-                    raid.tick(DT);
-                }
+                manager.tick(DT);
 
                 networkHandler.tick(DT);
 

@@ -178,7 +178,7 @@ public class FactionTab extends Tab {
     public void refreshMembers(Faction faction) {
         membersTable.clearChildren();
         membersTable.add(new Label("Members", getSkin())).top().pad(4f).row();
-        for (Account account : faction.accounts()) {
+        for (Account account : faction.accounts().values()) {
             Table row = new Table();
 
             row.add(new Label(account.username(), getSkin()));
@@ -196,7 +196,7 @@ public class FactionTab extends Tab {
 
         for (Message message : faction.recentMessages().values()) {
             if (message.accountId() != -1L) {
-                Optional<Account> account = getClient().getState().getFaction().accounts().stream().filter(account1 -> account1.id() == message.accountId()).findFirst();
+                Optional<Account> account = getClient().getState().getFaction().accounts().values().stream().filter(account1 -> account1.id() == message.accountId()).findFirst();
                 account.ifPresent(value -> {
                     Label messageLabel = new Label(String.format("%s: %s", value.username(), message.text()), getSkin());
                     chatTable.add(messageLabel).left().growX().row();

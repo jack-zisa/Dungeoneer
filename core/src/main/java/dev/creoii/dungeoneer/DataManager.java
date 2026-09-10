@@ -35,47 +35,47 @@ import java.util.stream.Stream;
 public class DataManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = new Logger(DataManager.class.getSimpleName());
-    private static final EnumMap<SchemaType, Codec<? extends Identifiable>> SCHEMA = new EnumMap<>(SchemaType.class);
-    private static final EnumMap<SchemaType, Object2ObjectArrayMap<String, Identifiable>> DATA = new EnumMap<>(SchemaType.class);
+    private static final EnumMap<SchemaType, Codec<? extends Identifiable<String>>> SCHEMA = new EnumMap<>(SchemaType.class);
+    private static final EnumMap<SchemaType, Object2ObjectArrayMap<String, Identifiable<String>>> DATA = new EnumMap<>(SchemaType.class);
     private static boolean DEBUG = false;
 
     public static void setDebug(boolean debug) {
         DataManager.DEBUG = debug;
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getBullets() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getBullets() {
         return DATA.get(SchemaType.BULLET);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getAttacks() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getAttacks() {
         return DATA.get(SchemaType.ATTACK);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getClasses() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getClasses() {
         return DATA.get(SchemaType.CLASS);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getTiles() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getTiles() {
         return DATA.get(SchemaType.TILE);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getTileProviders() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getTileProviders() {
         return DATA.get(SchemaType.TILE_PROVIDER);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getMapObjects() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getMapObjects() {
         return DATA.get(SchemaType.MAP_OBJECT);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getTilesets() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getTilesets() {
         return DATA.get(SchemaType.TILESET);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getMapTemplates() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getMapTemplates() {
         return DATA.get(SchemaType.MAP_TEMPLATE);
     }
 
-    public static Object2ObjectArrayMap<String, Identifiable> getNoiseParameters() {
+    public static Object2ObjectArrayMap<String, Identifiable<String>> getNoiseParameters() {
         return DATA.get(SchemaType.NOISE_PARAMETERS);
     }
 
@@ -92,7 +92,7 @@ public class DataManager {
     public static Attack getAttack(String id) {
         Attack value = (Attack) getAttacks().get(id);
         if (value == null) {
-            if (DEBUG) LOGGER.error("Creating reference attack: '" + id + "'");
+            if (DEBUG) LOGGER.info("Creating reference attack: '" + id + "'");
             return new ReferenceAttack(id);
         }
         return value;
@@ -170,7 +170,7 @@ public class DataManager {
 
     public static void load(Path path) {
         try {
-            for (Map.Entry<SchemaType, Codec<? extends Identifiable>> entry : SCHEMA.entrySet()) {
+            for (Map.Entry<SchemaType, Codec<? extends Identifiable<String>>> entry : SCHEMA.entrySet()) {
                 String folder = entry.getKey().getPath();
                 Codec<?> codec = entry.getValue();
 
@@ -180,7 +180,7 @@ public class DataManager {
                     Files.createDirectories(folderPath);
                 }
 
-                Object2ObjectArrayMap<String, Identifiable> data = DATA.get(entry.getKey());
+                Object2ObjectArrayMap<String, Identifiable<String>> data = DATA.get(entry.getKey());
                 try (Stream<Path> paths = Files.walk(folderPath)) {
                     Stream<Path> filtered = paths.filter(p -> p.toString().endsWith(".json"));
                     for (Path file : filtered.toList()) {
@@ -196,7 +196,8 @@ public class DataManager {
                             String id = file.getFileName().toString();
                             id = id.substring(0, id.lastIndexOf('.'));
 
-                            Identifiable obj = (Identifiable) result.getOrThrow();
+                            @SuppressWarnings("unchecked")
+                            Identifiable<String> obj = (Identifiable<String>) result.getOrThrow();
                             obj = obj.withId(id);
                             data.put(obj.id(), obj);
                         } catch (Exception e) {

@@ -35,7 +35,7 @@ public record RandomMapObjectProvider(String id, List<MapObjectProvider> values)
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new RandomMapObjectProvider(id, values);
     }
 }

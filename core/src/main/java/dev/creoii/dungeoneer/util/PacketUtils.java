@@ -8,6 +8,7 @@ import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -116,10 +117,11 @@ public final class PacketUtils {
         String name = input.readString();
         String description = input.readString();
 
-        List<Account> accountIds = new ArrayList<>();
+        Long2ObjectArrayMap<Account> accountIds = new Long2ObjectArrayMap<>();
         long size = input.readInt();
         for (int i = 0; i < size; ++i) {
-            accountIds.add(readAccount(input));
+            Account account = readAccount(input);
+            accountIds.put(account.id(), account);
         }
         return new Faction(id, name, description, accountIds, new LinkedHashMap<>());
     }

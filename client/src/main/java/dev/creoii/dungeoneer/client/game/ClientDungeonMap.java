@@ -142,19 +142,6 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
         return cell != null;
     }
 
-    public static Vector2 project(float x, float y, float z, float angle, float originX, float originY) {
-        float rad = angle * MathUtils.degreesToRadians;
-        x -= originX;
-        y -= originY;
-        float rx = x * MathUtils.cos(rad) - y * MathUtils.sin(rad);
-        float ry = x * MathUtils.sin(rad) + y * MathUtils.cos(rad);
-        rx += z * .15f;
-        ry -= z * .85f;
-        rx += originX;
-        ry += originY;
-        return new Vector2(rx, ry);
-    }
-
     public void save() {
         client.get().sendTCP(new SaveDungeonMapC2S(client.getState().getAccount().id(), definition.templateId(), definition.tilesetId()));
     }

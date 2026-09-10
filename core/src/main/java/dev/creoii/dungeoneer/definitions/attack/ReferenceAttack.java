@@ -15,7 +15,7 @@ public record ReferenceAttack(String id) implements Attack {
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new ReferenceAttack(this.id);
     }
 }

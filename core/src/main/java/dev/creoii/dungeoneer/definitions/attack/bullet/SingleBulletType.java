@@ -20,7 +20,7 @@ public record SingleBulletType(String id, Type type, float scale, float angleOff
     ).apply(instance, SingleBulletType::new));
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new SingleBulletType(id, type, scale, angleOffset, speed, lifetime, rotationSpeed, acceleration, path);
     }
 }

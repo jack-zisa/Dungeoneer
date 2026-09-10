@@ -17,6 +17,7 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.client.render.screen.game.DeathScreen;
+import dev.creoii.dungeoneer.client.util.ProjectionUtils;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
@@ -260,7 +261,7 @@ public class ClientCharacter implements Character, Renderable {
         float cx = getRenderX() + sprite.getWidth() * .5f;
         float cy = getRenderY() + sprite.getHeight() * .5f;
         float[] pos = {cx, cy};
-        VectorUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
+        ProjectionUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
         sprite.setPosition(pos[0] - sprite.getWidth() * .5f, pos[1] - sprite.getHeight() * .5f);
         sprite.draw(batch);
     }
@@ -280,6 +281,6 @@ public class ClientCharacter implements Character, Renderable {
 
     @Override
     public float depth(float rotation, OrthographicCamera camera) {
-        return ClientDungeonMap.project(getRenderX() + sprite.getWidth() * .5f, getRenderY() + sprite.getHeight() * .5f, 0f, rotation, camera.position.x, camera.position.y).y;
+        return ProjectionUtils.project(getRenderX() + sprite.getWidth() * .5f, getRenderY() + sprite.getHeight() * .5f, 0f, rotation, camera.position.x, camera.position.y).y;
     }
 }

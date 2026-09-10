@@ -26,7 +26,7 @@ public record WavyBulletPathType(String id, WaveType waveType, float amplitude, 
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new WavyBulletPathType(id, waveType, amplitude, frequency, indexPhase);
     }
 

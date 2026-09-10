@@ -33,7 +33,7 @@ public record SimpleTileProvider(String id, Tile value) implements TileProvider 
     }
 
     @Override
-    public Identifiable withId(String id) {
+    public Identifiable<String> withId(String id) {
         return new SimpleTileProvider(id, value);
     }
 }

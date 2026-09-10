@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * An attack defines the initial state of one or more {@link dev.creoii.dungeoneer.definitions.sided.BulletNode}.
  */
- public sealed interface Attack extends Identifiable permits BulletAttack, CompositeAttack, LaserAttack, ReferenceAttack {
+ public sealed interface Attack extends Identifiable<String> permits BulletAttack, CompositeAttack, LaserAttack, ReferenceAttack {
     AttackType type();
 
     Codec<Attack> CODEC = AttackType.CODEC.dispatch(Attack::type, type -> switch (type) {

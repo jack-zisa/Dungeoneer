@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.util.provider.Provider;
 
 import java.util.function.Function;
 
-public interface MapObjectProvider extends Provider<MapObject, MapObjectContext>, Identifiable {
+public interface MapObjectProvider extends Provider<MapObject, MapObjectContext>, Identifiable<String> {
     Codec<MapObjectProvider> TYPE_CODEC = Type.CODEC.dispatch(MapObjectProvider::getType, type -> switch (type) {
         case SIMPLE -> SimpleMapObjectProvider.CODEC;
         case RANDOM -> RandomMapObjectProvider.CODEC;
