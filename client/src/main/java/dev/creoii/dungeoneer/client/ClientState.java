@@ -60,7 +60,7 @@ public class ClientState {
 
     public void setDungeonMap(DungeonMapDefinition definition) {
         dungeonMap.set(definition);
-        dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(definition.accountId(), DataManager.getMapTemplate(dungeonMap.get().templateId()), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles::getTile)));
+        dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(definition.accountId(), DataManager.getMapTemplate(dungeonMap.get().templateId()), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles.SETTER)));
     }
 
     public List<CharacterDefinition> getCharacters() {

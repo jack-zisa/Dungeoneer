@@ -272,7 +272,7 @@ public class ServerNetworkHandler extends NetworkHandler {
                         RaidDefinition raid = server.getDatabase().getRaids().create(account, character, target, requiredCharacters, LocalDateTime.now());
                         if (raid != null) {
                             server.get().sendToTCP(connection.getID(), new SendRaidTargetS2C(raid, dungeonMap.templateId(), dungeonMap.tilesetId()));
-                            server.getState().getRaids().put(raid.id(), new ServerRaid(server, new ServerDungeonMap(dungeonMap), serverCharacter, raid));
+                            server.getState().getRaids().put(raid.id(), new ServerRaid(server, new ServerDungeonMap(dungeonMap, raid.target().id()), serverCharacter, raid));
                         }
                     }
                 }

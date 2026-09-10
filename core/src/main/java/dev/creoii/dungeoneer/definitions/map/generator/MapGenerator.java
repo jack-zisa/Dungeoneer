@@ -1,13 +1,12 @@
 package dev.creoii.dungeoneer.definitions.map.generator;
 
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.mojang.serialization.Codec;
-import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
+import dev.creoii.dungeoneer.definitions.map.tile.TileSetter;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
-import java.util.function.Function;
 
 public interface MapGenerator {
     Codec<MapGenerator> TYPE_CODEC = Type.CODEC.dispatch(MapGenerator::getType, type -> switch (type) {
@@ -18,7 +17,7 @@ public interface MapGenerator {
 
     Type getType();
 
-    void apply(TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction);
+    void apply(@Nullable TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, TileSetter setter);
 
     enum Type {
         EMPTY,

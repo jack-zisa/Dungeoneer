@@ -1,35 +1,23 @@
 package dev.creoii.dungeoneer.util;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
-import dev.creoii.dungeoneer.definitions.map.MapLayerType;
+import dev.creoii.dungeoneer.definitions.map.tile.TileSetter;
 import dev.creoii.dungeoneer.definitions.map.generator.MapGenerator;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.map.tile.Tileset;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
 
 import java.util.Random;
-import java.util.function.Function;
 
 public final class DungeonMapUtils {
-    public static TiledMap buildEmptyMap() {
-        TiledMap map = new TiledMap();
-        for (MapLayerType layerName : MapLayerType.values()) {
-            TiledMapTileLayer layer = new TiledMapTileLayer(256, 256, 8, 8);
-            layer.setName(layerName.id());
-            map.getLayers().add(layer);
-        }
-        return map;
-    }
-
-    public static TiledMap deserializeMap2(long seed, DungeonMapTemplate template, String tilesetId, TiledMapTileSet tileSet, Function<String, TiledMapTile> tileFunction) {
+    public static TiledMap deserializeMap2(long seed, DungeonMapTemplate template, String tilesetId, TiledMapTileSet tileSet, TileSetter setter) {
         TiledMap map = new TiledMap();
 
         Tileset tileset = DataManager.getTileset(tilesetId);
-
         if (template == null || tileset == null) {
             return map;
         }
@@ -48,7 +36,7 @@ public final class DungeonMapUtils {
                 if (provider == null)
                     continue;
 
-                generator.apply(tiledLayer, layerType, seed, new Random(), tileFunction);
+                generator.apply(tiledLayer, layerType, seed, new Random(), setter);
             }
 
             tiledLayer.setName(layerType.name().toLowerCase());

@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.client.render.screen.editor;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.google.common.collect.BiMap;
@@ -9,6 +10,7 @@ import com.google.common.collect.HashBiMap;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.definitions.map.tile.TileSetter;
 import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 
@@ -18,6 +20,11 @@ public final class ClientTiles {
     public static final TiledMapTileSet TILESET = new TiledMapTileSet();
     public static final BiMap<String, TiledMapTile> TILES = HashBiMap.create();
     public static final BiMap<String, TiledMapTile> OBJECTS = HashBiMap.create();
+    public static final TileSetter SETTER = (layer, x, y, tileId) -> {
+        TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+        cell.setTile(getTile(tileId));
+        layer.setCell(x, y, cell);
+    };
 
     public static void load(Dungeoneer client) {
         DataManager.getTiles().forEach((_, identifiable) -> {

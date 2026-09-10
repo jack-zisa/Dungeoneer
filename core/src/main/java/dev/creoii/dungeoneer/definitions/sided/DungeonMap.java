@@ -12,10 +12,12 @@ public interface DungeonMap {
 
     DungeonMapTemplate getTemplate();
 
-    Map<Integer, String> getTileIds();
-
     /**
      * @param bounded Whether out-of-bounds positions should be considered solid.
      */
     boolean isSolid(int tileX, int tileY, boolean bounded);
+
+    int getWidth();
+
+    int getHeight();
 }

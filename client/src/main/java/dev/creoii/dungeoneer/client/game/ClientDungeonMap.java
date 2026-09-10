@@ -20,19 +20,17 @@ import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Direction;
 import dev.creoii.dungeoneer.util.DungeonMapUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ClientDungeonMap implements DungeonMap, Disposable {
     public static final float WALL_HEIGHT = -4f;
     public static final float TILE_SIZE = 8f;
     private final Dungeoneer client;
-    private final Map<Integer, String> tileIds;
     private DungeonMapDefinition definition;
     private DungeonMapTemplate template;
     private OrthogonalTiledMapRenderer mapRenderer;
@@ -41,12 +39,11 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
 
     public ClientDungeonMap(Dungeoneer client) {
         this.client = client;
-        tileIds = new HashMap<>();
     }
 
     public void build(Dungeoneer client, long seed, String templateId, String tilesetId) {
         template = DataManager.getMapTemplate(templateId);
-        mapRenderer = new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(seed, template, tilesetId, ClientTiles.TILESET, ClientTiles::getTile));
+        mapRenderer = new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(seed, template, tilesetId, ClientTiles.TILESET, ClientTiles.SETTER));
 
         wallTops = new ArrayList<>();
         wallFaces = new ArrayList<>();
@@ -78,6 +75,16 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
     }
 
     @Override
+    public int getWidth() {
+        return Constants.MAP_WIDTH;
+    }
+
+    @Override
+    public int getHeight() {
+        return Constants.MAP_HEIGHT;
+    }
+
+    @Override
     public DungeonMapDefinition get() {
         return definition;
     }
@@ -106,11 +113,6 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
 
     public void setMapRenderer(OrthogonalTiledMapRenderer mapRenderer) {
         this.mapRenderer = mapRenderer;
-    }
-
-    @Override
-    public Map<Integer, String> getTileIds() {
-        return tileIds;
     }
 
     public void clear() {

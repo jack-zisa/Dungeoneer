@@ -1,20 +1,20 @@
 package dev.creoii.dungeoneer.definitions.map.generator;
 
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
+import dev.creoii.dungeoneer.definitions.map.tile.TileSetter;
 import dev.creoii.dungeoneer.util.Codecs;
+import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.provider.TileContext;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
-import java.util.function.Function;
 
 public record CircleMapGenerator(Vector2 center, TileProvider tile, int radius, int thickness) implements MapGenerator {
     public static final MapCodec<CircleMapGenerator> CODEC = RecordCodecBuilder.mapCodec(instance ->
@@ -32,7 +32,7 @@ public record CircleMapGenerator(Vector2 center, TileProvider tile, int radius, 
     }
 
     @Override
-    public void apply(TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
+    public void apply(@Nullable TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, TileSetter setter) {
         random.setSeed(seed);
 
         int centerX = Math.round(center.x);
@@ -43,9 +43,9 @@ public record CircleMapGenerator(Vector2 center, TileProvider tile, int radius, 
         int innerRadius2 = innerRadius * innerRadius;
 
         int minX = Math.max(0, centerX - radius);
-        int maxX = Math.min(layer.getWidth() - 1, centerX + radius);
+        int maxX = Math.min(Constants.MAP_WIDTH - 1, centerX + radius);
         int minY = Math.max(0, centerY - radius);
-        int maxY = Math.min(layer.getHeight() - 1, centerY + radius);
+        int maxY = Math.min(Constants.MAP_HEIGHT - 1, centerY + radius);
 
         for (int y = minY; y <= maxY; y++) {
             for (int x = minX; x <= maxX; x++) {
@@ -62,9 +62,7 @@ public record CircleMapGenerator(Vector2 center, TileProvider tile, int radius, 
                     continue;
                 }
 
-                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                cell.setTile(tileFunction.apply(tile.get(new TileContext(random, x, y, seed)).id()));
-                layer.setCell(x, y, cell);
+                setter.set(layer, x, y, tile.get(new TileContext(random, x, y, seed)).id());
             }
         }
     }

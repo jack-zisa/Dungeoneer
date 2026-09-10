@@ -1,13 +1,12 @@
 package dev.creoii.dungeoneer.definitions.map.generator;
 
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.mojang.serialization.MapCodec;
-import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
+import dev.creoii.dungeoneer.definitions.map.tile.TileSetter;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
-import java.util.function.Function;
 
 public record EmptyMapGenerator() implements MapGenerator {
     private static final EmptyMapGenerator INSTANCE = new EmptyMapGenerator();
@@ -19,6 +18,6 @@ public record EmptyMapGenerator() implements MapGenerator {
     }
 
     @Override
-    public void apply(TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, Function<String, TiledMapTile> tileFunction) {
+    public void apply(@Nullable TiledMapTileLayer layer, MapLayerType layerType, long seed, Random random, TileSetter setter) {
     }
 }
