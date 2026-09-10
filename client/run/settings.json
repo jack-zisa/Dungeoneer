@@ -1,11 +1,13 @@
 {
-  "camera_rotation_speed": 1,
   "favorite_character": 4,
+  "debug_key": 133,
   "debug": false,
-  "rotate_left_key": 45,
   "rotate_right_key": 33,
-  "up_key": 51,
-  "left_key": 29,
+  "reset_rotation_key": 54,
+  "camera_rotation_speed": 1,
   "down_key": 47,
-  "right_key": 32
+  "right_key": 32,
+  "rotate_left_key": 45,
+  "up_key": 51,
+  "left_key": 29
 }

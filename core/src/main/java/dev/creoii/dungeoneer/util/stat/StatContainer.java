@@ -69,4 +69,10 @@ public record StatContainer(Stat health, Stat speed, Stat attackSpeed) {
             new Stat(Stat.Type.ATTACK_SPEED, attackSpeed.base())
         );
     }
+
+    public String toDebugString(StatContainer maxStatContainer) {
+        return "H:" + health + "/" + maxStatContainer.health
+            + "|S:" + speed + "/" + maxStatContainer.speed
+            + "|AS:" + attackSpeed + "/" + maxStatContainer.attackSpeed;
+    }
 }

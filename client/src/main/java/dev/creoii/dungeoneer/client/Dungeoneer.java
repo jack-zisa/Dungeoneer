@@ -10,6 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.creoii.dungeoneer.client.network.ClientNetworkHandler;
 import dev.creoii.dungeoneer.client.option.Settings;
+import dev.creoii.dungeoneer.client.render.DebugRenderer;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.LoadingScreen;
 import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.network.CreoSerialization;
@@ -28,6 +30,8 @@ public class Dungeoneer extends Game {
     private Assets assets;
     private final Settings settings;
     private final ClientNetworkHandler networkHandler;
+    private final DebugRenderer debugRenderer;
+    private boolean debug;
 
     public Dungeoneer() {
         client = new Client(256 * 1024, 256 * 1024, new CreoSerialization());
@@ -35,6 +39,7 @@ public class Dungeoneer extends Game {
         inputMultiplexer = new InputMultiplexer();
         settings = Settings.DEFAULT;
         networkHandler = new ClientNetworkHandler(this);
+        debugRenderer = new DebugRenderer(this);
     }
 
     public Client get() {
@@ -79,6 +84,8 @@ public class Dungeoneer extends Game {
         settings.load();
         assets = new Assets();
         assets.load();
+
+        debugRenderer.init();
     }
 
     @Override
@@ -94,6 +101,14 @@ public class Dungeoneer extends Game {
         }
 
         super.render();
+
+        if (screen instanceof AbstractScreen abstractScreen) {
+            if (Gdx.input.isKeyJustPressed(settings.debugKey().value())) {
+                debug = !debug;
+            }
+
+            if (debug) debugRenderer.render(abstractScreen);
+        }
     }
 
     @Override
