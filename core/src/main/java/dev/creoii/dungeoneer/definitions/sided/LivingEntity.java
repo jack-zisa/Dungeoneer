@@ -10,7 +10,7 @@ public interface LivingEntity extends Entity {
     boolean addStatusEffect(StatusEffectInstance instance);
 
     default boolean addStatusEffect(StatusEffect effect) {
-        return addStatusEffect(new StatusEffectInstance(effect, 0, 0, System.currentTimeMillis()));
+        return addStatusEffect(new StatusEffectInstance(effect, 0, -1, System.currentTimeMillis()));
     }
 
     default boolean addStatusEffect(StatusEffect effect, int duration) {

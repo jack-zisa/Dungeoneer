@@ -36,9 +36,5 @@ public record Command(CommandExecutor executor, int minArgs) {
         public String getResultMessageWithReason(String commandType, String[] args, String reason) {
             return message.apply(commandType, args) + ": " + reason;
         }
-
-        public static Color getChatMessageColor(Result result) {
-            return result == SUCCESS ? Color.WHITE : Color.RED;
-        }
     }
 }

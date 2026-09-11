@@ -24,7 +24,7 @@ public final class Commands {
                     LOGGER.info(result.getResultMessage(commandType, args));
                     return result;
                 } else {
-                    LOGGER.error("Command '/ " + commandType + "' failed to execute: Not enough arguments.");
+                    LOGGER.error("Command '/" + commandType + "' failed to execute: Not enough arguments.");
                 }
             } catch (Exception e) {
                 LOGGER.error(Command.Result.FAIL.getResultMessageWithReason(commandType, args, e.toString()));

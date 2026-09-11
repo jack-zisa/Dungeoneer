@@ -40,6 +40,9 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (client.getCommandManager().isActive())
+            return false;
+
         if (button == Input.Buttons.LEFT) {
             attacking = true;
             return true;
@@ -49,6 +52,9 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (client.getCommandManager().isActive())
+            return false;
+
         if (button == Input.Buttons.LEFT) {
             attacking = false;
             return true;
@@ -57,6 +63,9 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     }
 
     public void tryAttack() {
+        if (client.getCommandManager().isActive())
+            return;
+
         ClientCharacter character = client.getState().getActiveCharacter();
         AnimationState animationState = character.getAnimationState();
         ClientRaid raid = client.getState().getCurrentRaid();
@@ -82,7 +91,7 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     @Override
     public boolean keyDown(int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
-        if (character.isNull())
+        if (character.isNull() || client.getCommandManager().isActive())
             return false;
 
         if (character.canMove()) {
@@ -115,7 +124,7 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     @Override
     public boolean keyUp(int keycode) {
         ClientCharacter character = client.getState().getActiveCharacter();
-        if (character.isNull())
+        if (character.isNull() || client.getCommandManager().isActive())
             return false;
 
         if (character.canMove()) {
@@ -138,6 +147,9 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
     }
 
     public void updateRotation(float dt) {
+        if (client.getCommandManager().isActive())
+            return;
+
         float oldRotation = rotation;
 
         if (Gdx.input.isKeyPressed(client.getSettings().resetRotationKey().value())) {

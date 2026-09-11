@@ -20,6 +20,9 @@ import dev.creoii.dungeoneer.util.stat.StatUtils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ServerCharacter implements Character<ServerRaid> {
     private final int connectionId;
     private final CharacterDefinition character;
@@ -33,6 +36,7 @@ public class ServerCharacter implements Character<ServerRaid> {
     private final Long2ObjectArrayMap<StatusEffectInstance> statusEffects;
     private long pendingStatusEffectAdds;
     private long pendingStatusEffectRemoves;
+    private final List<StatusEffect> expiredEffects;
     private boolean dead;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
@@ -53,6 +57,7 @@ public class ServerCharacter implements Character<ServerRaid> {
         );
         raid = null;
         statusEffects = new Long2ObjectArrayMap<>();
+        expiredEffects = new ArrayList<>();
         dead = false;
     }
 
@@ -227,6 +232,12 @@ public class ServerCharacter implements Character<ServerRaid> {
 
         statusEffects.values().forEach(instance -> {
             instance.statusEffect().ticker().apply(raid, context);
+
+            if (instance.isExpired()) {
+                expiredEffects.add(instance.statusEffect());
+            }
         });
+        expiredEffects.forEach(this::removeStatusEffect);
+        expiredEffects.clear();
     }
 }

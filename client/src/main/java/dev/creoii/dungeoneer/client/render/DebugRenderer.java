@@ -43,7 +43,6 @@ public class DebugRenderer {
         float x;
         float y;
 
-        screen.getStage().getBatch().begin();
         for (int i = 0; i < lines.length; i++) {
             String text = lines[i];
             DEBUG_LAYOUT.setText(Assets.FONT, text);
@@ -51,6 +50,5 @@ public class DebugRenderer {
             y = baseY - (i * 25);
             Assets.FONT.draw(screen.getStage().getBatch(), DEBUG_LAYOUT, x, y);
         }
-        screen.getStage().getBatch().end();
     }
 }

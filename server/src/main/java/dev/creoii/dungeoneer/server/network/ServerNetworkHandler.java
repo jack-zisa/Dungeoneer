@@ -419,7 +419,7 @@ public class ServerNetworkHandler extends NetworkHandler {
         } else if (object instanceof ExecuteCommandC2S(long accountId, long raidId, String commandType, String[] args)) {
             Command.Result result = Commands.tryExecute(server, accountId, raidId, commandType, args);
             if (result != null) {
-                System.out.println(result.name());
+                // TODO: Send result to client
             }
         }
     }

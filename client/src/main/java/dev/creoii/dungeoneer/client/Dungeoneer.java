@@ -69,6 +69,10 @@ public class Dungeoneer extends Game {
         return networkHandler;
     }
 
+    public ClientCommandManager getCommandManager() {
+        return commandManager;
+    }
+
     @Override
     public void create() {
         Gdx.input.setInputProcessor(inputMultiplexer);
