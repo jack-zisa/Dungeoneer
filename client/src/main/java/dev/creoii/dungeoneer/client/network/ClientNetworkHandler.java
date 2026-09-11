@@ -32,16 +32,15 @@ import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
-import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
-import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
-import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
+import dev.creoii.dungeoneer.network.s2c.character.*;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
+import dev.creoii.dungeoneer.util.stat.Stat;
+import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -400,6 +399,11 @@ public class ClientNetworkHandler extends NetworkHandler {
                 if (!raid.isNull() && raid.get().id() == raidId) {
                     raid.removeCharacter(accountId, reason);
                 }
+            }
+            case StatUpdatesS2C(long accountId, StatContainer stats) -> {
+                if (client.getState().getAccount().id() != accountId || client.getState().getActiveCharacter().isNull())
+                    return;
+                client.getState().getActiveCharacter().getStats().set(stats);
             }
             default -> {
             }

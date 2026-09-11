@@ -28,9 +28,18 @@ public record StatContainer(Stat health, Stat speed, Stat attackSpeed) {
         this(new Stat(Stat.Type.HEALTH, health), new Stat(Stat.Type.SPEED, speed), new Stat(Stat.Type.ATTACK_SPEED, attackSpeed));
     }
 
+    public void setStat(Stat.Type type, float value) {
+        switch (type) {
+            case HEALTH -> setHealth(value);
+            case SPEED -> setSpeed(value);
+            case ATTACK_SPEED -> setAttackSpeed(value);
+        }
+    }
+
     public void setSpeed(float speed) {
         this.speed.set(speed);
     }
+
 
     public void setHealth(float health) {
         this.health.set(health);

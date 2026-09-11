@@ -19,10 +19,7 @@ import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
-import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
-import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
-import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
+import dev.creoii.dungeoneer.network.s2c.character.*;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
@@ -107,6 +104,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(DamageCharactersS2C.class, PacketSerializer.INSTANCE);
         kryo.register(StatusEffectsS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LeaveRaidS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(StatUpdatesS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
@@ -155,5 +153,6 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(DamageCharactersS2C.class, DamageCharactersS2C::write, DamageCharactersS2C::read);
         PacketSerializer.INSTANCE.register(StatusEffectsS2C.class, StatusEffectsS2C::write, StatusEffectsS2C::read);
         PacketSerializer.INSTANCE.register(LeaveRaidS2C.class, LeaveRaidS2C::write, LeaveRaidS2C::read);
+        PacketSerializer.INSTANCE.register(StatUpdatesS2C.class, StatUpdatesS2C::write, StatUpdatesS2C::read);
     }
 }

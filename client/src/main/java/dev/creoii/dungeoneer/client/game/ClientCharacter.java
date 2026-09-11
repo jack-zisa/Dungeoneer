@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -104,15 +102,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
         }
-    }
-
-    @Nullable
-    public TiledMapTile getTileOn(TiledMapTileLayer layer) {
-        int tileX = (int) (getRenderX() + sprite.getWidth() * .625f); // .5f * .125f
-        int tileY = (int) (getRenderY() * .125f);
-
-        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
-        return cell != null ? cell.getTile() : null;
     }
 
     @Override
