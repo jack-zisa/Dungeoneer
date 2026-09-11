@@ -210,11 +210,13 @@ public class ServerNetworkHandler extends NetworkHandler {
                 Message message = server.getDatabase().getChatMessages().create(account.factionId(), -1L, String.format("%s joined the faction", account.username()));
                 faction.recentMessages().put(message.messageId(), message);
 
+                SendFactionS2C sendFactionS2C = new SendFactionS2C(faction);
+                ChatMessageS2C chatMessageS2C = new ChatMessageS2C(message);
                 faction.accounts().forEach(account1 -> {
                     if (account1.id() != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1.id())) {
                         int connectionId = server.getSessionManager().getAccountConnections().get(account1.id());
-                        server.get().sendToUDP(connectionId, new SendFactionS2C(faction));
-                        server.get().sendToTCP(connectionId, new ChatMessageS2C(message));
+                        server.get().sendToUDP(connectionId, sendFactionS2C);
+                        server.get().sendToTCP(connectionId, chatMessageS2C);
                     }
                 });
 
@@ -233,11 +235,13 @@ public class ServerNetworkHandler extends NetworkHandler {
                     Message message = server.getDatabase().getChatMessages().create(account.factionId(), -1L, String.format("%s left the faction", account.username()));
                     faction.recentMessages().put(message.messageId(), message);
 
+                    SendFactionS2C sendFactionS2C = new SendFactionS2C(faction);
+                    ChatMessageS2C chatMessageS2C = new ChatMessageS2C(message);
                     faction.accounts().forEach(account1 -> {
                         if (account1.id() != account.id() && server.getSessionManager().getAccountConnections().containsKey(account1.id())) {
                             int connectionId = server.getSessionManager().getAccountConnections().get(account1.id());
-                            server.get().sendToUDP(connectionId, new SendFactionS2C(faction));
-                            server.get().sendToTCP(connectionId, new ChatMessageS2C(message));
+                            server.get().sendToUDP(connectionId, sendFactionS2C);
+                            server.get().sendToTCP(connectionId, chatMessageS2C);
                         }
                     });
 
@@ -267,19 +271,21 @@ public class ServerNetworkHandler extends NetworkHandler {
                         server.get().sendToTCP(connection.getID(), new JoinRaidS2C(existing.get()));
                     }
 
+                    JoinRaidS2C joinRaidS2C = new JoinRaidS2C(character);
                     serverRaid.get().attackers().forEach(account1 -> {
                         int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
                         if (connectionId != -1) {
                             if (account1.id() == account.id())
                                 return;
-                            server.get().sendToTCP(connectionId, new JoinRaidS2C(character));
+                            server.get().sendToTCP(connectionId, joinRaidS2C);
                         }
                     });
 
+                    SyncRaidWaitingStateS2C syncRaidWaitingStateS2C = new SyncRaidWaitingStateS2C(serverRaid.get());
                     serverRaid.get().attackers().forEach(account1 -> {
                         int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
                         if (connectionId != -1) {
-                            server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
+                            server.get().sendToTCP(connectionId, syncRaidWaitingStateS2C);
                         }
                     });
                 }
@@ -349,13 +355,14 @@ public class ServerNetworkHandler extends NetworkHandler {
                 server.get().sendToTCP(connection.getID(), new FlagChatMessageS2C(localId, finalMessage));
             }
 
+            ChatMessageS2C packet = new ChatMessageS2C(finalMessage);
             faction.accounts().forEach(account -> {
                 if (account.id() == finalMessage.accountId())
                     return;
 
                 int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
                 if (connectionId != -1) {
-                    server.get().sendToTCP(connectionId, new ChatMessageS2C(finalMessage));
+                    server.get().sendToTCP(connectionId, packet);
                 }
             });
         } else if (object instanceof SaveDungeonMapC2S(long accountId, String templateId, String tilesetId)) {
@@ -413,11 +420,13 @@ public class ServerNetworkHandler extends NetworkHandler {
                     server.getState().getRaids().remove(raidId);
                 } else server.getDatabase().getRaids().updateAttackers(serverRaid.get());
 
+                SyncRaidWaitingStateS2C syncRaidWaitingStateS2C = new SyncRaidWaitingStateS2C(serverRaid.get());
+                LeaveRaidS2C leaveRaidS2C = new LeaveRaidS2C(serverRaid.get().id(), accountId, RemovalReason.CANCEL);
                 serverRaid.get().attackers().forEach(account1 -> {
                     int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
                     if (connectionId != -1) {
-                        server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
-                        server.get().sendToTCP(connectionId, new LeaveRaidS2C(serverRaid.get().id(), accountId, RemovalReason.CANCEL));
+                        server.get().sendToTCP(connectionId, syncRaidWaitingStateS2C);
+                        server.get().sendToTCP(connectionId, leaveRaidS2C);
                     }
                 });
             }

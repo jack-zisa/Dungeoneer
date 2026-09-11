@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.DamageCharactersS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.MoveCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.action.Context;
@@ -213,7 +213,7 @@ public class ServerCharacter implements Character<ServerRaid> {
             setPos(modified.x, modified.y);
 
             // Sync character movement
-            raid.getMoveEntries().add(new MoveRaidCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
+            raid.getMoveEntries().add(new MoveCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
             raid.getServer().get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
 
             if (hasPendingStatusEffectChanges()) {
@@ -228,11 +228,9 @@ public class ServerCharacter implements Character<ServerRaid> {
             .set(ValueType.HEALTH, stats.health().value());
 
         statusEffects.values().forEach(instance -> {
-            instance.statusEffect().ticker().apply(raid, context);
-
             if (instance.isExpired()) {
                 expiredEffects.add(instance.statusEffect());
-            }
+            } else instance.statusEffect().ticker().apply(raid, context);
         });
         expiredEffects.forEach(this::removeStatusEffect);
         expiredEffects.clear();

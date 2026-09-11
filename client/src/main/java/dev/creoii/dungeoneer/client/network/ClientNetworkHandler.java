@@ -319,12 +319,12 @@ public class ClientNetworkHandler extends NetworkHandler {
                     });
                 }
             }
-            case MoveRaidCharactersS2C(List<MoveRaidCharactersS2C.Entry> entries) -> {
+            case MoveCharactersS2C(List<MoveCharactersS2C.Entry> entries) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (raid == null)
                     return;
 
-                for (MoveRaidCharactersS2C.Entry entry : entries) {
+                for (MoveCharactersS2C.Entry entry : entries) {
                     if (entry.accountId() == client.getState().getAccount().id())
                         continue;
 

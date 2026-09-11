@@ -97,7 +97,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(AttackResultS2C.class, PacketSerializer.INSTANCE);
         kryo.register(SyncRaidTimerS2C.class, PacketSerializer.INSTANCE);
         kryo.register(SyncRaidWaitingStateS2C.class, PacketSerializer.INSTANCE);
-        kryo.register(MoveRaidCharactersS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(MoveCharactersS2C.class, PacketSerializer.INSTANCE);
         kryo.register(JoinRaidS2C.class, PacketSerializer.INSTANCE);
         kryo.register(AttacksS2C.class, PacketSerializer.INSTANCE);
         kryo.register(DamageCharactersS2C.class, PacketSerializer.INSTANCE);
@@ -145,7 +145,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(AttackResultS2C.class, AttackResultS2C::write, AttackResultS2C::read);
         PacketSerializer.INSTANCE.register(SyncRaidTimerS2C.class, SyncRaidTimerS2C::write, SyncRaidTimerS2C::read);
         PacketSerializer.INSTANCE.register(SyncRaidWaitingStateS2C.class, SyncRaidWaitingStateS2C::write, SyncRaidWaitingStateS2C::read);
-        PacketSerializer.INSTANCE.register(MoveRaidCharactersS2C.class, MoveRaidCharactersS2C::write, MoveRaidCharactersS2C::read);
+        PacketSerializer.INSTANCE.register(MoveCharactersS2C.class, MoveCharactersS2C::write, MoveCharactersS2C::read);
         PacketSerializer.INSTANCE.register(JoinRaidS2C.class, JoinRaidS2C::write, JoinRaidS2C::read);
         PacketSerializer.INSTANCE.register(AttacksS2C.class, AttacksS2C::write, AttacksS2C::read);
         PacketSerializer.INSTANCE.register(DamageCharactersS2C.class, DamageCharactersS2C::write, DamageCharactersS2C::read);
