@@ -115,16 +115,18 @@ public class ServerNetworkHandler extends NetworkHandler {
     public void disconnected(Connection connection) {
         DungeoneerServer.LOGGER.info("Client disconnected: %s", connection);
 
-        long accountId = server.getSessionManager().getAccountConnections().inverse().get(connection.getID());
-        for (ServerRaid raid : server.getState().getRaids().values()) {
-            if (raid.removeCharacter(accountId, RemovalReason.DISCONNECTED) != null)
-                break;
-        }
+        if (server.getSessionManager().hasSession(connection.getID())) {
+            long accountId = server.getSessionManager().getAccountConnections().inverse().get(connection.getID());
+            for (ServerRaid raid : server.getState().getRaids().values()) {
+                if (raid.removeCharacter(accountId, RemovalReason.DISCONNECTED) != null)
+                    break;
+            }
 
-        server.getSessionManager().endClientSession(connection);
+            server.getSessionManager().endClientSession(connection);
 
-        if (server.getStatus() == DungeoneerServer.Status.RUNNING && server.get().getConnections().isEmpty()) {
-            server.setStatus(DungeoneerServer.Status.PAUSED);
+            if (server.getStatus() == DungeoneerServer.Status.RUNNING && server.get().getConnections().isEmpty()) {
+                server.setStatus(DungeoneerServer.Status.PAUSED);
+            }
         }
     }
 
