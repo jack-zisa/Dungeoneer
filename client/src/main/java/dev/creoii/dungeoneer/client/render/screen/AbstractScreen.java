@@ -11,10 +11,12 @@ public abstract class AbstractScreen implements Screen {
     public static final Skin SKIN = new Skin(Gdx.files.internal("uiskin.json"));
     private final Dungeoneer client;
     private final Stage stage;
+    private boolean disposed;
 
     public AbstractScreen(Dungeoneer client) {
         this.client = client;
         stage = new Stage(new ScreenViewport());
+        disposed = false;
     }
 
     public Dungeoneer getClient() {
@@ -23,6 +25,10 @@ public abstract class AbstractScreen implements Screen {
 
     public Stage getStage() {
         return stage;
+    }
+
+    public boolean isDisposed() {
+        return disposed;
     }
 
     @Override
@@ -57,5 +63,6 @@ public abstract class AbstractScreen implements Screen {
     public void dispose() {
         getStage().dispose();
         SKIN.dispose();
+        disposed = true;
     }
 }

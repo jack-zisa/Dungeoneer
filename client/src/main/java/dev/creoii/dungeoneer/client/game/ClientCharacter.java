@@ -1,30 +1,23 @@
 package dev.creoii.dungeoneer.client.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
-import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.Renderable;
-import dev.creoii.dungeoneer.client.render.screen.game.DeathScreen;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
-import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
-import dev.creoii.dungeoneer.network.c2s.character.CharacterDieC2S;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -104,15 +97,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
         }
-    }
-
-    @Nullable
-    public TiledMapTile getTileOn(TiledMapTileLayer layer) {
-        int tileX = (int) (getRenderX() + sprite.getWidth() * .625f); // .5f * .125f
-        int tileY = (int) (getRenderY() * .125f);
-
-        TiledMapTileLayer.Cell cell = layer.getCell(tileX, tileY);
-        return cell != null ? cell.getTile() : null;
     }
 
     @Override
@@ -273,10 +257,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             return;
 
         if (dead && this == client.getState().getActiveCharacter()) {
-            getRaid().setStatus(Raid.Status.END);
-            client.getState().setStatus(ClientState.Status.RAID_END);
-            client.get().sendTCP(new CharacterDieC2S(getRaid().get().id(), character.id()));
-            Gdx.app.postRunnable(() -> client.setScreen(new DeathScreen(client)));
             return;
         }
 

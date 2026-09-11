@@ -33,6 +33,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 public class GameScreen extends AbstractScreen {
@@ -64,12 +65,8 @@ public class GameScreen extends AbstractScreen {
 
     public void refreshVisibleCharacters() {
         visibleCharacters.clear();
-
-        ClientRaid raid = getClient().getState().getCurrentRaid();
-        if (raid.getCharacters().isEmpty())
-            return;
         visibleCharacters.add(getClient().getState().getActiveCharacter());
-        visibleCharacters.addAll(raid.getCharacters().values());
+        visibleCharacters.addAll(getClient().getState().getCurrentRaid().getCharacters().values());
     }
 
     @Override
@@ -134,8 +131,6 @@ public class GameScreen extends AbstractScreen {
     public void hide() {
         getClient().getInputMultiplexer().removeProcessor(inputListener);
         getClient().getInputMultiplexer().removeProcessor(getStage());
-
-        visibleCharacters.clear();
     }
 
     @Override
@@ -170,6 +165,7 @@ public class GameScreen extends AbstractScreen {
 
         java.util.List<Renderable> renderables = new ArrayList<>(visibleCharacters);
         renderables.addAll(getClient().getState().getCurrentRaid().getDungeonMap().getWallTops());
+
         for (WallFaceRenderable face : getClient().getState().getCurrentRaid().getDungeonMap().getWallFaces()) {
             if (WallFaceRenderable.isVisible(face.direction(), inputListener.getRotation())) {
                 renderables.add(face);
@@ -210,13 +206,11 @@ public class GameScreen extends AbstractScreen {
             if (toShader != shader) {
                 polygonBatch.end();
                 polygonBatch.setShader(toShader);
-
+                polygonBatch.begin();
                 if (toShader == Assets.BORDER_SHADER) {
                     Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
                     Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
                 }
-
-                polygonBatch.begin();
                 shader = toShader;
             }
             renderable.render(getClient(), polygonBatch, camera, inputListener.getRotation(), dt);

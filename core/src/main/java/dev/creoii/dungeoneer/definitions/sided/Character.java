@@ -7,6 +7,7 @@ import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.event.DamageEvents;
 import dev.creoii.dungeoneer.util.event.HealEvents;
@@ -66,13 +67,21 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
     default void heal(int amount) {
         if (!inRaid())
             return;
-
-        amount = HealEvents.MODIFY.invoker().modifyHeal(this, amount);
+		amount = HealEvents.MODIFY.invoker().modifyHeal(this, amount);
 
         getStats().setHealth(getStats().health().value() + amount);
     }
 
+    default void die() {
+        if (getRaid() != null && !getRaid().isNull()) {
+            getRaid().removeCharacter(get().accountId(), RemovalReason.DEATH);
+        }
+    }
+
     default boolean attack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
+        if (!AttackEvents.PRE.invoker().onPreAttack(this, attack, raid))
+            return false;
+
         switch (attack) {
             case ReferenceAttack(String id) -> {
                 return attack(DataManager.getAttack(id), raid, mouseDir);

@@ -20,17 +20,14 @@ public class DebugRenderer {
 
     private String[] getDebugText() {
         ClientCharacter character = client.getState().getActiveCharacter();
-        String serverPosText = String.format("  Server: %.2f, %.2f", character.getX(), character.getY());
-        String renderPosText = String.format("  Render: %.2f, %.2f", character.getRenderX(), character.getRenderY());
+        String serverPosText = String.format("  Server Pos: %.2f, %.2f", character.getX(), character.getY());
+        String renderPosText = String.format("  Render Pos: %.2f, %.2f", character.getRenderX(), character.getRenderY());
         String tilePosText = String.format("  Tile: %d, %d", MathUtils.floor(character.getX() * .125f), MathUtils.floor(character.getY() * .125f));
-        String centerPosText = String.format("  Center: %.2f, %.2f", character.getCenterX(), character.getCenterY());
-        String velocityText = String.format("   Velocity: %.2f, %.2f", character.getVelocity()[0], character.getVelocity()[1]);
         String statsText = character.getStats().toDebugString(character.getMaxStats());
 
         return new String[]{
             Gdx.graphics.getFramesPerSecond() + " FPS",
-            "Position:",
-            serverPosText, renderPosText, tilePosText, centerPosText, velocityText,
+            serverPosText, renderPosText, tilePosText,
             statsText};
     }
 

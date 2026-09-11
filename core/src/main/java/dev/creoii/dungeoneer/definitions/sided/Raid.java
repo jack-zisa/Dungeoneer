@@ -8,6 +8,7 @@ import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
@@ -69,8 +70,13 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         character.setRaid(this);
     }
 
-    public Character<?> removeCharacter(long accountId) {
-        Character<?> character = characters.remove(accountId);
+    public C removeCharacter(long accountId) {
+        return removeCharacter(accountId, RemovalReason.UNKNOWN);
+    }
+
+    @SuppressWarnings("unchecked")
+    public C removeCharacter(long accountId, RemovalReason reason) {
+        C character = characters.remove(accountId);
         if (character != null)
             character.setRaid(null);
         return character;

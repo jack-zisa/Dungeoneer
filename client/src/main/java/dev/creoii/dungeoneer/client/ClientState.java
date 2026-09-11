@@ -1,7 +1,6 @@
 package dev.creoii.dungeoneer.client;
 
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
@@ -96,9 +95,6 @@ public class ClientState {
         else {
             syncRaid(raid);
             currentRaid.getDungeonMap().build(client, currentRaid.get().target().id(), templateId, tilesetId);
-
-            Vector2 spawnPos = currentRaid.getDungeonMap().getTemplate().spawnPos();
-            currentRaid.updateSpawnPositions(spawnPos.x, spawnPos.y);
         }
     }
 

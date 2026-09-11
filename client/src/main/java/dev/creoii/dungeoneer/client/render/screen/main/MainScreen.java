@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.client.render.screen.main;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.Array;
@@ -95,6 +96,12 @@ public class MainScreen extends AbstractScreen {
                 playTab.setVisible(selectedTab == playTab);
                 factionTab.setVisible(selectedTab == factionTab);
                 dungeonGamesTab.setVisible(selectedTab == dungeonGamesTab);
+
+                shopTab.setTouchable(selectedTab == shopTab ? Touchable.enabled : Touchable.disabled);
+                vaultThroneTab.setTouchable(selectedTab == vaultThroneTab ? Touchable.enabled : Touchable.disabled);
+                playTab.setTouchable(selectedTab == playTab ? Touchable.enabled : Touchable.disabled);
+                factionTab.setTouchable(selectedTab == factionTab ? Touchable.enabled : Touchable.disabled);
+                dungeonGamesTab.setTouchable(selectedTab == dungeonGamesTab ? Touchable.enabled : Touchable.disabled);
 
                 tabBar.clearChildren();
 

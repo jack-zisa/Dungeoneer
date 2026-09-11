@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.client.network;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
@@ -10,6 +11,7 @@ import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.render.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
+import dev.creoii.dungeoneer.client.render.screen.game.DeathScreen;
 import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.FactionTab;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
@@ -31,16 +33,14 @@ import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
-import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
-import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
-import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
-import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
+import dev.creoii.dungeoneer.network.s2c.character.*;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
+import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -309,6 +309,8 @@ public class ClientNetworkHandler extends NetworkHandler {
                         client.setScreen(new MainScreen(client));
                     });
                 } else if (raid.get().characters().size() == raid.get().requiredCharacters()) {
+                    Vector2 spawnPos = raid.getDungeonMap().getTemplate().spawnPos();
+                    raid.updateSpawnPositions(spawnPos.x * 8f, spawnPos.y * 8f);
                     Gdx.app.postRunnable(() -> {
                         client.getState().setStatus(ClientState.Status.RAIDING);
                         client.getState().getCurrentRaid().setStatus(Raid.Status.ACTIVE);
@@ -316,12 +318,12 @@ public class ClientNetworkHandler extends NetworkHandler {
                     });
                 }
             }
-            case MoveRaidCharactersS2C(List<MoveRaidCharactersS2C.Entry> entries) -> {
+            case MoveCharactersS2C(List<MoveCharactersS2C.Entry> entries) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (raid == null)
                     return;
 
-                for (MoveRaidCharactersS2C.Entry entry : entries) {
+                for (MoveCharactersS2C.Entry entry : entries) {
                     if (entry.accountId() == client.getState().getAccount().id())
                         continue;
 
@@ -393,12 +395,24 @@ public class ClientNetworkHandler extends NetworkHandler {
             }
             case LeaveRaidS2C(long raidId, long accountId, RemovalReason reason) -> { // TODO: Announce removal reason to the nonexistent chat
                 ClientRaid raid = client.getState().getCurrentRaid();
-                if (!raid.isNull() && raid.get().id() == raidId) {
-                    Gdx.app.postRunnable(() -> {
-                        if (raid.removeCharacter(accountId) != null && client.getScreen() instanceof GameScreen gameScreen) {
-                            gameScreen.refreshVisibleCharacters();
+                if (!raid.isNull() && raid.get().id() == raidId && (raid.getCharacters().containsKey(accountId) || accountId == client.getState().getAccount().id())) {
+                    if (reason == RemovalReason.DEATH) {
+                        if (accountId == client.getState().getAccount().id()) {
+                            client.getState().getActiveCharacter().die();
+                            raid.setStatus(Raid.Status.END);
+                            client.getState().setStatus(ClientState.Status.RAID_END);
+                            Gdx.app.postRunnable(() -> client.setScreen(new DeathScreen(client)));
+                        } else {
+                            raid.getCharacters().get(accountId).die();
                         }
-                    });
+                    }
+                    else raid.removeCharacter(accountId, reason);
+                }
+            }
+            case StatUpdatesS2C(long accountId, StatContainer stats) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (!raid.isNull()) {
+                    raid.getCharacters().get(accountId).getStats().set(stats);
                 }
             }
             default -> {

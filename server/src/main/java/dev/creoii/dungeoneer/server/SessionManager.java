@@ -39,6 +39,10 @@ public class SessionManager {
         return accountConnections;
     }
 
+    public boolean hasSession(int connectionId) {
+        return connectionSessions.containsKey(connectionId);
+    }
+
     @Nullable
     public ClientSession startClientSession(Connection connection, long accountId) {
         if (!accountSessions.containsKey(accountId) && !connectionSessions.containsKey(connection.getID())) {

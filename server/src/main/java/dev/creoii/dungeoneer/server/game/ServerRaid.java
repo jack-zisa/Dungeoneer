@@ -4,16 +4,15 @@ import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
-import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.collision.EntityCollisionManager;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
@@ -21,7 +20,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     private final DungeoneerServer server;
     private final EntityCollisionManager entityCollisionManager;
     private float timer;
-    private final List<MoveRaidCharactersS2C.Entry> moveEntries;
+    private final List<MoveCharactersS2C.Entry> moveEntries;
     private final List<StatusEffectsS2C.Entry> statusEffectEntries;
     private final List<AttacksS2C.Entry> attackEntries;
     private final List<DamageCharactersS2C.Entry> damageEntries;
@@ -67,7 +66,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         return server;
     }
 
-    public List<MoveRaidCharactersS2C.Entry> getMoveEntries() {
+    public List<MoveCharactersS2C.Entry> getMoveEntries() {
         return moveEntries;
     }
 
@@ -98,12 +97,9 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             // Update bullet positions
             super.update(dt);
 
-            Iterator<ServerCharacter> iterator = getCharacters().values().iterator();
-            while (iterator.hasNext()) {
-                ServerCharacter character = iterator.next();
+            for (ServerCharacter character : getCharacters().values()) {
                 if (character.isDead()) {
-                    character.setRaid(null);
-                    iterator.remove();
+                    character.die();
                     continue;
                 }
 
@@ -116,31 +112,32 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             }
 
             if (!moveEntries.isEmpty()) {
-                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new MoveRaidCharactersS2C(moveEntries)));
+                MoveCharactersS2C packet = new MoveCharactersS2C(List.copyOf(moveEntries));
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), packet));
                 moveEntries.clear();
             }
 
             if (!statusEffectEntries.isEmpty()) {
-                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new StatusEffectsS2C(statusEffectEntries)));
+                StatusEffectsS2C packet = new StatusEffectsS2C(List.copyOf(statusEffectEntries));
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), packet));
                 statusEffectEntries.clear();
             }
 
             if (!attackEntries.isEmpty()) {
-                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new AttacksS2C(attackEntries)));
+                AttacksS2C packet = new AttacksS2C(List.copyOf(attackEntries));
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), packet));
                 attackEntries.clear();
             }
 
             if (!damageEntries.isEmpty()) {
-                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new DamageCharactersS2C(damageEntries)));
+                DamageCharactersS2C packet = new DamageCharactersS2C(List.copyOf(damageEntries));
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), packet));
                 damageEntries.clear();
             }
         } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) { // Start raid
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
             updateSpawnPositions(getDungeonMap().getTemplate().spawnPos().x * 8f, getDungeonMap().getTemplate().spawnPos().y * 8f);
-            getCharacters().values().forEach(serverCharacter -> { // TODO: Should not have to sync position on raid start
-                server.get().sendToUDP(serverCharacter.getConnectionId(), new CharacterMoveS2C(serverCharacter.get().id(), serverCharacter.getX(), serverCharacter.getY()));
-            });
         }
     }
 
@@ -154,6 +151,19 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         damageEntries.clear();
         timer = 0f;
         entityCollisionManager.getCollidables().clear();
+    }
+
+    @Override
+    public ServerCharacter removeCharacter(long accountId, RemovalReason reason) {
+        ServerCharacter removed = super.removeCharacter(accountId, reason);
+        if (removed != null) {
+            LeaveRaidS2C packet = new LeaveRaidS2C(get().id(), accountId, reason);
+            server.get().sendToTCP(removed.getConnectionId(), packet);
+            getCharacters().values().forEach(serverCharacter -> {
+                server.get().sendToTCP(serverCharacter.getConnectionId(), packet);
+            });
+        }
+        return removed;
     }
 
     @Nullable
