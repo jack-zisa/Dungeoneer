@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.client.network;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.esotericsoftware.kryonet.Connection;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
@@ -310,6 +311,8 @@ public class ClientNetworkHandler extends NetworkHandler {
                         client.setScreen(new MainScreen(client));
                     });
                 } else if (raid.get().characters().size() == raid.get().requiredCharacters()) {
+                    Vector2 spawnPos = raid.getDungeonMap().getTemplate().spawnPos();
+                    raid.updateSpawnPositions(spawnPos.x * 8f, spawnPos.y * 8f);
                     Gdx.app.postRunnable(() -> {
                         client.getState().setStatus(ClientState.Status.RAIDING);
                         client.getState().getCurrentRaid().setStatus(Raid.Status.ACTIVE);

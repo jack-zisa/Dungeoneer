@@ -33,6 +33,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
 public class GameScreen extends AbstractScreen {
@@ -65,11 +66,7 @@ public class GameScreen extends AbstractScreen {
     public void refreshVisibleCharacters() {
         visibleCharacters.clear();
         visibleCharacters.add(getClient().getState().getActiveCharacter());
-
-        ClientRaid raid = getClient().getState().getCurrentRaid();
-        if (raid.getCharacters().isEmpty())
-            return;
-        visibleCharacters.addAll(raid.getCharacters().values());
+        visibleCharacters.addAll(getClient().getState().getCurrentRaid().getCharacters().values());
     }
 
     @Override
@@ -134,8 +131,6 @@ public class GameScreen extends AbstractScreen {
     public void hide() {
         getClient().getInputMultiplexer().removeProcessor(inputListener);
         getClient().getInputMultiplexer().removeProcessor(getStage());
-
-        visibleCharacters.clear();
     }
 
     @Override
@@ -170,6 +165,7 @@ public class GameScreen extends AbstractScreen {
 
         java.util.List<Renderable> renderables = new ArrayList<>(visibleCharacters);
         renderables.addAll(getClient().getState().getCurrentRaid().getDungeonMap().getWallTops());
+
         for (WallFaceRenderable face : getClient().getState().getCurrentRaid().getDungeonMap().getWallFaces()) {
             if (WallFaceRenderable.isVisible(face.direction(), inputListener.getRotation())) {
                 renderables.add(face);

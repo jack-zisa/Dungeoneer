@@ -5,7 +5,6 @@ import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
-import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
@@ -140,9 +139,6 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
             updateSpawnPositions(getDungeonMap().getTemplate().spawnPos().x * 8f, getDungeonMap().getTemplate().spawnPos().y * 8f);
-            getCharacters().values().forEach(serverCharacter -> { // TODO: Should not have to sync position on raid start
-                server.get().sendToUDP(serverCharacter.getConnectionId(), new CharacterMoveS2C(serverCharacter.get().id(), serverCharacter.getX(), serverCharacter.getY()));
-            });
         }
     }
 

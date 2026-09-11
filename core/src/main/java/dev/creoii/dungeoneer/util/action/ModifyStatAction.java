@@ -21,7 +21,6 @@ public record ModifyStatAction(String id, ModifierEntry modifier) implements Act
     public void apply(Raid<?, ?, ?, ?> raid, Context context) {
         if (context.has(ValueType.CHARACTER)) {
             Character<?> character = context.get(ValueType.CHARACTER);
-            System.out.println("apply modifier " + modifier.type().name() + " " + modifier.operation().name() + " " + modifier.amount());
             character.getStats().applyModifier(modifier);
         }
     }
