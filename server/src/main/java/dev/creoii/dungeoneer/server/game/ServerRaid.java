@@ -84,12 +84,6 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     }
 
     @Override
-    public void addCharacter(long accountId, ServerCharacter character) {
-        super.addCharacter(accountId, character);
-        character.setRaid(this);
-    }
-
-    @Override
     public void tick(float dt) {
         if (getStatus() == Status.ACTIVE) {
             if (getRemainingTimeMs() <= 0L) {

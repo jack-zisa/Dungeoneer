@@ -39,6 +39,7 @@ import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
 import org.jspecify.annotations.Nullable;
 
@@ -337,13 +338,12 @@ public class ClientNetworkHandler extends NetworkHandler {
                     }
                 }
             }
-            case RaidCharacterWaitStatusS2C(@Nullable CharacterDefinition characterDefinition, long accountId) -> {
+            case JoinRaidS2C(CharacterDefinition characterDefinition) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
-                if (raid == null)
+                if (raid.isNull())
                     return;
 
-                if (accountId == -1L) raid.addCharacter(characterDefinition.accountId(), new ClientCharacter(client, characterDefinition));
-                else raid.getCharacters().remove(accountId);
+                raid.addCharacter(characterDefinition.accountId(), new ClientCharacter(client, characterDefinition));
             }
             case AttacksS2C(List<AttacksS2C.Entry> entries) -> entries.forEach(entry -> {
                 if (entry.accountId() == client.getState().getAccount().id())
@@ -390,6 +390,16 @@ public class ClientNetworkHandler extends NetworkHandler {
                         if (character == null || character.isNull()) return;
                     }
                     character.updateStatusEffects(entry.add(), entry.remove());
+                }
+            }
+            case LeaveRaidS2C(long raidId, long accountId, RemovalReason reason) -> { // TODO: Announce removal reason to the nonexistent chat
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (!raid.isNull() && raid.get().id() == raidId) {
+                    Gdx.app.postRunnable(() -> {
+                        if (raid.removeCharacter(accountId) != null && client.getScreen() instanceof GameScreen gameScreen) {
+                            gameScreen.refreshVisibleCharacters();
+                        }
+                    });
                 }
             }
             default -> {

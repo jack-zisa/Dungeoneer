@@ -29,7 +29,7 @@ import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
-import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.LeaveRaidC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.JoinOrCreateRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
 import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
@@ -40,6 +40,7 @@ import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerDungeonMap;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
@@ -241,11 +242,11 @@ public class ServerNetworkHandler extends NetworkHandler {
             ServerCharacter serverCharacter = new ServerCharacter(connection.getID(), character);
 
             List<ServerRaid> availableRaids = server.getState().getRaids().values().stream().filter(raid -> raid.getStatus() != ServerRaid.Status.ACTIVE && raid.get().requiredCharacters() == requiredCharacters && raid.get().attackers().size() < raid.get().requiredCharacters()).collect(Collectors.toList());
-            Collections.shuffle(availableRaids);
             if (!availableRaids.isEmpty()) { // Join an existing raid
+                Collections.shuffle(availableRaids);
                 ServerRaid serverRaid = availableRaids.getFirst();
                 DungeonMapDefinition dungeonMap = server.getDatabase().getDungeonMaps().getByAccountId(serverRaid.get().target().id());
-                if (dungeonMap != null) {
+                if (dungeonMap != null) { // This should never be null, hopefully!
                     serverRaid.get().attackers().add(account);
                     serverRaid.get().characters().add(character);
                     serverRaid.addCharacter(account.id(), serverCharacter);
@@ -255,7 +256,7 @@ public class ServerNetworkHandler extends NetworkHandler {
                     for (ServerCharacter existing : serverRaid.getCharacters().values()) {
                         if (existing.get().accountId() == account.id())
                             continue;
-                        server.get().sendToTCP(connection.getID(), new RaidCharacterWaitStatusS2C(existing.get(), existing.get().accountId()));
+                        server.get().sendToTCP(connection.getID(), new JoinRaidS2C(existing.get()));
                     }
 
                     serverRaid.get().attackers().forEach(account1 -> {
@@ -264,7 +265,7 @@ public class ServerNetworkHandler extends NetworkHandler {
                             server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
                             if (account1.id() == account.id())
                                 return;
-                            server.get().sendToTCP(connectionId, new RaidCharacterWaitStatusS2C(character, account.id()));
+                            server.get().sendToTCP(connectionId, new JoinRaidS2C(character));
                         }
                     });
                 }
@@ -281,11 +282,21 @@ public class ServerNetworkHandler extends NetworkHandler {
                     }
                 }
             }
-        } else if (object instanceof EndRaidC2S(long raidId)) {
+        } else if (object instanceof LeaveRaidC2S(long raidId, long accountId, RemovalReason reason)) {
             RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
-                server.getState().getRaids().remove(raidId);
-                server.getDatabase().getRaids().updateEndTime(raidId, LocalDateTime.now());
+                if (server.getState().getRaids().get(raidId).removeCharacter(accountId) == null)
+                    return;
+                raid.attackers().forEach(account -> {
+                    if (account.id() == accountId)
+                        return;
+
+                    int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
+                    if (connectionId != -1) {
+                        System.out.println("connection: " + connectionId);
+                        server.get().sendToTCP(connectionId, new LeaveRaidS2C(raidId, accountId, reason));
+                    }
+                });
             }
         } else if (object instanceof DeleteCharacterC2S(long accountId, int index)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
@@ -403,7 +414,7 @@ public class ServerNetworkHandler extends NetworkHandler {
                     int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account1.id(), -1);
                     if (connectionId != -1) {
                         server.get().sendToTCP(connectionId, new SyncRaidWaitingStateS2C(serverRaid.get()));
-                        server.get().sendToTCP(connectionId, new RaidCharacterWaitStatusS2C(null, accountId));
+                        server.get().sendToTCP(connectionId, new LeaveRaidS2C(serverRaid.get().id(), accountId, RemovalReason.CANCEL));
                     }
                 });
             }

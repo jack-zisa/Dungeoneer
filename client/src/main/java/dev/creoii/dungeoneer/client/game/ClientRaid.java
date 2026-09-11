@@ -43,6 +43,11 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
         return bulletGroupPool;
     }
 
+    @Override
+    public void addCharacter(long accountId, ClientCharacter character) {
+        super.addCharacter(accountId, character);
+    }
+
     public String getRemainingTimeString() {
         Duration duration = Duration.ofMillis(getRemainingTimeMs());
         long hours = duration.toHours();
@@ -57,12 +62,6 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
 
     public void syncTimer(long timeRemaining) {
         setEndTime(System.currentTimeMillis() + timeRemaining);
-    }
-
-    @Override
-    public void addCharacter(long accountId, ClientCharacter character) {
-        super.addCharacter(accountId, character);
-        character.setRaid(this);
     }
 
     @Override

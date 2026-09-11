@@ -203,4 +203,16 @@ public final class PacketUtils {
         output.writeString(message.text());
         output.writeBoolean(message.flagged());
     }
+
+    public static <E extends Enum<E>> E readEnum(Class<E> enumClass, Input input) {
+        int ordinal = input.readVarInt(true);
+        E[] constants = enumClass.getEnumConstants();
+        if (ordinal < 0 || ordinal >= constants.length)
+            throw new IllegalArgumentException("Invalid ordinal " + ordinal + " for enum " + enumClass.getSimpleName());
+        return constants[ordinal];
+    }
+
+    public static <E extends Enum<E>> void writeEnum(Output output, E e) {
+        output.writeVarInt(e.ordinal(), true);
+    }
 }

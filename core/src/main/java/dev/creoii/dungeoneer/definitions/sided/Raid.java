@@ -63,8 +63,17 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         return characters;
     }
 
+    @SuppressWarnings("unchecked")
     public void addCharacter(long accountId, C character) {
         characters.put(accountId, character);
+        character.setRaid(this);
+    }
+
+    public Character<?> removeCharacter(long accountId) {
+        Character<?> character = characters.remove(accountId);
+        if (character != null)
+            character.setRaid(null);
+        return character;
     }
 
     public abstract Pool<B> getBulletPool();

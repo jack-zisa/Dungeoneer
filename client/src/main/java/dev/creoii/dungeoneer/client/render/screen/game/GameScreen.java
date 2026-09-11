@@ -26,7 +26,8 @@ import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
 import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
-import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.LeaveRaidC2S;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
@@ -61,6 +62,16 @@ public class GameScreen extends AbstractScreen {
         return healthBar;
     }
 
+    public void refreshVisibleCharacters() {
+        visibleCharacters.clear();
+
+        ClientRaid raid = getClient().getState().getCurrentRaid();
+        if (raid.getCharacters().isEmpty())
+            return;
+        visibleCharacters.add(getClient().getState().getActiveCharacter());
+        visibleCharacters.addAll(raid.getCharacters().values());
+    }
+
     @Override
     public void show() {
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -86,9 +97,7 @@ public class GameScreen extends AbstractScreen {
             return;
         }
 
-        ClientRaid raid = getClient().getState().getCurrentRaid();
-        visibleCharacters.add(getClient().getState().getActiveCharacter());
-        visibleCharacters.addAll(raid.getCharacters().values());
+        refreshVisibleCharacters();
 
         Table root = new Table();
         root.setFillParent(true);
@@ -101,7 +110,7 @@ public class GameScreen extends AbstractScreen {
         surrenderButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                getClient().get().sendTCP(new EndRaidC2S(getClient().getState().getCurrentRaid().get().id()));
+                getClient().get().sendTCP(new LeaveRaidC2S(getClient().getState().getCurrentRaid().get().id(), getClient().getState().getAccount().id(), RemovalReason.SURRENDER));
                 getClient().setScreen(new MainScreen(getClient()));
                 getClient().getState().getActiveCharacter().setPos(0f, 0f);
                 getClient().getState().getActiveCharacter().setRenderPos(0f, 0f);

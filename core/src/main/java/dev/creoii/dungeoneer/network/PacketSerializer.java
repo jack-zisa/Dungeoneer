@@ -13,7 +13,7 @@ import dev.creoii.dungeoneer.network.c2s.character.*;
 import dev.creoii.dungeoneer.network.c2s.faction.*;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.CancelJoinRaidC2S;
-import dev.creoii.dungeoneer.network.c2s.raid.EndRaidC2S;
+import dev.creoii.dungeoneer.network.c2s.raid.LeaveRaidC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.JoinOrCreateRaidC2S;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
@@ -68,7 +68,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(JoinFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(LeaveFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(JoinOrCreateRaidC2S.class, PacketSerializer.INSTANCE);
-        kryo.register(EndRaidC2S.class, PacketSerializer.INSTANCE);
+        kryo.register(LeaveRaidC2S.class, PacketSerializer.INSTANCE);
         kryo.register(DeleteCharacterC2S.class, PacketSerializer.INSTANCE);
         kryo.register(SearchFactionC2S.class, PacketSerializer.INSTANCE);
         kryo.register(RequestFactionC2S.class, PacketSerializer.INSTANCE);
@@ -102,10 +102,11 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(SyncRaidTimerS2C.class, PacketSerializer.INSTANCE);
         kryo.register(SyncRaidWaitingStateS2C.class, PacketSerializer.INSTANCE);
         kryo.register(MoveRaidCharactersS2C.class, PacketSerializer.INSTANCE);
-        kryo.register(RaidCharacterWaitStatusS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(JoinRaidS2C.class, PacketSerializer.INSTANCE);
         kryo.register(AttacksS2C.class, PacketSerializer.INSTANCE);
         kryo.register(DamageCharactersS2C.class, PacketSerializer.INSTANCE);
         kryo.register(StatusEffectsS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(LeaveRaidS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
@@ -115,7 +116,7 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(JoinFactionC2S.class, JoinFactionC2S::write, JoinFactionC2S::read);
         PacketSerializer.INSTANCE.register(LeaveFactionC2S.class, LeaveFactionC2S::write, LeaveFactionC2S::read);
         PacketSerializer.INSTANCE.register(JoinOrCreateRaidC2S.class, JoinOrCreateRaidC2S::write, JoinOrCreateRaidC2S::read);
-        PacketSerializer.INSTANCE.register(EndRaidC2S.class, EndRaidC2S::write, EndRaidC2S::read);
+        PacketSerializer.INSTANCE.register(LeaveRaidC2S.class, LeaveRaidC2S::write, LeaveRaidC2S::read);
         PacketSerializer.INSTANCE.register(DeleteCharacterC2S.class, DeleteCharacterC2S::write, DeleteCharacterC2S::read);
         PacketSerializer.INSTANCE.register(SearchFactionC2S.class, SearchFactionC2S::write, SearchFactionC2S::read);
         PacketSerializer.INSTANCE.register(RequestFactionC2S.class, RequestFactionC2S::write, RequestFactionC2S::read);
@@ -149,9 +150,10 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(SyncRaidTimerS2C.class, SyncRaidTimerS2C::write, SyncRaidTimerS2C::read);
         PacketSerializer.INSTANCE.register(SyncRaidWaitingStateS2C.class, SyncRaidWaitingStateS2C::write, SyncRaidWaitingStateS2C::read);
         PacketSerializer.INSTANCE.register(MoveRaidCharactersS2C.class, MoveRaidCharactersS2C::write, MoveRaidCharactersS2C::read);
-        PacketSerializer.INSTANCE.register(RaidCharacterWaitStatusS2C.class, RaidCharacterWaitStatusS2C::write, RaidCharacterWaitStatusS2C::read);
+        PacketSerializer.INSTANCE.register(JoinRaidS2C.class, JoinRaidS2C::write, JoinRaidS2C::read);
         PacketSerializer.INSTANCE.register(AttacksS2C.class, AttacksS2C::write, AttacksS2C::read);
         PacketSerializer.INSTANCE.register(DamageCharactersS2C.class, DamageCharactersS2C::write, DamageCharactersS2C::read);
         PacketSerializer.INSTANCE.register(StatusEffectsS2C.class, StatusEffectsS2C::write, StatusEffectsS2C::read);
+        PacketSerializer.INSTANCE.register(LeaveRaidS2C.class, LeaveRaidS2C::write, LeaveRaidS2C::read);
     }
 }
