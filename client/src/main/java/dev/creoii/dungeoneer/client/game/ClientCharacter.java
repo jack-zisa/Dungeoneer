@@ -95,10 +95,10 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             sprite = null;
             stats.setHealth(0);
             stats.setSpeed(0);
-            stats.setAttackSpeed(0);
+            stats.setDexterity(0);
             maxStats.setHealth(0);
             maxStats.setSpeed(0);
-            maxStats.setAttackSpeed(0);
+            maxStats.setDexterity(0);
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             stats.set(character.characterClass().baseStats());

@@ -1,0 +1,18 @@
+{
+  "color": "ddb21b",
+  "applier": {
+    "type": "modify_stat",
+    "modifier": {
+      "type": "dexterity",
+      "uuid": "5a43bf06-6218-4be1-a38f-75a3f5050ee8",
+      "amount": 0,
+      "operation": "set",
+      "modifier_type": "base"
+    }
+  },
+  "remover": {
+    "type": "unmodify_stat",
+    "stat_type": "dexterity",
+    "uuid": "5a43bf06-6218-4be1-a38f-75a3f5050ee8"
+  }
+}

@@ -293,7 +293,6 @@ public class ServerNetworkHandler extends NetworkHandler {
 
                     int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
                     if (connectionId != -1) {
-                        System.out.println("connection: " + connectionId);
                         server.get().sendToTCP(connectionId, new LeaveRaidS2C(raidId, accountId, reason));
                     }
                 });
@@ -381,12 +380,15 @@ public class ServerNetworkHandler extends NetworkHandler {
                 if (serverRaid != null) {
                     ServerCharacter character = serverRaid.getCharacterByAccountId(accountId);
                     if (character != null) {
+                        Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+
+                        if (!AttackEvents.PRE.invoker().onPreAttack(character, attack, serverRaid))
+                            return;
+
                         long currentTime = System.currentTimeMillis();
                         long lastAttackTime = character.getLastAttackTime();
-                        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
+                        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().dexterity().value());
                         if (currentTime - lastAttackTime >= cooldown) {
-                            Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
-
                             character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
                             AttackEvents.POST.invoker().onPostAttack(character, attack, serverRaid);
                             serverRaid.getAttackEntries().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));

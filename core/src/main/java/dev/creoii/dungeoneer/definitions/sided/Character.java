@@ -8,12 +8,12 @@ import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
-import dev.creoii.dungeoneer.util.event.AttackEvents;
+import dev.creoii.dungeoneer.util.event.DamageEvents;
+import dev.creoii.dungeoneer.util.event.HealEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.BiPredicate;
 
 public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
     int getConnectionId();
@@ -54,6 +54,8 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
         if (!inRaid())
             return;
 
+        damage = DamageEvents.MODIFY.invoker().modifyDamage(this, damage);
+
         getStats().setHealth(getStats().health().value() - damage);
 
         if (getStats().health().value() <= 0) {
@@ -61,10 +63,16 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
         }
     }
 
-    default boolean attack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
-        if (!AttackEvents.PRE.invoker().onPreAttack(this, attack, raid))
-            return false;
+    default void heal(int amount) {
+        if (!inRaid())
+            return;
 
+        amount = HealEvents.MODIFY.invoker().modifyHeal(this, amount);
+
+        getStats().setHealth(getStats().health().value() + amount);
+    }
+
+    default boolean attack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
         switch (attack) {
             case ReferenceAttack(String id) -> {
                 return attack(DataManager.getAttack(id), raid, mouseDir);

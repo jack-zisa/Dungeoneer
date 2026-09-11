@@ -8,6 +8,7 @@ public interface Action extends Identifiable {
     Codec<Action> CODEC = Type.CODEC.dispatch(Action::getType, type -> switch (type) {
         case EMPTY -> EmptyAction.CODEC;
         case DAMAGE -> DamageAction.CODEC;
+        case HEAL -> HealAction.CODEC;
         case MODIFY_STAT -> ModifyStatAction.CODEC;
         case UNMODIFY_STAT -> UnmodifyStatAction.CODEC;
     });
@@ -19,6 +20,7 @@ public interface Action extends Identifiable {
     enum Type {
         EMPTY,
         DAMAGE,
+        HEAL,
         MODIFY_STAT,
         UNMODIFY_STAT;
 

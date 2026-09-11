@@ -15,6 +15,7 @@ import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.action.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
+import dev.creoii.dungeoneer.util.event.MoveEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
@@ -45,16 +46,13 @@ public class ServerCharacter implements Character<ServerRaid> {
         pos = VectorUtils.zero();
         velocity = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
-        stats = new StatContainer(
-            character.characterClass().baseStats().health().value(),
-            character.characterClass().baseStats().speed().value(),
-            character.characterClass().baseStats().attackSpeed().value()
-        );
-        maxStats = new StatContainer(
-            character.characterClass().maxStats().health().value(),
-            character.characterClass().maxStats().speed().value(),
-            character.characterClass().maxStats().attackSpeed().value()
-        );
+        if (character == null) {
+            stats = StatContainer.ZERO.copy();
+            maxStats = StatContainer.ZERO.copy();
+        } else {
+            stats = character.characterClass().baseStats().copy();
+            maxStats = character.characterClass().maxStats().copy();
+        }
         raid = null;
         statusEffects = new Long2ObjectArrayMap<>();
         expiredEffects = new ArrayList<>();
@@ -204,7 +202,10 @@ public class ServerCharacter implements Character<ServerRaid> {
         }
 
         if (isMoving() && !dead && inRaid()) {
-            // Update character position
+            if (!MoveEvents.PRE.invoker().onPreMove(this, raid))
+                return;
+
+            // Get target position
             float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
             float[] target = getTargetPosition(pos, velocity, speed, dt);
 
@@ -215,6 +216,8 @@ public class ServerCharacter implements Character<ServerRaid> {
             // Sync character movement
             raid.getMoveEntries().add(new MoveRaidCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
             raid.getServer().get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
+
+            MoveEvents.POST.invoker().onPostMove(this, raid);
 
             if (hasPendingStatusEffectChanges()) {
                 raid.getStatusEffectEntries().add(new StatusEffectsS2C.Entry(character.accountId(), pendingStatusEffectAdds, pendingStatusEffectRemoves));

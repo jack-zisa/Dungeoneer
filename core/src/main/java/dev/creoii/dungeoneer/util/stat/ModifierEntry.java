@@ -21,7 +21,7 @@ public record ModifierEntry(Stat.Type type, UUID uuid, float amount, Operation o
         switch (type) {
             case HEALTH -> statContainer.health().addModifier(this);
             case SPEED -> statContainer.speed().addModifier(this);
-            case ATTACK_SPEED -> statContainer.attackSpeed().addModifier(this);
+            case DEXTERITY -> statContainer.dexterity().addModifier(this);
         }
     }
 
@@ -29,7 +29,7 @@ public record ModifierEntry(Stat.Type type, UUID uuid, float amount, Operation o
         switch (type) {
             case HEALTH -> statContainer.health().removeModifier(uuid);
             case SPEED -> statContainer.speed().removeModifier(uuid);
-            case ATTACK_SPEED -> statContainer.attackSpeed().removeModifier(uuid);
+            case DEXTERITY -> statContainer.dexterity().removeModifier(uuid);
         }
     }
 

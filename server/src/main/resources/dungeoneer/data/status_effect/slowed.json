@@ -1,0 +1,18 @@
+{
+  "color": "00ff00",
+  "applier": {
+    "type": "modify_stat",
+    "modifier": {
+      "type": "speed",
+      "uuid": "521e5a89-2b46-4816-a212-88038c1b90c7",
+      "amount": 0,
+      "operation": "set",
+      "modifier_type": "base"
+    }
+  },
+  "remover": {
+    "type": "unmodify_stat",
+    "stat_type": "speed",
+    "uuid": "521e5a89-2b46-4816-a212-88038c1b90c7"
+  }
+}

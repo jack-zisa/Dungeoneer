@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import dev.creoii.dungeoneer.SharedInit;
 import dev.creoii.dungeoneer.client.command.ClientCommandManager;
 import dev.creoii.dungeoneer.client.network.ClientNetworkHandler;
 import dev.creoii.dungeoneer.client.option.Settings;
@@ -93,6 +94,8 @@ public class Dungeoneer extends Game {
         settings.load();
         assets = new Assets();
         assets.load();
+
+        SharedInit.initialize();
     }
 
     @Override

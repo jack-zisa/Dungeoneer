@@ -2,11 +2,12 @@
   "base_stats": {
     "health": 150,
     "speed": 27,
-    "attack_speed": 12
+    "dexterity": 12
   },
   "max_stats": {
     "health": 800,
+    "defense": 25,
     "speed": 60,
-    "attack_speed": 70
+    "dexterity": 70
   }
 }

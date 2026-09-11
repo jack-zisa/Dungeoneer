@@ -202,7 +202,6 @@ public class ClientNetworkHandler extends NetworkHandler {
             case CharacterMoveS2C(long characterId, float x, float y) -> {
                 if (!client.getState().getActiveCharacter().isNull() && characterId == client.getState().getActiveCharacter().get().id()) {
                     ClientCharacter character = client.getState().getActiveCharacter();
-
                     character.setPos(x, y);
 
                     float errorX = character.getX() - x;

@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.server;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.SharedInit;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.network.CreoSerialization;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
@@ -49,7 +50,8 @@ public class DungeoneerServer {
         networkHandler = new ServerNetworkHandler(this);
         database = new Database();
         DataManager.setDebug(isDebug());
-        DataManager.load();
+        DataManager.load(); // TODO: Loading thread so game does not freeze on load
+        SharedInit.initialize();
         sessionManager = new SessionManager(this);
         state = new ServerState(this);
 

@@ -15,6 +15,7 @@ import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
+import dev.creoii.dungeoneer.util.event.MoveEvents;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
 public class CharacterInputListener extends InputAdapter implements MousePosListener {
@@ -71,13 +72,16 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
         ClientRaid raid = client.getState().getCurrentRaid();
 
         long currentTime = System.currentTimeMillis();
-        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().attackSpeed().value());
+        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().dexterity().value());
 
         if (client.getState().getStatus() == ClientState.Status.RAIDING && !raid.isNull()) {
+            Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+            if (!AttackEvents.PRE.invoker().onPreAttack(character, attack, raid))
+                return;
+
             if (!character.isAttackPending() && (currentTime - character.getLastAttackTime()) >= cooldown) {
                 character.setAttackPending(true);
 
-                Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
                 float[] mouseDir = getDirectionToMouse(character.getCenterX(), character.getCenterY());
                 if (character.attack(attack, raid, mouseDir)) {
                     AttackEvents.POST.invoker().onPostAttack(character, attack, raid);
@@ -114,6 +118,14 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
                 movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_UP;
                 movementFlags |= Constants.CHARACTER_MOVEMENT_FLAG_DOWN;
             }
+
+            if (movementFlags != 0) {
+                if (!MoveEvents.PRE.invoker().onPreMove(character, client.getState().getCurrentRaid())) {
+                    movementFlags = 0;
+                    return false;
+                }
+            }
+
             updateMovement();
             return true;
         }
@@ -132,6 +144,11 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
             if (keycode == client.getSettings().rightKey().value()) movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_RIGHT;
             if (keycode == client.getSettings().upKey().value()) movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_UP;
             if (keycode == client.getSettings().downKey().value()) movementFlags &= ~Constants.CHARACTER_MOVEMENT_FLAG_DOWN;
+
+            if (movementFlags != 0) {
+                MoveEvents.POST.invoker().onPostMove(character, client.getState().getCurrentRaid());
+            }
+
             updateMovement();
             return true;
         }
