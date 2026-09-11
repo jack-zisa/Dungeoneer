@@ -5,6 +5,7 @@
   "lifetime": 2.5,
   "scale": 1.5,
   "angle_offset": -45,
+  "face_direction": true,
   "path": {
     "id": "triangle",
     "type": "wavy",

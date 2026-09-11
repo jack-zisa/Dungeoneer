@@ -113,17 +113,17 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
     }
 
     public void setStartDirection(float x, float y) {
-        direction[0] = x;
-        direction[1] = y;
+        startDirection[0] = x;
+        startDirection[1] = y;
         setDirection(x, y);
     }
 
     public float getLocalDirX() {
-        return direction[0];
+        return localDirection[0];
     }
 
     public float getLocalDirY() {
-        return direction[1];
+        return localDirection[1];
     }
 
     public void setLocalDirection(float x, float y) {
@@ -246,10 +246,21 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         float targetY = originY + worldOffsetY;
 
         Vector2 modified = MovementCollisionManager.modifyMove(map, this, targetX, targetY);
+
+        float previousX = pos[0];
+        float previousY = pos[1];
+
         setPos(modified.x, modified.y);
 
-        localDirection[0] = dirX;
-        localDirection[1] = dirY;
+        float movementX = pos[0] - previousX;
+        float movementY = pos[1] - previousY;
+
+        float length2 = movementX * movementX + movementY * movementY;
+        if (length2 > .000001f) {
+            float invLength = 1f / (float) Math.sqrt(length2);
+            localDirection[0] = movementX * invLength;
+            localDirection[1] = movementY * invLength;
+        }
     }
 
     @Override

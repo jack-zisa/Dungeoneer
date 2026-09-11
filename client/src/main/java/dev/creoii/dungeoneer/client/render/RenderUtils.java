@@ -234,7 +234,9 @@ public final class RenderUtils {
     }
 
     public static float angleDeg(Bullet bullet) {
-        float angle = (float) Math.atan2(bullet.getDirY(), bullet.getDirX()) * MathUtils.radiansToDegrees;
+        float dirX = bullet.getType().faceDirection() ? bullet.getLocalDirX() : bullet.getDirX();
+        float dirY = bullet.getType().faceDirection() ? bullet.getLocalDirY() : bullet.getDirY();
+        float angle = (float) Math.atan2(dirY, dirX) * MathUtils.radiansToDegrees;
         if (angle < 0f)
             angle += 360f;
         return angle;
