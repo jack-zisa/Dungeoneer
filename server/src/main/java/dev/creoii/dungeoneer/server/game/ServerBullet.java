@@ -2,7 +2,6 @@ package dev.creoii.dungeoneer.server.game;
 
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.sided.Character;
-import dev.creoii.dungeoneer.network.s2c.raid.DamageCharacterS2C;
 import dev.creoii.dungeoneer.util.collision.Collidable;
 
 public class ServerBullet extends Bullet {

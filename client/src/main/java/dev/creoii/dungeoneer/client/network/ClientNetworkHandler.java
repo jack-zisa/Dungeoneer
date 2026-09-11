@@ -361,21 +361,23 @@ public class ClientNetworkHandler extends NetworkHandler {
 
                 character.setAnimationState(AnimationState.toAttacking(animationState));
             });
-            case DamageCharacterS2C(long accountId, int damage) -> {
-                if (accountId == client.getState().getAccount().id()) {
-                    ClientCharacter character = client.getState().getActiveCharacter();
-                    if (character.isNull()) return;
-                    character.damage(damage);
-                    Gdx.app.postRunnable(() -> {
-                        if (client.getScreen() instanceof GameScreen gameScreen) {
-                            gameScreen.getHealthBar().update();
-                        }
-                    });
-                } else {
-                    ClientCharacter character = client.getState().getCurrentRaid().getCharacters().get(accountId);
-                    if (character == null || character.isNull()) return;
-                    character.damage(damage);
-                }
+            case DamageCharactersS2C(List<DamageCharactersS2C.Entry> entries) -> {
+                entries.forEach(entry -> {
+                    if (entry.accountId() == client.getState().getAccount().id()) {
+                        ClientCharacter character = client.getState().getActiveCharacter();
+                        if (character.isNull()) return;
+                        character.damage(entry.damage());
+                        Gdx.app.postRunnable(() -> {
+                            if (client.getScreen() instanceof GameScreen gameScreen) {
+                                gameScreen.getHealthBar().update();
+                            }
+                        });
+                    } else {
+                        ClientCharacter character = client.getState().getCurrentRaid().getCharacters().get(entry.accountId());
+                        if (character == null || character.isNull()) return;
+                        character.damage(entry.damage());
+                    }
+                });
             }
             case StatusEffectsS2C(List<StatusEffectsS2C.Entry> entries) -> {
                 for (StatusEffectsS2C.Entry entry : entries) {

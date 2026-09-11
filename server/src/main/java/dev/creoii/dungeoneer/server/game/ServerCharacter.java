@@ -8,7 +8,7 @@ import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.DamageCharacterS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.DamageCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
 import dev.creoii.dungeoneer.util.VectorUtils;
@@ -194,10 +194,7 @@ public class ServerCharacter implements Character<ServerRaid> {
     @Override
     public void damage(int damage) {
         Character.super.damage(damage);
-
-        raid.getCharacters().values().forEach(character1 -> {
-            raid.getServer().get().sendToTCP(character1.getConnectionId(), new DamageCharacterS2C(character.accountId(), damage));
-        });
+        raid.getDamageEntries().add(new DamageCharactersS2C.Entry(character.accountId(), damage));
     }
 
     @Override

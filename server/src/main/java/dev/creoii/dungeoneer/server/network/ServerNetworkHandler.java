@@ -378,7 +378,7 @@ public class ServerNetworkHandler extends NetworkHandler {
 
                             character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
                             AttackEvents.POST.invoker().onPostAttack(character, attack, serverRaid);
-                            serverRaid.getAttacks().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
+                            serverRaid.getAttackEntries().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
 
                             character.setLastAttackTime(currentTime);
                             server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));

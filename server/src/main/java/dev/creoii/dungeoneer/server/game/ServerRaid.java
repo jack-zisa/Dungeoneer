@@ -5,10 +5,7 @@ import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.AttacksS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.MoveRaidCharactersS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
-import dev.creoii.dungeoneer.network.s2c.raid.SyncRaidTimerS2C;
+import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Tickable;
@@ -26,7 +23,8 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     private float timer;
     private final List<MoveRaidCharactersS2C.Entry> moveEntries;
     private final List<StatusEffectsS2C.Entry> statusEffectEntries;
-    private final List<AttacksS2C.Entry> attacks;
+    private final List<AttacksS2C.Entry> attackEntries;
+    private final List<DamageCharactersS2C.Entry> damageEntries;
 
     private final Pool<ServerBullet> bulletPool = new Pool<>() {
         @Override
@@ -50,7 +48,8 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         timer = SYNC_INTERVAL;
         moveEntries = new ArrayList<>();
         statusEffectEntries = new ArrayList<>();
-        attacks = new ArrayList<>();
+        attackEntries = new ArrayList<>();
+        damageEntries = new ArrayList<>();
         set(raid);
     }
 
@@ -76,8 +75,12 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         return statusEffectEntries;
     }
 
-    public List<AttacksS2C.Entry> getAttacks() {
-        return attacks;
+    public List<AttacksS2C.Entry> getAttackEntries() {
+        return attackEntries;
+    }
+
+    public List<DamageCharactersS2C.Entry> getDamageEntries() {
+        return damageEntries;
     }
 
     @Override
@@ -128,9 +131,14 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
                 statusEffectEntries.clear();
             }
 
-            if (!attacks.isEmpty()) {
-                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new AttacksS2C(attacks)));
-                attacks.clear();
+            if (!attackEntries.isEmpty()) {
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new AttacksS2C(attackEntries)));
+                attackEntries.clear();
+            }
+
+            if (!damageEntries.isEmpty()) {
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), new DamageCharactersS2C(damageEntries)));
+                damageEntries.clear();
             }
         } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) { // Start raid
             setStatus(Status.ACTIVE);
@@ -148,7 +156,8 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
 
         moveEntries.clear();
         statusEffectEntries.clear();
-        attacks.clear();
+        attackEntries.clear();
+        damageEntries.clear();
         timer = 0f;
         entityCollisionManager.getCollidables().clear();
     }
@@ -166,6 +175,15 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     public ServerCharacter getCharacterById(long characterId) {
         for (ServerCharacter character : getCharacters().values()) {
             if (character.get().id() == characterId)
+                return character;
+        }
+        return null;
+    }
+
+    @Nullable
+    public ServerCharacter getCharacterByConnectionId(int connectionId) {
+        for (ServerCharacter character : getCharacters().values()) {
+            if (character.getConnectionId() == connectionId)
                 return character;
         }
         return null;

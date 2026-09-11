@@ -61,7 +61,7 @@ public final class Commands {
                 amplifier = Integer.parseInt(args[2]);
             }
 
-            raid.getCharacterById(account.activeCharacterId()).addStatusEffect(effectType, amplifier, duration);
+            raid.getCharacterByAccountId(account.id()).addStatusEffect(effectType, amplifier, duration);
 
             return Command.Result.SUCCESS;
         });
@@ -81,7 +81,7 @@ public final class Commands {
                 return Command.Result.FAIL;
             }
 
-            raid.getCharacterById(account.activeCharacterId()).removeStatusEffect(effectType);
+            raid.getCharacterByAccountId(account.id()).removeStatusEffect(effectType);
 
             return Command.Result.SUCCESS;
         });
@@ -98,7 +98,7 @@ public final class Commands {
                 return Command.Result.FAIL;
             }
 
-            raid.getCharacterById(account.activeCharacterId()).clearStatusEffects();
+            raid.getCharacterByAccountId(account.id()).clearStatusEffects();
 
             return Command.Result.SUCCESS;
         });
