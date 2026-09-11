@@ -64,11 +64,11 @@ public class GameScreen extends AbstractScreen {
 
     public void refreshVisibleCharacters() {
         visibleCharacters.clear();
+        visibleCharacters.add(getClient().getState().getActiveCharacter());
 
         ClientRaid raid = getClient().getState().getCurrentRaid();
         if (raid.getCharacters().isEmpty())
             return;
-        visibleCharacters.add(getClient().getState().getActiveCharacter());
         visibleCharacters.addAll(raid.getCharacters().values());
     }
 

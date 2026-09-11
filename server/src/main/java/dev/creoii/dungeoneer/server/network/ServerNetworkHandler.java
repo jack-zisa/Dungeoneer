@@ -293,7 +293,6 @@ public class ServerNetworkHandler extends NetworkHandler {
 
                     int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
                     if (connectionId != -1) {
-                        System.out.println("connection: " + connectionId);
                         server.get().sendToTCP(connectionId, new LeaveRaidS2C(raidId, accountId, reason));
                     }
                 });
