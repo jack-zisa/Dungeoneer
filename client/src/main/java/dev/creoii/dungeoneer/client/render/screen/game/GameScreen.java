@@ -206,13 +206,11 @@ public class GameScreen extends AbstractScreen {
             if (toShader != shader) {
                 polygonBatch.end();
                 polygonBatch.setShader(toShader);
-
+                polygonBatch.begin();
                 if (toShader == Assets.BORDER_SHADER) {
                     Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / character.getSprite().getWidth()) * .25f, (1f / character.getSprite().getHeight()) * .25f);
                     Assets.BORDER_SHADER.setUniformf("u_borderColor", Color.BLACK);
                 }
-
-                polygonBatch.begin();
                 shader = toShader;
             }
             renderable.render(getClient(), polygonBatch, camera, inputListener.getRotation(), dt);
