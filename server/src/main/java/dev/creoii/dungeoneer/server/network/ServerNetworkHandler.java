@@ -115,6 +115,11 @@ public class ServerNetworkHandler extends NetworkHandler {
     public void disconnected(Connection connection) {
         DungeoneerServer.LOGGER.info("Client disconnected: %s", connection);
 
+        long accountId = server.getSessionManager().getAccountConnections().inverse().get(connection.getID());
+        server.getState().getRaids().values().forEach(serverRaid -> {
+            serverRaid.removeCharacter(accountId, RemovalReason.DISCONNECTED);
+        });
+
         server.getSessionManager().endClientSession(connection);
 
         if (server.getStatus() == DungeoneerServer.Status.RUNNING && server.get().getConnections().isEmpty()) {
@@ -285,17 +290,7 @@ public class ServerNetworkHandler extends NetworkHandler {
         } else if (object instanceof LeaveRaidC2S(long raidId, long accountId, RemovalReason reason)) {
             RaidDefinition raid = server.getDatabase().getRaids().getById(raidId);
             if (raid != null) {
-                if (server.getState().getRaids().get(raidId).removeCharacter(accountId) == null)
-                    return;
-                raid.attackers().forEach(account -> {
-                    if (account.id() == accountId)
-                        return;
-
-                    int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
-                    if (connectionId != -1) {
-                        server.get().sendToTCP(connectionId, new LeaveRaidS2C(raidId, accountId, reason));
-                    }
-                });
+                server.getState().getRaids().get(raidId).removeCharacter(accountId, reason);
             }
         } else if (object instanceof DeleteCharacterC2S(long accountId, int index)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);

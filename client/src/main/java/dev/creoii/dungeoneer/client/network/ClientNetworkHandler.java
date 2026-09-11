@@ -395,14 +395,7 @@ public class ClientNetworkHandler extends NetworkHandler {
             case LeaveRaidS2C(long raidId, long accountId, RemovalReason reason) -> { // TODO: Announce removal reason to the nonexistent chat
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (!raid.isNull() && raid.get().id() == raidId) {
-                    if (raid.removeCharacter(accountId) == null)
-                        return;
-
-                    Gdx.app.postRunnable(() -> {
-                        if (client.getScreen() instanceof GameScreen gameScreen) {
-                            gameScreen.refreshVisibleCharacters();
-                        }
-                    });
+                    raid.removeCharacter(accountId, reason);
                 }
             }
             default -> {

@@ -3,11 +3,13 @@ package dev.creoii.dungeoneer.server.game;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
+import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.collision.EntityCollisionManager;
 import org.jspecify.annotations.Nullable;
@@ -154,6 +156,23 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         damageEntries.clear();
         timer = 0f;
         entityCollisionManager.getCollidables().clear();
+    }
+
+    @Override
+    public Character<?> removeCharacter(long accountId, RemovalReason reason) {
+        Character<?> removed = super.removeCharacter(accountId, reason);
+        if (removed != null) {
+            get().attackers().forEach(account -> {
+                if (account.id() == accountId)
+                    return;
+
+                int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
+                if (connectionId != -1) {
+                    server.get().sendToTCP(connectionId, new LeaveRaidS2C(get().id(), accountId, reason));
+                }
+            });
+        }
+        return removed;
     }
 
     @Nullable
