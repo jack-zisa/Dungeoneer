@@ -421,15 +421,6 @@ public class ServerNetworkHandler extends NetworkHandler {
                     }
                 });
             }
-        } else if (object instanceof CharacterDieC2S(long raidId, long characterId)) {
-            CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
-            if (character != null && server.getState().getRaids().containsKey(raidId)) {
-                ServerRaid raid = server.getState().getRaids().get(raidId);
-                ServerCharacter serverCharacter = raid.getCharacterById(characterId);
-                if (serverCharacter == null)
-                    return;
-                serverCharacter.setDead(true);
-            }
         } else if (object instanceof ExecuteCommandC2S(long accountId, long raidId, String commandType, String[] args)) {
             Command.Result result = Commands.tryExecute(server, accountId, raidId, commandType, args);
             if (result != null) {

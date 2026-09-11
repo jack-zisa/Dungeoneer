@@ -70,12 +70,13 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         character.setRaid(this);
     }
 
-    public Character<?> removeCharacter(long accountId) {
+    public C removeCharacter(long accountId) {
         return removeCharacter(accountId, RemovalReason.UNKNOWN);
     }
 
-    public Character<?> removeCharacter(long accountId, RemovalReason reason) {
-        Character<?> character = characters.remove(accountId);
+    @SuppressWarnings("unchecked")
+    public C removeCharacter(long accountId, RemovalReason reason) {
+        C character = characters.remove(accountId);
         if (character != null)
             character.setRaid(null);
         return character;

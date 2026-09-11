@@ -3,7 +3,6 @@ package dev.creoii.dungeoneer.server.game;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
-import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
@@ -14,7 +13,6 @@ import dev.creoii.dungeoneer.util.collision.EntityCollisionManager;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
@@ -99,12 +97,9 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             // Update bullet positions
             super.update(dt);
 
-            Iterator<ServerCharacter> iterator = getCharacters().values().iterator();
-            while (iterator.hasNext()) {
-                ServerCharacter character = iterator.next();
+            for (ServerCharacter character : getCharacters().values()) {
                 if (character.isDead()) {
-                    character.setRaid(null);
-                    iterator.remove();
+                    character.die();
                     continue;
                 }
 
@@ -155,17 +150,12 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     }
 
     @Override
-    public Character<?> removeCharacter(long accountId, RemovalReason reason) {
-        Character<?> removed = super.removeCharacter(accountId, reason);
+    public ServerCharacter removeCharacter(long accountId, RemovalReason reason) {
+        ServerCharacter removed = super.removeCharacter(accountId, reason);
         if (removed != null) {
-            get().attackers().forEach(account -> {
-                if (account.id() == accountId)
-                    return;
-
-                int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(account.id(), -1);
-                if (connectionId != -1) {
-                    server.get().sendToTCP(connectionId, new LeaveRaidS2C(get().id(), accountId, reason));
-                }
+            server.get().sendToTCP(removed.getConnectionId(), new LeaveRaidS2C(get().id(), accountId, reason));
+            getCharacters().values().forEach(serverCharacter -> {
+                server.get().sendToTCP(serverCharacter.getConnectionId(), new LeaveRaidS2C(get().id(), accountId, reason));
             });
         }
         return removed;

@@ -7,7 +7,6 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.render.screen.game.RaidEndScreen;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
-import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.util.RemovalReason;
 
@@ -51,8 +50,8 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     }
 
     @Override
-    public Character<?> removeCharacter(long accountId, RemovalReason reason) {
-        Character<?> character = super.removeCharacter(accountId, reason);
+    public ClientCharacter removeCharacter(long accountId, RemovalReason reason) {
+        ClientCharacter character = super.removeCharacter(accountId, reason);
         if (character != null) {
             Gdx.app.postRunnable(() -> {
                 if (client.getScreen() instanceof GameScreen gameScreen) {

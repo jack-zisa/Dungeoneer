@@ -7,13 +7,13 @@ import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.util.Constants;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.BiPredicate;
 
 public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
     int getConnectionId();
@@ -58,6 +58,12 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
 
         if (getStats().health().value() <= 0) {
             setDead(true);
+        }
+    }
+
+    default void die() {
+        if (getRaid() != null && !getRaid().isNull()) {
+            getRaid().removeCharacter(get().accountId(), RemovalReason.DEATH);
         }
     }
 

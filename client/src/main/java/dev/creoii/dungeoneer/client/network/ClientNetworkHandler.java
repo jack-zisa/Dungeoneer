@@ -11,6 +11,7 @@ import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.render.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
+import dev.creoii.dungeoneer.client.render.screen.game.DeathScreen;
 import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.render.screen.main.FactionTab;
 import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
@@ -39,7 +40,6 @@ import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
-import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
@@ -396,14 +396,25 @@ public class ClientNetworkHandler extends NetworkHandler {
             }
             case LeaveRaidS2C(long raidId, long accountId, RemovalReason reason) -> { // TODO: Announce removal reason to the nonexistent chat
                 ClientRaid raid = client.getState().getCurrentRaid();
-                if (!raid.isNull() && raid.get().id() == raidId) {
-                    raid.removeCharacter(accountId, reason);
+                if (!raid.isNull() && raid.get().id() == raidId && (raid.getCharacters().containsKey(accountId) || accountId == client.getState().getAccount().id())) {
+                    if (reason == RemovalReason.DEATH) {
+                        if (accountId == client.getState().getAccount().id()) {
+                            client.getState().getActiveCharacter().die();
+                            raid.setStatus(Raid.Status.END);
+                            client.getState().setStatus(ClientState.Status.RAID_END);
+                            Gdx.app.postRunnable(() -> client.setScreen(new DeathScreen(client)));
+                        } else {
+                            raid.getCharacters().get(accountId).die();
+                        }
+                    }
+                    else raid.removeCharacter(accountId, reason);
                 }
             }
             case StatUpdatesS2C(long accountId, StatContainer stats) -> {
-                if (client.getState().getAccount().id() != accountId || client.getState().getActiveCharacter().isNull())
-                    return;
-                client.getState().getActiveCharacter().getStats().set(stats);
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (!raid.isNull()) {
+                    raid.getCharacters().get(accountId).getStats().set(stats);
+                }
             }
             default -> {
             }
