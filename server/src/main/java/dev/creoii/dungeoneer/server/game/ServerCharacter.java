@@ -201,9 +201,12 @@ public class ServerCharacter implements Character<ServerRaid> {
     }
 
     @Override
-    public void damage(int damage) {
-        Character.super.damage(damage);
-        if (!dead) raid.getDamageEntries().add(new DamageCharactersS2C.Entry(character.accountId(), damage));
+    public boolean damage(int damage) {
+        if (Character.super.damage(damage)) {
+            if (!dead) raid.getDamageEntries().add(new DamageCharactersS2C.Entry(character.accountId(), damage));
+            return true;
+        }
+        return false;
     }
 
     @Override

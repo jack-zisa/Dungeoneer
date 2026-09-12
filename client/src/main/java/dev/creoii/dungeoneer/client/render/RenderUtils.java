@@ -4,9 +4,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
@@ -15,6 +17,9 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.LivingEntity;
+import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
+import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.VectorUtils;
 
 public final class RenderUtils {
@@ -231,6 +236,29 @@ public final class RenderUtils {
             texture.getWidth(), texture.getHeight(),
             false, false
         );
+    }
+
+    public static void renderStatusEffects(LivingEntity livingEntity, float[] position, float scale, Dungeoneer client, PolygonSpriteBatch batch) {
+        float baseX = position[0] - (scale / 2f) - 4f;
+        float baseY = position[1] + scale;
+
+        int i = 0;
+        for (Identifiable identifiable : DataManager.getStatusEffects().values()) {
+            StatusEffect effect = (StatusEffect) identifiable;
+            if (livingEntity.hasStatusEffect(effect)) {
+                Sprite effectSprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.UI, "effect/" + effect.id()));
+
+                effectSprite.setScale(.25f);
+
+                int column = i % 6;
+                int row = i / 6;
+                float x = baseX + column * (effectSprite.getWidth() - 4f);
+                float y = baseY + row * (effectSprite.getHeight() - 4f);
+                effectSprite.setPosition(x, y);
+                effectSprite.draw(batch);
+                ++i;
+            }
+        }
     }
 
     public static float angleDeg(Bullet bullet) {

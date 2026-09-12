@@ -22,6 +22,7 @@ import dev.creoii.dungeoneer.client.util.DynamicTextureAtlas;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,10 +82,8 @@ public class Assets implements Disposable {
                 continue;
 
             String path = line.trim();
-            String[] parts = path.split("/");
-            if (parts.length < 3)
-                continue;
-
+            String[] parts = path.split("/", 3);
+            System.out.println(Arrays.toString(parts));
             try {
                 Atlas atlas = Atlas.valueOf(parts[1].toUpperCase());
 

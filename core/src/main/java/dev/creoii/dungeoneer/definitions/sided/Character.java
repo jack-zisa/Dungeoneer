@@ -52,17 +52,20 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
 
     void tick(float dt);
 
-    default void damage(int damage) {
+    default boolean damage(int damage) {
         if (!inRaid())
-            return;
+            return false;
 
         damage = DamageEvents.MODIFY.invoker().modifyDamage(this, damage);
+        if (damage <= 0f)
+            return false;
 
         getStats().setHealth(getStats().health().value() - damage);
 
         if (getStats().health().value() <= 0) {
             setDead(true);
         }
+        return true;
     }
 
     default void heal(int amount) {

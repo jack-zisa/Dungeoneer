@@ -367,12 +367,13 @@ public class ClientNetworkHandler extends NetworkHandler {
                     if (entry.accountId() == client.getState().getAccount().id()) {
                         ClientCharacter character = client.getState().getActiveCharacter();
                         if (character.isNull()) return;
-                        character.damage(entry.damage());
-                        Gdx.app.postRunnable(() -> {
-                            if (client.getScreen() instanceof GameScreen gameScreen) {
-                                gameScreen.getHealthBar().update();
-                            }
-                        });
+                        if (character.damage(entry.damage())) {
+                            Gdx.app.postRunnable(() -> {
+                                if (client.getScreen() instanceof GameScreen gameScreen) {
+                                    gameScreen.getHealthBar().update();
+                                }
+                            });
+                        }
                     } else {
                         ClientCharacter character = client.getState().getCurrentRaid().getCharacters().get(entry.accountId());
                         if (character == null || character.isNull()) return;

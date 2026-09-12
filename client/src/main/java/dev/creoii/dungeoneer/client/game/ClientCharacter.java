@@ -13,6 +13,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
+import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Character;
@@ -345,6 +346,8 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         VectorUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
         sprite.setPosition(pos[0] - sprite.getWidth() * .5f, pos[1] - sprite.getHeight() * .5f);
         sprite.draw(batch);
+
+        RenderUtils.renderStatusEffects(this, renderPos, sprite.getHeight() * .8f, client, batch);
     }
 
     @Override
