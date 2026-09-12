@@ -123,5 +123,6 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
         character.setRenderPos(0f, 0f);
         character.setDead(false);
         character.getStats().set(character.getMaxStats());
+        character.clearStatusEffects();
     }
 }
