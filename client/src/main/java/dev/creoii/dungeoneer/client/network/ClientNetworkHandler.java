@@ -20,6 +20,7 @@ import dev.creoii.dungeoneer.client.render.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
+import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.NetworkHandler;
@@ -415,6 +416,17 @@ public class ClientNetworkHandler extends NetworkHandler {
                 if (!raid.isNull()) {
                     raid.getCharacters().get(accountId).getStats().set(stats);
                 }
+            }
+            case SyncEquipmentS2C(long accountId, EquipmentInventory equipment) -> {
+                ClientCharacter character;
+                if (accountId == client.getState().getAccount().id()) {
+                    character = client.getState().getActiveCharacter();
+                    if (character.isNull()) return;
+                } else {
+                    character = client.getState().getCurrentRaid().getCharacters().get(accountId);
+                    if (character == null || character.isNull()) return;
+                }
+                character.setEquipment(equipment);
             }
             default -> {
             }

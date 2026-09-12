@@ -92,12 +92,12 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         this.character = character;
         if (character == null) {
             sprite = null;
-            equipment = null;
+            setEquipment(null);
             stats.set(StatContainer.ZERO.copy());
             maxStats.set(StatContainer.ZERO.copy());
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
-            equipment = new EquipmentInventory(character.characterClass().equipment());
+            setEquipment(new EquipmentInventory(character.characterClass().equipment()));
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
         }
@@ -147,6 +147,10 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     @Override
     public EquipmentInventory getEquipment() {
         return equipment;
+    }
+
+    public void setEquipment(EquipmentInventory equipment) {
+        this.equipment = equipment;
     }
 
     @Override

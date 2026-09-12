@@ -104,6 +104,7 @@ public class PacketSerializer extends Serializer<Object> {
         kryo.register(StatusEffectsS2C.class, PacketSerializer.INSTANCE);
         kryo.register(LeaveRaidS2C.class, PacketSerializer.INSTANCE);
         kryo.register(StatUpdatesS2C.class, PacketSerializer.INSTANCE);
+        kryo.register(SyncEquipmentS2C.class, PacketSerializer.INSTANCE);
 
         PacketSerializer.INSTANCE.register(LoginC2S.class, LoginC2S::write, LoginC2S::read);
         PacketSerializer.INSTANCE.register(RequestLoginC2S.class, RequestLoginC2S::write, RequestLoginC2S::read);
@@ -152,5 +153,6 @@ public class PacketSerializer extends Serializer<Object> {
         PacketSerializer.INSTANCE.register(StatusEffectsS2C.class, StatusEffectsS2C::write, StatusEffectsS2C::read);
         PacketSerializer.INSTANCE.register(LeaveRaidS2C.class, LeaveRaidS2C::write, LeaveRaidS2C::read);
         PacketSerializer.INSTANCE.register(StatUpdatesS2C.class, StatUpdatesS2C::write, StatUpdatesS2C::read);
+        PacketSerializer.INSTANCE.register(SyncEquipmentS2C.class, SyncEquipmentS2C::write, SyncEquipmentS2C::read);
     }
 }
