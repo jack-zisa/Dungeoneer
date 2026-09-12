@@ -23,7 +23,7 @@ import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.command.Command;
-import dev.creoii.dungeoneer.server.command.Commands;
+import dev.creoii.dungeoneer.server.command.SimpleCommand;
 import dev.creoii.dungeoneer.server.database.Database;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.server.database.definitions.ClientSession;
@@ -40,7 +40,6 @@ import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerDungeonMap;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
-import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -440,10 +439,11 @@ public class ServerNetworkHandler extends NetworkHandler {
                 });
             }
         } else if (object instanceof ExecuteCommandC2S(long accountId, long raidId, String commandType, String[] args)) {
-            Command.Result result = Commands.tryExecute(server, accountId, raidId, commandType, args);
-            if (result != null) {
-                // TODO: Send result to client
-            }
+            SimpleCommand.Result result = Command.tryExecute(server, accountId, raidId, commandType, args);
+            if (result.success()) {
+                Command.LOGGER.info(result.message());
+            } else Command.LOGGER.error(result.message());
+            // TODO: Send result to client
         }
     }
 }

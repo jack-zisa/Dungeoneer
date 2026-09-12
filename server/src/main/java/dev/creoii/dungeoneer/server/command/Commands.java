@@ -1,6 +1,5 @@
 package dev.creoii.dungeoneer.server.command;
 
-import com.badlogic.gdx.utils.ObjectMap;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.definitions.inventory.Slot;
@@ -8,59 +7,26 @@ import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.network.s2c.character.StatUpdatesS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SyncEquipmentS2C;
-import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
-import dev.creoii.dungeoneer.util.logging.Logger;
 import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public final class Commands {
-    public static final Logger LOGGER = new Logger(Commands.class.getSimpleName());
-    static final ObjectMap<String, Command> ALL = new ObjectMap<>();
-
-    @Nullable
-    public static Command.Result tryExecute(DungeoneerServer server, long accountId, long raidId, String commandType, String[] args) {
-        if (raidId == -1) {
-            return Command.Result.fail(commandType, args, "No raid target found: " + raidId);
-        }
-
-        if (Commands.ALL.containsKey(commandType)) {
-            try {
-                Command command = Commands.ALL.get(commandType);
-                if (args.length <= command.minArgs() - 1) {
-                    return Command.Result.fail(commandType, args, "Not enough arguments. Required " + command.minArgs() + ", received: " + args.length);
-                }
-
-                Command.Result result = command.execute(server, accountId, raidId, args);
-                if (result.success())
-                    LOGGER.info(result.message());
-                else LOGGER.error(result.message());
-                return result;
-            } catch (Exception e) {
-                LOGGER.error(Command.Result.fail(commandType, args, e.toString()).message());
-                e.printStackTrace();
-            }
-        } else {
-            LOGGER.error(Command.Result.fail(commandType, args, "Command not found.").message());
-        }
-        return null;
-    }
-
-    static {
-        Command.register("addeffect", 1, (server, accountId, raidId, args) -> {
+    public static void register() {
+        ParentCommand effectCommand = Command.registerParent("effect");
+        effectCommand.registerChild("add", 1, (server, accountId, raidId, args) -> {
             String statusEffectId = args[0];
             StatusEffect effectType = DataManager.getStatusEffect(statusEffectId);
 
             if (effectType == null) {
-                return Command.Result.fail("removeeffect", args, "Effect " + statusEffectId + " does not exist.");
+                return Command.Result.fail("effect add", args, "Effect " + statusEffectId + " does not exist.");
             }
 
             ServerRaid raid = server.getState().getRaids().get(raidId);
             if (raid == null || !raid.getCharacters().containsKey(accountId)) {
-                return Command.Result.fail("addeffect", args, "Invalid target.");
+                return Command.Result.fail("effect add", args, "Invalid target.");
             }
 
             int duration = 0;
@@ -74,43 +40,43 @@ public final class Commands {
 
             raid.getCharacterByAccountId(accountId).addStatusEffect(effectType, amplifier, duration);
 
-            return Command.Result.success("addeffect", args);
+            return Command.Result.success("effect add", args);
         });
 
-        Command.register("removeeffect", 1, (server, accountId, raidId, args) -> {
+        effectCommand.registerChild("remove", 1, (server, accountId, raidId, args) -> {
             String statusEffectId = args[0];
             StatusEffect effectType = DataManager.getStatusEffect(statusEffectId);
 
             if (effectType == null) {
-                return Command.Result.fail("removeeffect", args, "Effect " + statusEffectId + " does not exist.");
+                return Command.Result.fail("effect remove", args, "Effect " + statusEffectId + " does not exist.");
             }
 
             ServerRaid raid = server.getState().getRaids().get(raidId);
             if (raid == null || !raid.getCharacters().containsKey(accountId)) {
-                return Command.Result.fail("removeeffect", args, "Invalid target.");
+                return Command.Result.fail("effect remove", args, "Invalid target.");
             }
 
             raid.getCharacterByAccountId(accountId).removeStatusEffect(effectType);
 
-            return Command.Result.success("removeeffect", args);
+            return Command.Result.success("effect remove", args);
         });
 
-        Command.register("cleareffects", (server, accountId, raidId, args) -> {
+        effectCommand.registerChild("clear", (server, accountId, raidId, args) -> {
             ServerRaid raid = server.getState().getRaids().get(raidId);
             if (raid == null || !raid.getCharacters().containsKey(accountId)) {
-                return Command.Result.fail("cleareffects", args, "Invalid target.");
+                return Command.Result.fail("effect clear", args, "Invalid target.");
             }
 
             raid.getCharacterByAccountId(accountId).clearStatusEffects();
-
-            return Command.Result.success("cleareffects", args);
+            return Command.Result.success("effect clear", args);
         });
 
-        Command.register("setstat", 2, (server, accountId, raidId, args) -> {
+        ParentCommand statCommand = Command.registerParent("stat");
+        statCommand.registerChild("set", 2, (server, accountId, raidId, args) -> {
             ServerRaid raid = server.getState().getRaids().get(raidId);
             int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(accountId, -1);
             if (raid == null || connectionId == -1 || raid.getCharacters().containsKey(accountId)) {
-                return Command.Result.fail("setstat", args, "Invalid target.");
+                return Command.Result.fail("set stat", args, "Invalid target.");
             }
 
             Stat.Type type = Stat.Type.valueOf(args[0].toUpperCase());
@@ -118,18 +84,19 @@ public final class Commands {
             StatContainer stats = raid.getCharacterByAccountId(accountId).getStats();
             stats.setStat(type, value);
             server.get().sendToTCP(connectionId, new StatUpdatesS2C(accountId, stats));
-            return Command.Result.success("setstat", args);
+            return Command.Result.success("set stat", args);
         });
 
-        Command.register("additem", 1, (server, accountId, raidId, args) -> {
+        ParentCommand inventoryCommand = Command.registerParent("inventory");
+        inventoryCommand.registerChild("add", 1, (server, accountId, raidId, args) -> {
             ServerRaid raid = server.getState().getRaids().get(raidId);
             if (raid == null || !raid.getCharacters().containsKey(accountId)) {
-                return Command.Result.fail("additem", args, "Invalid target.");
+                return Command.Result.fail("inventory add", args, "Invalid target.");
             }
 
             Item item = DataManager.getItem(args[0]);
             if (item == null) {
-                return Command.Result.fail("additem", args, "Item " + args[0] + " does not exist.");
+                return Command.Result.fail("inventory add", args, "Item " + args[0] + " does not exist.");
             }
 
             EquipmentInventory equipment = raid.getCharacterByAccountId(accountId).getEquipment();
@@ -138,9 +105,20 @@ public final class Commands {
                 raid.getCharacters().values().forEach(serverCharacter -> {
                     server.get().sendToTCP(serverCharacter.getConnectionId(), new SyncEquipmentS2C(accountId, List.of(slot)));
                 });
-                return Command.Result.success("additem", args);
+                return Command.Result.success("inventory add", args);
             }
-            return Command.Result.fail("additem", args, "Failed to add item.");
+            return Command.Result.fail("inventory add", args, "Failed to add item.");
+        });
+
+        inventoryCommand.registerChild("clear", (server, accountId, raidId, args) -> {
+            ServerRaid raid = server.getState().getRaids().get(raidId);
+            if (raid == null || !raid.getCharacters().containsKey(accountId)) {
+                return Command.Result.fail("inventory clear", args, "Invalid target.");
+            }
+
+            EquipmentInventory equipment = raid.getCharacterByAccountId(accountId).getEquipment();
+            equipment.clear();
+            return Command.Result.success("inventory clear", args);
         });
     }
 }
