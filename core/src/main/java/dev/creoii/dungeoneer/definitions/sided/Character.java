@@ -94,7 +94,7 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
                 return attack(DataManager.getAttack(id), raid, mouseDir);
             }
             case BulletAttack(_, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
-                BulletType bullet = DataManager.getBullet(Constants.TEST_BULLET);
+                BulletType bullet = getEquipment().getWeapon().bullet();
                 if (bullet == null)
                     return false;
 

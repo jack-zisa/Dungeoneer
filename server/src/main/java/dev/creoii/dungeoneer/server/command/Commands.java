@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.server.command;
 import com.badlogic.gdx.utils.ObjectMap;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
+import dev.creoii.dungeoneer.definitions.inventory.Slot;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.network.s2c.character.StatUpdatesS2C;
@@ -14,6 +15,7 @@ import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public final class Commands {
     public static final Logger LOGGER = new Logger(Commands.class.getSimpleName());
@@ -131,9 +133,10 @@ public final class Commands {
             }
 
             EquipmentInventory equipment = raid.getCharacterByAccountId(accountId).getEquipment();
+            Slot slot = equipment.getNextAvailableSlot();
             if (equipment.addItem(item)) {
-                raid.getCharacters().forEach((aLong, serverCharacter) -> {
-                    server.get().sendToTCP(serverCharacter.getConnectionId(), new SyncEquipmentS2C(accountId, equipment));
+                raid.getCharacters().values().forEach(serverCharacter -> {
+                    server.get().sendToTCP(serverCharacter.getConnectionId(), new SyncEquipmentS2C(accountId, List.of(slot)));
                 });
                 return Command.Result.success("additem", args);
             }

@@ -20,7 +20,8 @@ import dev.creoii.dungeoneer.client.render.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
-import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
+import dev.creoii.dungeoneer.definitions.inventory.Slot;
+import dev.creoii.dungeoneer.definitions.item.WeaponItem;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.NetworkHandler;
@@ -38,7 +39,6 @@ import dev.creoii.dungeoneer.network.s2c.character.*;
 import dev.creoii.dungeoneer.network.s2c.dungeon.SendDungeonMapS2C;
 import dev.creoii.dungeoneer.network.s2c.faction.*;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
-import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -357,7 +357,10 @@ public class ClientNetworkHandler extends NetworkHandler {
 
                 AnimationState animationState = character.getAnimationState();
 
-                Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+                WeaponItem weapon = character.getEquipment().getWeapon();
+                if (weapon == null)
+                    return;
+                Attack attack = weapon.attack();
                 character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
                 AttackEvents.POST.invoker().onPostAttack(character, attack, client.getState().getCurrentRaid());
 
@@ -417,7 +420,7 @@ public class ClientNetworkHandler extends NetworkHandler {
                     raid.getCharacters().get(accountId).getStats().set(stats);
                 }
             }
-            case SyncEquipmentS2C(long accountId, EquipmentInventory equipment) -> {
+            case SyncEquipmentS2C(long accountId, List<Slot> slots) -> {
                 ClientCharacter character;
                 if (accountId == client.getState().getAccount().id()) {
                     character = client.getState().getActiveCharacter();
@@ -426,7 +429,7 @@ public class ClientNetworkHandler extends NetworkHandler {
                     character = client.getState().getCurrentRaid().getCharacters().get(accountId);
                     if (character == null || character.isNull()) return;
                 }
-                character.setEquipment(equipment);
+                slots.forEach(slot -> character.getEquipment().setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
             }
             default -> {
             }

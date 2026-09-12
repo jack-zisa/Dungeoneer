@@ -83,7 +83,6 @@ public class Assets implements Disposable {
 
             String path = line.trim();
             String[] parts = path.split("/", 3);
-            System.out.println(Arrays.toString(parts));
             try {
                 Atlas atlas = Atlas.valueOf(parts[1].toUpperCase());
 

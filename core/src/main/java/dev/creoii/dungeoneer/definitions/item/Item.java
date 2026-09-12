@@ -15,10 +15,10 @@ public sealed interface Item extends Identifiable permits EquipmentItem, Consuma
     boolean stackable();
 
     Codec<Item> CODEC = Type.CODEC.dispatch(Item::type, type -> switch (type) {
-        case WEAPON -> null;
-        case ABILITY -> null;
-        case ARMOR -> null;
-        case ACCESSORY -> null;
+        case WEAPON -> WeaponItem.TYPE_CODEC;
+        case ABILITY -> AbilityItem.TYPE_CODEC;
+        case ARMOR -> ArmorItem.TYPE_CODEC;
+        case ACCESSORY -> AccessoryItem.TYPE_CODEC;
         case CONSUMABLE -> ConsumableItem.TYPE_CODEC;
     });
     Codec<Item> EITHER_CODEC = Codec.either(Codec.STRING, CODEC).xmap(either -> {

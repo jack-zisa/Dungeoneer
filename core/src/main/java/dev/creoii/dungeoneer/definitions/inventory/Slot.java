@@ -34,17 +34,7 @@ public class Slot {
     }
 
     public boolean setItem(@Nullable Item item) {
-        if (item == null) {
-            count = 0;
-            this.item = null;
-            return true;
-        }
-
-        if (item.type() != slotType.getType())
-            return false;
-
-        this.item = item;
-        return true;
+        return setItem(item, 1);
     }
 
     public boolean setItem(@Nullable Item item, int count) {
@@ -53,8 +43,9 @@ public class Slot {
             return false;
         }
 
-        if (item.type() != slotType.getType())
+        if (slotType != null && item.type() != slotType.getType()) {
             return false;
+        }
 
         this.item = item;
 
@@ -80,7 +71,7 @@ public class Slot {
     }
 
     public boolean isEmpty() {
-        return item != null && count > 0;
+        return item == null || count <= 0;
     }
 
     public EquipmentItem.EquipmentType getSlotType() {

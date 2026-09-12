@@ -8,7 +8,7 @@ import java.util.List;
 
 public record DamageCharactersS2C(List<Entry> entries) {
     public static void write(Output output, DamageCharactersS2C o) {
-        output.writeInt(o.entries.size());
+        output.writeInt(o.entries.size(), true);
         o.entries.forEach(entry -> {
             output.writeLong(entry.accountId);
             output.writeInt(entry.damage);

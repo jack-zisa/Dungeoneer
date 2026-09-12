@@ -3,13 +3,13 @@ package dev.creoii.dungeoneer.client.control;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
-import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.definitions.attack.*;
+import dev.creoii.dungeoneer.definitions.item.WeaponItem;
 import dev.creoii.dungeoneer.network.c2s.character.CharacterMoveC2S;
 import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.Constants;
@@ -75,7 +75,11 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
         long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().dexterity().value());
 
         if (client.getState().getStatus() == ClientState.Status.RAIDING && !raid.isNull()) {
-            Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+            WeaponItem weapon = character.getEquipment().getWeapon();
+            if (weapon == null)
+                return;
+
+            Attack attack = weapon.attack();
             if (!AttackEvents.PRE.invoker().onPreAttack(character, attack, raid))
                 return;
 

@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.password4j.Password;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
+import dev.creoii.dungeoneer.definitions.item.WeaponItem;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
@@ -391,7 +392,10 @@ public class ServerNetworkHandler extends NetworkHandler {
                 if (serverRaid != null) {
                     ServerCharacter character = serverRaid.getCharacterByAccountId(accountId);
                     if (character != null) {
-                        Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
+                        WeaponItem weapon = character.getEquipment().getWeapon();
+                        if (weapon == null)
+                            return;
+                        Attack attack = weapon.attack();
 
                         if (!AttackEvents.PRE.invoker().onPreAttack(character, attack, serverRaid)) {
                             server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));

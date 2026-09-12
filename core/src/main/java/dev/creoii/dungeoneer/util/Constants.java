@@ -13,7 +13,4 @@ public final class Constants {
 
     private static final long RAID_DURATION_MINUTES = 5L;
     public static final long RAID_DURATION_MS = RAID_DURATION_MINUTES * 60L * 1000L;
-
-    public static final String TEST_ATTACK = "staff";
-    public static final String TEST_BULLET = "ice_magic_blade";
 }
