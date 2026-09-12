@@ -393,8 +393,10 @@ public class ServerNetworkHandler extends NetworkHandler {
                     if (character != null) {
                         Attack attack = DataManager.getAttack(Constants.TEST_ATTACK);
 
-                        if (!AttackEvents.PRE.invoker().onPreAttack(character, attack, serverRaid))
+                        if (!AttackEvents.PRE.invoker().onPreAttack(character, attack, serverRaid)) {
+                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
                             return;
+                        }
 
                         long currentTime = System.currentTimeMillis();
                         long lastAttackTime = character.getLastAttackTime();

@@ -201,23 +201,25 @@ public class ServerCharacter implements Character<ServerRaid> {
             return;
         }
 
-        if (isMoving() && !dead && inRaid()) {
-            if (!MoveEvents.PRE.invoker().onPreMove(this, raid))
-                return;
+        if (inRaid()) {
+            if (isMoving()) {
+                if (!MoveEvents.PRE.invoker().onPreMove(this, raid))
+                    return;
 
-            // Get target position
-            float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
-            float[] target = getTargetPosition(pos, velocity, speed, dt);
+                // Get target position
+                float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
+                float[] target = getTargetPosition(pos, velocity, speed, dt);
 
-            // Handle tile collision
-            Vector2 modified = MovementCollisionManager.modifyMove(raid.getDungeonMap(), this, target[0], target[1], true);
-            setPos(modified.x, modified.y);
+                // Handle tile collision
+                Vector2 modified = MovementCollisionManager.modifyMove(raid.getDungeonMap(), this, target[0], target[1], true);
+                setPos(modified.x, modified.y);
 
-            // Sync character movement
-            raid.getMoveEntries().add(new MoveCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
-            raid.getServer().get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
+                // Sync character movement
+                raid.getMoveEntries().add(new MoveCharactersS2C.Entry(character.accountId(), character.id(), getX(), getY()));
+                raid.getServer().get().sendToUDP(connectionId, new CharacterMoveS2C(character.id(), getX(), getY()));
 
-            MoveEvents.POST.invoker().onPostMove(this, raid);
+                MoveEvents.POST.invoker().onPostMove(this, raid);
+            }
 
             if (hasPendingStatusEffectChanges()) {
                 raid.getStatusEffectEntries().add(new StatusEffectsS2C.Entry(character.accountId(), pendingStatusEffectAdds, pendingStatusEffectRemoves));
