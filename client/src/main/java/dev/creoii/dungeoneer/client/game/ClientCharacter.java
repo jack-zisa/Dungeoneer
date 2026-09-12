@@ -60,7 +60,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             stats = StatContainer.ZERO.copy();
             maxStats = StatContainer.ZERO.copy();
         } else {
-            equipment = new EquipmentInventory(character.characterClass().equipment());
+            equipment = new EquipmentInventory(this, character.characterClass().equipment());
             stats = character.characterClass().baseStats().copy();
             maxStats = character.characterClass().maxStats().copy();
         }
@@ -97,7 +97,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             maxStats.set(StatContainer.ZERO.copy());
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
-            setEquipment(new EquipmentInventory(character.characterClass().equipment()));
+            setEquipment(new EquipmentInventory(this, character.characterClass().equipment()));
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
         }

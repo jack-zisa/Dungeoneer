@@ -2,5 +2,10 @@
   "type": "weapon",
   "equipment_type": "sword",
   "attack": "staff",
-  "bullet": "ice_magic_blade"
+  "bullet": "ice_magic_blade",
+  "stat_bonus": {
+    "health": 500,
+    "speed": 100,
+    "dexterity": 100
+  }
 }

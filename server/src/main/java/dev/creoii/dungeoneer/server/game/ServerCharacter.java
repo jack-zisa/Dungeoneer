@@ -48,7 +48,7 @@ public class ServerCharacter implements Character<ServerRaid> {
         pos = VectorUtils.zero();
         velocity = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
-        equipment = new EquipmentInventory(character.characterClass().equipment());
+        equipment = new EquipmentInventory(this, character.characterClass().equipment());
         stats = character.characterClass().baseStats().copy();
         maxStats = character.characterClass().maxStats().copy();
         raid = null;
