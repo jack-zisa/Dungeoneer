@@ -79,11 +79,7 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
         getStats().setHealth(getStats().health().value() + amount);
     }
 
-    default void die() {
-        if (getRaid() != null && !getRaid().isNull()) {
-            getRaid().removeCharacter(get().accountId(), RemovalReason.DEATH);
-        }
-    }
+    void die();
 
     default boolean attack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
         if (!AttackEvents.PRE.invoker().onPreAttack(this, attack, raid))

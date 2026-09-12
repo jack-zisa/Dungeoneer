@@ -22,7 +22,6 @@ import dev.creoii.dungeoneer.client.util.DynamicTextureAtlas;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

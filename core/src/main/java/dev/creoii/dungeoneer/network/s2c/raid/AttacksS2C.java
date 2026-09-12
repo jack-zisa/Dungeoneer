@@ -8,14 +8,14 @@ import java.util.List;
 
 public record AttacksS2C(List<Entry> entries) {
     public static void write(Output output, AttacksS2C o) {
-        output.writeInt(o.entries.size());
+        output.writeInt(o.entries.size(), true);
         for (Entry entry : o.entries()) {
             Entry.write(output, entry);
         }
     }
 
     public static AttacksS2C read(Input input) {
-        int size = input.readInt();
+        int size = input.readInt(true);
         List<Entry> entries = new ArrayList<>();
         for (int i = 0; i < size; ++i) {
             entries.add(new Entry(input.readLong(), input.readFloat(), input.readFloat()));

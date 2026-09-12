@@ -12,6 +12,7 @@ import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.DamageCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.action.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
@@ -210,6 +211,15 @@ public class ServerCharacter implements Character<ServerRaid> {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void die() {
+        if (raid != null && !raid.isNull()) {
+            if (raid.getServer().getDatabase().getCharacters().kill(character.id())) {
+                raid.removeCharacter(character.accountId(), RemovalReason.DEATH);
+            }
+        }
     }
 
     @Override

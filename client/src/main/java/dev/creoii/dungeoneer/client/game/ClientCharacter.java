@@ -20,6 +20,7 @@ import dev.creoii.dungeoneer.definitions.item.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.action.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
@@ -274,6 +275,17 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     public boolean isAttackPending() {
         return attackPending;
+    }
+
+    public boolean isLocal() {
+        return character.id() == client.getState().getActiveCharacter().get().id();
+    }
+
+    @Override
+    public void die() {
+        if (getRaid() != null && !getRaid().isNull() && !isLocal()) {
+            getRaid().removeCharacter(character.accountId(), RemovalReason.DEATH);
+        }
     }
 
     public AnimationState getAnimationState() {

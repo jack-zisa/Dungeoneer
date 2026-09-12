@@ -132,13 +132,13 @@ public class ClientNetworkHandler extends NetworkHandler {
                     Gdx.app.postRunnable(() -> {
                         if (client.getScreen() instanceof MainScreen screen) {
                             if (screen.getSelectedTab() instanceof VaultThroneTab vaultThroneTab) {
-                                vaultThroneTab.select();
+                                vaultThroneTab.select(index);
                             } else if (screen.getSelectedTab() instanceof PlayTab playTab) {
                                 playTab.select();
                             }
                         }
                     });
-                }
+                } else Dungeoneer.LOGGER.error("Failed to create character.");
             }
             case CreateFactionResultS2C(PacketResult result, @Nullable Faction faction) -> {
                 if (result == PacketResult.SUCCESS) {
@@ -401,7 +401,6 @@ public class ClientNetworkHandler extends NetworkHandler {
                 if (!raid.isNull() && raid.get().id() == raidId && (raid.getCharacters().containsKey(accountId) || accountId == client.getState().getAccount().id())) {
                     if (reason == RemovalReason.DEATH) {
                         if (accountId == client.getState().getAccount().id()) {
-                            client.getState().getActiveCharacter().die();
                             raid.setStatus(Raid.Status.END);
                             client.getState().setStatus(ClientState.Status.RAID_END);
                             Gdx.app.postRunnable(() -> {
@@ -410,7 +409,9 @@ public class ClientNetworkHandler extends NetworkHandler {
                                     new DeathDialog(client, AbstractScreen.SKIN).show(gameScreen.getStage());
                                 }
                             });
-                        } else raid.getCharacters().get(accountId).die();
+                        } else {
+                            raid.getCharacters().get(accountId).die();
+                        }
                     }
                     else raid.removeCharacter(accountId, reason);
                 }
@@ -431,6 +432,14 @@ public class ClientNetworkHandler extends NetworkHandler {
                     if (character == null || character.isNull()) return;
                 }
                 slots.forEach(slot -> character.getEquipment().setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
+            }
+            case KillCharacterS2C(CharacterDefinition character) -> {
+                if (character.accountId() == client.getState().getAccount().id()) {
+                    int index = client.getState().indexOf(character.id());
+                    if (index != -1) {
+                        client.getState().getCharacters().set(index, character);
+                    }
+                }
             }
             default -> {
             }

@@ -12,7 +12,7 @@ import java.util.List;
 public record SearchFactionResultS2C(PacketResult result, List<Faction> factions) {
     public static void write(Output output, SearchFactionResultS2C o) {
         output.writeInt(o.result.ordinal());
-        output.writeInt(o.factions.size());
+        output.writeInt(o.factions.size(), true);
         for (Faction faction : o.factions) {
             PacketUtils.writeFaction(output, faction);
         }
@@ -20,7 +20,7 @@ public record SearchFactionResultS2C(PacketResult result, List<Faction> factions
 
     public static SearchFactionResultS2C read(Input input) {
         PacketResult result = PacketResult.values()[input.readInt()];
-        int size = input.readInt();
+        int size = input.readInt(true);
 
         List<Faction> factions = new ArrayList<>();
         for (int i = 0; i < size; ++i) {

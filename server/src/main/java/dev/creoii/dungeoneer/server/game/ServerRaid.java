@@ -1,9 +1,11 @@
 package dev.creoii.dungeoneer.server.game;
 
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.network.s2c.character.KillCharacterS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 import dev.creoii.dungeoneer.util.Constants;
@@ -159,6 +161,10 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
         if (removed != null) {
             LeaveRaidS2C packet = new LeaveRaidS2C(get().id(), accountId, reason);
             server.get().sendToTCP(removed.getConnectionId(), packet);
+
+            CharacterDefinition killed = server.getDatabase().getCharacters().getById(removed.get().id());
+            server.get().sendToTCP(removed.getConnectionId(), new KillCharacterS2C(killed));
+
             getCharacters().values().forEach(serverCharacter -> {
                 server.get().sendToTCP(serverCharacter.getConnectionId(), packet);
             });

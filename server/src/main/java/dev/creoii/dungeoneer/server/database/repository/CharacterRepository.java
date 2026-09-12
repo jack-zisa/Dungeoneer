@@ -4,7 +4,6 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.CharacterClass;
-import dev.creoii.dungeoneer.util.NetworkUtils;
 import org.jdbi.v3.core.Jdbi;
 import org.jspecify.annotations.Nullable;
 
@@ -23,7 +22,8 @@ public class CharacterRepository {
             CREATE TABLE IF NOT EXISTS characters (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 account_id INTEGER NOT NULL,
-                class VARCHAR(32) NOT NULL
+                class VARCHAR(32) NOT NULL,
+                death_date DATETIME
             )
         """)
         );
@@ -38,11 +38,15 @@ public class CharacterRepository {
                 WHERE id = :id
             """)
                 .bind("id", id)
-                .map((rs, _) -> new CharacterDefinition(
-                    rs.getInt("id"),
-                    rs.getInt("account_id"),
-                    DataManager.getCharacterClass(rs.getString("class"))
-                ))
+                .map((rs, _) -> {
+                    String deathDate = rs.getString("death_date");
+                    return new CharacterDefinition(
+                        rs.getInt("id"),
+                        rs.getInt("account_id"),
+                        DataManager.getCharacterClass(rs.getString("class")),
+                        deathDate == null || deathDate.isBlank() ? null : LocalDateTime.parse(deathDate)
+                    );
+                })
                 .findOne()
                 .orElse(null)
         );
@@ -59,13 +63,30 @@ public class CharacterRepository {
                 WHERE id IN (<ids>)
                 """)
                 .bindList("ids", ids)
-                .map((rs, _) -> new CharacterDefinition(
-                    rs.getInt("id"),
-                    rs.getInt("account_id"),
-                    DataManager.getCharacterClass(rs.getString("class"))
-                ))
+                .map((rs, _) -> {
+                    String deathDate = rs.getString("death_date");
+                    return new CharacterDefinition(
+                        rs.getInt("id"),
+                        rs.getInt("account_id"),
+                        DataManager.getCharacterClass(rs.getString("class")),
+                        deathDate == null || deathDate.isBlank() ? null : LocalDateTime.parse(deathDate)
+                    );
+                })
                 .list()
         );
+    }
+
+    public boolean kill(long id) {
+        return jdbi.withHandle(handle ->
+            handle.createUpdate("""
+            UPDATE characters
+               SET death_date = :death_date
+             WHERE id = :id
+            """)
+                .bind("id", id)
+                .bind("death_date", LocalDateTime.now().toString())
+                .execute()
+        ) == 1;
     }
 
     public CharacterDefinition create(Account account, CharacterClass characterClass) {
@@ -81,6 +102,6 @@ public class CharacterRepository {
             .one()
         );
 
-        return new CharacterDefinition(id, account.id(), DataManager.getCharacterClass(characterClass.id()));
+        return new CharacterDefinition(id, account.id(), DataManager.getCharacterClass(characterClass.id()), null);
     }
 }

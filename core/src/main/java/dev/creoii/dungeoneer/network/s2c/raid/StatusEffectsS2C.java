@@ -8,7 +8,7 @@ import java.util.List;
 
 public record StatusEffectsS2C(List<Entry> entries) {
     public static void write(Output output, StatusEffectsS2C o) {
-        output.writeInt(o.entries.size());
+        output.writeInt(o.entries.size(), true);
         o.entries.forEach(entry -> {
             output.writeLong(entry.accountId);
             output.writeLong(entry.add);
@@ -17,7 +17,7 @@ public record StatusEffectsS2C(List<Entry> entries) {
     }
 
     public static StatusEffectsS2C read(Input input) {
-        int size = input.readInt();
+        int size = input.readInt(true);
         List<Entry> entries1 = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             entries1.add(new Entry(input.readLong(), input.readLong(), input.readLong()));

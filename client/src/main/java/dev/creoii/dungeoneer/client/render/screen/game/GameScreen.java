@@ -33,7 +33,6 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 
 public class GameScreen extends AbstractScreen {

@@ -71,8 +71,12 @@ public class ClientState {
         this.characters.addAll(characters);
     }
 
-    public void addCharacter(CharacterDefinition character) {
-        characters.add(character);
+    public int indexOf(long id) {
+        for (int i = 0; i < characters.size(); ++i) {
+            CharacterDefinition characterDefinition = characters.get(i);
+            if (characterDefinition.id() == id) return i;
+        }
+        return -1;
     }
 
     public ClientCharacter getActiveCharacter() {

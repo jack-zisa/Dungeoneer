@@ -11,7 +11,10 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.render.screen.editor.DungeonEditorScreen;
 import dev.creoii.dungeoneer.client.render.screen.game.RaidLoadingScreen;
+import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.network.c2s.raid.JoinOrCreateRaidC2S;
+
+import java.util.Optional;
 
 public class PlayTab extends Tab {
     private ClientCharacter selected;
@@ -89,9 +92,18 @@ public class PlayTab extends Tab {
 
     @Override
     public void select() {
-        if (getClient().getState().getActiveCharacter().isNull()) {
+        ClientCharacter active = getClient().getState().getActiveCharacter();
+        if (active.isNull() || active.isDead() || active.get().isDead()) {
             selected.set(getClient().getState().getCharacters().get(getClient().getSettings().favoriteCharacter().value()));
         } else selected.set(getClient().getState().getActiveCharacter().get());
+
+        if (selected.isNull() || selected.isDead() || selected.get().isDead()) {
+            selected.set(null);
+            Optional<CharacterDefinition> optional = getClient().getState().getCharacters().stream().filter(characterDefinition -> {
+                return characterDefinition != null && !characterDefinition.isDead();
+            }).findFirst();
+            optional.ifPresent(selected::set);
+        }
 
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
         selectedImage.setDrawable(new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId)));

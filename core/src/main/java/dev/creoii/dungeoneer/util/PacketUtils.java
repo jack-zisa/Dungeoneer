@@ -33,7 +33,7 @@ public final class PacketUtils {
         long accountId = input.readLong();
         CharacterClass characterClass = readCharacterClass(input);
         if (characterClass == null) return null;
-        return new CharacterDefinition(id, accountId, characterClass);
+        return new CharacterDefinition(id, accountId, characterClass, readDateTime(input));
     }
 
     public static void writeCharacter(Output output, @Nullable CharacterDefinition character) {
@@ -44,6 +44,7 @@ public final class PacketUtils {
         output.writeLong(character.id());
         output.writeLong(character.accountId());
         writeCharacterClass(output, character.characterClass());
+        writeDateTime(output, character.deathDate());
     }
 
     public static Account readAccount(Input input) {
@@ -53,7 +54,7 @@ public final class PacketUtils {
         int gems = input.readInt();
         int characterSlots = input.readInt();
 
-        int size = input.readInt();
+        int size = input.readInt(true);
         List<Long> characterIds = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             characterIds.add(input.readLong());
@@ -61,11 +62,9 @@ public final class PacketUtils {
 
         long activeCharacterId = input.readLong();
         long factionId = input.readLong();
-        String factionJoinDate = input.readString();
-        String lastLoginDate = input.readString();
         return new Account(id, username, "", gold, gems, characterSlots, characterIds, activeCharacterId, factionId,
-            factionJoinDate.isBlank() ? null : LocalDateTime.parse(factionJoinDate),
-            lastLoginDate.isBlank() ? null : LocalDateTime.parse(lastLoginDate));
+            readDateTime(input),
+            readDateTime(input));
     }
 
     public static void writeAccount(Output output, @Nullable Account account) {
@@ -75,21 +74,21 @@ public final class PacketUtils {
             output.writeInt(account.gold());
             output.writeInt(account.gems());
             output.writeInt(account.characterSlots());
-            output.writeInt(account.characters().size());
+            output.writeInt(account.characters().size(), true);
             for (Long id : account.characters()) {
                 output.writeLong(id);
             }
             output.writeLong(account.activeCharacterId());
             output.writeLong(account.factionId());
-            output.writeString(account.factionJoinDate() == null ? "" : account.factionJoinDate().toString());
-            output.writeString(account.lastLoginDate() == null ? "" : account.lastLoginDate().toString());
+            writeDateTime(output, account.factionJoinDate());
+            writeDateTime(output, account.lastLoginDate());
         } else {
             output.writeLong(-1L); // account id
             output.writeString(""); // username
             output.writeInt(0); // gold
             output.writeInt(0); // gems
             output.writeInt(0); // character slots
-            output.writeInt(0); // characters size
+            output.writeInt(0, true); // characters size
             output.writeLong(-1L); // active character id
             output.writeLong(-1L); // faction id
             output.writeString(""); // faction join date
@@ -102,8 +101,7 @@ public final class PacketUtils {
         long accountId = input.readLong();
         String templateId = input.readString();
         String tilesetId = input.readString();
-        String lastEditDate = input.readString();
-        return new DungeonMapDefinition(id, accountId, templateId, tilesetId, lastEditDate.isBlank() ? null : LocalDateTime.parse(lastEditDate));
+        return new DungeonMapDefinition(id, accountId, templateId, tilesetId, readDateTime(input));
     }
 
     public static void writeDungeonMap(Output output, DungeonMapDefinition dungeonMap) {
@@ -111,7 +109,7 @@ public final class PacketUtils {
         output.writeLong(dungeonMap.accountId());
         output.writeString(dungeonMap.templateId());
         output.writeString(dungeonMap.tilesetId());
-        output.writeString(dungeonMap.lastEditDate() == null ? "" : dungeonMap.lastEditDate().toString());
+        writeDateTime(output, dungeonMap.lastEditDate());
     }
 
     public static Faction readFaction(Input input) {
@@ -142,38 +140,36 @@ public final class PacketUtils {
         long id = input.readLong();
 
         List<Account> attackers = new ArrayList<>();
-        long size = input.readInt();
+        long size = input.readInt(true);
         for (int i = 0; i < size; ++i) {
             attackers.add(readAccount(input));
         }
 
         List<CharacterDefinition> characters = new ArrayList<>();
-        size = input.readInt();
+        size = input.readInt(true);
         for (int i = 0; i < size; ++i) {
             characters.add(readCharacter(input));
         }
 
         Account target = readAccount(input);
         int requiredCharacters = input.readInt();
-        String startTime = input.readString();
-        String endTime = input.readString();
-        return new RaidDefinition(id, attackers, characters, target, requiredCharacters, startTime.isBlank() ? null : LocalDateTime.parse(startTime), endTime.isBlank() ? null : LocalDateTime.parse(endTime));
+        return new RaidDefinition(id, attackers, characters, target, requiredCharacters, readDateTime(input), readDateTime(input));
     }
 
     public static void writeRaid(Output output, RaidDefinition raid) {
         output.writeLong(raid.id());
-        output.writeInt(raid.attackers().size());
+        output.writeInt(raid.attackers().size(), true);
         for (Account account : raid.attackers()) {
             writeAccount(output, account);
         }
-        output.writeInt(raid.characters().size());
+        output.writeInt(raid.characters().size(), true);
         for (CharacterDefinition character : raid.characters()) {
             writeCharacter(output, character);
         }
         writeAccount(output, raid.target());
         output.writeInt(raid.requiredCharacters());
-        output.writeString(raid.startTime().toString());
-        output.writeString(raid.endTime() == null ? "" : raid.endTime().toString());
+        writeDateTime(output, raid.startTime());
+        writeDateTime(output, raid.endTime());
     }
 
     public static Stat readStat(Input input) {
@@ -248,7 +244,7 @@ public final class PacketUtils {
     }
 
     public static Inventory readInventory(Input input) {
-        int length = input.readInt();
+        int length = input.readInt(true);
         Inventory inventory = new Inventory(length);
         for (int i = 0; i < length; ++i) {
             Slot slot = readSlot(input);
@@ -258,7 +254,16 @@ public final class PacketUtils {
     }
 
     public static void writeInventory(Output output, Inventory inventory) {
-        output.writeInt(inventory.size());
+        output.writeInt(inventory.size(), true);
         inventory.forEach(slot -> writeSlot(output, slot));
+    }
+
+    public static LocalDateTime readDateTime(Input input) {
+        String dateTime = input.readString();
+        return dateTime.isBlank() ? null : LocalDateTime.parse(dateTime);
+    }
+
+    public static void writeDateTime(Output output, LocalDateTime dateTime) {
+        output.writeString(dateTime == null ? "" : dateTime.toString());
     }
 }

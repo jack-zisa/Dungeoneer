@@ -21,7 +21,7 @@ public record ExecuteCommandC2S(long accountId, long raidId, String commandType,
         output.writeLong(o.accountId);
         output.writeLong(o.raidId);
         output.writeString(o.commandType);
-        output.writeInt(o.args.length);
+        output.writeInt(o.args.length, true);
         for (String s : o.args) {
             output.writeString(s);
         }
@@ -31,7 +31,7 @@ public record ExecuteCommandC2S(long accountId, long raidId, String commandType,
         long accountId = input.readLong();
         long raidId = input.readLong();
         String commandType = input.readString();
-        int argCount = input.readInt();
+        int argCount = input.readInt(true);
         String[] args = new String[argCount];
         for (int i = 0; i < argCount; i++) {
             args[i] = input.readString();

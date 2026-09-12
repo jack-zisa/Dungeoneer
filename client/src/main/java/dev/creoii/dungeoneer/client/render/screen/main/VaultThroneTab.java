@@ -48,7 +48,6 @@ public class VaultThroneTab extends Tab {
         carousel = new Table();
 
         characterSlots = getClient().getState().getAccount().characterSlots();
-        characters.addAll(getClient().getState().getCharacters());
 
         favoriteButton = new CheckBox("", getSkin());
         CheckBox.CheckBoxStyle style = new CheckBox.CheckBoxStyle(getSkin().get(CheckBox.CheckBoxStyle.class));
@@ -146,12 +145,40 @@ public class VaultThroneTab extends Tab {
         add(createCharacterButton);
     }
 
+    public void select(int selectedIndex) {
+        classIndex = selectedIndex;
+        select();
+    }
+
     @Override
     public void select() {
         characterSlots = getClient().getState().getAccount().characterSlots();
 
         characters.clear();
-        characters.addAll(getClient().getState().getCharacters());
+        for (int i = 0; i < characterSlots; i++) {
+            characters.add(null);
+        }
+
+        for (int i = 0; i < getClient().getState().getCharacters().size(); i++) {
+            CharacterDefinition character =
+                getClient().getState().getCharacters().get(i);
+
+            if (character == null || character.isDead())
+                continue;
+
+            if (i < characters.size()) {
+                characters.set(i, character);
+            }
+        }
+
+        if (classIndex >= characterSlots) {
+            classIndex = getClient().getSettings().favoriteCharacter().value();
+            CharacterDefinition favorite = characters.get(classIndex);
+            if (favorite == null || favorite.isDead()) {
+                classIndex = 0;
+                getClient().getSettings().favoriteCharacter().setValue(0);
+            }
+        }
 
         carousel.setVisible(!characters.isEmpty());
 
