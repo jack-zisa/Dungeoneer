@@ -5,6 +5,9 @@ import com.esotericsoftware.kryo.io.Output;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.inventory.Inventory;
+import dev.creoii.dungeoneer.definitions.inventory.Slot;
+import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -216,5 +219,46 @@ public final class PacketUtils {
 
     public static <E extends Enum<E>> void writeEnum(Output output, E e) {
         output.writeVarInt(e.ordinal(), true);
+    }
+
+    public static Item readItem(Input input) {
+        return DataManager.getItem(input.readString());
+    }
+
+    public static void writeItem(Output output, Item item) {
+        output.writeString(item.id());
+    }
+
+    public static Slot readSlot(Input input) {
+        int index = input.readInt();
+        boolean hasItem = input.readBoolean();
+        Item item = hasItem ? readItem(input) : null;
+        int count = hasItem ? input.readInt() : 0;
+        return new Slot(index, item, count);
+    }
+
+    public static void writeSlot(Output output, Slot slot) {
+        output.writeInt(slot.getIndex());
+        boolean hasItem = !slot.isEmpty();
+        output.writeBoolean(hasItem);
+        if (hasItem) {
+            writeItem(output, slot.getItem());
+            output.writeInt(slot.getCount());
+        }
+    }
+
+    public static Inventory readInventory(Input input) {
+        int length = input.readInt();
+        Inventory inventory = new Inventory(length);
+        for (int i = 0; i < length; ++i) {
+            Slot slot = readSlot(input);
+            inventory.setItem(slot.getIndex(), slot.getItem(), slot.getCount());
+        }
+        return inventory;
+    }
+
+    public static void writeInventory(Output output, Inventory inventory) {
+        output.writeInt(inventory.getSize());
+        inventory.forEach(slot -> writeSlot(output, slot));
     }
 }

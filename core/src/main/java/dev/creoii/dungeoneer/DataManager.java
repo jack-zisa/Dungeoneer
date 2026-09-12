@@ -391,7 +391,8 @@ public class DataManager {
                             id = id.substring(0, id.lastIndexOf('.'));
 
                             Identifiable obj = (Identifiable) result.getOrThrow();
-                            obj = obj.withId(id);
+                            if (obj.id().isEmpty())
+                                obj = obj.withId(id);
                             data.put(obj.id(), obj);
                             ids.put(nextId, obj.id());
                             internalData.put(nextId++, obj);
