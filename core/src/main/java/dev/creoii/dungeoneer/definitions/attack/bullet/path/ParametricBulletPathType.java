@@ -10,10 +10,11 @@ import dev.creoii.dungeoneer.util.Codecs;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public record ParametricBulletPathType(String id, ParametricType parametricType, Vector2 scale) implements BulletPathType<ParametricBulletPathType.ParametricBulletPathInstance> {
-    public static final MapCodec<ParametricBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).and(instance.group(
+    public static final MapCodec<ParametricBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        Identifiable.idField(),
         ParametricType.CODEC.fieldOf("parametric_type").orElse(ParametricType.FIGURE_EIGHT).forGetter(ParametricBulletPathType::parametricType),
         Codecs.VECTOR_2.fieldOf("scale").orElse(Vector2.One).forGetter(ParametricBulletPathType::scale)
-    )).apply(instance, ParametricBulletPathType::new));
+    ).apply(instance, ParametricBulletPathType::new));
 
     @Override
     public Type type() {

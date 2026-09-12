@@ -9,18 +9,19 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 public record BulletAttack(String id, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) implements Attack {
     public static final MapCodec<BulletAttack> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
-        return Attack.addDefaultFields(instance).and(instance.group(
+        return instance.group(
+            Identifiable.idField(),
             Codec.INT.fieldOf("bullet_count").orElse(1).forGetter(BulletAttack::bulletCount),
             Codec.FLOAT.fieldOf("arc_gap").orElse(0f).forGetter(BulletAttack::arcGap),
             Codec.FLOAT.fieldOf("angle_offset").orElse(0f).forGetter(BulletAttack::angleOffset),
             Codecs.VECTOR_2.fieldOf("offset").orElse(Vector2.Zero).forGetter(BulletAttack::offset),
             Codec.INT.fieldOf("index_offset").orElse(0).forGetter(BulletAttack::indexOffset)
-        )).apply(instance, BulletAttack::new);
+        ).apply(instance, BulletAttack::new);
     });
 
     @Override
-    public AttackType type() {
-        return AttackType.BULLET;
+    public Type type() {
+        return Type.BULLET;
     }
 
     @Override

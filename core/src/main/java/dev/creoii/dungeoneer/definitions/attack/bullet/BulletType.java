@@ -1,8 +1,6 @@
 package dev.creoii.dungeoneer.definitions.attack.bullet;
 
-import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
 import dev.creoii.dungeoneer.util.Identifiable;
 
@@ -21,10 +19,6 @@ public interface BulletType extends Identifiable {
     float acceleration();
 
     BulletPathType<?> path();
-
-    static <T extends BulletType> Products.P2<RecordCodecBuilder.Mu<T>, String, Type> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {
-        return instance.group(Codec.STRING.fieldOf("id").forGetter(BulletType::id), Type.CODEC.fieldOf("type").orElse(Type.SINGLE).forGetter(BulletType::type));
-    }
 
     enum Type {
         SINGLE,

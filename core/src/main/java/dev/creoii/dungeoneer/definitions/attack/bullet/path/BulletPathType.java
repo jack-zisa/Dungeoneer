@@ -1,9 +1,7 @@
 package dev.creoii.dungeoneer.definitions.attack.bullet.path;
 
 import com.badlogic.gdx.utils.Pool;
-import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Identifiable;
 
@@ -20,10 +18,6 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
     Type type();
 
     T create();
-
-    static <P extends BulletPathType<?>> Products.P1<RecordCodecBuilder.Mu<P>, String> addDefaultFields(RecordCodecBuilder.Instance<P> instance) {
-        return instance.group(Codec.STRING.optionalFieldOf("id", "").forGetter(BulletPathType::id));
-    }
 
     abstract class Instance<T extends BulletPathType<?>> implements Pool.Poolable {
         public static final float[] ZERO = new float[]{0f, 0f};

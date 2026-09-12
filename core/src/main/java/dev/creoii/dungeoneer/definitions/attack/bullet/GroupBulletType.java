@@ -12,7 +12,7 @@ import java.util.List;
 
 public record GroupBulletType(String id, Type type, float speed, float lifetime, float acceleration, BulletPathType<?> path, List<Child> children) implements BulletType {
     public static final MapCodec<GroupBulletType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        Codec.STRING.optionalFieldOf("id", "").forGetter(GroupBulletType::id),
+        Identifiable.idField(),
         Type.CODEC.fieldOf("type").orElse(Type.SINGLE).forGetter(GroupBulletType::type),
         Codec.FLOAT.fieldOf("speed").forGetter(GroupBulletType::speed),
         Codec.FLOAT.fieldOf("lifetime").forGetter(GroupBulletType::lifetime),

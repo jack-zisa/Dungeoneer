@@ -8,12 +8,13 @@ import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public record WavyBulletPathType(String id, WaveType waveType, float amplitude, float frequency, boolean indexPhase) implements BulletPathType<WavyBulletPathType.WavyBulletPathInstance> {
-    public static final MapCodec<WavyBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).and(instance.group(
+    public static final MapCodec<WavyBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        Identifiable.idField(),
         WaveType.CODEC.fieldOf("wave_type").orElse(WaveType.SIN).forGetter(WavyBulletPathType::waveType),
         Codec.FLOAT.fieldOf("amplitude").orElse(0f).forGetter(WavyBulletPathType::amplitude),
         Codec.FLOAT.fieldOf("frequency").orElse(0f).forGetter(WavyBulletPathType::frequency),
         Codec.BOOL.fieldOf("index_phase").orElse(false).forGetter(WavyBulletPathType::indexPhase)
-    )).apply(instance, WavyBulletPathType::new));
+    ).apply(instance, WavyBulletPathType::new));
 
     @Override
     public Type type() {

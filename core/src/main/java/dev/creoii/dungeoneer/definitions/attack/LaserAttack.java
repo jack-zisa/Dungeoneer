@@ -9,19 +9,20 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 public record LaserAttack(String id, Vector2 size, int laserCount, float arcGap, float angleOffset, float lifetime, boolean attached) implements Attack {
     public static final MapCodec<LaserAttack> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
-        return Attack.addDefaultFields(instance).and(instance.group(
+        return instance.group(
+            Identifiable.idField(),
             Codecs.VECTOR_2.fieldOf("size").orElse(Vector2.One.cpy()).forGetter(LaserAttack::size),
             Codec.INT.fieldOf("laser_count").orElse(1).forGetter(LaserAttack::laserCount),
             Codec.FLOAT.fieldOf("arc_gap").orElse(0f).forGetter(LaserAttack::arcGap),
             Codec.FLOAT.fieldOf("angle_offset").orElse(0f).forGetter(LaserAttack::angleOffset),
             Codec.FLOAT.fieldOf("lifetime").orElse(0f).forGetter(LaserAttack::lifetime),
             Codec.BOOL.fieldOf("attached").orElse(true).forGetter(LaserAttack::attached)
-        )).apply(instance, LaserAttack::new);
+        ).apply(instance, LaserAttack::new);
     });
 
     @Override
-    public AttackType type() {
-        return AttackType.LASER;
+    public Type type() {
+        return Type.LASER;
     }
 
     @Override

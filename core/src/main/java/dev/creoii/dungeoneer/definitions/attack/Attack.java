@@ -1,9 +1,7 @@
 package dev.creoii.dungeoneer.definitions.attack;
 
-import com.mojang.datafixers.Products;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.util.Identifiable;
 
@@ -12,10 +10,10 @@ import java.util.function.Function;
 /**
  * An attack defines the initial state of one or more {@link dev.creoii.dungeoneer.definitions.sided.BulletNode}.
  */
- public sealed interface Attack extends Identifiable permits BulletAttack, CompositeAttack, LaserAttack, ReferenceAttack {
-    AttackType type();
+public sealed interface Attack extends Identifiable permits BulletAttack, CompositeAttack, LaserAttack, ReferenceAttack {
+    Type type();
 
-    Codec<Attack> CODEC = AttackType.CODEC.dispatch(Attack::type, type -> switch (type) {
+    Codec<Attack> CODEC = Type.CODEC.dispatch(Attack::type, type -> switch (type) {
         case BULLET -> BulletAttack.TYPE_CODEC;
         case LASER -> LaserAttack.TYPE_CODEC;
         case COMPOSITE -> CompositeAttack.TYPE_CODEC;
@@ -25,7 +23,12 @@ import java.util.function.Function;
         return either.map(DataManager::getAttack, Function.identity());
     }, Either::right);
 
-    static <T extends Attack> Products.P1<RecordCodecBuilder.Mu<T>, String> addDefaultFields(RecordCodecBuilder.Instance<T> instance) {
-        return instance.group(Codec.STRING.optionalFieldOf("id", "").forGetter(Attack::id));
+    enum Type {
+        BULLET,
+        LASER,
+        COMPOSITE,
+        REFERENCE;
+
+        public static final Codec<Type> CODEC = Codec.STRING.xmap(s -> Type.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
     }
 }

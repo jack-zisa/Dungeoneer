@@ -6,7 +6,7 @@ import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public record EmptyBulletPathType(String id) implements BulletPathType<EmptyBulletPathType.EmptyBulletPathInstance> {
-    public static final MapCodec<EmptyBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).apply(instance, EmptyBulletPathType::new));
+    public static final MapCodec<EmptyBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(Identifiable.idField()).apply(instance, EmptyBulletPathType::new));
 
     @Override
     public Type type() {

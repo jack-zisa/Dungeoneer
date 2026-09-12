@@ -12,6 +12,7 @@ import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.attack.ReferenceAttack;
+import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
@@ -92,6 +93,10 @@ public class DataManager {
         return STRING_ID_DATA.get(SchemaType.STATUS_EFFECT);
     }
 
+    public static Object2ObjectArrayMap<String, Identifiable> getItems() {
+        return STRING_ID_DATA.get(SchemaType.ITEM);
+    }
+
     public static Object2ObjectArrayMap<Long, Identifiable> getBulletsInternal() {
         return INTERNAL_ID_DATA.get(SchemaType.BULLET);
     }
@@ -130,6 +135,10 @@ public class DataManager {
 
     public static Object2ObjectArrayMap<Long, Identifiable> getStatusEffectsInternal() {
         return INTERNAL_ID_DATA.get(SchemaType.STATUS_EFFECT);
+    }
+
+    public static Object2ObjectArrayMap<Long, Identifiable> getItemsInternal() {
+        return INTERNAL_ID_DATA.get(SchemaType.ITEM);
     }
 
     @Nullable
@@ -226,6 +235,16 @@ public class DataManager {
         StatusEffect value = (StatusEffect) getStatusEffects().get(id);
         if (value == null) {
             if (DEBUG) LOGGER.error("Unknown Status Effect: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    public static Item getItem(String id) {
+        Item value = (Item) getItems().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Item: '" + id + "'");
             return null;
         }
         return value;
@@ -330,6 +349,16 @@ public class DataManager {
         return value;
     }
 
+    @Nullable
+    public static Item getItem(long id) {
+        Item value = (Item) getItemsInternal().get(id);
+        if (value == null) {
+            if (DEBUG) LOGGER.error("Unknown Item: '" + id + "'");
+            return null;
+        }
+        return value;
+    }
+
     public static void load(Path path) {
         try {
             for (Map.Entry<SchemaType, Codec<? extends Identifiable>> entry : SCHEMA.entrySet()) {
@@ -409,7 +438,8 @@ public class DataManager {
         MAP_OBJECT("object"),
         MAP_TEMPLATE("map_template"),
         NOISE_PARAMETERS("noise_parameters"),
-        STATUS_EFFECT("status_effect");
+        STATUS_EFFECT("status_effect"),
+        ITEM("item");
 
         private final String path;
 
@@ -433,6 +463,7 @@ public class DataManager {
         SCHEMA.put(SchemaType.MAP_TEMPLATE, DungeonMapTemplate.CODEC);
         SCHEMA.put(SchemaType.NOISE_PARAMETERS, FastNoiseParameters.CODEC);
         SCHEMA.put(SchemaType.STATUS_EFFECT, StatusEffect.CODEC);
+        SCHEMA.put(SchemaType.ITEM, Item.CODEC);
 
         for (SchemaType schemaType : SCHEMA.keySet()) {
             STRING_ID_DATA.put(schemaType, new Object2ObjectArrayMap<>());

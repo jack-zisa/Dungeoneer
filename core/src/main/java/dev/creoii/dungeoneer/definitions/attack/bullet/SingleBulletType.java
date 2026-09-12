@@ -8,7 +8,7 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 public record SingleBulletType(String id, Type type, float scale, float angleOffset, float speed, float lifetime, float rotationSpeed, float acceleration, boolean faceDirection, BulletPathType<?> path) implements BulletType {
     public static final MapCodec<SingleBulletType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-        Codec.STRING.optionalFieldOf("id", "").forGetter(SingleBulletType::id),
+        Identifiable.idField(),
         Type.CODEC.fieldOf("type").orElse(Type.SINGLE).forGetter(SingleBulletType::type),
         Codec.FLOAT.fieldOf("scale").orElse(1f).forGetter(SingleBulletType::scale),
         Codec.FLOAT.fieldOf("angle_offset").orElse(0f).forGetter(SingleBulletType::angleOffset),

@@ -6,7 +6,7 @@ import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public record StraightBulletPathType(String id) implements BulletPathType<StraightBulletPathType.StraightBulletPathInstance> {
-    public static final MapCodec<StraightBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).apply(instance, StraightBulletPathType::new));
+    public static final MapCodec<StraightBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(Identifiable.idField()).apply(instance, StraightBulletPathType::new));
 
     @Override
     public Type type() {

@@ -8,10 +8,11 @@ import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public record OrbitBulletPathType(String id, int sides, float orbitRadius) implements BulletPathType<OrbitBulletPathType.OrbitBulletPathInstance> {
-    public static final MapCodec<OrbitBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> BulletPathType.addDefaultFields(instance).and(instance.group(
+    public static final MapCodec<OrbitBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        Identifiable.idField(),
         Codec.INT.fieldOf("sides").orElse(-1).forGetter(OrbitBulletPathType::sides),
         Codec.FLOAT.fieldOf("orbit_radius").orElse(1f).forGetter(OrbitBulletPathType::orbitRadius)
-    )).apply(instance, OrbitBulletPathType::new));
+    ).apply(instance, OrbitBulletPathType::new));
 
     @Override
     public Type type() {
