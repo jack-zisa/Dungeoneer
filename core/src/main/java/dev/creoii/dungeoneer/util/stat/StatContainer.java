@@ -35,11 +35,13 @@ public record StatContainer(Stat health, Stat defense, Stat speed, Stat dexterit
     public void setStat(Stat.Type type, float value) {
         switch (type) {
             case HEALTH -> setHealth(value);
+            case DEFENSE -> setDefense(value);
             case SPEED -> setSpeed(value);
-            case ATTACK_SPEED -> setAttackSpeed(value);
+            case DEXTERITY -> setDexterity(value);
+            case VITALITY -> setVitality(value);
         }
     }
-	
+
     public void setHealth(float health) {
         this.health.set(health);
     }

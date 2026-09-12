@@ -9,6 +9,7 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.event.DamageEvents;
 import dev.creoii.dungeoneer.util.event.HealEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
