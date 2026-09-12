@@ -6,6 +6,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
+import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
@@ -28,6 +29,8 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
         getVelocity()[0] = x;
         getVelocity()[1] = y;
     }
+
+    EquipmentInventory getEquipment();
 
     StatContainer getStats();
 

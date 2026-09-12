@@ -3,9 +3,11 @@ package dev.creoii.dungeoneer.definitions.inventory;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import org.jspecify.annotations.Nullable;
 
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
-public class Inventory {
+public class Inventory implements Collection<Slot> {
     private final Slot[] slots;
 
     public Inventory(int size) {
@@ -26,24 +28,133 @@ public class Inventory {
         return slots[index];
     }
 
-    public void setItem(int index, Item item, int count) {
+    public boolean setItem(int index, Item item, int count) {
         Slot slot = getSlot(index);
         if (slot != null) {
-            slot.setItem(item, count);
+            return slot.setItem(item, count);
         }
+        return false;
     }
 
-    public void setItem(int index, Item item) {
-        setItem(index, item, 1);
+    public boolean setItem(int index, Item item) {
+        return setItem(index, item, 1);
     }
 
-    public int getSize() {
+    public boolean swap(int index1, int index2) {
+        Slot slot1 = getSlot(index1);
+        Slot slot2 = getSlot(index2);
+
+        if (slot1 == null || slot2 == null) return false;
+        if (slot1 == slot2) return true;
+
+        Item item1 = slot1.getItem();
+        int count1 = slot1.getCount();
+
+        Item item2 = slot2.getItem();
+        int count2 = slot2.getCount();
+
+        slot1.clear();
+        slot2.clear();
+
+        if (item2 != null) slot1.setItem(item2, count2);
+        if (item1 != null) slot2.setItem(item1, count1);
+        return true;
+    }
+
+    public int indexOf(Item item) {
+        for (int i = 0; i < slots.length; i++) {
+            Slot slot = slots[i];
+            if (!slot.isEmpty() && slot.getItem().id().equals(item.id())) return i;
+        }
+        return -1;
+    }
+
+    @Nullable
+    public Slot getNextAvailableSlot() {
+        for (Slot slot : slots) {
+            if (slot.isEmpty()) return slot;
+        }
+        return null;
+    }
+
+    public boolean addItem(Item item) {
+        Slot slot = getNextAvailableSlot();
+        if (slot == null) return false;
+        return slot.setItem(item, 1);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        for (Slot slot : slots) {
+            if (!slot.isEmpty()) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        for (Slot slot : slots) {
+            if (slot.equals(o)) return true;
+        }
+        return false;
+    }
+
+    public int size() {
         return slots.length;
     }
 
-    public void forEach(Consumer<Slot> action) {
+    @Override
+    public Iterator<Slot> iterator() {
+        return Arrays.asList(slots).iterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return slots;
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        return Arrays.asList(slots).toArray(a);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object object : c) {
+            if (!contains(object)) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean add(Slot slot) {
+        throw new UnsupportedOperationException("Cannot add Slot to fixed-length Inventory.");
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Slot> c) {
+        throw new UnsupportedOperationException("Cannot add Slots to fixed-length Inventory.");
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException("Cannot remove Slot from fixed-length Inventory.");
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        throw new UnsupportedOperationException("Cannot remove Slots from fixed-length Inventory.");
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        throw new UnsupportedOperationException("Cannot remove Slots from fixed-length Inventory.");
+    }
+
+    @Override
+    public void clear() {
         for (Slot slot : slots) {
-            action.accept(slot);
+            slot.clear();
         }
     }
 }

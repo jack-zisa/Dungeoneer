@@ -1,4 +1,10 @@
 {
+  "equipment": {
+    "weapon": "sword",
+    "ability": "shield",
+    "armor": "heavy_armor",
+    "accessory": "ring"
+  },
   "base_stats": {
     "health": 150,
     "speed": 27,

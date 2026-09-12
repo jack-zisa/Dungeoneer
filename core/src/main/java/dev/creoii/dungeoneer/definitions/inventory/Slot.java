@@ -4,6 +4,8 @@ import dev.creoii.dungeoneer.definitions.item.EquipmentItem;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 public class Slot {
     private final int index;
     private @Nullable Item item;
@@ -32,19 +34,22 @@ public class Slot {
     }
 
     public boolean setItem(@Nullable Item item) {
+        if (item == null) {
+            count = 0;
+            this.item = null;
+            return true;
+        }
+
         if (item.type() != slotType.getType())
             return false;
 
         this.item = item;
-        if (item == null) count = 0;
-
         return true;
     }
 
     public boolean setItem(@Nullable Item item, int count) {
         if (item == null || count <= 0) {
-            this.item = null;
-            this.count = 0;
+            clear();
             return false;
         }
 
@@ -69,6 +74,11 @@ public class Slot {
         this.count = count;
     }
 
+    public void clear() {
+        item = null;
+        count = 0;
+    }
+
     public boolean isEmpty() {
         return item != null && count > 0;
     }
@@ -79,5 +89,17 @@ public class Slot {
 
     public void setSlotType(EquipmentItem.EquipmentType slotType) {
         this.slotType = slotType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Slot slot = (Slot) o;
+        return index == slot.index && count == slot.count && Objects.equals(item, slot.item) && slotType == slot.slotType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(index, item, count, slotType);
     }
 }

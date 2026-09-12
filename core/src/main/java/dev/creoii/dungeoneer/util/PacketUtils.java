@@ -258,7 +258,7 @@ public final class PacketUtils {
     }
 
     public static void writeInventory(Output output, Inventory inventory) {
-        output.writeInt(inventory.getSize());
+        output.writeInt(inventory.size());
         inventory.forEach(slot -> writeSlot(output, slot));
     }
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
@@ -30,6 +31,7 @@ public class ServerCharacter implements Character<ServerRaid> {
     private final float[] pos;
     private final float[] velocity;
     private final Rectangle bounds;
+    private final EquipmentInventory equipment;
     private final StatContainer stats;
     private final StatContainer maxStats;
     @Nullable private ServerRaid raid;
@@ -46,13 +48,9 @@ public class ServerCharacter implements Character<ServerRaid> {
         pos = VectorUtils.zero();
         velocity = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
-        if (character == null) {
-            stats = StatContainer.ZERO.copy();
-            maxStats = StatContainer.ZERO.copy();
-        } else {
-            stats = character.characterClass().baseStats().copy();
-            maxStats = character.characterClass().maxStats().copy();
-        }
+        equipment = new EquipmentInventory(character.characterClass().equipment());
+        stats = character.characterClass().baseStats().copy();
+        maxStats = character.characterClass().maxStats().copy();
         raid = null;
         statusEffects = new Long2ObjectArrayMap<>();
         expiredEffects = new ArrayList<>();
@@ -93,6 +91,11 @@ public class ServerCharacter implements Character<ServerRaid> {
     public Rectangle getBounds() {
         bounds.setPosition(getX(), getY());
         return bounds;
+    }
+
+    @Override
+    public EquipmentInventory getEquipment() {
+        return equipment;
     }
 
     @Override

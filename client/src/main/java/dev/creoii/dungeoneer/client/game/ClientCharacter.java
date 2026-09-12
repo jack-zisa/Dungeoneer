@@ -16,6 +16,7 @@ import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
@@ -34,6 +35,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private final float[] pos;
     private final float[] renderPos;
     private final float[] velocity;
+    private EquipmentInventory equipment;
     private final StatContainer stats;
     private final StatContainer maxStats;
     private final float[] correction;
@@ -58,6 +60,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             stats = StatContainer.ZERO.copy();
             maxStats = StatContainer.ZERO.copy();
         } else {
+            equipment = new EquipmentInventory(character.characterClass().equipment());
             stats = character.characterClass().baseStats().copy();
             maxStats = character.characterClass().maxStats().copy();
         }
@@ -85,18 +88,16 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         return lastAttackTime;
     }
 
-    public void set(@Nullable CharacterDefinition character) {
+    public void set(CharacterDefinition character) {
         this.character = character;
         if (character == null) {
             sprite = null;
-            stats.setHealth(0);
-            stats.setSpeed(0);
-            stats.setDexterity(0);
-            maxStats.setHealth(0);
-            maxStats.setSpeed(0);
-            maxStats.setDexterity(0);
+            equipment = null;
+            stats.set(StatContainer.ZERO.copy());
+            maxStats.set(StatContainer.ZERO.copy());
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
+            equipment = new EquipmentInventory(character.characterClass().equipment());
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
         }
@@ -141,6 +142,11 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     @Override
     public float[] getVelocity() {
         return velocity;
+    }
+
+    @Override
+    public EquipmentInventory getEquipment() {
+        return equipment;
     }
 
     @Override
