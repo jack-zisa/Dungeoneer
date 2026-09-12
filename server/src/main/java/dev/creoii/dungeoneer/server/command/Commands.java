@@ -50,10 +50,8 @@ public final class Commands {
                 return Command.Result.fail("addeffect", args, "Invalid effect type: " + effectType);
             }
 
-            Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
-
-            if (account == null || raid == null || !raid.getCharacters().containsKey(account.activeCharacterId())) {
+            if (raid == null || !raid.getCharacters().containsKey(accountId)) {
                 return Command.Result.fail("addeffect", args, "Invalid target.");
             }
 
@@ -66,7 +64,7 @@ public final class Commands {
                 amplifier = Integer.parseInt(args[2]);
             }
 
-            raid.getCharacterByAccountId(account.id()).addStatusEffect(effectType, amplifier, duration);
+            raid.getCharacterByAccountId(accountId).addStatusEffect(effectType, amplifier, duration);
 
             return Command.Result.success("addeffect", args);
         });
@@ -79,14 +77,12 @@ public final class Commands {
                 return Command.Result.fail("removeeffect", args, "Invalid target.");
             }
 
-            Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
-
-            if (account == null || raid == null || !raid.getCharacters().containsKey(account.activeCharacterId())) {
+            if (raid == null || !raid.getCharacters().containsKey(accountId)) {
                 return Command.Result.fail("removeeffect", args, "Invalid target.");
             }
 
-            raid.getCharacterByAccountId(account.id()).removeStatusEffect(effectType);
+            raid.getCharacterByAccountId(accountId).removeStatusEffect(effectType);
 
             return Command.Result.success("removeeffect", args);
         });
@@ -96,14 +92,12 @@ public final class Commands {
                 return Command.Result.fail("cleareffects", args, "Invalid target.");
             }
 
-            Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
-
-            if (account == null || raid == null || !raid.getCharacters().containsKey(account.activeCharacterId())) {
+            if (raid == null || !raid.getCharacters().containsKey(accountId)) {
                 return Command.Result.fail("cleareffects", args, "Invalid target.");
             }
 
-            raid.getCharacterByAccountId(account.id()).clearStatusEffects();
+            raid.getCharacterByAccountId(accountId).clearStatusEffects();
 
             return Command.Result.success("cleareffects", args);
         });
@@ -112,16 +106,15 @@ public final class Commands {
             if (raidId == -1)
                 return Command.Result.fail("setstat", args, "Invalid target.");
 
-            Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
             int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(accountId, -1);
-            if (account == null || raid == null || connectionId == -1 || raid.getCharacters().containsKey(account.activeCharacterId())) {
+            if (raid == null || connectionId == -1 || raid.getCharacters().containsKey(accountId)) {
                 return Command.Result.fail("setstat", args, "Invalid target.");
             }
 
             Stat.Type type = Stat.Type.valueOf(args[0].toUpperCase());
             int value = Integer.parseInt(args[1]);
-            StatContainer stats = raid.getCharacterByAccountId(account.id()).getStats();
+            StatContainer stats = raid.getCharacterByAccountId(accountId).getStats();
             stats.setStat(type, value);
             server.get().sendToTCP(connectionId, new StatUpdatesS2C(accountId, stats));
             return Command.Result.success("setstat", args);
