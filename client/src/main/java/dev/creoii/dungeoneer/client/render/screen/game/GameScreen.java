@@ -44,6 +44,7 @@ public class GameScreen extends AbstractScreen {
     private ShapeRenderer shapeRenderer;
     private Label timeRemainingLabel;
     private HealthBar healthBar;
+    private InventoryWidget inventory;
 
     public GameScreen(Dungeoneer client) {
         super(client);
@@ -60,6 +61,10 @@ public class GameScreen extends AbstractScreen {
 
     public HealthBar getHealthBar() {
         return healthBar;
+    }
+
+    public InventoryWidget getInventory() {
+        return inventory;
     }
 
     public void refreshVisibleCharacters() {
@@ -119,6 +124,9 @@ public class GameScreen extends AbstractScreen {
 
         healthBar = new HealthBar(getClient().getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, 20f, false);
         root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f).height(24f);
+
+        inventory = new InventoryWidget(getClient(), getClient().getState().getActiveCharacter().getEquipment(), 4);
+        root.add(inventory);
 
         getStage().addActor(root);
 

@@ -1,0 +1,9 @@
+{
+  "type": "ability",
+  "equipment_type": "shield",
+  "stat_bonus": {
+    "health": 100,
+    "speed": 50,
+    "defense": -50
+  }
+}

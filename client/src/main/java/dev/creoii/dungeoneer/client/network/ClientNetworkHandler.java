@@ -431,6 +431,9 @@ public class ClientNetworkHandler extends NetworkHandler {
                     character = client.getState().getCurrentRaid().getCharacters().get(accountId);
                     if (character == null || character.isNull()) return;
                 }
+
+                if (character.isLocal() && client.getScreen() instanceof GameScreen gameScreen) gameScreen.getInventory().refresh(character.getEquipment());
+
                 slots.forEach(slot -> character.getEquipment().setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
             }
             case KillCharacterS2C(CharacterDefinition character) -> {
