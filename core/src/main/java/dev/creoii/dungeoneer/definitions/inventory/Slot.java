@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.definitions.inventory;
 
+import dev.creoii.dungeoneer.definitions.item.EquipmentItem;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import org.jspecify.annotations.Nullable;
 
@@ -7,6 +8,7 @@ public class Slot {
     private final int index;
     private @Nullable Item item;
     private int count;
+    private EquipmentItem.EquipmentType slotType;
 
     public Slot(int index, @Nullable Item item, int count) {
         this.index = index;
@@ -29,23 +31,33 @@ public class Slot {
         return item;
     }
 
-    public void setItem(@Nullable Item item) {
+    public boolean setItem(@Nullable Item item) {
+        if (item.type() != slotType.getType())
+            return false;
+
         this.item = item;
         if (item == null) count = 0;
+
+        return true;
     }
 
-    public void setItem(@Nullable Item item, int count) {
+    public boolean setItem(@Nullable Item item, int count) {
         if (item == null || count <= 0) {
             this.item = null;
             this.count = 0;
-            return;
+            return false;
         }
+
+        if (item.type() != slotType.getType())
+            return false;
 
         this.item = item;
 
         if (item.stackable()) {
             this.count = count;
         } else this.count = 1;
+
+        return true;
     }
 
     public int getCount() {
@@ -59,5 +71,13 @@ public class Slot {
 
     public boolean isEmpty() {
         return item != null && count > 0;
+    }
+
+    public EquipmentItem.EquipmentType getSlotType() {
+        return slotType;
+    }
+
+    public void setSlotType(EquipmentItem.EquipmentType slotType) {
+        this.slotType = slotType;
     }
 }

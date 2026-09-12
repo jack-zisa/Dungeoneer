@@ -6,10 +6,11 @@ import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
-public record WeaponItem(String id, StatContainer statBonus, Attack attack) implements EquipmentItem {
+public record WeaponItem(String id, EquipmentType equipmentType, StatContainer statBonus, Attack attack) implements EquipmentItem {
     public static final MapCodec<WeaponItem> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return instance.group(
             Identifiable.idField(),
+            EquipmentItem.equipmentTypeField(Type.WEAPON),
             EquipmentItem.statBonusField(),
             Attack.CODEC.fieldOf("attack").forGetter(WeaponItem::attack)
         ).apply(instance, WeaponItem::new);
@@ -22,6 +23,6 @@ public record WeaponItem(String id, StatContainer statBonus, Attack attack) impl
 
     @Override
     public Identifiable withId(String id) {
-        return new WeaponItem(id, statBonus, attack);
+        return new WeaponItem(id, equipmentType, statBonus, attack);
     }
 }
