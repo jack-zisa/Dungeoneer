@@ -1,8 +1,8 @@
 package dev.creoii.dungeoneer.server.command;
 
 import dev.creoii.dungeoneer.DataManager;
-import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
-import dev.creoii.dungeoneer.definitions.inventory.Slot;
+import dev.creoii.dungeoneer.definitions.item.inventory.EquipmentInventory;
+import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.network.s2c.character.StatUpdatesS2C;
@@ -100,10 +100,11 @@ public final class Commands {
             }
 
             EquipmentInventory equipment = raid.getCharacterByAccountId(accountId).getEquipment();
-            Slot slot = equipment.getNextAvailableSlot();
+            Slot slot = equipment.getNextAvailableSlot(item);
             if (equipment.addItem(item)) {
+                SyncEquipmentS2C syncEquipmentS2C = new SyncEquipmentS2C(accountId, List.of(slot));
                 raid.getCharacters().values().forEach(serverCharacter -> {
-                    server.get().sendToTCP(serverCharacter.getConnectionId(), new SyncEquipmentS2C(accountId, List.of(slot)));
+                    server.get().sendToTCP(serverCharacter.getConnectionId(), syncEquipmentS2C);
                 });
                 return Command.Result.success("inventory add", args);
             }
@@ -117,7 +118,13 @@ public final class Commands {
             }
 
             EquipmentInventory equipment = raid.getCharacterByAccountId(accountId).getEquipment();
-            equipment.clear();
+            if (equipment.isEmpty())
+                return Command.Result.fail("inventory clear", args, "Inventory is already empty.");
+
+            SyncEquipmentS2C syncEquipmentS2C = new SyncEquipmentS2C(accountId, equipment.clearAndGet());
+            raid.getCharacters().values().forEach(serverCharacter -> {
+                server.get().sendToTCP(serverCharacter.getConnectionId(), syncEquipmentS2C);
+            });
             return Command.Result.success("inventory clear", args);
         });
     }

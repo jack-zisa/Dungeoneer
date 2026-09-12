@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.definitions.inventory;
+package dev.creoii.dungeoneer.definitions.item.inventory;
 
 import dev.creoii.dungeoneer.definitions.CharacterClass;
 import dev.creoii.dungeoneer.definitions.item.*;

@@ -2,9 +2,7 @@ package dev.creoii.dungeoneer.network.s2c.character;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import dev.creoii.dungeoneer.definitions.inventory.EquipmentInventory;
-import dev.creoii.dungeoneer.definitions.inventory.Inventory;
-import dev.creoii.dungeoneer.definitions.inventory.Slot;
+import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import dev.creoii.dungeoneer.util.PacketUtils;
 
 import java.util.ArrayList;

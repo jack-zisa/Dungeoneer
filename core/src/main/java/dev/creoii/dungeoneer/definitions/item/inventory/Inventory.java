@@ -1,11 +1,9 @@
-package dev.creoii.dungeoneer.definitions.inventory;
+package dev.creoii.dungeoneer.definitions.item.inventory;
 
 import dev.creoii.dungeoneer.definitions.item.Item;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 public class Inventory implements Collection<Slot> {
     private final Slot[] slots;
@@ -77,8 +75,16 @@ public class Inventory implements Collection<Slot> {
         return null;
     }
 
+    @Nullable
+    public Slot getNextAvailableSlot(Item item) {
+        for (Slot slot : slots) {
+            if (slot.isEmpty() && slot.isValid(item)) return slot;
+        }
+        return null;
+    }
+
     public boolean addItem(Item item) {
-        Slot slot = getNextAvailableSlot();
+        Slot slot = getNextAvailableSlot(item);
         if (slot == null) return false;
         return slot.setItem(item, 1);
     }
@@ -156,5 +162,16 @@ public class Inventory implements Collection<Slot> {
         for (Slot slot : slots) {
             slot.clear();
         }
+    }
+
+    public List<Slot> clearAndGet() {
+        List<Slot> slots = new ArrayList<>();
+        forEach(slot -> {
+            if (!slot.isEmpty()) {
+                slot.clear();
+                slots.add(slot);
+            }
+        });
+        return slots;
     }
 }

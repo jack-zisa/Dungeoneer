@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.definitions.inventory;
+package dev.creoii.dungeoneer.definitions.item.inventory;
 
 import dev.creoii.dungeoneer.definitions.item.EquipmentItem;
 import dev.creoii.dungeoneer.definitions.item.Item;
@@ -39,11 +39,12 @@ public class Slot {
 
     public boolean setItem(@Nullable Item item, int count) {
         if (item == null || count <= 0) {
+            boolean isEmpty = isEmpty();
             clear();
-            return false;
+            return !isEmpty; // If this slot was already empty, we did not successfully set it empty
         }
 
-        if (slotType != null && item.type() != slotType.getType()) {
+        if (!isValid(item)) {
             return false;
         }
 
@@ -80,6 +81,10 @@ public class Slot {
 
     public void setSlotType(EquipmentItem.EquipmentType slotType) {
         this.slotType = slotType;
+    }
+
+    public boolean isValid(Item item) {
+        return isEmpty() && slotType == null || item.type() == slotType.getType();
     }
 
     @Override
