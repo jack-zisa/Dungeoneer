@@ -16,7 +16,7 @@ public record DamageCharactersS2C(List<Entry> entries) {
     }
 
     public static DamageCharactersS2C read(Input input) {
-        int size = input.readInt();
+        int size = input.readInt(true);
         List<Entry> entries = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             entries.add(new Entry(input.readLong(), input.readInt()));

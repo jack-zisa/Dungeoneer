@@ -9,14 +9,12 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.AnimationState;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
-import dev.creoii.dungeoneer.client.render.screen.game.DeathScreen;
+import dev.creoii.dungeoneer.client.render.screen.game.DeathDialog;
 import dev.creoii.dungeoneer.client.render.screen.game.GameScreen;
-import dev.creoii.dungeoneer.client.render.screen.main.FactionTab;
-import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
-import dev.creoii.dungeoneer.client.render.screen.main.PlayTab;
-import dev.creoii.dungeoneer.client.render.screen.main.VaultThroneTab;
+import dev.creoii.dungeoneer.client.render.screen.main.*;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
@@ -406,10 +404,13 @@ public class ClientNetworkHandler extends NetworkHandler {
                             client.getState().getActiveCharacter().die();
                             raid.setStatus(Raid.Status.END);
                             client.getState().setStatus(ClientState.Status.RAID_END);
-                            Gdx.app.postRunnable(() -> client.setScreen(new DeathScreen(client)));
-                        } else {
-                            raid.getCharacters().get(accountId).die();
-                        }
+                            Gdx.app.postRunnable(() -> {
+                                if (client.getScreen() instanceof GameScreen gameScreen) {
+                                    gameScreen.fadeToBlack(.8f, 2f);
+                                    new DeathDialog(client, AbstractScreen.SKIN).show(gameScreen.getStage());
+                                }
+                            });
+                        } else raid.getCharacters().get(accountId).die();
                     }
                     else raid.removeCharacter(accountId, reason);
                 }
