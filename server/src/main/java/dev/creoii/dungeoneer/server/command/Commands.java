@@ -3,11 +3,9 @@ package dev.creoii.dungeoneer.server.command;
 import com.badlogic.gdx.utils.ObjectMap;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.Account;
-import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.network.s2c.character.StatUpdatesS2C;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
-import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import dev.creoii.dungeoneer.util.stat.Stat;
@@ -26,17 +24,19 @@ public final class Commands {
                 Command command = Commands.ALL.get(commandType);
                 if (args.length > command.minArgs() - 1) {
                     Command.Result result = command.execute(server, accountId, raidId, args);
-                    LOGGER.info(result.getResultMessage(commandType, args));
+                    if (result.success())
+                        LOGGER.info(result.message());
+                    else LOGGER.error(result.message());
                     return result;
                 } else {
-                    LOGGER.error("Command '/" + commandType + "' failed to execute: Not enough arguments.");
+                    LOGGER.error(Command.Result.fail(commandType, args, "Not enough arguments. Required " + command.minArgs() + ", received: " + args.length).message());
                 }
             } catch (Exception e) {
-                LOGGER.error(Command.Result.FAIL.getResultMessageWithReason(commandType, args, e.toString()));
+                LOGGER.error(Command.Result.fail(commandType, args, e.toString()).message());
                 e.printStackTrace();
             }
         } else {
-            LOGGER.warn("Command '/" + commandType + "' not found");
+            LOGGER.error(Command.Result.fail(commandType, args, "Command not found.").message());
         }
         return null;
     }
@@ -47,14 +47,14 @@ public final class Commands {
             StatusEffect effectType = DataManager.getStatusEffect(statusEffectId);
 
             if (effectType == null || raidId == -1) {
-                return Command.Result.FAIL;
+                return Command.Result.fail("addeffect", args, "Invalid effect type: " + effectType);
             }
 
             Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
 
             if (account == null || raid == null || !raid.getCharacters().containsKey(account.activeCharacterId())) {
-                return Command.Result.FAIL;
+                return Command.Result.fail("addeffect", args, "Invalid target.");
             }
 
             int duration = 0;
@@ -68,7 +68,7 @@ public final class Commands {
 
             raid.getCharacterByAccountId(account.id()).addStatusEffect(effectType, amplifier, duration);
 
-            return Command.Result.SUCCESS;
+            return Command.Result.success("addeffect", args);
         });
 
         Command.register("removeeffect", 1, (server, accountId, raidId, args) -> {
@@ -76,47 +76,47 @@ public final class Commands {
             StatusEffect effectType = DataManager.getStatusEffect(statusEffectId);
 
             if (effectType == null || raidId == -1) {
-                return Command.Result.FAIL;
+                return Command.Result.fail("removeeffect", args, "Invalid target.");
             }
 
             Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
 
             if (account == null || raid == null || !raid.getCharacters().containsKey(account.activeCharacterId())) {
-                return Command.Result.FAIL;
+                return Command.Result.fail("removeeffect", args, "Invalid target.");
             }
 
             raid.getCharacterByAccountId(account.id()).removeStatusEffect(effectType);
 
-            return Command.Result.SUCCESS;
+            return Command.Result.success("removeeffect", args);
         });
 
-        Command.register("cleareffects", (server, accountId, raidId, _) -> {
+        Command.register("cleareffects", (server, accountId, raidId, args) -> {
             if (raidId == -1) {
-                return Command.Result.FAIL;
+                return Command.Result.fail("cleareffects", args, "Invalid target.");
             }
 
             Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
 
             if (account == null || raid == null || !raid.getCharacters().containsKey(account.activeCharacterId())) {
-                return Command.Result.FAIL;
+                return Command.Result.fail("cleareffects", args, "Invalid target.");
             }
 
             raid.getCharacterByAccountId(account.id()).clearStatusEffects();
 
-            return Command.Result.SUCCESS;
+            return Command.Result.success("cleareffects", args);
         });
 
         Command.register("setstat", 2, (server, accountId, raidId, args) -> {
             if (raidId == -1)
-                return Command.Result.FAIL;
+                return Command.Result.fail("setstat", args, "Invalid target.");
 
             Account account = server.getDatabase().getAccounts().getById(accountId);
             ServerRaid raid = server.getState().getRaids().get(raidId);
             int connectionId = server.getSessionManager().getAccountConnections().getOrDefault(accountId, -1);
             if (account == null || raid == null || connectionId == -1 || raid.getCharacters().containsKey(account.activeCharacterId())) {
-                return Command.Result.FAIL;
+                return Command.Result.fail("setstat", args, "Invalid target.");
             }
 
             Stat.Type type = Stat.Type.valueOf(args[0].toUpperCase());
@@ -124,7 +124,7 @@ public final class Commands {
             StatContainer stats = raid.getCharacterByAccountId(account.id()).getStats();
             stats.setStat(type, value);
             server.get().sendToTCP(connectionId, new StatUpdatesS2C(accountId, stats));
-            return Command.Result.SUCCESS;
+            return Command.Result.success("setstat", args);
         });
     }
 }
