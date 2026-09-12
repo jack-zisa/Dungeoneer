@@ -19,6 +19,8 @@ import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.action.Context;
+import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
@@ -152,12 +154,20 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     @Override
     public boolean addStatusEffect(StatusEffectInstance statusEffect) {
+        Context context = new Context()
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
+        statusEffect.statusEffect().applier().apply(getRaid(), context);
         statusEffects |= 1L << DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.statusEffect().id());
         return true;
     }
 
     @Override
     public boolean removeStatusEffect(StatusEffect statusEffect) {
+        Context context = new Context()
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
+        statusEffect.remover().apply(getRaid(), context);
         statusEffects &= ~(1L << DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()));
         return true;
     }
@@ -168,8 +178,36 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     public void updateStatusEffects(long add, long remove) {
+        long added = add & ~statusEffects;
+        long removed = remove & statusEffects;
         statusEffects |= add;
         statusEffects &= ~remove;
+
+        Context context = new Context()
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
+
+        while (added != 0L) {
+            int internalId = Long.numberOfTrailingZeros(added);
+            long mask = 1L << internalId;
+
+            StatusEffect statusEffect = DataManager.getStatusEffect(internalId);
+            if (statusEffect != null) {
+                statusEffect.applier().apply(getRaid(), context);
+            }
+            added &= ~mask;
+        }
+
+        while (removed != 0L) {
+            int internalId = Long.numberOfTrailingZeros(removed);
+            long mask = 1L << internalId;
+
+            StatusEffect statusEffect = DataManager.getStatusEffect(internalId);
+            if (statusEffect != null) {
+                statusEffect.remover().apply(getRaid(), context);
+            }
+            removed &= ~mask;
+        }
     }
 
     @Override
@@ -274,6 +312,22 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
         float alpha = Math.min(1f, 50f * dt);
         setRenderPos(MathUtils.lerp(getRenderX(), targetX, alpha), MathUtils.lerp(getRenderY(), targetY, alpha));
+
+        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
+
+        long toTickEffects = statusEffects;
+        while (toTickEffects != 0L) {
+            int internalId = Long.numberOfTrailingZeros(toTickEffects);
+            long mask = 1L << internalId;
+
+            StatusEffect statusEffect = DataManager.getStatusEffect(internalId);
+            if (statusEffect != null) {
+                statusEffect.ticker().apply(getRaid(), context);
+            }
+            toTickEffects &= ~mask;
+        }
     }
 
     @Override
