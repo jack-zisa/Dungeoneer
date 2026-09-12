@@ -1,10 +1,8 @@
 package dev.creoii.dungeoneer.server.command;
 
-import com.badlogic.gdx.graphics.Color;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
 
 import java.util.Arrays;
-import java.util.function.BiFunction;
 
 public record Command(CommandExecutor executor, int minArgs) {
     public Result execute(DungeoneerServer world, long accountId, long raidId, String[] args) {
@@ -19,22 +17,13 @@ public record Command(CommandExecutor executor, int minArgs) {
         register(id, 0, executor);
     }
 
-    public enum Result {
-        SUCCESS((commandType, args) -> "[Commands] Successfully executed '/" + commandType + "' with args '" + Arrays.toString(args) + "'"),
-        FAIL((commandType, args) -> "[Commands] Execution of '/" + commandType + "' with args '" + Arrays.toString(args) + "' failed");
-
-        private final BiFunction<String, String[], String> message;
-
-        Result(BiFunction<String, String[], String> message) {
-            this.message = message;
+    public record Result(String message, boolean success) {
+        public static Result success(String commandType, String[] args) {
+            return new Result("Successfully executed '/" + commandType + "' with args '" + Arrays.toString(args) + "'", true);
         }
 
-        public String getResultMessage(String commandType, String[] args) {
-            return message.apply(commandType, args);
-        }
-
-        public String getResultMessageWithReason(String commandType, String[] args, String reason) {
-            return message.apply(commandType, args) + ": " + reason;
+        public static Result fail(String commandType, String[] args, String error) {
+            return new Result("Execution of '/" + commandType + "' with args '" + Arrays.toString(args) + "' failed: " + error, false);
         }
     }
 }
