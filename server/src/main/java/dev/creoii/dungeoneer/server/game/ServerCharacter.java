@@ -156,8 +156,19 @@ public class ServerCharacter implements Character<ServerRaid> {
 
     @Override
     public void clearStatusEffects() {
-        pendingStatusEffectRemoves = 0L;
+        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, stats.health().value());
+
+        long removeMask = pendingStatusEffectAdds;
+        for (var entry : statusEffects.long2ObjectEntrySet()) {
+            long internalId = entry.getLongKey();
+            entry.getValue().statusEffect().remover().apply(raid, context);
+            removeMask |= 1L << internalId;
+        }
+
         pendingStatusEffectAdds = 0L;
+        pendingStatusEffectRemoves |= removeMask;
         statusEffects.clear();
     }
 
