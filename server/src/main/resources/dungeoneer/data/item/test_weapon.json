@@ -2,6 +2,8 @@
   "type": "weapon",
   "equipment_type": "sword",
   "display_name": "Test Weapon",
+  "description": "I just sauted veggies for the first time.",
+  "rarity": "mythical",
   "attack": "staff",
   "bullet": "ice_magic_blade",
   "damage": {

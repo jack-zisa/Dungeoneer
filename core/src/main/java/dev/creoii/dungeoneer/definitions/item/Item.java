@@ -13,6 +13,8 @@ public sealed interface Item extends Identifiable permits EquipmentItem, Consuma
 
     String displayName();
 
+    String description();
+
     boolean equippable();
 
     boolean stackable();
@@ -30,6 +32,10 @@ public sealed interface Item extends Identifiable permits EquipmentItem, Consuma
 
     static <T extends Item> RecordCodecBuilder<T, String> displayNameField() {
         return Codec.STRING.fieldOf("display_name").forGetter(Item::displayName);
+    }
+
+    static <T extends Item> RecordCodecBuilder<T, String> descriptionField() {
+        return Codec.STRING.optionalFieldOf("description", "").forGetter(Item::description);
     }
 
     enum Type {

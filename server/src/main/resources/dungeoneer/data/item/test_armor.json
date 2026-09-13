@@ -2,6 +2,8 @@
   "type": "armor",
   "equipment_type": "heavy_armor",
   "display_name": "Test Armor",
+  "description": "Raise your hand if you came here from RotMG!",
+  "rarity": "rare",
   "stat_bonus": {
     "health": 1000,
     "speed": -50,

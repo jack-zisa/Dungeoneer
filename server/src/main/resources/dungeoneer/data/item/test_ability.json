@@ -2,6 +2,8 @@
   "type": "ability",
   "equipment_type": "shield",
   "display_name": "Test Ability",
+  "description": "You ever eat a bagel upside down?",
+  "rarity": "legendary",
   "stat_bonus": {
     "health": 100,
     "speed": 50,

@@ -123,7 +123,7 @@ public class GameScreen extends AbstractScreen {
         root.add(new Table()).grow().row();
 
         healthBar = new HealthBar(getClient().getState().getActiveCharacter(), getStage().getViewport().getWorldWidth() / 3f, 20f, false);
-        root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f).height(24f);
+        root.add(healthBar).width(getStage().getViewport().getWorldWidth() / 3f).height(24f).row();
 
         inventory = new InventoryWidget(getClient(), getClient().getState().getActiveCharacter().getEquipment(), 4);
         root.add(inventory);

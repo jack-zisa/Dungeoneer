@@ -5,11 +5,12 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public record ConsumableItem(String id, String displayName, int stackSize) implements Item {
+public record ConsumableItem(String id, String displayName, String description, int stackSize) implements Item {
     public static final MapCodec<ConsumableItem> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return instance.group(
             Identifiable.idField(),
             Item.displayNameField(),
+            Item.descriptionField(),
             Codec.INT.optionalFieldOf("stack_size", 1).forGetter(ConsumableItem::stackSize)
         ).apply(instance, ConsumableItem::new);
     });
@@ -31,6 +32,6 @@ public record ConsumableItem(String id, String displayName, int stackSize) imple
 
     @Override
     public Identifiable withId(String id) {
-        return new ConsumableItem(id, displayName, stackSize);
+        return new ConsumableItem(id, displayName, description, stackSize);
     }
 }

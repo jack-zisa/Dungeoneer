@@ -2,6 +2,8 @@
   "type": "accessory",
   "equipment_type": "ring",
   "display_name": "Test Accessory",
+  "description": "This is a long description lorum ipsum epsilon i sure hope this wraps in the tooltip.",
+  "rarity": "uncommon",
   "stat_bonus": {
     "health": 500,
     "vitality": 100

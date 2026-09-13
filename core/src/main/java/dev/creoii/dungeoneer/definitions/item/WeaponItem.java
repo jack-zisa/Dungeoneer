@@ -9,12 +9,14 @@ import dev.creoii.dungeoneer.util.provider.numberprovider.ConstantNumberProvider
 import dev.creoii.dungeoneer.util.provider.numberprovider.NumberProvider;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
-public record WeaponItem(String id, EquipmentType equipmentType, String displayName, StatContainer statBonus, NumberProvider damage, Attack attack, BulletType bullet) implements EquipmentItem {
+public record WeaponItem(String id, EquipmentType equipmentType, String displayName, String description, Rarity rarity, StatContainer statBonus, NumberProvider damage, Attack attack, BulletType bullet) implements EquipmentItem {
     public static final MapCodec<WeaponItem> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return instance.group(
             Identifiable.idField(),
             EquipmentItem.equipmentTypeField(Type.WEAPON),
             Item.displayNameField(),
+            Item.descriptionField(),
+            EquipmentItem.rarityField(),
             EquipmentItem.statBonusField(),
             NumberProvider.TYPE_CODEC.optionalFieldOf("damage", ConstantNumberProvider.ZERO).forGetter(WeaponItem::damage),
             Attack.EITHER_CODEC.fieldOf("attack").forGetter(WeaponItem::attack),
@@ -29,6 +31,6 @@ public record WeaponItem(String id, EquipmentType equipmentType, String displayN
 
     @Override
     public Identifiable withId(String id) {
-        return new WeaponItem(id, equipmentType, displayName, statBonus, damage, attack, bullet);
+        return new WeaponItem(id, equipmentType, displayName, description, rarity, statBonus, damage, attack, bullet);
     }
 }

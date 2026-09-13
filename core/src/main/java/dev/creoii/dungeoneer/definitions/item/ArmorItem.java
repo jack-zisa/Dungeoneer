@@ -5,12 +5,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
-public record ArmorItem(String id, EquipmentType equipmentType, String displayName, StatContainer statBonus) implements EquipmentItem {
+public record ArmorItem(String id, EquipmentType equipmentType, String displayName, String description, Rarity rarity, StatContainer statBonus) implements EquipmentItem {
     public static final MapCodec<ArmorItem> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return instance.group(
             Identifiable.idField(),
             EquipmentItem.equipmentTypeField(Type.ARMOR),
             Item.displayNameField(),
+            Item.descriptionField(),
+            EquipmentItem.rarityField(),
             EquipmentItem.statBonusField()
         ).apply(instance, ArmorItem::new);
     });
@@ -22,6 +24,6 @@ public record ArmorItem(String id, EquipmentType equipmentType, String displayNa
 
     @Override
     public Identifiable withId(String id) {
-        return new ArmorItem(id, equipmentType, displayName, statBonus);
+        return new ArmorItem(id, equipmentType, displayName, description, rarity, statBonus);
     }
 }

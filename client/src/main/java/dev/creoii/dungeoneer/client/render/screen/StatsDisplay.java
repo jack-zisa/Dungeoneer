@@ -55,9 +55,11 @@ public class StatsDisplay extends Table {
                 modifier = String.format("%,d", (int) stat.modifier());
             } else modifier = "";
 
+
             String text;
             if (maxStat == null) {
-                text = String.format("%,d %s", (int) stat.base(), stat.type().getPrefix());
+                String base = String.format("%s%,d", stat.base() > 0 ? "+" : "", (int) stat.base());
+                text = String.format("%s %s", base, stat.type().getPrefix());
             } else text = String.format("%s: %,d %s", stat.type().getPrefix(), (int) stat.base(), modifier.isEmpty() ? "" : String.format("(%s)", modifier));
 
             setActor(new Label(text, AbstractScreen.SKIN));
