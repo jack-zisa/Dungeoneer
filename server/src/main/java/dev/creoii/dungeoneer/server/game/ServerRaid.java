@@ -3,7 +3,6 @@ package dev.creoii.dungeoneer.server.game;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.character.KillCharacterS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
@@ -18,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
+public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final DungeoneerServer server;
     private final EntityCollisionManager entityCollisionManager;
@@ -34,10 +33,10 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             return new ServerBullet(ServerRaid.this);
         }
     };
-    private final Pool<BulletGroup> bulletGroupPool = new Pool<>() {
+    private final Pool<ServerBulletGroup> bulletGroupPool = new Pool<>() {
         @Override
-        protected BulletGroup newObject() {
-            return new BulletGroup();
+        protected ServerBulletGroup newObject() {
+            return new ServerBulletGroup(null);
         }
     };
 
@@ -61,7 +60,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     }
 
     @Override
-    public Pool<BulletGroup> getBulletGroupPool() {
+    public Pool<ServerBulletGroup> getBulletGroupPool() {
         return bulletGroupPool;
     }
 

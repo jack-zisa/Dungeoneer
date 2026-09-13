@@ -2,8 +2,9 @@ package dev.creoii.dungeoneer.definitions.attack.bullet;
 
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.Raid;
 
-public class Bullet extends BulletNode<SingleBulletType> implements Pool.Poolable {
+public abstract class Bullet<R extends Raid<?, ?, ?, ?>> extends BulletNode<SingleBulletType, R> implements Pool.Poolable {
     private int damage;
     private boolean enemy;
 

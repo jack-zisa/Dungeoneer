@@ -77,6 +77,7 @@ public class ServerDungeonMap implements DungeonMap {
         return template;
     }
 
+    @Override
     @Nullable
     public Tile getTileAt(MapLayerType layer, int tileX, int tileY) {
         if (tileX < 0 || tileX > 255 || tileY < 0 || tileY > 255)

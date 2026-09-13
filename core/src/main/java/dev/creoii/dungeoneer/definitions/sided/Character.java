@@ -15,12 +15,11 @@ import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.event.DamageEvents;
 import dev.creoii.dungeoneer.util.event.HealEvents;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Random;
 
-public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
+public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
     Random random();
 
     int getConnectionId();
@@ -51,11 +50,6 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
     default boolean inRaid() {
         return getRaid() != null && !getRaid().isNull();
     }
-
-    @Nullable
-    R getRaid();
-
-    void setRaid(@Nullable R raid);
 
     void tick(float dt);
 

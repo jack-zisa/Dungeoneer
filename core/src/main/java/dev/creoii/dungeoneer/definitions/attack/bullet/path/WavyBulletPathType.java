@@ -37,7 +37,7 @@ public record WavyBulletPathType(String id, WaveType waveType, float amplitude, 
         }
 
         @Override
-        public float[] getOffset(BulletNode<?> node, float t) {
+        public float[] getOffset(BulletNode<?, ?> node, float t) {
             float phase = getType().indexPhase ? 0f : ((node.getIndex() & 1) == 0 ? 0f : .5f);
             float cycle = t * getType().frequency + phase;
             float wave = switch (getType().waveType) {

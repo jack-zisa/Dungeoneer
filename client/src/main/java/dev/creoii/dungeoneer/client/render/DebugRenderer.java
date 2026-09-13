@@ -8,6 +8,8 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
+import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 
 public class DebugRenderer {
     private static final int TEXT_PADDING = 10;
@@ -22,7 +24,8 @@ public class DebugRenderer {
         ClientCharacter character = client.getState().getActiveCharacter();
         String serverPosText = String.format("  Server Pos: %.2f, %.2f", character.getX(), character.getY());
         String renderPosText = String.format("  Render Pos: %.2f, %.2f", character.getRenderX(), character.getRenderY());
-        String tilePosText = String.format("  Tile: %d, %d", MathUtils.floor(character.getX() * .125f), MathUtils.floor(character.getY() * .125f));
+        Tile tile = character.getTileOn(MapLayerType.GROUND);
+        String tilePosText = String.format("  Tile: %d, %d: %s", character.getTileX(), character.getTileY(), tile == null ? "" : tile.id());
         String statsText = character.getStats().toDebugString(character.getMaxStats());
 
         return new String[]{

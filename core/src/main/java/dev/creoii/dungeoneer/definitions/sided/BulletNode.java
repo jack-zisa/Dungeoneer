@@ -10,7 +10,7 @@ import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import org.jspecify.annotations.Nullable;
 
-public abstract class BulletNode<T extends BulletType> implements Entity, Pool.Poolable {
+public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?>> implements Entity<R>, Pool.Poolable {
     private T type;
     private BulletPathType.Instance<?> path;
     private final float[] pos;
@@ -28,7 +28,7 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
     private float angle;
     private boolean dead;
     private final Rectangle bounds;
-    @Nullable private BulletNode<?> parent;
+    @Nullable private BulletNode<?, ?> parent;
 
     public BulletNode() {
         pos = VectorUtils.zero();
@@ -188,11 +188,11 @@ public abstract class BulletNode<T extends BulletType> implements Entity, Pool.P
         angle += f;
     }
 
-    public @Nullable BulletNode<?> getParent() {
+    public @Nullable BulletNode<?, ?> getParent() {
         return parent;
     }
 
-    public void setParent(@Nullable BulletNode<?> parent) {
+    public void setParent(@Nullable BulletNode<?, ?> parent) {
         this.parent = parent;
     }
 

@@ -4,19 +4,20 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
+import dev.creoii.dungeoneer.definitions.sided.Raid;
 
-public class BulletGroup extends BulletNode<GroupBulletType> implements Pool.Poolable {
-    private final Array<BulletNode<?>> children;
+public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode<GroupBulletType, R> implements Pool.Poolable {
+    private final Array<BulletNode<?, ?>> children;
 
     public BulletGroup() {
         children = new Array<>();
     }
 
-    public Array<BulletNode<?>> getChildren() {
+    public Array<BulletNode<?, ?>> getChildren() {
         return children;
     }
 
-    public void addChild(BulletNode<?> child) {
+    public void addChild(BulletNode<?, ?> child) {
         children.add(child);
     }
 
@@ -41,7 +42,7 @@ public class BulletGroup extends BulletNode<GroupBulletType> implements Pool.Poo
         if (!super.update(dt))
             return false;
 
-        for (BulletNode<?> child : children) {
+        for (BulletNode<?, ?> child : children) {
             if (!child.update(dt))
                 return false;
         }
@@ -51,7 +52,7 @@ public class BulletGroup extends BulletNode<GroupBulletType> implements Pool.Poo
     @Override
     public void applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
         super.applyTransform(map, originX, originY, dirX, dirY);
-        for (BulletNode<?> child : children) {
+        for (BulletNode<?, ?> child : children) {
             child.applyTransform(map, getX(), getY(), getLocalDirX(), getLocalDirY());
         }
     }

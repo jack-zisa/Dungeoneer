@@ -14,6 +14,6 @@ public final class DamageEvents {
 
     @FunctionalInterface
     public interface Modify {
-        int modifyDamage(Entity entity, int damage);
+        int modifyDamage(Entity<?> entity, int damage);
     }
 }

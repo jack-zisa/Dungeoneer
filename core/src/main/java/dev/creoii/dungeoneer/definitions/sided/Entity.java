@@ -1,8 +1,12 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
+import com.badlogic.gdx.math.MathUtils;
+import dev.creoii.dungeoneer.definitions.map.MapLayerType;
+import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.util.collision.Collidable;
+import org.jspecify.annotations.Nullable;
 
-public interface Entity extends Collidable {
+public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable {
     float[] getPos();
 
     default float getX() {
@@ -21,6 +25,25 @@ public interface Entity extends Collidable {
     float getCenterX();
 
     float getCenterY();
+
+    default int getTileX() {
+        return MathUtils.floor(getX() * .125f);
+    }
+
+    default int getTileY() {
+        return MathUtils.floor(getY() * .125f);
+    }
+
+    @Nullable
+    default Tile getTileOn(MapLayerType layerType) {
+        if (getRaid() == null || getRaid().getDungeonMap() == null) return null;
+        return getRaid().getDungeonMap().getTileAt(layerType, getTileX(), getTileY());
+    }
+
+    @Nullable
+    R getRaid();
+
+    void setRaid(@Nullable R raid);
 
     void setDead(boolean dead);
 

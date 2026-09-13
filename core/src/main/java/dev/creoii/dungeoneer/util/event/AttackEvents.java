@@ -21,11 +21,11 @@ public final class AttackEvents {
 
     @FunctionalInterface
     public interface Pre {
-        boolean onPreAttack(Entity entity, Attack attack, Raid<?, ?, ?, ?> raid);
+        boolean onPreAttack(Entity<?> entity, Attack attack, Raid<?, ?, ?, ?> raid);
     }
 
     @FunctionalInterface
     public interface Post {
-        void onPostAttack(Entity entity, Attack attack, Raid<?, ?, ?, ?> raid);
+        void onPostAttack(Entity<?> entity, Attack attack, Raid<?, ?, ?, ?> raid);
     }
 }

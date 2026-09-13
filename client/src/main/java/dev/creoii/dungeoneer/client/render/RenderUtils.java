@@ -200,13 +200,13 @@ public final class RenderUtils {
         batch.draw(texture.getTexture(), QUAD_VERTICES, 0, 20, QUAD_INDICES, 0, 6);
     }
 
-    public static void renderBullet(BulletNode<?> node, Dungeoneer client, Camera camera, float rotation, PolygonSpriteBatch batch, float dt) {
-        if (node instanceof BulletGroup group) {
+    public static void renderBullet(BulletNode<?, ?> node, Dungeoneer client, Camera camera, float rotation, PolygonSpriteBatch batch, float dt) {
+        if (node instanceof BulletGroup<?> group) {
             group.getChildren().forEach(child -> renderBullet(child, client, camera, rotation, batch, dt));
             return;
         }
 
-        Bullet bullet = (Bullet) node;
+        Bullet<?> bullet = (Bullet<?>) node;
 
         Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getType().id());
 
@@ -238,7 +238,7 @@ public final class RenderUtils {
         );
     }
 
-    public static void renderStatusEffects(LivingEntity livingEntity, float[] position, float scale, Dungeoneer client, PolygonSpriteBatch batch) {
+    public static void renderStatusEffects(LivingEntity<?> livingEntity, float[] position, float scale, Dungeoneer client, PolygonSpriteBatch batch) {
         float baseX = position[0] - (scale / 2f) - 4f;
         float baseY = position[1] + scale;
 
@@ -261,7 +261,7 @@ public final class RenderUtils {
         }
     }
 
-    public static float angleDeg(Bullet bullet) {
+    public static float angleDeg(Bullet<?> bullet) {
         float dirX = bullet.getType().faceDirection() ? bullet.getLocalDirX() : bullet.getDirX();
         float dirY = bullet.getType().faceDirection() ? bullet.getLocalDirY() : bullet.getDirY();
         float angle = (float) Math.atan2(dirY, dirX) * MathUtils.radiansToDegrees;

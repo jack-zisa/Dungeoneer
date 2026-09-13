@@ -18,11 +18,13 @@ import dev.creoii.dungeoneer.client.render.ui.editor.ClientTiles;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
+import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.network.c2s.dungeon.SaveDungeonMapC2S;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.Direction;
 import dev.creoii.dungeoneer.util.DungeonMapUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,6 +134,17 @@ public class ClientDungeonMap implements DungeonMap, Disposable {
     @Override
     public void dispose() {
         mapRenderer.dispose();
+    }
+
+    @Override
+    @Nullable
+    public Tile getTileAt(MapLayerType layer, int tileX, int tileY) {
+        TiledMapTileLayer layer1 = (TiledMapTileLayer) mapRenderer.getMap().getLayers().get(layer.id());
+        if (tileX < 0 || tileY < 0 || tileX >= layer1.getWidth() || tileY >= layer1.getHeight()) {
+            return null;
+        }
+        TiledMapTileLayer.Cell cell = layer1.getCell(tileX, tileY);
+        return cell != null ? DataManager.getTile(cell.getTile().getId()) : null;
     }
 
     @Override

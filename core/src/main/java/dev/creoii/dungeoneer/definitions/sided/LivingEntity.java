@@ -3,7 +3,7 @@ package dev.creoii.dungeoneer.definitions.sided;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 
-public interface LivingEntity extends Entity {
+public interface LivingEntity<R extends Raid<?, ?, ?, ?>> extends Entity<R> {
     /**
      * @return True if the effect was successfully added, False if not.
      */

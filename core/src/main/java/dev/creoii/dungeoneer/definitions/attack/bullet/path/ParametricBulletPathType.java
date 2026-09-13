@@ -37,7 +37,7 @@ public record ParametricBulletPathType(String id, ParametricType parametricType,
         }
 
         @Override
-        public float[] getOffset(BulletNode<?> node, float t) {
+        public float[] getOffset(BulletNode<?, ?> node, float t) {
             float x = 0f;
             float y = 0f;
 

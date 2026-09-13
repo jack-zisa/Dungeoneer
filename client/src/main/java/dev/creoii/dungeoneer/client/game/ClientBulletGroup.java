@@ -8,8 +8,25 @@ import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
+import org.jspecify.annotations.Nullable;
 
-public class ClientBulletGroup extends BulletGroup implements Renderable {
+public class ClientBulletGroup extends BulletGroup<ClientRaid> implements Renderable {
+    private ClientRaid raid;
+
+    public ClientBulletGroup(ClientRaid raid) {
+        this.raid = raid;
+    }
+
+    @Override
+    public @Nullable ClientRaid getRaid() {
+        return raid;
+    }
+
+    @Override
+    public void setRaid(@Nullable ClientRaid raid) {
+        this.raid = raid;
+    }
+
     @Override
     public RenderLayer renderLayer() {
         return RenderLayer.OBJECT_OUTLINED;

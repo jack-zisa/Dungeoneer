@@ -49,7 +49,7 @@ public record OrbitBulletPathType(String id, int sides, float orbitRadius) imple
          * Returns a point along a circle whose radius is defined by the {@link OrbitBulletPathType#orbitRadius}. The return value is treated as an offset, meaning it assumes the center of the circle is at (0,0).
          */
         @Override
-        public float[] getOffset(BulletNode<?> node, float t) {
+        public float[] getOffset(BulletNode<?, ?> node, float t) {
             float angle = (t / 1000f) * MathUtils.PI2 + orbitPhase;
             return new float[]{MathUtils.sin(angle) * getType().orbitRadius(), MathUtils.cos(angle) * getType().orbitRadius()};
         }

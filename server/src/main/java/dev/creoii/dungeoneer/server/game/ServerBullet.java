@@ -5,11 +5,20 @@ import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.util.collision.Collidable;
 import dev.creoii.dungeoneer.util.event.HitEvents;
 
-public class ServerBullet extends Bullet {
+public class ServerBullet extends Bullet<ServerRaid> {
     private final ServerRaid raid;
 
     public ServerBullet(ServerRaid raid) {
         this.raid = raid;
+    }
+
+    @Override
+    public ServerRaid getRaid() {
+        return raid;
+    }
+
+    @Override
+    public void setRaid(ServerRaid raid) {
     }
 
     @Override

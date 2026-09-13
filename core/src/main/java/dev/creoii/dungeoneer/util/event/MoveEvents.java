@@ -20,11 +20,11 @@ public final class MoveEvents {
 
     @FunctionalInterface
     public interface Pre {
-        boolean onPreMove(Entity entity, Raid<?, ?, ?, ?> raid);
+        boolean onPreMove(Entity<?> entity, Raid<?, ?, ?, ?> raid);
     }
 
     @FunctionalInterface
     public interface Post {
-        void onPostMove(Entity entity, Raid<?, ?, ?, ?> raid);
+        void onPostMove(Entity<?> entity, Raid<?, ?, ?, ?> raid);
     }
 }

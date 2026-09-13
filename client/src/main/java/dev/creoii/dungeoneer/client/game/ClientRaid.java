@@ -19,13 +19,13 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     private final Pool<ClientBullet> bulletPool = new Pool<>() {
         @Override
         protected ClientBullet newObject() {
-            return new ClientBullet();
+            return new ClientBullet(null);
         }
     };
     private final Pool<ClientBulletGroup> bulletGroupPool = new Pool<>() {
         @Override
         protected ClientBulletGroup newObject() {
-            return new ClientBulletGroup();
+            return new ClientBulletGroup(null);
         }
     };
 

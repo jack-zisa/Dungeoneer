@@ -13,6 +13,6 @@ public final class HealEvents {
 
     @FunctionalInterface
     public interface Modify {
-        int modifyHeal(Entity entity, int amount);
+        int modifyHeal(Entity<?> entity, int amount);
     }
 }

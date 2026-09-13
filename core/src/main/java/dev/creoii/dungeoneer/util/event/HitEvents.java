@@ -21,11 +21,11 @@ public final class HitEvents {
 
     @FunctionalInterface
     public interface Pre {
-        boolean onPreHit(Entity entity, BulletNode<?> bullet, Raid<?, ?, ?, ?> raid);
+        boolean onPreHit(Entity<?> entity, BulletNode<?, ?> bullet, Raid<?, ?, ?, ?> raid);
     }
 
     @FunctionalInterface
     public interface Post {
-        void onPostHit(Entity entity, BulletNode<?> bullet, Raid<?, ?, ?, ?> raid);
+        void onPostHit(Entity<?> entity, BulletNode<?, ?> bullet, Raid<?, ?, ?, ?> raid);
     }
 }
