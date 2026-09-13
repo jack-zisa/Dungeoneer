@@ -1,13 +1,13 @@
 package dev.creoii.dungeoneer.client.render.screen.game;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.screen.BorderedImage;
+import dev.creoii.dungeoneer.client.render.screen.FollowingTooltip;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import org.jspecify.annotations.Nullable;
@@ -17,6 +17,7 @@ public class SlotWidget extends Container<Stack> {
     private final Slot slot;
     private final Stack stack;
     private Container<Image> itemImage;
+    private Tooltip<TooltipWidget> tooltip;
 
     public SlotWidget(Dungeoneer client, Slot slot) {
         this.client = client;
@@ -50,10 +51,17 @@ public class SlotWidget extends Container<Stack> {
             itemImage = null;
         }
 
+        if (tooltip != null) {
+            removeListener(tooltip);
+            tooltip = null;
+        }
+
         if (!slot.isEmpty()) {
             Image image = new BorderedImage(client.getAssets().getTexture(Assets.Atlas.ITEM, slot.getItem().id()));
             itemImage = new Container<>(image).fill(.8f, .8f).align(Align.center);
             stack.add(itemImage);
+            addListener(tooltip = new FollowingTooltip<>(new TooltipWidget(client, slot.getItem())));
+            tooltip.setTouchIndependent(true);
         } else itemImage = null;
 
         invalidateHierarchy();

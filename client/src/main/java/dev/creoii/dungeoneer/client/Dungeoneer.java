@@ -81,8 +81,9 @@ public class Dungeoneer extends Game {
         inputMultiplexer.addProcessor(commandManager);
 
         TooltipManager.getInstance().animations = false;
-        TooltipManager.getInstance().resetTime = 0f;
+        TooltipManager.getInstance().resetTime = 1f;
         TooltipManager.getInstance().initialTime = 0f;
+        TooltipManager.getInstance().subsequentTime = 0f;
         TooltipManager.getInstance().offsetX = 0f;
         TooltipManager.getInstance().offsetY = 0f;
 

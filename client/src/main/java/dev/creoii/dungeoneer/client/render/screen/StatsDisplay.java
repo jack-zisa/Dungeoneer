@@ -31,6 +31,8 @@ public class StatsDisplay extends Table {
                 case VITALITY -> new StatDisplay(stats.vitality(), maxStats == null ? null : maxStats.vitality());
             };
 
+            if (statDisplay.getStat().base() == 0f) continue;
+
             add(statDisplay).width(120f).height(24f);
 
             if (i % COLUMNS == COLUMNS - 1) row();
@@ -41,7 +43,10 @@ public class StatsDisplay extends Table {
     }
 
     public static class StatDisplay extends Container<Label> {
+        private final Stat stat;
+
         public StatDisplay(Stat stat, @Nullable Stat maxStat) {
+            this.stat = stat;
             String modifier;
 
             if (stat.modifier() > 0f) {
@@ -58,6 +63,10 @@ public class StatsDisplay extends Table {
             setActor(new Label(text, AbstractScreen.SKIN));
 
             left();
+        }
+
+        public Stat getStat() {
+            return stat;
         }
 
         @Override
