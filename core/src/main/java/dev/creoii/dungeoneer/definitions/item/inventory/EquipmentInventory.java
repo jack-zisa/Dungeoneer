@@ -8,11 +8,11 @@ import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class EquipmentInventory extends Inventory {
     private final Character<?> character;
-    private final UUID[][] statModifiers;
 
     public EquipmentInventory(Character<?> character, EquipmentItem.@Nullable EquipmentType weapon, EquipmentItem.@Nullable EquipmentType ability, EquipmentItem.@Nullable EquipmentType armor, EquipmentItem.@Nullable EquipmentType accessory) {
         super(4);
@@ -20,7 +20,6 @@ public class EquipmentInventory extends Inventory {
             throw new IllegalArgumentException("Attempted to create Equipment Inventory with inapplicable equipment types!");
 
         this.character = character;
-        statModifiers = new UUID[4][Stat.Type.values().length];
 
         getSlot(0).setSlotType(weapon);
         getSlot(1).setSlotType(ability);
@@ -80,31 +79,37 @@ public class EquipmentInventory extends Inventory {
         return (AccessoryItem) getAccessorySlot().getItem();
     }
 
+    /**
+     * Generates a unique deterministic UUID for each character/slot/stat combination.
+     */
+    private UUID getModifierUuid(int index, Stat.Type type) {
+        return UUID.nameUUIDFromBytes((character.get().id() + index + type.name()).getBytes(StandardCharsets.UTF_8));
+    }
+
     private void removeModifiers(int index) {
-        UUID[] uuids = statModifiers[index];
         for (Stat.Type type : Stat.Type.values()) {
-            UUID uuid = uuids[type.ordinal()];
-            if (uuid != null) {
-                character.getStats().removeModifier(type, uuid);
-                uuids[type.ordinal()] = null;
-            }
+            character.getStats().removeModifier(type, getModifierUuid(index, type));
         }
     }
 
     private void applyModifiers(int index, StatContainer statBonus) {
-        UUID[] uuids = statModifiers[index];
-        applyModifier(Stat.Type.HEALTH, uuids, statBonus.health().value());
-        applyModifier(Stat.Type.DEFENSE, uuids, statBonus.defense().value());
-        applyModifier(Stat.Type.SPEED, uuids, statBonus.speed().value());
-        applyModifier(Stat.Type.DEXTERITY, uuids, statBonus.dexterity().value());
-        applyModifier(Stat.Type.VITALITY, uuids, statBonus.vitality().value());
+        applyModifier(index, Stat.Type.HEALTH, statBonus.health().value());
+        applyModifier(index, Stat.Type.DEFENSE, statBonus.defense().value());
+        applyModifier(index, Stat.Type.SPEED, statBonus.speed().value());
+        applyModifier(index, Stat.Type.DEXTERITY, statBonus.dexterity().value());
+        applyModifier(index, Stat.Type.VITALITY, statBonus.vitality().value());
     }
 
-    public void applyModifier(Stat.Type type, UUID[] uuids, float amount) {
+    public void applyModifier(int index, Stat.Type type, float amount) {
         if (amount == 0)
             return;
-        UUID uuid = UUID.randomUUID();
-        uuids[type.ordinal()] = uuid;
+        UUID uuid = getModifierUuid(index, type);
         character.getStats().applyModifier(new ModifierEntry(type, uuid, amount, ModifierEntry.Operation.ADD, ModifierEntry.ModifierType.BASE));
+    }
+
+    public void clearModifiers() {
+        for (int i = 0; i < size(); i++) {
+            removeModifiers(i);
+        }
     }
 }

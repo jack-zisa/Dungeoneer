@@ -2,23 +2,24 @@ package dev.creoii.dungeoneer.util.stat;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class Stat {
     public static final Codec<Stat> CODEC = RecordCodecBuilder.create(instance -> {
         return instance.group(
             Stat.Type.CODEC.fieldOf("stat_type").forGetter(Stat::type),
             Codec.FLOAT.optionalFieldOf("amount").forGetter(stat -> stat.base == 0f ? Optional.empty() : Optional.of(stat.base)),
-            ModifierEntry.CODEC.listOf().optionalFieldOf("modifiers").forGetter(stat -> stat.modifiers.isEmpty() ? Optional.empty() : Optional.of(stat.modifiers))
-        ).apply(instance, (type, amount, modifiers) -> modifiers.map(modifierEntries -> new Stat(type, amount.orElse(0f), new ObjectArrayList<>(modifierEntries))).orElseGet(() -> new Stat(type, amount.orElse(0f))));
+            ModifierEntry.CODEC.listOf().optionalFieldOf("modifiers").forGetter(stat -> stat.modifiers.isEmpty() ? Optional.empty() : Optional.of(new ArrayList<>(stat.modifiers.values())))
+        ).apply(instance, (type, amount, modifiers) -> {
+            Stat stat = new Stat(type, amount.orElse(0f));
+            modifiers.ifPresent(entries -> entries.forEach(stat::addModifier));
+            return stat;
+        });
     });
     private final Type type;
     private float base;
-    private final ObjectList<ModifierEntry> modifiers = new ObjectArrayList<>();
+    private final Map<UUID, ModifierEntry> modifiers = new HashMap<>();
 
     public Stat(Type type, float base) {
         this.type = type;
@@ -29,10 +30,10 @@ public class Stat {
         this(type, 0f);
     }
 
-    public Stat(Type type, float base, ObjectList<ModifierEntry> modifiers) {
+    public Stat(Type type, float base, Map<UUID, ModifierEntry> modifiers) {
         this.type = type;
         this.base = base;
-        modifiers.forEach(this::addModifier);
+        modifiers.values().forEach(this::addModifier);
     }
 
     public Type type() {
@@ -43,7 +44,7 @@ public class Stat {
         return base;
     }
 
-    public ObjectList<ModifierEntry> getModifiers() {
+    public Map<UUID, ModifierEntry> getModifiers() {
         return modifiers;
     }
 
@@ -52,16 +53,16 @@ public class Stat {
     }
 
     public void addModifier(ModifierEntry modifierEntry) {
-        modifiers.add(modifierEntry);
+        modifiers.put(modifierEntry.uuid(), modifierEntry);
     }
 
     public void removeModifier(UUID uuid) {
-        modifiers.removeIf(modifier -> modifier.uuid().equals(uuid));
+        modifiers.remove(uuid);
     }
 
     public float value() {
         float result = base;
-        for (ModifierEntry mod : modifiers) {
+        for (ModifierEntry mod : modifiers.values()) {
             switch (mod.operation()) {
                 case ADD -> result += mod.amount();
                 case SET -> result = mod.amount();
