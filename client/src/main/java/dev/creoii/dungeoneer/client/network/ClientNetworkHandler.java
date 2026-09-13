@@ -428,8 +428,12 @@ public class ClientNetworkHandler extends NetworkHandler {
                     if (client.getScreen() instanceof GameScreen gameScreen) {
                         ClientCharacter character = client.getState().getCharacterById((int) characterId);
                         if (character == null || character.isNull()) {
+                            System.out.println("syncing empty inventory");
                             gameScreen.getInventory().refresh(new Inventory(4));
-                        } else gameScreen.getInventory().refresh(character.getEquipment());
+                        } else {
+                            slots.forEach(slot -> character.getEquipment().setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
+                            gameScreen.getInventory().refresh(character.getEquipment());
+                        }
                     }
                 } else {
                     ClientCharacter character = client.getState().getCurrentRaid().getCharacters().get(accountId);
