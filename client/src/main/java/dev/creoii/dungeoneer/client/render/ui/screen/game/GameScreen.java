@@ -153,7 +153,7 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void render(float dt) {
         ClientCharacter character = getClient().getState().getActiveCharacter();
-        if (character.isNull())
+        if (character == null || character.isNull())
             return;
 
         ClientRaid raid = getClient().getState().getCurrentRaid();

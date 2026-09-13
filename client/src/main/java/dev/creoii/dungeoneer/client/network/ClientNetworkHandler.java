@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.client.network;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.esotericsoftware.kryonet.Connection;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.ClientState;
@@ -409,8 +410,13 @@ public class ClientNetworkHandler extends NetworkHandler {
                             client.getState().setStatus(ClientState.Status.RAID_END);
                             Gdx.app.postRunnable(() -> {
                                 if (client.getScreen() instanceof GameScreen gameScreen) {
-                                    gameScreen.fadeToBlack(.8f, 2f);
-                                    new DeathDialog(client, AbstractScreen.SKIN).show(gameScreen.getStage());
+                                    gameScreen.fadeToBlack(.8f, 2f, new Action() {
+                                        @Override
+                                        public boolean act(float delta) {
+                                            new DeathDialog(client, AbstractScreen.SKIN).show(gameScreen.getStage());
+                                            return true;
+                                        }
+                                    });
                                 }
                             });
                         } else {
