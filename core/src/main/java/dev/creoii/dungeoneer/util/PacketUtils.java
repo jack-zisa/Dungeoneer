@@ -33,7 +33,14 @@ public final class PacketUtils {
         long accountId = input.readLong();
         CharacterClass characterClass = readCharacterClass(input);
         if (characterClass == null) return null;
-        return new CharacterDefinition(id, accountId, characterClass, readDateTime(input));
+        int size = input.readInt(true);
+        Inventory inventory = new Inventory(size);
+        for (int i = 0; i < size; ++i) {
+            long itemId = input.readLong();
+            if (itemId == -1) continue;
+            inventory.setItem(i, DataManager.getItem(itemId));
+        }
+        return new CharacterDefinition(id, accountId, characterClass, inventory, readDateTime(input));
     }
 
     public static void writeCharacter(Output output, @Nullable CharacterDefinition character) {
@@ -44,6 +51,13 @@ public final class PacketUtils {
         output.writeLong(character.id());
         output.writeLong(character.accountId());
         writeCharacterClass(output, character.characterClass());
+        output.writeInt(character.equipment().size(), true);
+        for (Slot slot : character.equipment()) {
+            long id;
+            if (slot.isEmpty()) id = -1;
+            else id = DataManager.getInternalId(DataManager.SchemaType.ITEM, slot.getItem().id());
+            output.writeLong(id);
+        }
         writeDateTime(output, character.deathDate());
     }
 
@@ -218,11 +232,11 @@ public final class PacketUtils {
     }
 
     public static Item readItem(Input input) {
-        return DataManager.getItem(input.readString());
+        return DataManager.getItem(input.readLong());
     }
 
     public static void writeItem(Output output, Item item) {
-        output.writeString(item.id());
+        output.writeLong(DataManager.getInternalId(DataManager.SchemaType.ITEM, item.id()));
     }
 
     public static Slot readSlot(Input input) {

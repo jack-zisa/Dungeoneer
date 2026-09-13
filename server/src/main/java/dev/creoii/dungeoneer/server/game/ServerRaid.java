@@ -8,6 +8,7 @@ import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.character.KillCharacterS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
+import dev.creoii.dungeoneer.server.database.repository.CharacterRepository;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.Tickable;
@@ -87,7 +88,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
     @Override
     public void tick(float dt) {
         if (getStatus() == Status.ACTIVE) {
-            if (getRemainingTimeMs() <= 0L) {
+            if (getRemainingTimeMs() <= 0L || getCharacters().isEmpty()) {
                 end();
                 return;
             }
@@ -162,7 +163,10 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
             LeaveRaidS2C packet = new LeaveRaidS2C(get().id(), accountId, reason);
             server.get().sendToTCP(removed.getConnectionId(), packet);
 
-            CharacterDefinition killed = server.getDatabase().getCharacters().getById(removed.get().id());
+            CharacterRepository characterRepository = server.getDatabase().getCharacters();
+            CharacterDefinition killed = characterRepository.getById(removed.get().id());
+            characterRepository.updateEquipment(accountId, removed.get().id(), removed.getEquipment());
+
             server.get().sendToTCP(removed.getConnectionId(), new KillCharacterS2C(killed));
 
             getCharacters().values().forEach(serverCharacter -> {

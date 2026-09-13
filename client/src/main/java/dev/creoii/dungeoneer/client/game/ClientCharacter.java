@@ -36,9 +36,9 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private final float[] pos;
     private final float[] renderPos;
     private final float[] velocity;
-    private EquipmentInventory equipment;
     private final StatContainer stats;
     private final StatContainer maxStats;
+    private EquipmentInventory equipment;
     private final float[] correction;
     private final Rectangle bounds;
     private long lastAttackTime;
@@ -60,10 +60,11 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         if (character == null) {
             stats = StatContainer.ZERO.copy();
             maxStats = StatContainer.ZERO.copy();
+            equipment = EquipmentInventory.createEmpty(this);
         } else {
-            equipment = new EquipmentInventory(this, character.characterClass().equipment());
             stats = character.characterClass().baseStats().copy();
             maxStats = character.characterClass().maxStats().copy();
+            equipment = new EquipmentInventory(this, character.characterClass().equipment(), character.equipment());
         }
         correction = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
@@ -98,7 +99,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             maxStats.set(StatContainer.ZERO.copy());
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
-            setEquipment(new EquipmentInventory(this, character.characterClass().equipment()));
+            setEquipment(new EquipmentInventory(this, character.characterClass().equipment(), character.equipment()));
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
         }

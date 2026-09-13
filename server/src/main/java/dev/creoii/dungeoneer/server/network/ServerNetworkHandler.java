@@ -5,6 +5,7 @@ import com.password4j.Password;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.item.WeaponItem;
+import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
@@ -37,6 +38,7 @@ import dev.creoii.dungeoneer.network.s2c.account.LoginResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.CreateCharacterResultS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SendFactionS2C;
+import dev.creoii.dungeoneer.server.database.repository.CharacterRepository;
 import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerDungeonMap;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
@@ -117,9 +119,15 @@ public class ServerNetworkHandler extends NetworkHandler {
 
         if (server.getSessionManager().hasSession(connection.getID())) {
             long accountId = server.getSessionManager().getAccountConnections().inverse().get(connection.getID());
+            ServerCharacter character = null;
             for (ServerRaid raid : server.getState().getRaids().values()) {
-                if (raid.removeCharacter(accountId, RemovalReason.DISCONNECTED) != null)
+                if ((character = raid.removeCharacter(accountId, RemovalReason.DISCONNECTED)) != null)
                     break;
+            }
+
+            if (character != null) {
+                CharacterRepository characterRepository = server.getDatabase().getCharacters();
+                characterRepository.updateEquipment(accountId, character.get().id(), character.getEquipment());
             }
 
             server.getSessionManager().endClientSession(connection);
@@ -180,7 +188,7 @@ public class ServerNetworkHandler extends NetworkHandler {
         } else if (object instanceof CreateCharacterC2S(long accountId, int index, CharacterClass characterClass)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
-                CharacterDefinition character = server.getDatabase().getCharacters().create(account, characterClass);
+                CharacterDefinition character = server.getDatabase().getCharacters().create(account, characterClass, new Inventory(4));
                 if (character != null) {
                     account.characters().set(index, character.id());
                     server.getDatabase().getAccounts().updateCharacters(account);
@@ -328,8 +336,7 @@ public class ServerNetworkHandler extends NetworkHandler {
                 server.getDatabase().getAccounts().updateActiveCharacter(accountId, activeCharacterId);
             }
         } else if (object instanceof CharacterMoveC2S(long raidId, long characterId, int movementFlags, float rotation)) {
-            CharacterDefinition character = server.getDatabase().getCharacters().getById(characterId);
-            if (character != null && server.getState().getRaids().containsKey(raidId)) {
+            if (server.getState().getRaids().containsKey(raidId)) {
                 ServerRaid raid = server.getState().getRaids().get(raidId);
                 ServerCharacter serverCharacter = raid.getCharacterById(characterId);
                 if (serverCharacter == null)

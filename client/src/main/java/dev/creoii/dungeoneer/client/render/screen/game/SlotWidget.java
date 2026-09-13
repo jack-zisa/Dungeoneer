@@ -8,6 +8,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
+import org.jspecify.annotations.Nullable;
 
 public class SlotWidget extends Widget {
     private final Dungeoneer client;
@@ -34,7 +35,7 @@ public class SlotWidget extends Widget {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        Texture slotTexture = slot.isEmpty() ? getSlotTexture(slot.getSlotType().getType()) : client.getAssets().getTexture(Assets.Atlas.UI, "slot/empty");
+        Texture slotTexture = slot.isEmpty() && slot.getSlotType() != null ? getSlotTexture(slot.getSlotType().getType()) : client.getAssets().getTexture(Assets.Atlas.UI, "slot/empty");
 
         batch.disableBlending();
         batch.draw(slotTexture, getX(), getY(), getWidth(), getHeight());
@@ -57,7 +58,7 @@ public class SlotWidget extends Widget {
         super.draw(batch, parentAlpha);
     }
 
-    public Texture getSlotTexture(Item.Type type) {
+    public Texture getSlotTexture(Item.@Nullable Type type) {
         return switch (type) {
             case WEAPON -> client.getAssets().getTexture(Assets.Atlas.UI, "slot/weapon");
             case ABILITY -> client.getAssets().getTexture(Assets.Atlas.UI, "slot/ability");

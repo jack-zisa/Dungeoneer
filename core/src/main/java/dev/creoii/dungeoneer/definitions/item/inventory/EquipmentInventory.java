@@ -6,6 +6,7 @@ import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.util.stat.ModifierEntry;
 import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -13,9 +14,9 @@ public class EquipmentInventory extends Inventory {
     private final Character<?> character;
     private final UUID[][] statModifiers;
 
-    public EquipmentInventory(Character<?> character, EquipmentItem.EquipmentType weapon, EquipmentItem.EquipmentType ability, EquipmentItem.EquipmentType armor, EquipmentItem.EquipmentType accessory) {
+    public EquipmentInventory(Character<?> character, EquipmentItem.@Nullable EquipmentType weapon, EquipmentItem.@Nullable EquipmentType ability, EquipmentItem.@Nullable EquipmentType armor, EquipmentItem.@Nullable EquipmentType accessory) {
         super(4);
-        if (weapon.getType() != Item.Type.WEAPON || ability.getType() != Item.Type.ABILITY || armor.getType() != Item.Type.ARMOR || accessory.getType() != Item.Type.ACCESSORY)
+        if ((weapon != null && weapon.getType() != Item.Type.WEAPON) || (ability != null && ability.getType() != Item.Type.ABILITY) || (armor != null && armor.getType() != Item.Type.ARMOR) || (accessory != null && accessory.getType() != Item.Type.ACCESSORY))
             throw new IllegalArgumentException("Attempted to create Equipment Inventory with inapplicable equipment types!");
 
         this.character = character;
@@ -27,8 +28,13 @@ public class EquipmentInventory extends Inventory {
         getSlot(3).setSlotType(accessory);
     }
 
-    public EquipmentInventory(Character<?> character, CharacterClass.ClassEquipment equipment) {
+    public EquipmentInventory(Character<?> character, CharacterClass.ClassEquipment equipment, Inventory savedEquipment) {
         this(character, equipment.weapon(), equipment.ability(), equipment.armor(), equipment.accessory());
+        savedEquipment.forEach(slot -> setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
+    }
+
+    public static EquipmentInventory createEmpty(Character<?> character) {
+        return new EquipmentInventory(character, null, null, null, null);
     }
 
     @Override

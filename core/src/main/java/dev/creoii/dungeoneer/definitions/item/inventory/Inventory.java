@@ -1,11 +1,31 @@
 package dev.creoii.dungeoneer.definitions.item.inventory;
 
+import com.mojang.serialization.Codec;
+import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
 public class Inventory implements Collection<Slot> {
+    public static final Codec<Inventory> DB_CODEC = Codec.LONG.listOf().xmap(longs -> {
+        Inventory inventory = new Inventory(longs.size());
+        for (int i = 0; i < longs.size(); ++i) {
+            long id = longs.get(i);
+            if (id == -1) continue;
+            Item item = DataManager.getItem(id);
+            inventory.setItem(i, item);
+        }
+        return inventory;
+    }, inventory -> {
+        List<Long> items = new ArrayList<>();
+        inventory.forEach(slot -> {
+            if (slot.isEmpty()) {
+                items.add(-1L);
+            } else items.add(DataManager.getInternalId(DataManager.SchemaType.ITEM, slot.getItem().id()));
+        });
+        return items;
+    });
     private final Slot[] slots;
 
     public Inventory(int size) {

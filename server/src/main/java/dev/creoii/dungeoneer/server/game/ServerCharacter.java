@@ -32,9 +32,9 @@ public class ServerCharacter implements Character<ServerRaid> {
     private final float[] pos;
     private final float[] velocity;
     private final Rectangle bounds;
-    private final EquipmentInventory equipment;
     private final StatContainer stats;
     private final StatContainer maxStats;
+    private final EquipmentInventory equipment;
     @Nullable private ServerRaid raid;
     private long lastAttackTime;
     private final Long2ObjectArrayMap<StatusEffectInstance> statusEffects;
@@ -49,9 +49,9 @@ public class ServerCharacter implements Character<ServerRaid> {
         pos = VectorUtils.zero();
         velocity = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
-        equipment = new EquipmentInventory(this, character.characterClass().equipment());
         stats = character.characterClass().baseStats().copy();
         maxStats = character.characterClass().maxStats().copy();
+        equipment = new EquipmentInventory(this, character.characterClass().equipment(), character.equipment()); // Need to init after stats as stat bonuses will apply
         raid = null;
         statusEffects = new Long2ObjectArrayMap<>();
         expiredEffects = new ArrayList<>();

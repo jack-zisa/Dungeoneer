@@ -84,7 +84,7 @@ public class Slot {
     }
 
     public boolean isValid(Item item) {
-        return isEmpty() && slotType == null || item.type() == slotType.getType();
+        return isEmpty() && (slotType == null || item.type() == slotType.getType());
     }
 
     @Override

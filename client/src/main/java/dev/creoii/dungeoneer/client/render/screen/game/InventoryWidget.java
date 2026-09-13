@@ -12,9 +12,14 @@ public class InventoryWidget extends Table {
         this.client = client;
         for (int i = 0; i < inventory.size(); ++i) {
             SlotWidget slotWidget = new SlotWidget(client, inventory.getSlot(i));
-            add(slotWidget).pad(8f);
-            if (i % columns == columns - 1) row();
+            add(slotWidget);
+            if (i % columns == columns - 1) {
+                padRight(8f);
+                row();
+            }
         }
+
+        padBottom(8f);
 
         pack();
     }

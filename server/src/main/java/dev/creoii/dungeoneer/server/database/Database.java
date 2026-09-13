@@ -1,11 +1,14 @@
 package dev.creoii.dungeoneer.server.database;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dev.creoii.dungeoneer.server.database.repository.*;
 import dev.creoii.dungeoneer.server.database.repository.*;
 import dev.creoii.dungeoneer.util.logging.Logger;
 import org.jdbi.v3.core.Jdbi;
 
 public class Database {
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Logger LOGGER = new Logger(Database.class.getSimpleName());
     private final ServerSessionRepository serverSessions;
     private final ClientSessionRepository clientSessions;

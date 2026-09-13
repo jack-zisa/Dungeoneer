@@ -10,7 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.render.screen.game.InventoryWidget;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ public class VaultThroneTab extends Tab {
     private java.util.List<CharacterDefinition> characters;
     private CheckBox favoriteButton;
     private Label classLabel;
+    private InventoryWidget equipment;
     private Table statsTable;
     private Stack[] classIcons;
     private Table carousel;
@@ -66,6 +69,7 @@ public class VaultThroneTab extends Tab {
             }
         });
         classLabel = new Label("", getSkin());
+        equipment = new InventoryWidget(getClient(), getClient().getState().getActiveCharacter().isNull() ? new Inventory(4) : getClient().getState().getActiveCharacter().getEquipment(), 4);
         statsTable = new Table();
 
         for (int i = 0; i < classIcons.length; i++) {
@@ -123,6 +127,7 @@ public class VaultThroneTab extends Tab {
         center.add(favoriteButton).size(16f, 16f).left().row();
         center.add(classIcons[2]).size(120).row();
         center.add(classLabel).padTop(10).row();
+        center.add(equipment).padTop(10).row();
         center.add(statsTable).padTop(10);
         center.add();
 
@@ -198,17 +203,26 @@ public class VaultThroneTab extends Tab {
         }
     }
 
+    private void updateEquipment() {
+        Inventory inventory = characters.get(classIndex).equipment();
+        if (inventory.isEmpty())
+            return;
+        equipment.refresh(inventory);
+    }
+
     private void updateSelectedCharacter() {
         CharacterDefinition selected = characters.get(classIndex);
         if (selected != null) {
             createCharacterButton.setText("Delete Character");
             classLabel.setText(classIndex + ": " + selected.characterClass().id());
             statsTable.setVisible(true);
+            updateEquipment();
             updateStatsTable();
         } else {
             createCharacterButton.setText("Create Character");
             classLabel.setText(classIndex + ": Empty");
             statsTable.setVisible(false);
+            updateEquipment();
             updateStatsTable();
         }
 

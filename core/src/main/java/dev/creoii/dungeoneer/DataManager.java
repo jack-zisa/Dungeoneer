@@ -50,7 +50,7 @@ public class DataManager {
     }
 
     public static long getInternalId(SchemaType type, String id) {
-        return IDS.get(type).inverse().get(id);
+        return IDS.get(type).inverse().getOrDefault(id, -1L);
     }
 
     public static Object2ObjectArrayMap<String, Identifiable> getBullets() {
