@@ -242,7 +242,7 @@ public class ServerCharacter implements Character<ServerRaid> {
                     return;
 
                 // Get target position
-                float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
+                float speed = StatUtils.getCalculatedSpeed(this, stats.speed().value());
                 float[] target = getTargetPosition(pos, velocity, speed, dt);
 
                 // Handle tile collision
@@ -263,7 +263,7 @@ public class ServerCharacter implements Character<ServerRaid> {
             }
         }
 
-        float regeneration = StatUtils.getHealthRegeneration(stats.vitality().value());
+        float regeneration = StatUtils.getCalculatedVitality(this, stats.vitality().value());
         heal((int) (regeneration * dt));
 
         Context context = new Context() // TODO: Add Contextual interface to cache Context at any level

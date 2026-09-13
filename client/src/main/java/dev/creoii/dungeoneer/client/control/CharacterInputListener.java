@@ -72,7 +72,7 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
         ClientRaid raid = client.getState().getCurrentRaid();
 
         long currentTime = System.currentTimeMillis();
-        long cooldown = (long) StatUtils.getCalculatedAttackSpeed(character.getStats().dexterity().value());
+        long cooldown = (long) StatUtils.getCalculatedDexterity(character, character.getStats().dexterity().value());
 
         if (client.getState().getStatus() == ClientState.Status.RAIDING && !raid.isNull()) {
             WeaponItem weapon = character.getEquipment().getWeapon();

@@ -332,7 +332,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             return;
         }
 
-        float speed = StatUtils.getCalculatedSpeed(stats.speed().value());
+        float speed = StatUtils.getCalculatedSpeed(this, stats.speed().value());
         float[] target = getTargetPosition(pos, velocity, speed, dt);
 
         Vector2 modified = MovementCollisionManager.modifyMove(getRaid().getDungeonMap(), this, target[0], target[1], true);
