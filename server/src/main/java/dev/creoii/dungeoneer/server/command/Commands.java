@@ -7,6 +7,7 @@ import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.network.s2c.character.StatUpdatesS2C;
 import dev.creoii.dungeoneer.network.s2c.character.SyncEquipmentS2C;
+import dev.creoii.dungeoneer.server.game.ServerCharacter;
 import dev.creoii.dungeoneer.server.game.ServerRaid;
 import dev.creoii.dungeoneer.util.stat.Stat;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -99,10 +100,11 @@ public final class Commands {
                 return Command.Result.fail("inventory add", args, "Item " + args[0] + " does not exist.");
             }
 
-            EquipmentInventory equipment = raid.getCharacterByAccountId(accountId).getEquipment();
+            ServerCharacter character = raid.getCharacterByAccountId(accountId);
+            EquipmentInventory equipment = character.getEquipment();
             Slot slot = equipment.getNextAvailableSlot(item);
             if (equipment.addItem(item)) {
-                SyncEquipmentS2C syncEquipmentS2C = new SyncEquipmentS2C(accountId, List.of(slot));
+                SyncEquipmentS2C syncEquipmentS2C = new SyncEquipmentS2C(accountId, character.get().id(), List.of(slot));
                 raid.getCharacters().values().forEach(serverCharacter -> {
                     server.get().sendToTCP(serverCharacter.getConnectionId(), syncEquipmentS2C);
                 });
@@ -117,11 +119,12 @@ public final class Commands {
                 return Command.Result.fail("inventory clear", args, "Invalid target.");
             }
 
-            EquipmentInventory equipment = raid.getCharacterByAccountId(accountId).getEquipment();
+            ServerCharacter character = raid.getCharacterByAccountId(accountId);
+            EquipmentInventory equipment = character.getEquipment();
             if (equipment.isEmpty())
                 return Command.Result.fail("inventory clear", args, "Inventory is already empty.");
 
-            SyncEquipmentS2C syncEquipmentS2C = new SyncEquipmentS2C(accountId, equipment.clearAndGet());
+            SyncEquipmentS2C syncEquipmentS2C = new SyncEquipmentS2C(accountId, character.get().id(), equipment.clearAndGet());
             raid.getCharacters().values().forEach(serverCharacter -> {
                 server.get().sendToTCP(serverCharacter.getConnectionId(), syncEquipmentS2C);
             });

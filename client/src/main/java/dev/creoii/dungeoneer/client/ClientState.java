@@ -14,24 +14,25 @@ import dev.creoii.dungeoneer.network.c2s.character.SelectActiveCharacterC2S;
 import dev.creoii.dungeoneer.util.DungeonMapUtils;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClientState {
     private final Dungeoneer client;
     private Status status;
     private Account account;
     private final ClientDungeonMap dungeonMap;
-    private final List<CharacterDefinition> characters;
-    private final ClientCharacter activeCharacter;
+    private final Map<Integer, ClientCharacter> characters;
     private final ClientRaid currentRaid;
+    private int activeCharacter;
     private @Nullable Faction faction;
 
     public ClientState(Dungeoneer client) {
         this.client = client;
         dungeonMap = new ClientDungeonMap(client);
-        characters = new ArrayList<>();
-        activeCharacter = new ClientCharacter(client, null);
+        characters = new HashMap<>();
+        activeCharacter = 0;
         currentRaid = new ClientRaid(client, null);
         setStatus(ClientState.Status.STARTING);
     }
@@ -47,6 +48,9 @@ public class ClientState {
 
     public void setAccount(Account account) {
         this.account = account;
+        for (int i = 0; i < account.characterSlots(); ++i) {
+            characters.put(i, new ClientCharacter(client, null));
+        }
     }
 
     public Account getAccount() {
@@ -62,30 +66,47 @@ public class ClientState {
         dungeonMap.setMapRenderer(new OrthogonalTiledMapRenderer(DungeonMapUtils.deserializeMap2(definition.accountId(), DataManager.getMapTemplate(dungeonMap.get().templateId()), dungeonMap.get().tilesetId(), ClientTiles.TILESET, ClientTiles.SETTER)));
     }
 
-    public List<CharacterDefinition> getCharacters() {
+    public Map<Integer, ClientCharacter> getCharacters() {
         return characters;
     }
 
-    public void setCharacters(List<CharacterDefinition> characters) {
-        this.characters.clear();
-        this.characters.addAll(characters);
+    @Nullable
+    public ClientCharacter getCharacter(int index) {
+        return characters.get(index);
     }
 
-    public int indexOf(long id) {
+    @Nullable
+    public ClientCharacter getCharacterById(int characterId) {
         for (int i = 0; i < characters.size(); ++i) {
-            CharacterDefinition characterDefinition = characters.get(i);
-            if (characterDefinition.id() == id) return i;
+            ClientCharacter character = characters.get(i);
+            if (character.isNull()) continue;
+            if (character.get().id() == characterId) return character;
         }
-        return -1;
+        return null;
     }
 
+    public void setCharacters(List<CharacterDefinition> characters) {
+        this.characters.values().forEach(clientCharacter -> clientCharacter.set(null));
+        for (int i = 0; i < characters.size(); ++i) {
+            if (this.characters.containsKey(i)) {
+                this.characters.get(i).set(characters.get(i));
+            }
+        }
+    }
+
+    @Nullable
     public ClientCharacter getActiveCharacter() {
-        return activeCharacter;
+        return characters.getOrDefault(activeCharacter, null);
     }
 
-    public void setActiveCharacter(@Nullable CharacterDefinition activeCharacter) {
-        this.activeCharacter.set(activeCharacter);
-        client.get().sendTCP(new SelectActiveCharacterC2S(account.id(), activeCharacter == null ? -1L : activeCharacter.id()));
+    public void setActiveCharacter(int activeCharacter) {
+        this.activeCharacter = activeCharacter;
+        ClientCharacter active = getActiveCharacter();
+        client.get().sendTCP(new SelectActiveCharacterC2S(account.id(), active == null || active.isNull() ? -1L : active.get().id()));
+    }
+
+    public boolean hasActiveCharacter() {
+        return characters.containsKey(activeCharacter) && !getActiveCharacter().isNull();
     }
 
     public ClientRaid getCurrentRaid() {
@@ -114,11 +135,6 @@ public class ClientState {
 
     public void setFaction(@Nullable Faction faction) {
         this.faction = faction;
-    }
-
-    public void fillCharacters(int characterSlots) {
-        for (int i = 0; i < characterSlots; ++i)
-            characters.add(null);
     }
 
     public enum Status {

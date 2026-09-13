@@ -18,6 +18,7 @@ import dev.creoii.dungeoneer.client.render.screen.main.*;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
+import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import dev.creoii.dungeoneer.definitions.item.WeaponItem;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
@@ -82,7 +83,6 @@ public class ClientNetworkHandler extends NetworkHandler {
             case LoginResultS2C(PacketResult result, @Nullable Account account) -> {
                 if (result == PacketResult.SUCCESS) {
                     client.getState().setAccount(account);
-                    client.getState().fillCharacters(account.characterSlots());
                     client.get().sendTCP(new RequestCharactersC2S(account.id()));
                     client.get().sendTCP(new RequestDungeonMapC2S(account.id()));
                     client.get().sendTCP(new RequestFactionC2S(account.id()));
@@ -96,7 +96,7 @@ public class ClientNetworkHandler extends NetworkHandler {
                     return;
 
                 client.getState().setCharacters(characters);
-                client.getState().setActiveCharacter(characters.getFirst());
+                client.getState().setActiveCharacter(0);
 
                 Gdx.app.postRunnable(() -> {
                     if (client.getScreen() instanceof MainScreen screen) {
@@ -124,20 +124,22 @@ public class ClientNetworkHandler extends NetworkHandler {
             }
             case CreateCharacterResultS2C(PacketResult result, int index, @Nullable CharacterDefinition character) -> {
                 if (result == PacketResult.SUCCESS) {
-                    client.getState().getCharacters().set(index, character);
-                    client.getState().getActiveCharacter().set(character);
+                    if (client.getState().getCharacters().containsKey(index)) {
+                        client.getState().getCharacters().get(index).set(character);
+                        client.getState().getActiveCharacter().set(character);
 
-                    Dungeoneer.LOGGER.info("Created new character of class: %s", character.characterClass().id());
+                        Dungeoneer.LOGGER.info("Created new character of class: %s", character.characterClass().id());
 
-                    Gdx.app.postRunnable(() -> {
-                        if (client.getScreen() instanceof MainScreen screen) {
-                            if (screen.getSelectedTab() instanceof VaultThroneTab vaultThroneTab) {
-                                vaultThroneTab.select(index);
-                            } else if (screen.getSelectedTab() instanceof PlayTab playTab) {
-                                playTab.select();
+                        Gdx.app.postRunnable(() -> {
+                            if (client.getScreen() instanceof MainScreen screen) {
+                                if (screen.getSelectedTab() instanceof VaultThroneTab vaultThroneTab) {
+                                    vaultThroneTab.select(index);
+                                } else if (screen.getSelectedTab() instanceof PlayTab playTab) {
+                                    playTab.select();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 } else Dungeoneer.LOGGER.error("Failed to create character.");
             }
             case CreateFactionResultS2C(PacketResult result, @Nullable Faction faction) -> {
@@ -342,7 +344,6 @@ public class ClientNetworkHandler extends NetworkHandler {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (raid.isNull())
                     return;
-
                 raid.addCharacter(characterDefinition.accountId(), new ClientCharacter(client, characterDefinition));
             }
             case AttacksS2C(List<AttacksS2C.Entry> entries) -> entries.forEach(entry -> {
@@ -422,25 +423,24 @@ public class ClientNetworkHandler extends NetworkHandler {
                     raid.getCharacters().get(accountId).getStats().set(stats);
                 }
             }
-            case SyncEquipmentS2C(long accountId, List<Slot> slots) -> {
-                ClientCharacter character;
+            case SyncEquipmentS2C(long accountId, long characterId, List<Slot> slots) -> {
                 if (accountId == client.getState().getAccount().id()) {
-                    character = client.getState().getActiveCharacter();
-                    if (character.isNull()) return;
+                    if (client.getScreen() instanceof GameScreen gameScreen) {
+                        ClientCharacter character = client.getState().getCharacterById((int) characterId);
+                        if (character == null || character.isNull()) {
+                            gameScreen.getInventory().refresh(new Inventory(4));
+                        } else gameScreen.getInventory().refresh(character.getEquipment());
+                    }
                 } else {
-                    character = client.getState().getCurrentRaid().getCharacters().get(accountId);
-                    if (character == null || character.isNull()) return;
+                    ClientCharacter character = client.getState().getCurrentRaid().getCharacters().get(accountId);
+                    slots.forEach(slot -> character.getEquipment().setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
                 }
-
-                if (character.isLocal() && client.getScreen() instanceof GameScreen gameScreen) gameScreen.getInventory().refresh(character.getEquipment());
-
-                slots.forEach(slot -> character.getEquipment().setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
             }
             case KillCharacterS2C(CharacterDefinition character) -> {
                 if (character.accountId() == client.getState().getAccount().id()) {
-                    int index = client.getState().indexOf(character.id());
-                    if (index != -1) {
-                        client.getState().getCharacters().set(index, character);
+                    ClientCharacter character1 = client.getState().getCharacterById((int) character.id());
+                    if (character1 != null && !character1.isNull()) {
+                        character1.set(character);
                     }
                 }
             }

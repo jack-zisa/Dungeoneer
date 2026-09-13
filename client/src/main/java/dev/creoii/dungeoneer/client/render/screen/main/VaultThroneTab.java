@@ -10,18 +10,19 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.render.screen.game.InventoryWidget;
-import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
+import dev.creoii.dungeoneer.util.stat.StatContainer;
+import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 public class VaultThroneTab extends Tab {
     private int classIndex;
     private int characterSlots;
-    private java.util.List<CharacterDefinition> characters;
     private CheckBox favoriteButton;
     private Label classLabel;
     private InventoryWidget equipment;
@@ -37,7 +38,6 @@ public class VaultThroneTab extends Tab {
     @Override
     public void init() {
         characterSlots = 1;
-        characters = new ArrayList<>(characterSlots);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class VaultThroneTab extends Tab {
         favoriteButton.setStyle(style);
         favoriteButton.setProgrammaticChangeEvents(false);
         favoriteButton.setChecked(favoriteCharacterIndex != -1 && classIndex == favoriteCharacterIndex);
-        favoriteButton.setDisabled(characters.size() < 2);
+        favoriteButton.setDisabled(getClient().getState().getCharacters().size() < 2);
         favoriteButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -134,7 +134,7 @@ public class VaultThroneTab extends Tab {
         createCharacterButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (characters.get(classIndex) == null) new CreateCharacterDialog(getClient(), classIndex, getSkin()).show(getStage());
+                if (getClient().getState().getCharacters().get(classIndex).isNull()) new CreateCharacterDialog(getClient(), classIndex, getSkin()).show(getStage());
                 else getClient().get().sendTCP(new DeleteCharacterC2S(getClient().getState().getAccount().id(), classIndex));
             }
         });
@@ -149,6 +149,11 @@ public class VaultThroneTab extends Tab {
         add(carousel).growX().height(200).padBottom(20).row();
     }
 
+    @Nullable
+    public ClientCharacter getSelectedCharacter() {
+        return getClient().getState().getCharacter(classIndex);
+    }
+
     public void select(int selectedIndex) {
         classIndex = selectedIndex;
         select();
@@ -158,35 +163,20 @@ public class VaultThroneTab extends Tab {
     public void select() {
         characterSlots = getClient().getState().getAccount().characterSlots();
 
-        characters.clear();
-        for (int i = 0; i < characterSlots; i++) {
-            characters.add(null);
-        }
-
-        for (int i = 0; i < getClient().getState().getCharacters().size(); i++) {
-            CharacterDefinition character =
-                getClient().getState().getCharacters().get(i);
-
-            if (character == null || character.isDead())
-                continue;
-
-            if (i < characters.size()) {
-                characters.set(i, character);
-            }
-        }
-
         if (classIndex >= characterSlots) {
             classIndex = getClient().getSettings().favoriteCharacter().value();
-            CharacterDefinition favorite = characters.get(classIndex);
-            if (favorite == null || favorite.isDead()) {
+            ClientCharacter favorite = getSelectedCharacter();
+            if (favorite == null || favorite.isNull() || favorite.isDead()) {
                 classIndex = 0;
                 getClient().getSettings().favoriteCharacter().setValue(0);
             }
         }
 
-        carousel.setVisible(!characters.isEmpty());
+        boolean hasCharacters = getClient().getState().getCharacters().values().stream().anyMatch(character -> !character.isNull() && !character.isDead());
 
-        if (!characters.isEmpty()) {
+        carousel.setVisible(hasCharacters);
+
+        if (hasCharacters) {
             updateSelectedCharacter();
         } else updateCharacterDisplay();
     }
@@ -194,30 +184,31 @@ public class VaultThroneTab extends Tab {
     private void updateStatsTable() {
         statsTable.clearChildren();
 
-        CharacterDefinition selected = characters.get(classIndex);
-        if (selected != null) {
-            statsTable.add(new Label(String.format("Health: %s", selected.characterClass().baseStats().health()), getSkin())).row();
-            statsTable.add(new Label(String.format("Speed: %s", selected.characterClass().baseStats().speed()), getSkin()));
-            statsTable.add(new Label(String.format("Attack Speed: %s", selected.characterClass().baseStats().dexterity()), getSkin()));
+        ClientCharacter selected = getSelectedCharacter();
+        if (selected != null && !selected.isNull()) {
+            StatContainer baseStats = selected.get().characterClass().baseStats();
+            statsTable.add(new Label(String.format("Max HP: %,d", (int) baseStats.health().base()), getSkin())).row();
+            statsTable.add(new Label(String.format("DEF: %,d", (int) baseStats.defense().base()), getSkin()));
+            statsTable.add(new Label(String.format("SPD: %,d", (int) baseStats.speed().base()), getSkin())).row();
+            statsTable.add(new Label(String.format("DEX: %,d", (int) baseStats.dexterity().base()), getSkin()));
+            statsTable.add(new Label(String.format("VIT: %,d", (int) baseStats.vitality().base()), getSkin())).row();
         }
     }
 
     private void updateEquipment() {
-        CharacterDefinition selected = characters.get(classIndex);
-        if (selected != null) {
-            equipment.setVisible(true);
-            Inventory inventory = selected.equipment();
-            if (inventory.isEmpty())
-                return;
+        ClientCharacter selected = getSelectedCharacter();
+        if (selected != null && !selected.isNull()) {
+            Inventory inventory = selected.getEquipment();
             equipment.refresh(inventory);
+            equipment.setVisible(true);
         } else equipment.setVisible(false);
     }
 
     private void updateSelectedCharacter() {
-        CharacterDefinition selected = characters.get(classIndex);
-        if (selected != null) {
+        ClientCharacter selected = getSelectedCharacter();
+        if (selected != null && !selected.isNull()) {
             createCharacterButton.setText("Delete Character");
-            classLabel.setText(classIndex + ": " + selected.characterClass().id());
+            classLabel.setText(classIndex + ": " + selected.get().characterClass().id());
             statsTable.setVisible(true);
         } else {
             createCharacterButton.setText("Create Character");
@@ -227,12 +218,14 @@ public class VaultThroneTab extends Tab {
         updateEquipment();
         updateStatsTable();
 
-        getClient().getState().setActiveCharacter(selected);
+        getClient().getState().setActiveCharacter(classIndex);
         updateCharacterDisplay();
     }
 
     private void updateCharacterDisplay() {
-        if (characters.isEmpty()) {
+        boolean hasCharacters = getClient().getState().getCharacters().values().stream().anyMatch(character -> !character.isNull() && !character.isDead());
+
+        if (!hasCharacters) {
             classLabel.setText("");
             for (int i = 0; i < 5; i++) {
                 classIcons[i].removeActorAt(1, true);
@@ -252,28 +245,26 @@ public class VaultThroneTab extends Tab {
         int[] indices = {leftLeft, left, center, right, rightRight};
         int favoriteCharacterIndex = getClient().getSettings().favoriteCharacter().value();
 
-        CharacterDefinition selected = getCharacterForSlot(center);
-        favoriteButton.setDisabled(characters.stream().filter(Objects::nonNull).count() < 2 || selected == null);
+        Collection<ClientCharacter> clientCharacters = getClient().getState().getCharacters().values();
+
+        ClientCharacter selected = getClient().getState().getCharacter(center);
+        favoriteButton.setDisabled(clientCharacters.stream().filter(Objects::nonNull).count() < 2 || selected.isNull());
         favoriteButton.setChecked(favoriteCharacterIndex != -1 && classIndex == favoriteCharacterIndex);
-        createCharacterButton.setText(characters.get(classIndex) == null ? "Create Character" : "Delete Character");
-        classLabel.setText(selected == null ? "Empty" : selected.characterClass().id());
+        createCharacterButton.setText(getSelectedCharacter().isNull() ? "Create Character" : "Delete Character");
+        classLabel.setText(selected.isNull() ? "Empty" : selected.get().characterClass().id());
 
         for (int i = 0; i < classIcons.length; i++) {
-            CharacterDefinition character = getCharacterForSlot(indices[i]);
+            ClientCharacter character = getClient().getState().getCharacter(indices[i]);
             classIcons[i].removeActorAt(1, true);
-            Texture texture = character == null ? getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, "silhouette") : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id());
+            Texture texture = character.isNull() ? getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, "silhouette") : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.get().characterClass().id());
             Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(texture)));
             container.size(48f);
             classIcons[i].add(container);
         }
 
-        classIcons[0].setVisible(characters.size() > 4);
-        classIcons[1].setVisible(characters.size() > 2);
-        classIcons[3].setVisible(characters.size() > 1);
-        classIcons[4].setVisible(characters.size() > 3);
-    }
-
-    private CharacterDefinition getCharacterForSlot(int slot) {
-        return slot < characters.size() ? characters.get(slot) : null;
+        classIcons[0].setVisible(clientCharacters.size() > 4);
+        classIcons[1].setVisible(clientCharacters.size() > 2);
+        classIcons[3].setVisible(clientCharacters.size() > 1);
+        classIcons[4].setVisible(clientCharacters.size() > 3);
     }
 }
