@@ -14,7 +14,7 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
 import dev.creoii.dungeoneer.client.render.object.WallTopRenderable;
-import dev.creoii.dungeoneer.client.render.screen.editor.ClientTiles;
+import dev.creoii.dungeoneer.client.render.ui.editor.ClientTiles;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapTemplate;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;

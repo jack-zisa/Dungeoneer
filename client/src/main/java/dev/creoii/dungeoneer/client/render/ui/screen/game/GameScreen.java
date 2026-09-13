@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen.game;
+package dev.creoii.dungeoneer.client.render.ui.screen.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -23,8 +23,9 @@ import dev.creoii.dungeoneer.client.render.*;
 import dev.creoii.dungeoneer.client.render.object.GroundTileRenderable;
 import dev.creoii.dungeoneer.client.render.object.ObjectTileRenderable;
 import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
-import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
-import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
+import dev.creoii.dungeoneer.client.render.ui.element.InventoryWidget;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.network.c2s.raid.LeaveRaidC2S;
 import dev.creoii.dungeoneer.util.RemovalReason;

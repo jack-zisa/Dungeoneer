@@ -1,16 +1,18 @@
-package dev.creoii.dungeoneer.client.render.screen;
+package dev.creoii.dungeoneer.client.render.ui.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractScreen implements Screen {
     public static final Skin SKIN = new Skin(Gdx.files.internal("uiskin.json"));
@@ -52,9 +54,10 @@ public abstract class AbstractScreen implements Screen {
         return disposed;
     }
 
-    public void fadeToBlack(float alpha, float duration) {
+    public void fadeToBlack(float alpha, float duration, @Nullable Action finishAction) {
         fadeOverlay.toFront();
         fadeOverlay.addAction(Actions.alpha(alpha, duration));
+        if (finishAction != null) fadeOverlay.addAction(Actions.delay(duration, finishAction));
     }
 
     @Override

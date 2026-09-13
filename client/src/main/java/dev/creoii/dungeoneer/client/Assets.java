@@ -16,7 +16,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Disposable;
-import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.util.ConditionalPaddedTextureLoader;
 import dev.creoii.dungeoneer.client.util.DynamicTextureAtlas;
 import dev.creoii.dungeoneer.util.logging.Logger;

@@ -1,16 +1,15 @@
-package dev.creoii.dungeoneer.client.render.screen.editor;
+package dev.creoii.dungeoneer.client.render.ui.editor;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
-import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
-import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
 
 import java.time.LocalDateTime;

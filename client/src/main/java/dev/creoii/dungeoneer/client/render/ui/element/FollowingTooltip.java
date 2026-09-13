@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen;
+package dev.creoii.dungeoneer.client.render.ui.element;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;

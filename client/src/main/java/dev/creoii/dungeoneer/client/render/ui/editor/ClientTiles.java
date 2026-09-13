@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen.editor;
+package dev.creoii.dungeoneer.client.render.ui.editor;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;

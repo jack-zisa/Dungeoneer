@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 
 public class DebugRenderer {
     private static final int TEXT_PADDING = 10;

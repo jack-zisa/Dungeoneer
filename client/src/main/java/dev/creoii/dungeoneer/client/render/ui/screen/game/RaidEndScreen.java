@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen.game;
+package dev.creoii.dungeoneer.client.render.ui.screen.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -8,8 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
-import dev.creoii.dungeoneer.client.render.screen.main.MainScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 
 public class RaidEndScreen extends AbstractScreen {

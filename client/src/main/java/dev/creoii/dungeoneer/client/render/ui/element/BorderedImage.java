@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen;
+package dev.creoii.dungeoneer.client.render.ui.element;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;

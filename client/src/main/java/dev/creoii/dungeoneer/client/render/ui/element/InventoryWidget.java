@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen.game;
+package dev.creoii.dungeoneer.client.render.ui.element;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import dev.creoii.dungeoneer.client.Dungeoneer;

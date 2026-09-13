@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen.main;
+package dev.creoii.dungeoneer.client.render.ui.screen.main;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -11,8 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.render.screen.StatsDisplay;
-import dev.creoii.dungeoneer.client.render.screen.game.InventoryWidget;
+import dev.creoii.dungeoneer.client.render.ui.element.CreateCharacterDialog;
+import dev.creoii.dungeoneer.client.render.ui.element.StatsDisplay;
+import dev.creoii.dungeoneer.client.render.ui.element.InventoryWidget;
 import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
 import dev.creoii.dungeoneer.util.stat.StatContainer;

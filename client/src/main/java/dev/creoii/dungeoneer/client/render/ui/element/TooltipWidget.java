@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen.game;
+package dev.creoii.dungeoneer.client.render.ui.element;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -7,9 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
-import dev.creoii.dungeoneer.client.render.screen.BorderedImage;
-import dev.creoii.dungeoneer.client.render.screen.StatsDisplay;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 import dev.creoii.dungeoneer.definitions.item.EquipmentItem;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.item.WeaponItem;

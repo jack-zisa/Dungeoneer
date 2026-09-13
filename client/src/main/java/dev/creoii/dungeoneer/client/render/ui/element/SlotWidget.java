@@ -1,13 +1,10 @@
-package dev.creoii.dungeoneer.client.render.screen.game;
+package dev.creoii.dungeoneer.client.render.ui.element;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.render.screen.AbstractScreen;
-import dev.creoii.dungeoneer.client.render.screen.BorderedImage;
-import dev.creoii.dungeoneer.client.render.screen.FollowingTooltip;
 import dev.creoii.dungeoneer.definitions.item.Item;
 import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import org.jspecify.annotations.Nullable;

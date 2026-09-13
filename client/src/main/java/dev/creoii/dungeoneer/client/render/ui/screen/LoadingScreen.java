@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen;
+package dev.creoii.dungeoneer.client.render.ui.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -10,6 +10,7 @@ import java.io.IOException;
 public class LoadingScreen extends AbstractScreen {
     private boolean initialized;
     private Label label;
+
 
     private boolean connecting;
 

@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.client.render.screen.main;
+package dev.creoii.dungeoneer.client.render.ui.screen.main;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.render.ui.element.CreateFactionDialog;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.definitions.Message;
