@@ -1,5 +1,6 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
@@ -20,7 +21,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
     private final float[] startDirection;
     private final float[] localDirection;
     private final float[] offset;
-    private float speed;
+    private float speed, minSpeed, maxSpeed;
     private float distanceTravelled;
     private float lifetime;
     private int index;
@@ -152,6 +153,22 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         this.speed = speed;
     }
 
+    public void setMinSpeed(float minSpeed) {
+        this.minSpeed = minSpeed;
+    }
+
+    public void setMaxSpeed(float maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    public float getMinSpeed() {
+        return minSpeed;
+    }
+
+    public float getMaxSpeed() {
+        return maxSpeed;
+    }
+
     public float getDistanceTravelled() {
         return distanceTravelled;
     }
@@ -225,6 +242,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         age += dt;
 
         speed += type.acceleration() * dt;
+        speed = MathUtils.clamp(speed, minSpeed, maxSpeed);
         distanceTravelled += speed * dt;
 
         float[] pathOffset = path.getOffset(this, distanceTravelled);
@@ -277,6 +295,8 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         index = 0;
         distanceTravelled = 0f;
         speed = 0f;
+        minSpeed = 0f;
+        maxSpeed = 0f;
         angle = 0f;
         parent = null;
         setDead(false);

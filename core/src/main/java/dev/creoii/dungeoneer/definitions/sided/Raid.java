@@ -215,6 +215,8 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         poolBullet.setStartPos(x, y);
         poolBullet.setStartDirection(dirX, dirY);
         poolBullet.setSpeed(bullet.speed());
+        poolBullet.setMinSpeed(bullet.minSpeed());
+        poolBullet.setMaxSpeed(bullet.maxSpeed());
         poolBullet.setLifetime(bullet.lifetime());
         poolBullet.setIndex(index);
         if (poolBullet.getPath() instanceof OrbitBulletPathType.OrbitBulletPathInstance instance) {
