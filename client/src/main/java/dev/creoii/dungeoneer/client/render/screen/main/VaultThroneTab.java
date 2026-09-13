@@ -128,16 +128,7 @@ public class VaultThroneTab extends Tab {
         center.add(classIcons[2]).size(120).row();
         center.add(classLabel).padTop(10).row();
         center.add(equipment).padTop(10).row();
-        center.add(statsTable).padTop(10);
-        center.add();
-
-        carousel.add(classIcons[0]).size(96).expandX().pad(10);
-        carousel.add(classIcons[1]).size(96).expandX().pad(10);
-        carousel.add(center).expandX().pad(20);
-        carousel.add(classIcons[3]).size(96).expandX().pad(10);
-        carousel.add(classIcons[4]).size(96).expandX().pad(10);
-
-        add(carousel).growX().height(200).padBottom(20).row();
+        center.add(statsTable).padTop(10).row();
 
         createCharacterButton = new TextButton("Create Character", getSkin());
         createCharacterButton.addListener(new ChangeListener() {
@@ -147,7 +138,15 @@ public class VaultThroneTab extends Tab {
                 else getClient().get().sendTCP(new DeleteCharacterC2S(getClient().getState().getAccount().id(), classIndex));
             }
         });
-        add(createCharacterButton);
+        center.add(createCharacterButton);
+
+        carousel.add(classIcons[0]).size(96).expandX().pad(10);
+        carousel.add(classIcons[1]).size(96).expandX().pad(10);
+        carousel.add(center).expandX().pad(20);
+        carousel.add(classIcons[3]).size(96).expandX().pad(10);
+        carousel.add(classIcons[4]).size(96).expandX().pad(10);
+
+        add(carousel).growX().height(200).padBottom(20).row();
     }
 
     public void select(int selectedIndex) {
@@ -204,10 +203,14 @@ public class VaultThroneTab extends Tab {
     }
 
     private void updateEquipment() {
-        Inventory inventory = characters.get(classIndex).equipment();
-        if (inventory.isEmpty())
-            return;
-        equipment.refresh(inventory);
+        CharacterDefinition selected = characters.get(classIndex);
+        if (selected != null) {
+            equipment.setVisible(true);
+            Inventory inventory = selected.equipment();
+            if (inventory.isEmpty())
+                return;
+            equipment.refresh(inventory);
+        } else equipment.setVisible(false);
     }
 
     private void updateSelectedCharacter() {
@@ -216,15 +219,13 @@ public class VaultThroneTab extends Tab {
             createCharacterButton.setText("Delete Character");
             classLabel.setText(classIndex + ": " + selected.characterClass().id());
             statsTable.setVisible(true);
-            updateEquipment();
-            updateStatsTable();
         } else {
             createCharacterButton.setText("Create Character");
             classLabel.setText(classIndex + ": Empty");
             statsTable.setVisible(false);
-            updateEquipment();
-            updateStatsTable();
         }
+        updateEquipment();
+        updateStatsTable();
 
         getClient().getState().setActiveCharacter(selected);
         updateCharacterDisplay();
