@@ -106,10 +106,4 @@ public class EquipmentInventory extends Inventory {
         UUID uuid = getModifierUuid(index, type);
         character.getStats().applyModifier(new ModifierEntry(type, uuid, amount, ModifierEntry.Operation.ADD, ModifierEntry.ModifierType.BASE));
     }
-
-    public void clearModifiers() {
-        for (int i = 0; i < size(); i++) {
-            removeModifiers(i);
-        }
-    }
 }

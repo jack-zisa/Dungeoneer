@@ -36,6 +36,7 @@ public class Assets implements Disposable {
     public static final NinePatch TAB_SELECTED_9PATCH = new NinePatch(new Texture("textures/ui/tab_selected.png"), 2, 2, 2,2);
     public static final NinePatch HEALTH_BAR_9PATCH = new NinePatch(new Texture("textures/ui/health_bar.png"), 4, 4, 4,4);
     public static final NinePatch HEALTH_BAR_EMPTY_9PATCH = new NinePatch(new Texture("textures/ui/health_bar_empty.png"), 4, 4, 4,4);
+    public static final NinePatch SECTION_9PATCH = new NinePatch(new Texture("textures/ui/section_background.png"), 1, 1, 1, 1);
 
     public static final ShaderProgram BORDER_SHADER = new ShaderProgram(Gdx.files.internal("shaders/border.vert"), Gdx.files.internal("shaders/border.frag"));
 
@@ -157,5 +158,6 @@ public class Assets implements Disposable {
     static {
         TAB_9PATCH.scale(4f, 4f);
         TAB_SELECTED_9PATCH.scale(4f, 4f);
+        SECTION_9PATCH.scale(4f, 4f);
     }
 }

@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
+import dev.creoii.dungeoneer.client.render.screen.StatsDisplay;
 import dev.creoii.dungeoneer.client.render.screen.game.InventoryWidget;
 import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
@@ -26,7 +27,7 @@ public class VaultThroneTab extends Tab {
     private CheckBox favoriteButton;
     private Label classLabel;
     private InventoryWidget equipment;
-    private Table statsTable;
+    private StatsDisplay stats;
     private Stack[] classIcons;
     private Table carousel;
     private TextButton createCharacterButton;
@@ -70,7 +71,7 @@ public class VaultThroneTab extends Tab {
         });
         classLabel = new Label("", getSkin());
         equipment = new InventoryWidget(getClient(), getClient().getState().getActiveCharacter().isNull() ? new Inventory(4) : getClient().getState().getActiveCharacter().getEquipment(), 4);
-        statsTable = new Table();
+        stats = new StatsDisplay(null, null);
 
         for (int i = 0; i < classIcons.length; i++) {
             classIcons[i] = new Stack();
@@ -126,11 +127,11 @@ public class VaultThroneTab extends Tab {
         center.setBackground(new NinePatchDrawable(Assets.TAB_9PATCH));
         center.add(favoriteButton).size(16f, 16f).left().row();
         center.add(classIcons[2]).size(120).row();
-        center.add(classLabel).padTop(10).row();
-        center.add(equipment).padTop(10).row();
-        center.add(statsTable).padTop(10).row();
+        center.add(classLabel).padTop(8f).row();
+        center.add(equipment).padTop(8f).row();
+        center.add(stats).padTop(8f).row();
 
-        createCharacterButton = new TextButton("Create Character", getSkin());
+        createCharacterButton = new TextButton("Create", getSkin());
         createCharacterButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -138,7 +139,7 @@ public class VaultThroneTab extends Tab {
                 else getClient().get().sendTCP(new DeleteCharacterC2S(getClient().getState().getAccount().id(), classIndex));
             }
         });
-        center.add(createCharacterButton);
+        center.add(createCharacterButton).padTop(8f);
 
         carousel.add(classIcons[0]).size(96).expandX().pad(10);
         carousel.add(classIcons[1]).size(96).expandX().pad(10);
@@ -182,16 +183,11 @@ public class VaultThroneTab extends Tab {
     }
 
     private void updateStatsTable() {
-        statsTable.clearChildren();
-
         ClientCharacter selected = getSelectedCharacter();
         if (selected != null && !selected.isNull()) {
             StatContainer baseStats = selected.get().characterClass().baseStats();
-            statsTable.add(new Label(String.format("Max HP: %,d", (int) baseStats.health().base()), getSkin())).row();
-            statsTable.add(new Label(String.format("DEF: %,d", (int) baseStats.defense().base()), getSkin()));
-            statsTable.add(new Label(String.format("SPD: %,d", (int) baseStats.speed().base()), getSkin())).row();
-            statsTable.add(new Label(String.format("DEX: %,d", (int) baseStats.dexterity().base()), getSkin()));
-            statsTable.add(new Label(String.format("VIT: %,d", (int) baseStats.vitality().base()), getSkin())).row();
+            StatContainer maxStats = selected.get().characterClass().maxStats();
+            stats.refresh(baseStats, maxStats);
         }
     }
 
@@ -205,18 +201,19 @@ public class VaultThroneTab extends Tab {
     }
 
     private void updateSelectedCharacter() {
-        ClientCharacter selected = getSelectedCharacter();
-        if (selected != null && !selected.isNull()) {
-            createCharacterButton.setText("Delete Character");
-            classLabel.setText(classIndex + ": " + selected.get().characterClass().id());
-            statsTable.setVisible(true);
-        } else {
-            createCharacterButton.setText("Create Character");
-            classLabel.setText(classIndex + ": Empty");
-            statsTable.setVisible(false);
-        }
         updateEquipment();
         updateStatsTable();
+
+        ClientCharacter selected = getSelectedCharacter();
+        if (selected != null && !selected.isNull()) {
+            createCharacterButton.setText("Delete");
+            classLabel.setText(classIndex + ": " + selected.get().characterClass().id());
+            stats.setVisible(true);
+        } else {
+            createCharacterButton.setText("Create");
+            classLabel.setText(classIndex + ": Empty");
+            stats.setVisible(false);
+        }
 
         getClient().getState().setActiveCharacter(classIndex);
         updateCharacterDisplay();
@@ -250,7 +247,7 @@ public class VaultThroneTab extends Tab {
         ClientCharacter selected = getClient().getState().getCharacter(center);
         favoriteButton.setDisabled(clientCharacters.stream().filter(Objects::nonNull).count() < 2 || selected.isNull());
         favoriteButton.setChecked(favoriteCharacterIndex != -1 && classIndex == favoriteCharacterIndex);
-        createCharacterButton.setText(getSelectedCharacter().isNull() ? "Create Character" : "Delete Character");
+        createCharacterButton.setText(getSelectedCharacter().isNull() ? "Create" : "Delete");
         classLabel.setText(selected.isNull() ? "Empty" : selected.get().characterClass().id());
 
         for (int i = 0; i < classIcons.length; i++) {

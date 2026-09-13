@@ -69,7 +69,19 @@ public class Stat {
                 case MULTIPLY -> result *= mod.amount();
             }
         }
-        return Math.max(0, result);
+        return result;
+    }
+
+    public float modifier() {
+        float result = base;
+        for (ModifierEntry mod : modifiers.values()) {
+            switch (mod.operation()) {
+                case ADD -> result += mod.amount();
+                case SET -> result = mod.amount();
+                case MULTIPLY -> result *= mod.amount();
+            }
+        }
+        return result - base;
     }
 
     @Override
@@ -78,12 +90,21 @@ public class Stat {
     }
 
     public enum Type {
-        HEALTH,
-        DEFENSE,
-        SPEED,
-        DEXTERITY,
-        VITALITY;
+        HEALTH("Max HP"),
+        DEFENSE("DEF"),
+        SPEED("SPD"),
+        DEXTERITY("DEX"),
+        VITALITY("VIT");
 
         public static final Codec<Type> CODEC = Codec.STRING.xmap(s -> Type.valueOf(s.toUpperCase()), type -> type.name().toLowerCase());
+        private final String prefix;
+
+        Type(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
     }
 }

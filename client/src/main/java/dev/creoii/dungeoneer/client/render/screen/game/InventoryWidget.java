@@ -7,21 +7,21 @@ import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 
 public class InventoryWidget extends Table {
     private final Dungeoneer client;
+    private final SlotWidget[] slots;
 
     public InventoryWidget(Dungeoneer client, Inventory inventory, int columns) {
         this.client = client;
-        for (int i = 0; i < inventory.size(); ++i) {
-            SlotWidget slotWidget = new SlotWidget(client, inventory.getSlot(i));
-            add(slotWidget);
-            if (i % columns == columns - 1) {
-                padRight(8f);
-                row();
-            }
+        this.slots = new SlotWidget[inventory.size()];
+
+        for (int i = 0; i < inventory.size(); i++) {
+            SlotWidget slotWidget = slots[i] = new SlotWidget(client, inventory.getSlot(i));
+
+            add(slotWidget).size(64f);
+
+            if (i % columns != columns - 1) {
+                getCell(slotWidget);
+            } else row();
         }
-
-        padBottom(8f);
-
-        pack();
     }
 
     public Dungeoneer getClient() {
@@ -29,14 +29,13 @@ public class InventoryWidget extends Table {
     }
 
     public void refresh(Inventory inventory) {
-        for (int i = 0; i < getChildren().size; ++i) {
-            SlotWidget slotWidget = (SlotWidget) getChild(i);
+        for (int i = 0; i < slots.length; i++) {
+            SlotWidget slotWidget = slots[i];
             Slot slot = inventory.getSlot(i);
-            if (slot == null)
-                continue;
             slotWidget.getSlot().setSlotType(slot.getSlotType());
             slotWidget.getSlot().setItem(slot.getItem(), slot.getCount());
+            slotWidget.refresh();
         }
-        invalidate();
+        invalidateHierarchy();
     }
 }
