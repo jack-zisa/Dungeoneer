@@ -5,6 +5,9 @@ import dev.creoii.dungeoneer.definitions.sided.Entity;
 
 import java.util.Random;
 
+/**
+ * Stop! Don't look at this! Let's just trust that it will work, okay! No exceptions here!
+ */
 public enum DataType implements Converter {
     INTEGER {
         @Override
