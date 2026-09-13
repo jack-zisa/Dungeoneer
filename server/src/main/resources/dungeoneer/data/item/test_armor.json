@@ -1,6 +1,7 @@
 {
   "type": "armor",
   "equipment_type": "heavy_armor",
+  "display_name": "Test Armor",
   "stat_bonus": {
     "health": 1000,
     "speed": -50,

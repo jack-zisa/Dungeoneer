@@ -8,8 +8,9 @@ import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.item.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.util.Constants;
-import dev.creoii.dungeoneer.util.RemovalReason;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.event.DamageEvents;
 import dev.creoii.dungeoneer.util.event.HealEvents;
@@ -17,8 +18,11 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Random;
 
 public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
+    Random random();
+
     int getConnectionId();
 
     CharacterDefinition get();
@@ -113,7 +117,13 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity {
 
                     if (willHitWallRightAway(raid.getDungeonMap(), x, y, rotatedX, rotatedY)) continue;
 
-                    raid.addBullet(x, y, rotatedX, rotatedY, bullet, i + indexOffset, false);
+                    Context context = new Context()
+                        .set(ValueType.RANDOM, random())
+                        .set(ValueType.POSITION, new Vector2(getX(), getY()))
+                        .set(ValueType.CHARACTER, this)
+                        .set(ValueType.HEALTH, getStats().health().value());
+
+                    raid.addBullet(getEquipment().getWeapon().damage().get(context).intValue(), x, y, rotatedX, rotatedY, bullet, i + indexOffset, false);
                     success = true;
                 }
                 return success;

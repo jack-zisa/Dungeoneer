@@ -8,4 +8,8 @@ public final class StatUtils {
     public static float getCalculatedAttackSpeed(float attackSpeed) {
         return 1000f / (1.5f + 6.5f * (attackSpeed / 75f));
     }
+
+    public static float getHealthRegeneration(float vitality) {
+        return 2f + .2407f * vitality;
+    }
 }

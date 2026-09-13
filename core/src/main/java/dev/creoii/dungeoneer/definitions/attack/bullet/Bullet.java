@@ -4,7 +4,16 @@ import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 
 public class Bullet extends BulletNode<SingleBulletType> implements Pool.Poolable {
+    private int damage;
     private boolean enemy;
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
 
     public void setEnemy(boolean enemy) {
         this.enemy = enemy;
@@ -27,6 +36,7 @@ public class Bullet extends BulletNode<SingleBulletType> implements Pool.Poolabl
     @Override
     public void reset() {
         super.reset();
+        damage = 0;
         enemy = false;
     }
 }

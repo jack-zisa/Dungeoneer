@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.util.action;
 
 import com.mojang.serialization.Codec;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public interface Action extends Identifiable {

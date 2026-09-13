@@ -17,8 +17,7 @@ public class ServerBullet extends Bullet {
         if (other instanceof Character<?> character) {
             if (!HitEvents.PRE.invoker().onPreHit(character, this, raid))
                 return;
-            int damage = 5;
-            if (character.damage(damage)) {
+            if (character.damage(getDamage())) {
                 HitEvents.POST.invoker().onPostHit(character, this, raid);
             }
         }

@@ -1,5 +1,7 @@
 package dev.creoii.dungeoneer.util.provider;
 
-public interface Provider<T, C extends ProviderContext> {
-    T get(C context);
+import dev.creoii.dungeoneer.util.Context;
+
+public interface Provider<T> {
+    T get(Context context);
 }

@@ -7,11 +7,12 @@ import dev.creoii.dungeoneer.util.action.Action;
 import dev.creoii.dungeoneer.util.action.EmptyAction;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 
-public record AbilityItem(String id, EquipmentType equipmentType, StatContainer statBonus, Action activate) implements EquipmentItem {
+public record AbilityItem(String id, EquipmentType equipmentType, String displayName, StatContainer statBonus, Action activate) implements EquipmentItem {
     public static final MapCodec<AbilityItem> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> {
         return instance.group(
             Identifiable.idField(),
             EquipmentItem.equipmentTypeField(Type.ABILITY),
+            Item.displayNameField(),
             EquipmentItem.statBonusField(),
             Action.CODEC.optionalFieldOf("action", EmptyAction.INSTANCE).forGetter(AbilityItem::activate)
         ).apply(instance, AbilityItem::new);
@@ -24,6 +25,6 @@ public record AbilityItem(String id, EquipmentType equipmentType, StatContainer 
 
     @Override
     public Identifiable withId(String id) {
-        return new AbilityItem(id, equipmentType, statBonus, activate);
+        return new AbilityItem(id, equipmentType, displayName, statBonus, activate);
     }
 }

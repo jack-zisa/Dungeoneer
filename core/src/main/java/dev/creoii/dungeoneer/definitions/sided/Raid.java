@@ -16,8 +16,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.Random;
 
 public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character, D extends DungeonMap> {
+    private final Random random;
     private RaidDefinition raid;
     private Status status;
     private final D dungeonMap;
@@ -30,10 +32,15 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     private int nextBulletId = 0;
 
     public Raid(RaidDefinition raid, D dungeonMap) {
+        random = new Random(0);
         this.raid = raid;
         this.dungeonMap = dungeonMap;
         status = Status.WAITING;
         characters = new Long2ObjectArrayMap<>();
+    }
+
+    public Random getRandom() {
+        return random;
     }
 
     public RaidDefinition get() {
@@ -45,7 +52,11 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
 
         if (raid != null) {
             endTime = System.currentTimeMillis() + Constants.RAID_DURATION_MS;
-        } else endTime = -1L;
+            random.setSeed(raid.id());
+        } else {
+            endTime = -1L;
+            random.setSeed(0);
+        }
     }
 
     public Status getStatus() {
@@ -114,7 +125,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         Duration duration = Duration.ofMillis(getRemainingTimeMs()); // TODO: Remove as this is just testing
         if (duration.toSecondsPart() % 2 == 0) {
             Vector2 spawnPos = dungeonMap.getTemplate().spawnPos();
-            addBullet(spawnPos.x * 8f, spawnPos.y * 8f, 1f, 0f, DataManager.getBullet("fire_shot"), 0, true);
+            addBullet(10, spawnPos.x * 8f, spawnPos.y * 8f, 1f, 0f, DataManager.getBullet("fire_shot"), 0, true);
         }
 
         Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();
@@ -158,21 +169,21 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     @SuppressWarnings("unchecked")
-    public void addBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
-        BulletNode<?> poolBullet = createHierarchy(x, y, dirX, dirY, bullet, index, enemy, 1);
+    public void addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
+        BulletNode<?> poolBullet = createHierarchy(damage, x, y, dirX, dirY, bullet, index, enemy, 1);
         if (bullet instanceof SingleBulletType) {
             bullets.put(nextBulletId++, (B) poolBullet);
         } else bulletGroups.put(nextBulletId++, (BG) poolBullet);
     }
 
-    private BulletNode<?> createHierarchy(float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
-        BulletNode<?> node = createBullet(x, y, dirX, dirY, bullet, index, enemy, siblings);
+    private BulletNode<?> createHierarchy(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
+        BulletNode<?> node = createBullet(damage, x, y, dirX, dirY, bullet, index, enemy, siblings);
         if (node instanceof BulletGroup group) {
             GroupBulletType def = (GroupBulletType) bullet;
             int nodeSiblings = def.children().size();
             for (int i = 0; i < nodeSiblings; i++) {
                 GroupBulletType.Child childDef = def.children().get(i);
-                BulletNode<?> child = createHierarchy(x, y, dirX, dirY, childDef.definition(), i, enemy, nodeSiblings);
+                BulletNode<?> child = createHierarchy(damage, x, y, dirX, dirY, childDef.definition(), i, enemy, nodeSiblings);
                 child.setOffset(childDef.offset().x, childDef.offset().y);
                 child.setParent(group);
                 group.addChild(child);
@@ -182,16 +193,18 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     @SuppressWarnings("unchecked")
-    public BulletNode<?> createBullet(float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
+    public BulletNode<?> createBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
         BulletNode<?> poolBullet;
         if (bullet instanceof SingleBulletType singleBulletType) {
             poolBullet = getBulletPool().obtain();
+            ((Bullet) poolBullet).setDamage(damage);
             ((Bullet) poolBullet).setEnemy(enemy);
             ((BulletNode<SingleBulletType>) poolBullet).setType(singleBulletType);
         } else {
             poolBullet = getBulletGroupPool().obtain();
             ((BulletNode<GroupBulletType>) poolBullet).setType((GroupBulletType) bullet);
         }
+
         poolBullet.setStartPos(x, y);
         poolBullet.setStartDirection(dirX, dirY);
         poolBullet.setSpeed(bullet.speed());

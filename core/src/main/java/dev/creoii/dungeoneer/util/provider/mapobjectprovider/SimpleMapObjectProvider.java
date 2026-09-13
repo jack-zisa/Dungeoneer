@@ -5,8 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.map.tile.MapObject;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
-import dev.creoii.dungeoneer.util.provider.MapObjectContext;
 
 public record SimpleMapObjectProvider(String id, MapObject value) implements MapObjectProvider {
     public static final SimpleMapObjectProvider EMPTY = new SimpleMapObjectProvider("empty", DataManager.getMapObject("short_grass"));
@@ -23,7 +23,7 @@ public record SimpleMapObjectProvider(String id, MapObject value) implements Map
     }
 
     @Override
-    public MapObject get(MapObjectContext context) {
+    public MapObject get(Context context) {
         return value;
     }
 

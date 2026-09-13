@@ -1,13 +1,15 @@
 package dev.creoii.dungeoneer.util.provider.tileprovider;
 
+import com.badlogic.gdx.math.Vector2;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
+import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.noise.FastNoiseLite;
 import dev.creoii.dungeoneer.util.noise.FastNoiseParameters;
-import dev.creoii.dungeoneer.util.provider.TileContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -57,14 +59,17 @@ public class NoiseTileProvider implements TileProvider {
 
     @Override
     @Nullable
-    public Tile get(TileContext context) {
-        noise.seed(context.seed());
-        float value = noise.getNoise(context.x(), context.y());
-        for (Entry entry : entries) {
-            if (value <= entry.max()) {
-                Tile tile = entry.tile().get(context);
-                if (tile != null) {
-                    return tile;
+    public Tile get(Context context) {
+        if (context.has(ValueType.SEED, ValueType.POSITION)) {
+            noise.seed(context.get(ValueType.SEED));
+            Vector2 pos = context.get(ValueType.POSITION);
+            float value = noise.getNoise(pos.x, pos.y);
+            for (Entry entry : entries) {
+                if (value <= entry.max()) {
+                    Tile tile = entry.tile().get(context);
+                    if (tile != null) {
+                        return tile;
+                    }
                 }
             }
         }

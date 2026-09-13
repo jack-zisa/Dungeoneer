@@ -5,11 +5,10 @@ import com.mojang.serialization.Codec;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.provider.Provider;
-import dev.creoii.dungeoneer.util.provider.TileContext;
 
 import java.util.function.Function;
 
-public interface TileProvider extends Provider<Tile, TileContext>, Identifiable {
+public interface TileProvider extends Provider<Tile>, Identifiable {
     Codec<TileProvider> TYPE_CODEC = Type.CODEC.dispatch(TileProvider::getType, type -> switch (type) {
         case SIMPLE -> SimpleTileProvider.CODEC;
         case RANDOM -> RandomTileProvider.CODEC;

@@ -22,14 +22,17 @@ import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
-import dev.creoii.dungeoneer.util.action.Context;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Random;
+
 public class ClientCharacter implements Character<ClientRaid>, Renderable {
+    private final Random random;
     private final Dungeoneer client;
     @Nullable private CharacterDefinition character;
     private Sprite sprite;
@@ -48,12 +51,9 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private boolean dead;
 
     public ClientCharacter(Dungeoneer client, @Nullable CharacterDefinition character) {
+        this.random = new Random();
         this.client = client;
         this.character = character;
-
-        if (character == null) sprite = null;
-        else sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
-
         pos = VectorUtils.zero();
         renderPos = VectorUtils.zero();
         velocity = VectorUtils.zero();
@@ -61,15 +61,23 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             stats = StatContainer.ZERO.copy();
             maxStats = StatContainer.ZERO.copy();
             equipment = EquipmentInventory.createEmpty(this);
+            random.setSeed(0);
         } else {
+            sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             stats = character.characterClass().baseStats().copy();
             maxStats = character.characterClass().maxStats().copy();
             equipment = new EquipmentInventory(this, character.characterClass().equipment(), character.equipment());
+            random.setSeed(character.id());
         }
         correction = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
         animationState = AnimationState.IDLE_DOWN;
         dead = false;
+    }
+
+    @Override
+    public Random random() {
+        return Dungeoneer.RANDOM;
     }
 
     @Override
@@ -97,11 +105,13 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             setEquipment(null);
             stats.set(StatContainer.ZERO.copy());
             maxStats.set(StatContainer.ZERO.copy());
+            random.setSeed(0);
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             setEquipment(new EquipmentInventory(this, character.characterClass().equipment(), character.equipment()));
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
+            random.setSeed(character.id());
         }
     }
 

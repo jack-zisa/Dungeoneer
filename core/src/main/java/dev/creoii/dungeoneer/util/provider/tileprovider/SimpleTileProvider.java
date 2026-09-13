@@ -5,8 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
-import dev.creoii.dungeoneer.util.provider.TileContext;
 
 public record SimpleTileProvider(String id, Tile value) implements TileProvider {
     public static final SimpleTileProvider EMPTY = new SimpleTileProvider("empty", DataManager.getTile("air"));
@@ -23,7 +23,7 @@ public record SimpleTileProvider(String id, Tile value) implements TileProvider 
     }
 
     @Override
-    public Tile get(TileContext context) {
+    public Tile get(Context context) {
         return value;
     }
 

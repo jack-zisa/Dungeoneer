@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.definitions.item;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.util.Identifiable;
 
@@ -9,6 +10,8 @@ import java.util.function.Function;
 
 public sealed interface Item extends Identifiable permits EquipmentItem, ConsumableItem {
     Type type();
+
+    String displayName();
 
     boolean equippable();
 
@@ -24,6 +27,10 @@ public sealed interface Item extends Identifiable permits EquipmentItem, Consuma
     Codec<Item> EITHER_CODEC = Codec.either(Codec.STRING, CODEC).xmap(either -> {
         return either.map(DataManager::getItem, Function.identity());
     }, Either::right);
+
+    static <T extends Item> RecordCodecBuilder<T, String> displayNameField() {
+        return Codec.STRING.fieldOf("display_name").forGetter(Item::displayName);
+    }
 
     enum Type {
         WEAPON,

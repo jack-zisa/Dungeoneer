@@ -1,6 +1,7 @@
 {
   "type": "ability",
   "equipment_type": "shield",
+  "display_name": "Test Ability",
   "stat_bonus": {
     "health": 100,
     "speed": 50,

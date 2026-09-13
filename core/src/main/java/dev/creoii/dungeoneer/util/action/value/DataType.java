@@ -1,6 +1,9 @@
 package dev.creoii.dungeoneer.util.action.value;
 
+import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.definitions.sided.Entity;
+
+import java.util.Random;
 
 public enum DataType implements Converter {
     INTEGER {
@@ -61,6 +64,18 @@ public enum DataType implements Converter {
         @Override
         public Character convert(Object input) {
             return (Character) input;
+        }
+    },
+    VEC2 {
+        @Override
+        public Vector2 convert(Object input) {
+            return (Vector2) input;
+        }
+    },
+    RANDOM {
+        @Override
+        public Random convert(Object input) {
+            return (Random) input;
         }
     }
 }

@@ -1,6 +1,7 @@
 {
   "type": "accessory",
   "equipment_type": "ring",
+  "display_name": "Test Accessory",
   "stat_bonus": {
     "health": 500,
     "vitality": 100

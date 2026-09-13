@@ -14,7 +14,7 @@ import dev.creoii.dungeoneer.network.s2c.raid.MoveCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
-import dev.creoii.dungeoneer.util.action.Context;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.event.MoveEvents;
@@ -25,8 +25,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ServerCharacter implements Character<ServerRaid> {
+    private final Random random;
     private final int connectionId;
     private final CharacterDefinition character;
     private final float[] pos;
@@ -44,6 +46,7 @@ public class ServerCharacter implements Character<ServerRaid> {
     private boolean dead;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
+        random = new Random(character.id());
         this.connectionId = connectionId;
         this.character = character;
         pos = VectorUtils.zero();
@@ -56,6 +59,11 @@ public class ServerCharacter implements Character<ServerRaid> {
         statusEffects = new Long2ObjectArrayMap<>();
         expiredEffects = new ArrayList<>();
         dead = false;
+    }
+
+    @Override
+    public Random random() {
+        return random;
     }
 
     @Override
@@ -254,6 +262,9 @@ public class ServerCharacter implements Character<ServerRaid> {
                 pendingStatusEffectRemoves = 0L;
             }
         }
+
+        float regeneration = StatUtils.getHealthRegeneration(stats.vitality().value());
+        heal((int) (regeneration * dt));
 
         Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
             .set(ValueType.CHARACTER, this)

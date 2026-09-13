@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.util.action;
+package dev.creoii.dungeoneer.util;
 
 import dev.creoii.dungeoneer.util.action.value.ObjectValue;
 import dev.creoii.dungeoneer.util.action.value.Value;

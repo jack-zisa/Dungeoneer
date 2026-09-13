@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.util.action;
 
 import com.mojang.serialization.MapCodec;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 public record EmptyAction(String id) implements Action {
