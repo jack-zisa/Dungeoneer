@@ -109,7 +109,7 @@ public class ServerRaid extends Raid<ServerBullet, BulletGroup, ServerCharacter,
                 // Sync raid timer
                 if (timer <= 0f) {
                     timer += SYNC_INTERVAL;
-                    server.get().sendToUDP(server.getSessionManager().getAccountConnections().get(character.get().accountId()), new SyncRaidTimerS2C(getRemainingTimeMs()));
+                    server.get().sendToUDP(character.getConnectionId(), new SyncRaidTimerS2C(getRemainingTimeMs()));
                 }
                 character.tick(dt);
             }

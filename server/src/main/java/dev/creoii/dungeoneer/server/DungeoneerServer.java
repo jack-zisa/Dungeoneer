@@ -28,6 +28,7 @@ public class DungeoneerServer {
     private final ServerState state;
     private volatile Status status;
     private volatile boolean running = true;
+    private long serverTime;
     private final Thread gameThread;
     private final ServerProperties properties;
     private final ServerSecrets secrets;
@@ -85,6 +86,10 @@ public class DungeoneerServer {
         return state;
     }
 
+    public long getServerTime() {
+        return serverTime;
+    }
+
     public ServerProperties getProperties() {
         return properties;
     }
@@ -118,6 +123,8 @@ public class DungeoneerServer {
             while (running) {
                 if (status.shouldTick()) {
                     long start = System.currentTimeMillis();
+
+                    serverTime++;
 
                     Iterator<ServerRaid> iterator = state.getRaids().values().iterator();
                     while (iterator.hasNext()) {

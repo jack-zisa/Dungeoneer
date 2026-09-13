@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import org.jspecify.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -24,6 +23,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     private Status status;
     private final D dungeonMap;
     private final Long2ObjectArrayMap<C> characters;
+    private long raidTime;
     private long endTime;
 
     private final Int2ObjectArrayMap<B> bullets = new Int2ObjectArrayMap<>();
@@ -109,6 +109,10 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         return raid == null;
     }
 
+    public long getRaidTime() {
+        return raidTime;
+    }
+
     public long getRemainingTimeMs() {
         return Math.max(0, endTime - System.currentTimeMillis());
     }
@@ -122,10 +126,11 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     public void update(float dt) {
-        Duration duration = Duration.ofMillis(getRemainingTimeMs()); // TODO: Remove as this is just testing
-        if (duration.toSecondsPart() % 2 == 0) {
-            Vector2 spawnPos = dungeonMap.getTemplate().spawnPos();
-            addBullet(10, spawnPos.x * 8f, spawnPos.y * 8f, 1f, 0f, DataManager.getBullet("fire_shot"), 0, true);
+        ++raidTime;
+
+        if (getRaidTime() % 10 == 0) { // TODO: Remove as this is just testing
+            Vector2 spawnPos = getDungeonMap().getTemplate().spawnPos();
+            addBullet(10, spawnPos.x * 8f, spawnPos.y * 8f, MathUtils.cos(getRaidTime() * .5f), MathUtils.sin(getRaidTime() * .5f), DataManager.getBullet("fire_shot"), 0, true);
         }
 
         Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();
@@ -169,11 +174,11 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     @SuppressWarnings("unchecked")
-    public void addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
+    public BulletNode<?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
         BulletNode<?> poolBullet = createHierarchy(damage, x, y, dirX, dirY, bullet, index, enemy, 1);
         if (bullet instanceof SingleBulletType) {
-            bullets.put(nextBulletId++, (B) poolBullet);
-        } else bulletGroups.put(nextBulletId++, (BG) poolBullet);
+            return bullets.put(nextBulletId++, (B) poolBullet);
+        } else return bulletGroups.put(nextBulletId++, (BG) poolBullet);
     }
 
     private BulletNode<?> createHierarchy(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {

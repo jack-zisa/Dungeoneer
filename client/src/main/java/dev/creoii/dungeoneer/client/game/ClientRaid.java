@@ -90,14 +90,14 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
 
     public void update(float dt) {
         if (getStatus() == Status.ACTIVE) {
-            if (client.getScreen() instanceof GameScreen gameScreen) {
-                long remaining = getRemainingTimeMs();
-                if (remaining <= 0L) {
-                    client.getState().getCurrentRaid().setStatus(Raid.Status.END);
-                    client.getState().setStatus(ClientState.Status.RAID_END);
-                    end();
-                    Gdx.app.postRunnable(() -> client.setScreen(new RaidEndScreen(client)));
-                } else gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
+            long remaining = getRemainingTimeMs();
+            if (remaining <= 0L) {
+                client.getState().getCurrentRaid().setStatus(Raid.Status.END);
+                client.getState().setStatus(ClientState.Status.RAID_END);
+                end();
+                Gdx.app.postRunnable(() -> client.setScreen(new RaidEndScreen(client)));
+            } else if (client.getScreen() instanceof GameScreen gameScreen) {
+                gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
             }
 
             super.update(dt);

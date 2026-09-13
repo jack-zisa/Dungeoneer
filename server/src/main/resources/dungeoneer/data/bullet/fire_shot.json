@@ -1,7 +1,7 @@
 {
   "type": "single",
   "speed": 50,
-  "acceleration": 200,
+  "acceleration": 120,
   "lifetime": 2,
   "scale": 1.5,
   "angle_offset": -45,
