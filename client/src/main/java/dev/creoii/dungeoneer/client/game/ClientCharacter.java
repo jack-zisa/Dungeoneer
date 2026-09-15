@@ -22,7 +22,7 @@ import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
-import dev.creoii.dungeoneer.util.Context;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Random;
 
 public class ClientCharacter implements Character<ClientRaid>, Renderable {
-    private final Random random;
+    private final Context context;
     private final Dungeoneer client;
     @Nullable private CharacterDefinition character;
     private Sprite sprite;
@@ -51,7 +51,10 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private boolean dead;
 
     public ClientCharacter(Dungeoneer client, @Nullable CharacterDefinition character) {
-        this.random = new Random();
+        context = new Context();
+        context.set(ValueType.RANDOM, new Random());
+        context.set(ValueType.ENTITY, this);
+        context.set(ValueType.POSITION, new Vector2());
         this.client = client;
         this.character = character;
         pos = VectorUtils.zero();
@@ -61,13 +64,14 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             stats = StatContainer.ZERO.copy();
             maxStats = StatContainer.ZERO.copy();
             equipment = EquipmentInventory.createEmpty(this);
-            random.setSeed(0);
+            random().setSeed(0);
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             stats = character.characterClass().baseStats().copy();
             maxStats = character.characterClass().maxStats().copy();
             equipment = new EquipmentInventory(this, character.characterClass().equipment(), character.equipment());
-            random.setSeed(character.id());
+            random().setSeed(character.id());
+            context.set(ValueType.HEALTH, stats.health().value());
         }
         correction = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
@@ -76,8 +80,13 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     @Override
+    public Context context() {
+        return context;
+    }
+
+    @Override
     public Random random() {
-        return Dungeoneer.RANDOM;
+        return context.get(ValueType.RANDOM);
     }
 
     @Override
@@ -105,13 +114,14 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             setEquipment(null);
             stats.set(StatContainer.ZERO.copy());
             maxStats.set(StatContainer.ZERO.copy());
-            random.setSeed(0);
+            random().setSeed(0);
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             setEquipment(new EquipmentInventory(this, character.characterClass().equipment(), character.equipment()));
             stats.set(character.characterClass().baseStats());
             maxStats.set(character.characterClass().maxStats());
-            random.setSeed(character.id());
+            random().setSeed(character.id());
+            context.set(ValueType.HEALTH, stats.health().value());
         }
     }
 
@@ -177,9 +187,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     @Override
     public boolean addStatusEffect(StatusEffectInstance statusEffect) {
-        Context context = new Context()
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
         statusEffect.statusEffect().applier().apply(getRaid(), context);
         statusEffects |= 1L << DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.statusEffect().id());
         return true;
@@ -187,9 +194,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     @Override
     public boolean removeStatusEffect(StatusEffect statusEffect) {
-        Context context = new Context()
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
         statusEffect.remover().apply(getRaid(), context);
         statusEffects &= ~(1L << DataManager.getInternalId(DataManager.SchemaType.STATUS_EFFECT, statusEffect.id()));
         return true;
@@ -205,10 +209,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         long removed = remove & statusEffects;
         statusEffects |= add;
         statusEffects &= ~remove;
-
-        Context context = new Context()
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
 
         while (added != 0L) {
             int internalId = Long.numberOfTrailingZeros(added);
@@ -346,10 +346,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
         float alpha = Math.min(1f, 50f * dt);
         setRenderPos(MathUtils.lerp(getRenderX(), targetX, alpha), MathUtils.lerp(getRenderY(), targetY, alpha));
-
-        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
 
         long toTickEffects = statusEffects;
         while (toTickEffects != 0L) {

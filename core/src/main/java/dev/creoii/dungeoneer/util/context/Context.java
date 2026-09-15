@@ -1,4 +1,4 @@
-package dev.creoii.dungeoneer.util;
+package dev.creoii.dungeoneer.util.context;
 
 import dev.creoii.dungeoneer.util.action.value.ObjectValue;
 import dev.creoii.dungeoneer.util.action.value.Value;
@@ -33,6 +33,22 @@ public class Context {
 
     public Context remove(ValueType valueType) {
         values.remove(valueType);
+        return this;
+    }
+
+    public Context remove(ValueType... valueTypes) {
+        for (ValueType valueType : valueTypes) {
+            values.remove(valueType);
+        }
+        return this;
+    }
+
+    public void removeExcept(ValueType exclude) {
+        values.keySet().removeIf(valueType -> valueType != exclude);
+    }
+
+    public Context clear() {
+        values.clear();
         return this;
     }
 

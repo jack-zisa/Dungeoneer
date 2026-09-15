@@ -8,10 +8,13 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
 import dev.creoii.dungeoneer.util.VectorUtils;
+import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
+import dev.creoii.dungeoneer.util.context.Context;
 import org.jspecify.annotations.Nullable;
 
 public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?>> implements Entity<R>, Pool.Poolable {
+    private Context context;
     private T type;
     private BulletPathType.Instance<?> path;
     private final float[] pos;
@@ -32,6 +35,9 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
     @Nullable private BulletNode<?, ?> parent;
 
     public BulletNode() {
+        context = new Context();
+        context.set(ValueType.ENTITY, this);
+        context.set(ValueType.POSITION, new Vector2());
         pos = VectorUtils.zero();
         startPos = VectorUtils.zero();
         localPos = VectorUtils.zero();
@@ -41,6 +47,11 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         offset = VectorUtils.zero();
         setDead(false);
         bounds = new Rectangle(0f, 0f, 0f, 0f);
+    }
+
+    @Override
+    public Context context() {
+        return context;
     }
 
     public T getType() {
@@ -283,6 +294,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
 
     @Override
     public void reset() {
+        context.removeExcept(ValueType.ENTITY);
         setStartPos(0f, 0f);
         setLocalPos(0f, 0f);
         setStartDirection(0f, 0f);

@@ -9,7 +9,7 @@ import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.map.tile.TileSetter;
 import dev.creoii.dungeoneer.util.Codecs;
 import dev.creoii.dungeoneer.util.Constants;
-import dev.creoii.dungeoneer.util.Context;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.provider.tileprovider.SimpleTileProvider;
 import dev.creoii.dungeoneer.util.provider.tileprovider.TileProvider;

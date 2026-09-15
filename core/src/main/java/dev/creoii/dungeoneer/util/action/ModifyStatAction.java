@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
-import dev.creoii.dungeoneer.util.Context;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.stat.ModifierEntry;
@@ -20,8 +20,8 @@ public record ModifyStatAction(String id, ModifierEntry modifier) implements Act
 
     @Override
     public void apply(Raid<?, ?, ?, ?> raid, Context context) {
-        if (context.has(ValueType.CHARACTER)) {
-            Character<?> character = context.get(ValueType.CHARACTER);
+        if (context.has(ValueType.ENTITY)) {
+            Character<?> character = context.get(ValueType.ENTITY);
             character.getStats().applyModifier(modifier);
         }
     }

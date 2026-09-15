@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.util.Codecs;
-import dev.creoii.dungeoneer.util.Context;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.stat.Stat;
@@ -24,8 +24,8 @@ public record UnmodifyStatAction(String id, Stat.Type statType, UUID uuid) imple
 
     @Override
     public void apply(Raid<?, ?, ?, ?> raid, Context context) {
-        if (context.has(ValueType.CHARACTER)) {
-            Character<?> character = context.get(ValueType.CHARACTER);
+        if (context.has(ValueType.ENTITY)) {
+            Character<?> character = context.get(ValueType.ENTITY);
             character.getStats().removeModifier(statType, uuid);
         }
     }

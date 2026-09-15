@@ -3,7 +3,7 @@ package dev.creoii.dungeoneer.util.provider.numberprovider;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.creoii.dungeoneer.util.Context;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 

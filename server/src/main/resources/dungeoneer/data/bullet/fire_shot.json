@@ -5,6 +5,7 @@
   "lifetime": 2,
   "scale": 1.5,
   "angle_offset": -45,
+  "face_direction": true,
   "path": {
     "id": "fire_shot_wavy",
     "type": "wavy",

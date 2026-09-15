@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.server.game;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.util.collision.Collidable;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.event.HitEvents;
 
 public class ServerBullet extends Bullet<ServerRaid> {

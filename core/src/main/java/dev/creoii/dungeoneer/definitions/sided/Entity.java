@@ -1,12 +1,15 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
+import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.Collidable;
+import dev.creoii.dungeoneer.util.context.ContextProvider;
 import org.jspecify.annotations.Nullable;
 
-public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable {
+public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextProvider {
     float[] getPos();
 
     default float getX() {
@@ -20,6 +23,10 @@ public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable {
     default void setPos(float x, float y) {
         getPos()[0] = x;
         getPos()[1] = y;
+
+        if (context().has(ValueType.POSITION)) {
+            ((Vector2) context().get(ValueType.POSITION)).set(x, y);
+        } else context().set(ValueType.POSITION, new Vector2(x, y));
     }
 
     float getCenterX();

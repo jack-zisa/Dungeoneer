@@ -14,7 +14,7 @@ import dev.creoii.dungeoneer.network.s2c.raid.MoveCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
-import dev.creoii.dungeoneer.util.Context;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import dev.creoii.dungeoneer.util.event.MoveEvents;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Random;
 
 public class ServerCharacter implements Character<ServerRaid> {
-    private final Random random;
+    private final Context context;
     private final int connectionId;
     private final CharacterDefinition character;
     private final float[] pos;
@@ -46,7 +46,6 @@ public class ServerCharacter implements Character<ServerRaid> {
     private boolean dead;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
-        random = new Random(character.id());
         this.connectionId = connectionId;
         this.character = character;
         pos = VectorUtils.zero();
@@ -59,11 +58,22 @@ public class ServerCharacter implements Character<ServerRaid> {
         statusEffects = new Long2ObjectArrayMap<>();
         expiredEffects = new ArrayList<>();
         dead = false;
+
+        context = new Context();
+        context.set(ValueType.RANDOM, new Random(character.id()));
+        context.set(ValueType.ENTITY, this);
+        context.set(ValueType.HEALTH, stats.health().value());
+        context.set(ValueType.POSITION, new Vector2(pos[0], pos[1]));
+    }
+
+    @Override
+    public Context context() {
+        return context;
     }
 
     @Override
     public Random random() {
-        return random;
+        return context.get(ValueType.RANDOM);
     }
 
     @Override
@@ -129,10 +139,6 @@ public class ServerCharacter implements Character<ServerRaid> {
             return false;
         }
 
-        Context context = new Context()
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
-
         long mask = 1L << internalId;
         pendingStatusEffectAdds |= mask;
         pendingStatusEffectRemoves &= ~mask;
@@ -149,10 +155,6 @@ public class ServerCharacter implements Character<ServerRaid> {
         if (removed == null)
             return false;
 
-        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
-
         long mask = 1L << internalId;
         pendingStatusEffectRemoves |= mask;
         pendingStatusEffectAdds &= ~mask;
@@ -168,10 +170,6 @@ public class ServerCharacter implements Character<ServerRaid> {
 
     @Override
     public void clearStatusEffects() {
-        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
-
         long removeMask = pendingStatusEffectAdds;
         for (var entry : statusEffects.long2ObjectEntrySet()) {
             long internalId = entry.getLongKey();
@@ -265,10 +263,6 @@ public class ServerCharacter implements Character<ServerRaid> {
 
         float regeneration = StatUtils.getCalculatedVitality(this, stats.vitality().value());
         heal((int) (regeneration * dt));
-
-        Context context = new Context() // TODO: Add Contextual interface to cache Context at any level
-            .set(ValueType.CHARACTER, this)
-            .set(ValueType.HEALTH, stats.health().value());
 
         statusEffects.values().forEach(instance -> {
             if (instance.isExpired()) {

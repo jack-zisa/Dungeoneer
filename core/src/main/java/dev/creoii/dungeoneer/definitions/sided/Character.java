@@ -8,7 +8,7 @@ import dev.creoii.dungeoneer.definitions.attack.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.item.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.util.Constants;
-import dev.creoii.dungeoneer.util.Context;
+import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.event.AttackEvents;
@@ -62,6 +62,7 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
             return false;
 
         getStats().setHealth(getStats().health().value() - damage);
+        context().set(ValueType.HEALTH, getStats().health().value());
 
         if (getStats().health().value() <= 0) {
             setDead(true);
@@ -75,6 +76,7 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
 		amount = HealEvents.MODIFY.invoker().modifyHeal(this, amount);
 
         getStats().setHealth(getStats().health().value() + amount);
+        context().set(ValueType.HEALTH, getStats().health().value());
     }
 
     void die();
@@ -114,7 +116,7 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
                     Context context = new Context()
                         .set(ValueType.RANDOM, random())
                         .set(ValueType.POSITION, new Vector2(getX(), getY()))
-                        .set(ValueType.CHARACTER, this)
+                        .set(ValueType.ENTITY, this)
                         .set(ValueType.HEALTH, getStats().health().value());
 
                     raid.addBullet(getEquipment().getWeapon().damage().get(context).intValue(), x, y, rotatedX, rotatedY, bullet, i + indexOffset, false);

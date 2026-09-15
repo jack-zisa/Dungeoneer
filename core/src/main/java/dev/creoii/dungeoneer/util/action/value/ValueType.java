@@ -2,7 +2,7 @@ package dev.creoii.dungeoneer.util.action.value;
 
 public enum ValueType {
     HEALTH(DataType.FLOAT),
-    CHARACTER(DataType.ENTITY),
+    ENTITY(DataType.ENTITY),
     POSITION(DataType.VEC2),
     RANDOM(DataType.RANDOM),
     SEED(DataType.LONG);
