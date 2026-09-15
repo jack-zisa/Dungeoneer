@@ -1,5 +1,7 @@
 package dev.creoii.dungeoneer.client.render.ui.element;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -23,7 +25,19 @@ public class FollowingTooltip<T extends Actor> extends Tooltip<T> {
         Container<T> container = getContainer();
         position.set(x, y);
         event.getListenerActor().localToStageCoordinates(position);
-        container.setPosition(position.x + 15f, position.y - container.getHeight() - 15f);
+
+        float width = container.getWidth();
+        float height = container.getHeight();
+        float stageWidth = event.getStage().getWidth();
+        float stageHeight = event.getStage().getHeight();
+
+        float tooltipX = position.x + 15f;
+        float tooltipY = position.y - height - 15f;
+
+        tooltipX = MathUtils.clamp(tooltipX, 0f, stageWidth - width);
+        tooltipY = MathUtils.clamp(tooltipY, 0f, stageHeight - height);
+
+        container.setPosition(tooltipX, tooltipY);
         return false;
     }
 }

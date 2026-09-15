@@ -15,6 +15,7 @@ import dev.creoii.dungeoneer.client.render.ui.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.render.ui.editor.ClientTiles;
 import dev.creoii.dungeoneer.client.render.ui.element.DeathDialog;
 import dev.creoii.dungeoneer.client.render.ui.screen.game.GameScreen;
+import dev.creoii.dungeoneer.client.render.ui.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.client.render.ui.screen.main.FactionTab;
 import dev.creoii.dungeoneer.client.render.ui.screen.main.MainScreen;
 import dev.creoii.dungeoneer.client.render.ui.screen.main.PlayTab;
@@ -319,7 +320,15 @@ public class ClientNetworkHandler extends NetworkHandler {
                     Gdx.app.postRunnable(() -> {
                         client.getState().setStatus(ClientState.Status.RAIDING);
                         client.getState().getCurrentRaid().setStatus(Raid.Status.ACTIVE);
-                        client.setScreen(new GameScreen(client));
+                        if (client.getScreen() instanceof RaidLoadingScreen raidLoadingScreen) {
+                            raidLoadingScreen.fadeToBlack(1f, 2f, new Action() {
+                                @Override
+                                public boolean act(float delta) {
+                                    client.setScreen(new GameScreen(client));
+                                    return true;
+                                }
+                            });
+                        }
                     });
                 }
             }

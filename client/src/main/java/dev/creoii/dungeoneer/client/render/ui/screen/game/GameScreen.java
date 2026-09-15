@@ -105,8 +105,8 @@ public class GameScreen extends AbstractScreen {
         root.setFillParent(true);
         root.top().left();
 
-        root.add(new Label(String.format("Raiding %s!", getClient().getState().getCurrentRaid().get().target().username()), SKIN)).left().row();
-        root.add(timeRemainingLabel = new Label(String.format("Time Remaining: %s!", getClient().getState().getCurrentRaid().getRemainingTimeString()), SKIN)).left().row();
+        root.add(new Label(String.format("Raiding %s!", getClient().getState().getCurrentRaid().get().target().username()), SKIN)).left().padBottom(8f).row();
+        root.add(timeRemainingLabel = new Label(String.format("Time Remaining: %s!", getClient().getState().getCurrentRaid().getRemainingTimeString()), SKIN)).left().padBottom(8f).row();
 
         TextButton surrenderButton = new TextButton("Surrender", SKIN);
         surrenderButton.addListener(new ChangeListener() {

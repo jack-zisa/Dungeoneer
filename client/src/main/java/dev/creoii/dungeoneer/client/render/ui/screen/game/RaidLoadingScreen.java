@@ -1,7 +1,6 @@
 package dev.creoii.dungeoneer.client.render.ui.screen.game;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.render.ui.element.ShaderImage;
 import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.ui.screen.main.MainScreen;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
@@ -36,15 +36,15 @@ public class RaidLoadingScreen extends AbstractScreen {
         Label title = new Label("Dungeoneer", SKIN);
         Label loadingLabel = new Label("Searching...", SKIN);
 
-        root.add(title).padBottom(30).row();
-        root.add(targetLabel).row();
+        root.add(title).padBottom(30f).row();
+        root.add(targetLabel).padBottom(8f).row();
         root.add(attackersLabel).row();
 
         joinedCharacters = new Table();
         joinedCharacters.setBackground(new NinePatchDrawable(Assets.TAB_9PATCH));
         root.add(joinedCharacters).pad(10f).row();
 
-        root.add(loadingLabel).row();
+        root.add(loadingLabel).padBottom(8f).row();
 
         TextButton cancelButton = new TextButton("Cancel", SKIN);
         cancelButton.addListener(new ChangeListener() {
@@ -79,19 +79,19 @@ public class RaidLoadingScreen extends AbstractScreen {
         targetLabel.setText(String.format("Target: %s", raid.target().username()));
         attackersLabel.setText(String.format("%s / %s Attackers", raid.attackers().size(), raid.requiredCharacters()));
 
-        Image[] images = new Image[raid.requiredCharacters()];
+        ShaderImage[] images = new ShaderImage[raid.requiredCharacters()];
 
         int i = 0;
         for (CharacterDefinition character : raid.characters()) {
-            images[i++] = new Image(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
+            images[i++] = new ShaderImage(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()), Assets.BORDER_SHADER);
         }
 
         for (; i < raid.requiredCharacters(); i++) {
-            images[i] = new Image(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, "silhouette"));
+            images[i] = new ShaderImage(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, "silhouette"), Assets.BORDER_SHADER);
         }
 
         joinedCharacters.clearChildren();
-        for (Image image : images) {
+        for (ShaderImage image : images) {
             joinedCharacters.add(image).size(64).pad(5);
         }
     }

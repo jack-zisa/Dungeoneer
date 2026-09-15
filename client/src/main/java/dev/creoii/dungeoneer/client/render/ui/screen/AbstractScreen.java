@@ -101,8 +101,11 @@ public abstract class AbstractScreen implements Screen {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 10;
         parameter.spaceX = -1;
+        parameter.padTop = 4;
+        parameter.padBottom = 4;
 
         BitmapFont font = generator.generateFont(parameter);
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
         SKIN.add("default-font", font, BitmapFont.class);
 
