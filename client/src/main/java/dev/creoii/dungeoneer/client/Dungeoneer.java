@@ -113,7 +113,7 @@ public class Dungeoneer extends Game {
 
         super.render();
 
-        if (screen instanceof AbstractScreen abstractScreen && Assets.FONT != null) {
+        if (screen instanceof AbstractScreen abstractScreen) {
             abstractScreen.getStage().getBatch().begin();
 
             if (commandManager.isActive()) commandManager.render(abstractScreen);

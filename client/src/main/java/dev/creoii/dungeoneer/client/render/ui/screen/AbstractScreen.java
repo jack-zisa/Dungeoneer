@@ -5,11 +5,12 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import org.jspecify.annotations.Nullable;
@@ -93,5 +94,24 @@ public abstract class AbstractScreen implements Screen {
         getStage().dispose();
         SKIN.dispose();
         disposed = true;
+    }
+
+    static {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-vaV7.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 10;
+        parameter.spaceX = -1;
+
+        BitmapFont font = generator.generateFont(parameter);
+
+        SKIN.add("default-font", font, BitmapFont.class);
+
+        SKIN.get(Label.LabelStyle.class).font = font;
+        SKIN.get(TextButton.TextButtonStyle.class).font = font;
+        SKIN.get(TextField.TextFieldStyle.class).font = font;
+        SKIN.get(CheckBox.CheckBoxStyle.class).font = font;
+        SKIN.get(SelectBox.SelectBoxStyle.class).font = font;
+        SKIN.get(Window.WindowStyle.class).titleFont = font;
+        SKIN.get(List.ListStyle.class).font = font;
     }
 }

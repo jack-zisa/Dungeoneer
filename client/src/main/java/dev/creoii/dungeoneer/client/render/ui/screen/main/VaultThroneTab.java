@@ -12,8 +12,10 @@ import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.render.ui.element.CreateCharacterDialog;
+import dev.creoii.dungeoneer.client.render.ui.element.ShaderImage;
 import dev.creoii.dungeoneer.client.render.ui.element.StatsDisplay;
 import dev.creoii.dungeoneer.client.render.ui.element.InventoryWidget;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.network.c2s.character.DeleteCharacterC2S;
 import dev.creoii.dungeoneer.util.stat.StatContainer;
@@ -44,7 +46,7 @@ public class VaultThroneTab extends Tab {
 
     @Override
     protected void build() {
-        add(new Label("Vault & Throne", getSkin())).pad(20).row();
+        add(new Label("Vault & Throne", AbstractScreen.SKIN)).pad(20).row();
 
         int favoriteCharacterIndex = getClient().getSettings().favoriteCharacter().value();
 
@@ -54,8 +56,8 @@ public class VaultThroneTab extends Tab {
 
         characterSlots = getClient().getState().getAccount().characterSlots();
 
-        favoriteButton = new CheckBox("", getSkin());
-        CheckBox.CheckBoxStyle style = new CheckBox.CheckBoxStyle(getSkin().get(CheckBox.CheckBoxStyle.class));
+        favoriteButton = new CheckBox("", AbstractScreen.SKIN);
+        CheckBox.CheckBoxStyle style = new CheckBox.CheckBoxStyle(AbstractScreen.SKIN.get(CheckBox.CheckBoxStyle.class));
         style.checkboxOn = new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.UI, "heart"));
         style.checkboxOff = new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.UI, "heart_disabled"));
         favoriteButton.setStyle(style);
@@ -70,7 +72,7 @@ public class VaultThroneTab extends Tab {
                 getClient().getSettings().save();
             }
         });
-        classLabel = new Label("", getSkin());
+        classLabel = new Label("", AbstractScreen.SKIN);
         equipment = new InventoryWidget(getClient(), getClient().getState().getActiveCharacter().isNull() ? new Inventory(4) : getClient().getState().getActiveCharacter().getEquipment(), 4);
         stats = new StatsDisplay(null, null);
 
@@ -132,11 +134,11 @@ public class VaultThroneTab extends Tab {
         center.add(equipment).padTop(8f).row();
         center.add(stats).padTop(8f).row();
 
-        createCharacterButton = new TextButton("Create", getSkin());
+        createCharacterButton = new TextButton("Create", AbstractScreen.SKIN);
         createCharacterButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (getClient().getState().getCharacters().get(classIndex).isNull()) new CreateCharacterDialog(getClient(), classIndex, getSkin()).show(getStage());
+                if (getClient().getState().getCharacters().get(classIndex).isNull()) new CreateCharacterDialog(getClient(), classIndex).show(getStage());
                 else getClient().get().sendTCP(new DeleteCharacterC2S(getClient().getState().getAccount().id(), classIndex));
             }
         });
@@ -255,7 +257,7 @@ public class VaultThroneTab extends Tab {
             ClientCharacter character = getClient().getState().getCharacter(indices[i]);
             classIcons[i].removeActorAt(1, true);
             Texture texture = character.isNull() ? getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, "silhouette") : getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, character.get().characterClass().id());
-            Container<Image> container = new Container<>(new Image(new TextureRegionDrawable(texture)));
+            Container<Image> container = new Container<>(new ShaderImage(texture, Assets.BORDER_SHADER));
             container.size(48f);
             classIcons[i].add(container);
         }

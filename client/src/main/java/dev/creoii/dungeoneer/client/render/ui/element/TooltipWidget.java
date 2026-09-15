@@ -21,14 +21,7 @@ public class TooltipWidget extends Table {
         imageContainer.fill();
         add(imageContainer).size(48f, 48f).left();
 
-        Label name = new Label(item.displayName(), AbstractScreen.SKIN);
-        name.setFontScale(1.25f);
-        if (item instanceof EquipmentItem equipmentItem) {
-            Label.LabelStyle nameStyle = new Label.LabelStyle();
-            nameStyle.font = Assets.FONT;
-            nameStyle.fontColor = equipmentItem.rarity().getColor();
-            name.setStyle(nameStyle);
-        }
+        ItemNameDisplay name = new ItemNameDisplay(item);
 
         Label description;
         if (!item.description().isBlank()) {
@@ -49,10 +42,10 @@ public class TooltipWidget extends Table {
 
         setBackground(TOOLTIP_BACKGROUND);
 
-        add(name).padBottom(.8f).row();
-        add(description).fillX().colspan(2).row();
-        add(damage).colspan(2).row();
-        add(statBonus).colspan(2);
+        add(name).padBottom(.8f).padTop(8f).row();
+        if (description != null) add(description).padBottom(.8f).padTop(8f).fillX().colspan(2).row();
+        if (damage != null) add(damage).padBottom(8f).padTop(8f).colspan(2).row();
+        if (statBonus != null) add(statBonus).padBottom(8f).padTop(8f).colspan(2);
 
         if (client.getSettings().debug().value()) {
             row();

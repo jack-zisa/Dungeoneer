@@ -1,6 +1,5 @@
 package dev.creoii.dungeoneer.client.render.ui.screen;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -8,7 +7,6 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.network.c2s.account.LoginC2S;
 
 public class LoginScreen extends AbstractScreen {
-    private Skin skin;
     private TextField usernameField;
     private TextField passwordField;
     private Label statusLabel;
@@ -19,24 +17,22 @@ public class LoginScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
-
         Table root = new Table();
         root.setFillParent(true);
 
-        Label title = new Label("Dungeoneer", skin);
+        Label title = new Label("Dungeoneer", SKIN);
 
-        usernameField = new TextField("", skin);
+        usernameField = new TextField("", SKIN);
         usernameField.setMessageText("Username");
 
-        passwordField = new TextField("", skin);
+        passwordField = new TextField("", SKIN);
         passwordField.setMessageText("Password");
         passwordField.setPasswordMode(true);
         passwordField.setPasswordCharacter('*');
 
-        TextButton loginButton = new TextButton("Login", skin);
+        TextButton loginButton = new TextButton("Login", SKIN);
 
-        statusLabel = new Label("", skin);
+        statusLabel = new Label("", SKIN);
 
         loginButton.addListener(
             new ChangeListener() {
@@ -65,11 +61,5 @@ public class LoginScreen extends AbstractScreen {
     @Override
     public void hide() {
         getClient().getInputMultiplexer().removeProcessor(getStage());
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        skin.dispose();
     }
 }
