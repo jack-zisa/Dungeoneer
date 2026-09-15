@@ -35,6 +35,9 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
     private final List<MoveEntitiesS2C.Entry> moveEntityEntries;
     private final List<AddEntitiesS2C.Entry> addEntityEntries;
 
+    private List<Long> attackClientIds;
+    private int attackClientIdIndex;
+
     private final Pool<ServerBullet> bulletPool = new Pool<>() {
         @Override
         protected ServerBullet newObject() {
@@ -108,12 +111,32 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
         return addEntityEntries;
     }
 
+    public void beginAttack(List<Long> clientIds) {
+        attackClientIds = clientIds;
+        attackClientIdIndex = 0;
+    }
+
+    public long nextAttackClientId() {
+        if (attackClientIds == null || attackClientIdIndex >= attackClientIds.size())
+            return -1L;
+        return attackClientIds.get(attackClientIdIndex++);
+    }
+
+    public void endAttack() {
+        attackClientIds = null;
+        attackClientIdIndex = 0;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public BulletNode<?, ?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
         BulletNode<?, ?> bulletNode = super.addBullet(damage, x, y, dirX, dirY, bullet, index, enemy);
-        entityManager.add((Entity<ServerRaid>) bulletNode);
-        addEntityEntries.add(new AddEntitiesS2C.Entry(bulletNode.id(), x, y, new BulletPacketData(damage, dirX, dirY, bullet.id(), index, enemy)));
+
+        long entityId = nextBulletId++;
+        long clientId = nextAttackClientId();
+
+        entityManager.add((Entity<ServerRaid>) bulletNode, entityId);
+        addEntityEntries.add(new AddEntitiesS2C.Entry(bulletNode.id(), clientId, x, y, new BulletPacketData(damage, dirX, dirY, bullet.id(), index, enemy)));
         return bulletNode;
     }
 

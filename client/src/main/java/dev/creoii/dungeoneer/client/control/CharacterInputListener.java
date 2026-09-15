@@ -18,6 +18,8 @@ import dev.creoii.dungeoneer.util.event.AttackEvents;
 import dev.creoii.dungeoneer.util.event.MoveEvents;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 
+import java.util.List;
+
 public class CharacterInputListener extends InputAdapter implements MousePosListener {
     private final Dungeoneer client;
     private int movementFlags;
@@ -87,10 +89,16 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
                 character.setAttackPending(true);
 
                 float[] mouseDir = getDirectionToMouse(character.getCenterX(), character.getCenterY());
+
+                raid.beginAttackPrediction();
                 if (character.tryAttack(attack, raid, mouseDir)) {
+                    List<Long> predictionIds = raid.endAttackPrediction();
                     AttackEvents.POST.invoker().onPostAttack(character, attack, raid);
-                    client.get().sendTCP(new AttackC2S(raid.get().id(), character.get().accountId(), mouseDir[0], mouseDir[1]));
-                } else character.setAttackPending(false);
+                    client.get().sendTCP(new AttackC2S(raid.get().id(), character.get().accountId(), predictionIds, mouseDir[0], mouseDir[1]));
+                } else {
+                    raid.endAttackPrediction();
+                    character.setAttackPending(false);
+                }
             }
             character.setAnimationState(AnimationState.toAttacking(animationState));
         } else character.setAnimationState(character.isMoving() ? AnimationState.toMoving(animationState) : AnimationState.toIdle(animationState));

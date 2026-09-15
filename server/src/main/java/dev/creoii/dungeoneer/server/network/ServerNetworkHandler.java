@@ -391,7 +391,7 @@ public class ServerNetworkHandler extends NetworkHandler {
             if (dungeonMap != null) {
                 server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
             }
-        } else if (object instanceof AttackC2S(long raidId, long accountId, float mouseDirX, float mouseDirY)) {
+        } else if (object instanceof AttackC2S(long raidId, long accountId, List<Long> clientIds, float mouseDirX, float mouseDirY)) {
             Account account = server.getDatabase().getAccounts().getById(accountId);
             if (account != null) {
                 ServerRaid serverRaid = server.getState().getRaids().get(raidId);

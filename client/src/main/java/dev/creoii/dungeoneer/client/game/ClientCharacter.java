@@ -16,10 +16,8 @@ import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.item.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.definitions.sided.Character;
-import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.util.RemovalReason;
@@ -308,11 +306,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable, Ticka
 
     public void setAnimationState(AnimationState animationState) {
         this.animationState = animationState;
-    }
-
-    @Override
-    public boolean attack(Raid<?, ?, ?, ?> raid, float x, float y, float rotatedX, float rotatedY, BulletType bullet, int i) {
-        return false;
     }
 
     @Override

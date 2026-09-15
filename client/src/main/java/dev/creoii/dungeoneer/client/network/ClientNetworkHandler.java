@@ -474,14 +474,20 @@ public class ClientNetworkHandler extends NetworkHandler {
             case AddEntitiesS2C(List<AddEntitiesS2C.Entry> entries) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (raid.isNull()) return;
-                entries.forEach(entry -> {
+                for (AddEntitiesS2C.Entry entry : entries) {
                     switch (entry.data().type()) {
                         case BULLET -> {
                             BulletPacketData data = (BulletPacketData) entry.data();
+                            if (entry.clientId() >= 0 && raid.getEntityManager().authorize(entry.clientId(), entry.entityId()))
+                                continue;
+
                             raid.addBullet(data.damage(), entry.x(), entry.y(), data.dirX(), data.dirY(), DataManager.getBullet(data.bulletType()), data.index(), data.enemy());
+                            Entity<ClientRaid> entity = raid.getEntityManager().get(entry.entityId());
+                            if (entity != null)
+                                entity.setPos(entry.x(), entry.y());
                         }
                     }
-                });
+                }
             }
             default -> {
             }

@@ -24,6 +24,30 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
         return raid;
     }
 
+    public Set<Entity<R>> getEntities() {
+        return entities;
+    }
+
+    public Map<Long, Entity<R>> getIdToObj() {
+        return idToObj;
+    }
+
+    public PriorityQueue<Long> getFreeIds() {
+        return freeIds;
+    }
+
+    public long getNextId() {
+        return nextId;
+    }
+
+    public long getAndIncrementNextId() {
+        return nextId++;
+    }
+
+    public void setNextId(long nextId) {
+        this.nextId = nextId;
+    }
+
     public boolean add(Entity<R> entity) {
         long id = freeIds.isEmpty() ? nextId++ : freeIds.poll();
         idToObj.put(id, entity);

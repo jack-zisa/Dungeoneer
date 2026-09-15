@@ -8,15 +8,21 @@ import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.ui.screen.game.GameScreen;
 import dev.creoii.dungeoneer.client.render.ui.screen.game.RaidEndScreen;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
+import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.util.RemovalReason;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientCharacter, ClientDungeonMap> {
     private final Dungeoneer client;
-    private final EntityManager<ClientRaid> entityManager;
+    private final ClientEntityManager entityManager;
+    private List<Long> pendingPredictionIds;
 
     private final Pool<ClientBullet> bulletPool = new Pool<>() {
         @Override
@@ -34,11 +40,11 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     public ClientRaid(Dungeoneer client, RaidDefinition raid) {
         super(raid, new ClientDungeonMap(client));
         this.client = client;
-        entityManager = new EntityManager<>(this, 2);
+        entityManager = new ClientEntityManager(this, 2);
     }
 
     @Override
-    public EntityManager<ClientRaid> getEntityManager() {
+    public ClientEntityManager getEntityManager() {
         return entityManager;
     }
 
@@ -55,6 +61,36 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     @Override
     public void addCharacter(long accountId, ClientCharacter character) {
         super.addCharacter(accountId, character);
+    }
+
+    public void beginAttackPrediction() {
+        pendingPredictionIds = new ArrayList<>();
+    }
+
+    public List<Long> endAttackPrediction() {
+        List<Long> ids = pendingPredictionIds;
+        pendingPredictionIds = null;
+        return ids;
+    }
+
+    private long nextPredictionId() {
+        long id = getEntityManager().nextPredictionId();
+        pendingPredictionIds.add(id);
+        return id;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public BulletNode<?, ?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
+        BulletNode<?, ?> bulletNode = super.addBullet(damage, x, y, dirX, dirY, bullet, index, enemy);
+        if (!enemy && pendingPredictionIds != null) {
+            long predictionId = nextPredictionId();
+            ((ClientEntity) bulletNode).setClientId(predictionId);
+            getEntityManager().addPredicted((Entity<ClientRaid>) bulletNode);
+        } else {
+            getEntityManager().add((Entity<ClientRaid>) bulletNode);
+        }
+        return bulletNode;
     }
 
     @Override

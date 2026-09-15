@@ -25,9 +25,10 @@ public record AddEntitiesS2C(List<Entry> entries) {
         return new AddEntitiesS2C(entries);
     }
 
-    public record Entry(long entityId, float x, float y, EntityPacketData data) {
+    public record Entry(long entityId, long clientId, float x, float y, EntityPacketData data) {
         public static void write(Output output, Entry o) {
             output.writeLong(o.entityId);
+            output.writeLong(o.clientId);
             output.writeFloat(o.x);
             output.writeFloat(o.y);
             output.writeInt(o.data.type().ordinal());
@@ -35,7 +36,7 @@ public record AddEntitiesS2C(List<Entry> entries) {
         }
 
         public static Entry read(Input input) {
-            return new Entry(input.readLong(), input.readFloat(), input.readFloat(), switch (EntityPacketData.Type.values()[input.readInt()]) {
+            return new Entry(input.readLong(), input.readLong(), input.readFloat(), input.readFloat(), switch (EntityPacketData.Type.values()[input.readInt()]) {
                 case BULLET -> BulletPacketData.read(input);
             });
         }

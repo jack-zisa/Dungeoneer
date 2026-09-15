@@ -30,7 +30,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     private final Int2ObjectArrayMap<B> bullets = new Int2ObjectArrayMap<>();
     private final Int2ObjectArrayMap<BG> bulletGroups = new Int2ObjectArrayMap<>();
 
-    private int nextBulletId = 0;
+    public int nextBulletId = 0;
 
     public Raid(RaidDefinition raid, D dungeonMap) {
         random = new Random(0);
