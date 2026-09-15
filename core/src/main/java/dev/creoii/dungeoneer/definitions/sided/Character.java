@@ -20,6 +20,15 @@ import java.util.List;
 import java.util.Random;
 
 public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
+    @Override
+    default long id() {
+        return -1;
+    }
+
+    @Override
+    default void setId(long id) {
+    }
+
     Random random();
 
     int getConnectionId();
@@ -51,8 +60,6 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
         return getRaid() != null && !getRaid().isNull();
     }
 
-    void tick(float dt);
-
     default boolean damage(int damage) {
         if (!inRaid())
             return false;
@@ -79,13 +86,13 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
 
     void die();
 
-    default boolean attack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
+    default boolean tryAttack(Attack attack, Raid<?, ?, ?, ?> raid, float[] mouseDir) {
         if (!AttackEvents.PRE.invoker().onPreAttack(this, attack, raid))
             return false;
 
         switch (attack) {
             case ReferenceAttack(String id) -> {
-                return attack(DataManager.getAttack(id), raid, mouseDir);
+                return tryAttack(DataManager.getAttack(id), raid, mouseDir);
             }
             case BulletAttack(_, int bulletCount, float arcGap, float angleOffset, Vector2 offset, int indexOffset) -> {
                 BulletType bullet = getEquipment().getWeapon().bullet();
@@ -111,13 +118,8 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
 
                     if (willHitWallRightAway(raid.getDungeonMap(), x, y, rotatedX, rotatedY)) continue;
 
-                    Context context = new Context()
-                        .set(ValueType.RANDOM, random())
-                        .set(ValueType.POSITION, new Vector2(getX(), getY()))
-                        .set(ValueType.CHARACTER, this)
-                        .set(ValueType.HEALTH, getStats().health().value());
+                    attack(raid, x, y, rotatedX, rotatedY, bullet, indexOffset + i);
 
-                    raid.addBullet(getEquipment().getWeapon().damage().get(context).intValue(), x, y, rotatedX, rotatedY, bullet, i + indexOffset, false);
                     success = true;
                 }
                 return success;
@@ -125,12 +127,22 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
             case CompositeAttack(_, List<Attack> attacks) -> {
                 boolean success = false;
                 for (Attack attack1 : attacks) {
-                    success |= attack(attack1, raid, mouseDir);
+                    success |= tryAttack(attack1, raid, mouseDir);
                 }
                 return success;
             }
             case null, default -> throw new IllegalStateException("Unexpected attack value: " + attack);
         }
+    }
+
+    default boolean attack(Raid<?,?,?,?> raid, float x, float y, float rotatedX, float rotatedY, BulletType bullet, int i) {
+        Context context = new Context()
+            .set(ValueType.RANDOM, random())
+            .set(ValueType.POSITION, new Vector2(getX(), getY()))
+            .set(ValueType.CHARACTER, this)
+            .set(ValueType.HEALTH, getStats().health().value());
+
+        return raid.addBullet(getEquipment().getWeapon().damage().get(context).intValue(), x, y, rotatedX, rotatedY, bullet, i, false) != null;
     }
 
     private boolean willHitWallRightAway(DungeonMap map, float startX, float startY, float dirX, float dirY) {

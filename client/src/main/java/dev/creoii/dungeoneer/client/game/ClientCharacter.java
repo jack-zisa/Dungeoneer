@@ -16,11 +16,14 @@ import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.item.inventory.EquipmentInventory;
 import dev.creoii.dungeoneer.definitions.sided.Character;
+import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
 import dev.creoii.dungeoneer.util.RemovalReason;
+import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
@@ -31,7 +34,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
 
-public class ClientCharacter implements Character<ClientRaid>, Renderable {
+public class ClientCharacter implements Character<ClientRaid>, Renderable, Tickable {
     private final Random random;
     private final Dungeoneer client;
     @Nullable private CharacterDefinition character;
@@ -308,6 +311,11 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     @Override
+    public boolean attack(Raid<?, ?, ?, ?> raid, float x, float y, float rotatedX, float rotatedY, BulletType bullet, int i) {
+        return false;
+    }
+
+    @Override
     public void updateVelocity(float[] velocity, int movementFlags, float rotation) {
         if (dead) return;
 
@@ -324,12 +332,12 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
         if (!inRaid())
-            return;
+            return false;
 
         if (dead && this == client.getState().getActiveCharacter()) {
-            return;
+            return false;
         }
 
         float speed = StatUtils.getCalculatedSpeed(this, stats.speed().value());
@@ -362,6 +370,8 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             }
             toTickEffects &= ~mask;
         }
+
+        return true;
     }
 
     @Override

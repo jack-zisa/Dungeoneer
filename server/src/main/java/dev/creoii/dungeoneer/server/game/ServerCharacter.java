@@ -13,6 +13,7 @@ import dev.creoii.dungeoneer.network.s2c.raid.DamageCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
 import dev.creoii.dungeoneer.util.RemovalReason;
+import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ServerCharacter implements Character<ServerRaid> {
+public class ServerCharacter implements Character<ServerRaid>, Tickable {
     private final Random random;
     private final int connectionId;
     private final CharacterDefinition character;
@@ -231,15 +232,15 @@ public class ServerCharacter implements Character<ServerRaid> {
     }
 
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
         if (dead) {
-            return;
+            return false;
         }
 
         if (inRaid()) {
             if (isMoving()) {
                 if (!MoveEvents.PRE.invoker().onPreMove(this, raid))
-                    return;
+                    return false;
 
                 // Get target position
                 float speed = StatUtils.getCalculatedSpeed(this, stats.speed().value());
@@ -277,5 +278,7 @@ public class ServerCharacter implements Character<ServerRaid> {
         });
         expiredEffects.forEach(this::removeStatusEffect);
         expiredEffects.clear();
+
+        return true;
     }
 }

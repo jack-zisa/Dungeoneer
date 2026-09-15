@@ -12,11 +12,12 @@ public abstract class NetworkHandler implements Listener, Tickable {
     }
 
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
         NetworkQueue.QueuedPacket packet;
         while ((packet = networkQueue.queue().poll()) != null && PacketSerializer.INSTANCE.isValidPacket(packet.data())) {
             handlePacket(packet.connection(), packet.data());
         }
+        return true;
     }
 
     @Override

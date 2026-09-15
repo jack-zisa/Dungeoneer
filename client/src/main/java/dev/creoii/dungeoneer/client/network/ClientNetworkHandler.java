@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.esotericsoftware.kryonet.Connection;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.AnimationState;
@@ -26,6 +27,7 @@ import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import dev.creoii.dungeoneer.definitions.item.WeaponItem;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
@@ -34,6 +36,7 @@ import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
+import dev.creoii.dungeoneer.network.data.BulletPacketData;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
@@ -364,7 +367,7 @@ public class ClientNetworkHandler extends NetworkHandler {
                 if (weapon == null)
                     return;
                 Attack attack = weapon.attack();
-                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
+                character.tryAttack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
                 AttackEvents.POST.invoker().onPostAttack(character, attack, client.getState().getCurrentRaid());
 
                 character.setAnimationState(AnimationState.toAttacking(animationState));
@@ -456,6 +459,29 @@ public class ClientNetworkHandler extends NetworkHandler {
                         character1.set(character);
                     }
                 }
+            }
+            case MoveEntitiesS2C(List<MoveEntitiesS2C.Entry> entries) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid.isNull()) return;
+                entries.forEach(entry -> {
+                    EntityManager<ClientRaid> entityManager = raid.getEntityManager();
+                    if (entityManager.contains(entry.entityId())) {
+                        Entity<?> entity = entityManager.get(entry.entityId());
+                        entity.setPos(entry.x(), entry.y());
+                    }
+                });
+            }
+            case AddEntitiesS2C(List<AddEntitiesS2C.Entry> entries) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid.isNull()) return;
+                entries.forEach(entry -> {
+                    switch (entry.data().type()) {
+                        case BULLET -> {
+                            BulletPacketData data = (BulletPacketData) entry.data();
+                            raid.addBullet(data.damage(), entry.x(), entry.y(), data.dirX(), data.dirY(), DataManager.getBullet(data.bulletType()), data.index(), data.enemy());
+                        }
+                    }
+                });
             }
             default -> {
             }

@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.client.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.ui.screen.game.GameScreen;
@@ -15,6 +16,7 @@ import java.util.Iterator;
 
 public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientCharacter, ClientDungeonMap> {
     private final Dungeoneer client;
+    private final EntityManager<ClientRaid> entityManager;
 
     private final Pool<ClientBullet> bulletPool = new Pool<>() {
         @Override
@@ -32,6 +34,12 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     public ClientRaid(Dungeoneer client, RaidDefinition raid) {
         super(raid, new ClientDungeonMap(client));
         this.client = client;
+        entityManager = new EntityManager<>(this, 2);
+    }
+
+    @Override
+    public EntityManager<ClientRaid> getEntityManager() {
+        return entityManager;
     }
 
     @Override
@@ -111,6 +119,8 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
                 }
                 character.tick(dt);
             }
+
+            entityManager.tick(dt);
         }
     }
 

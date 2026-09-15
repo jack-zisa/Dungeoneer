@@ -7,11 +7,12 @@ import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
+import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 import org.jspecify.annotations.Nullable;
 
-public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?>> implements Entity<R>, Pool.Poolable {
+public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?>> implements Entity<R>, Pool.Poolable, Tickable {
     private T type;
     private BulletPathType.Instance<?> path;
     private final float[] pos;
@@ -235,7 +236,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         setDead(true);
     }
 
-    public boolean update(float dt) {
+    public boolean tick(float dt) {
         if (isDead() || (lifetime -= dt) <= 0f)
             return false;
 
@@ -253,7 +254,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         return true;
     }
 
-    public void applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
+    public boolean applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
         float perpX = -dirY;
         float perpY = dirX;
 
@@ -278,7 +279,9 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
             float invLength = 1f / (float) Math.sqrt(length2);
             localDirection[0] = movementX * invLength;
             localDirection[1] = movementY * invLength;
+            return true;
         }
+        return false;
     }
 
     @Override

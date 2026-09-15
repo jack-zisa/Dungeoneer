@@ -38,22 +38,23 @@ public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode
     }
 
     @Override
-    public boolean update(float dt) {
-        if (!super.update(dt))
+    public boolean tick(float dt) {
+        if (!super.tick(dt))
             return false;
 
         for (BulletNode<?, ?> child : children) {
-            if (!child.update(dt))
+            if (!child.tick(dt))
                 return false;
         }
         return true;
     }
 
     @Override
-    public void applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
-        super.applyTransform(map, originX, originY, dirX, dirY);
+    public boolean applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
+        boolean moved = super.applyTransform(map, originX, originY, dirX, dirY);
         for (BulletNode<?, ?> child : children) {
             child.applyTransform(map, getX(), getY(), getLocalDirX(), getLocalDirY());
         }
+        return moved;
     }
 }

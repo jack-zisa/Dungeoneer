@@ -412,7 +412,7 @@ public class ServerNetworkHandler extends NetworkHandler {
                         long lastAttackTime = character.getLastAttackTime();
                         long cooldown = (long) StatUtils.getCalculatedDexterity(character, character.getStats().dexterity().value());
                         if (currentTime - lastAttackTime >= cooldown) {
-                            character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
+                            character.tryAttack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
                             AttackEvents.POST.invoker().onPostAttack(character, attack, serverRaid);
                             serverRaid.getAttackEntries().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
 

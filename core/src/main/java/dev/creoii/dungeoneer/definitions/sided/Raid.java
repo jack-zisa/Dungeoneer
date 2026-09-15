@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
@@ -93,6 +94,8 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         return character;
     }
 
+    public abstract EntityManager<?> getEntityManager();
+
     public abstract Pool<B> getBulletPool();
 
     public abstract Pool<BG> getBulletGroupPool();
@@ -138,7 +141,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
             Int2ObjectMap.Entry<B> entry = bulletIterator.next();
             B bullet = entry.getValue();
 
-            if (!bullet.update(dt)) {
+            if (!bullet.tick(dt)) {
                 bulletIterator.remove();
                 getBulletPool().free(bullet);
             } else bullet.applyTransform(dungeonMap, bullet.getStartX(), bullet.getStartY(), bullet.getDirX(), bullet.getDirY());
@@ -149,7 +152,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
             Int2ObjectMap.Entry<BG> entry = groupIterator.next();
             BG bulletGroup = entry.getValue();
 
-            if (!bulletGroup.update(dt)) {
+            if (!bulletGroup.tick(dt)) {
                 groupIterator.remove();
                 getBulletGroupPool().free(bulletGroup);
             } else bulletGroup.applyTransform(dungeonMap, bulletGroup.getStartX(), bulletGroup.getStartY(), bulletGroup.getDirX(), bulletGroup.getDirY());
@@ -177,8 +180,9 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     public BulletNode<?, ?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
         BulletNode<?, ?> poolBullet = createHierarchy(damage, x, y, dirX, dirY, bullet, index, enemy, 1);
         if (bullet instanceof SingleBulletType) {
-            return bullets.put(nextBulletId++, (B) poolBullet);
-        } else return bulletGroups.put(nextBulletId++, (BG) poolBullet);
+            bullets.put(nextBulletId++, (B) poolBullet);
+        } else bulletGroups.put(nextBulletId++, (BG) poolBullet);
+        return poolBullet;
     }
 
     private BulletNode<?, ?> createHierarchy(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {

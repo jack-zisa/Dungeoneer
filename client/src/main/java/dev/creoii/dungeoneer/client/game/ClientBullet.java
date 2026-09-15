@@ -11,10 +11,20 @@ import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import org.jspecify.annotations.Nullable;
 
 public class ClientBullet extends Bullet<ClientRaid> implements Renderable {
+    private long id;
     private ClientRaid raid;
 
     public ClientBullet(ClientRaid raid) {
         this.raid = raid;
+    }
+
+    @Override
+    public long id() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override

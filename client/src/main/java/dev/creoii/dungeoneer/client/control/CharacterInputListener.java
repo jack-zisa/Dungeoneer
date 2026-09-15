@@ -87,7 +87,7 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
                 character.setAttackPending(true);
 
                 float[] mouseDir = getDirectionToMouse(character.getCenterX(), character.getCenterY());
-                if (character.attack(attack, raid, mouseDir)) {
+                if (character.tryAttack(attack, raid, mouseDir)) {
                     AttackEvents.POST.invoker().onPostAttack(character, attack, raid);
                     client.get().sendTCP(new AttackC2S(raid.get().id(), character.get().accountId(), mouseDir[0], mouseDir[1]));
                 } else character.setAttackPending(false);
