@@ -24,15 +24,15 @@ public class Sidebar extends Table {
         this.screen = screen;
 
         Table layerTable = new Table();
-        layerTable.add(new Label("Layer", getSkin())).row();
+        layerTable.add(new Label("Layer", AbstractScreen.SKIN)).row();
 
         ButtonGroup<TextButton> layers = new ButtonGroup<>();
         layers.setMinCheckCount(1);
         layers.setMaxCheckCount(1);
         layers.setUncheckLast(true);
 
-        add(new Label("Map Templates", getSkin())).top().center().row();
-        SelectBox<String> templateSelectBox = new SelectBox<>(getSkin());
+        add(new Label("Map Templates", AbstractScreen.SKIN)).top().center().row();
+        SelectBox<String> templateSelectBox = new SelectBox<>(AbstractScreen.SKIN);
         templateSelectBox.setItems(DataManager.getMapTemplates().values().stream().map(Identifiable::id).toArray(String[]::new));
         templateSelectBox.addListener(new ChangeListener() {
             @Override
@@ -46,7 +46,7 @@ public class Sidebar extends Table {
         });
         add(templateSelectBox).width(200).row();
 
-        add(new Label("Tilesets", getSkin())).center().row();
+        add(new Label("Tilesets", AbstractScreen.SKIN)).center().row();
         tilesetsTable = new Table();
         tilesets = new ButtonGroup<>();
         tilesets.setMinCheckCount(0);

@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.client.render.ui.element;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import dev.creoii.dungeoneer.client.Assets;
 
@@ -16,6 +17,7 @@ public class BorderedImage extends Image {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        ShaderProgram previous = batch.getShader();
         batch.setShader(Assets.BORDER_SHADER);
 
         Assets.BORDER_SHADER.setUniformf("u_pixelSize", (1f / texture.getWidth()) * .25f, (1f / texture.getHeight()) * .25f);
@@ -23,6 +25,6 @@ public class BorderedImage extends Image {
 
         super.draw(batch, parentAlpha);
 
-        batch.setShader(null);
+        batch.setShader(previous);
     }
 }

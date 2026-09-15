@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.ui.element.CreateFactionDialog;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 import dev.creoii.dungeoneer.definitions.Account;
 import dev.creoii.dungeoneer.definitions.Faction;
 import dev.creoii.dungeoneer.definitions.Message;
@@ -55,12 +56,12 @@ public class FactionTab extends Tab {
         Table factionSearchTable = new Table();
         factionSearchTable.defaults().pad(5f);
 
-        factionSearchTable.add(new Label("Join a Faction!", getSkin())).row();
+        factionSearchTable.add(new Label("Join a Faction!", AbstractScreen.SKIN)).row();
 
-        factionField = new TextField("", getSkin());
+        factionField = new TextField("", AbstractScreen.SKIN);
         factionSearchTable.add(factionField).growX().row();
 
-        TextButton searchButton = new TextButton("Search", getSkin());
+        TextButton searchButton = new TextButton("Search", AbstractScreen.SKIN);
         searchButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -71,11 +72,11 @@ public class FactionTab extends Tab {
         factionSearchTable.add(searchButton).row();
 
         resultsTable = new Table();
-        ScrollPane resultsScrollPane = new ScrollPane(resultsTable, getSkin());
+        ScrollPane resultsScrollPane = new ScrollPane(resultsTable, AbstractScreen.SKIN);
         resultsScrollPane.setFadeScrollBars(false);
         factionSearchTable.add(resultsScrollPane).grow().row();
 
-        TextButton clearResultsButton = new TextButton("Clear Results", getSkin());
+        TextButton clearResultsButton = new TextButton("Clear Results", AbstractScreen.SKIN);
         clearResultsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -84,12 +85,12 @@ public class FactionTab extends Tab {
         });
         factionSearchTable.add(clearResultsButton).row();
 
-        TextButton createButton = new TextButton("Create", getSkin());
+        TextButton createButton = new TextButton("Create", AbstractScreen.SKIN);
         createButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (getClient().getState().getFaction() == null)
-                    new CreateFactionDialog(getClient(), getSkin()).show(getStage());
+                    new CreateFactionDialog(getClient()).show(getStage());
             }
         });
         factionSearchTable.add(createButton);
@@ -101,24 +102,24 @@ public class FactionTab extends Tab {
         Table factionTable = new Table();
         factionTable.defaults().pad(5f);
 
-        factionNameLabel = new Label("", getSkin());
-        factionDescriptionLabel = new Label("", getSkin());
+        factionNameLabel = new Label("", AbstractScreen.SKIN);
+        factionDescriptionLabel = new Label("", AbstractScreen.SKIN);
         factionTable.add(factionNameLabel).row();
         factionTable.add(factionDescriptionLabel).row();
 
         chatTable = new Table();
         chatTable.top();
-        chatScrollPane = new ScrollPane(chatTable, getSkin());
+        chatScrollPane = new ScrollPane(chatTable, AbstractScreen.SKIN);
         chatScrollPane.setFadeScrollBars(false);
         factionTable.add(chatScrollPane).grow();
 
         membersTable = new Table();
-        membersTable.add(new Label("Members", getSkin())).top().pad(4f).row();
-        ScrollPane membersScrollPane = new ScrollPane(membersTable, getSkin());
+        membersTable.add(new Label("Members", AbstractScreen.SKIN)).top().pad(4f).row();
+        ScrollPane membersScrollPane = new ScrollPane(membersTable, AbstractScreen.SKIN);
         membersScrollPane.setFadeScrollBars(false);
         factionTable.add(membersScrollPane).width(100f).growY().row();
 
-        chatField = new TextField("", getSkin());
+        chatField = new TextField("", AbstractScreen.SKIN);
         chatField.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
@@ -135,7 +136,7 @@ public class FactionTab extends Tab {
         });
         factionTable.add(chatField).growX().row();
 
-        TextButton leaveButton = new TextButton("Leave", getSkin());
+        TextButton leaveButton = new TextButton("Leave", AbstractScreen.SKIN);
         leaveButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -152,18 +153,18 @@ public class FactionTab extends Tab {
         resultsTable.clearChildren();
 
         if (factions.isEmpty()) {
-            resultsTable.add(new Label("No factions found.", getSkin()));
+            resultsTable.add(new Label("No factions found.", AbstractScreen.SKIN));
             return;
         }
 
         for (Faction faction : factions) {
             Table row = new Table();
 
-            row.add(new Label(faction.name(), getSkin())).width(150).left();
-            row.add(new Label(faction.description(), getSkin())).width(300).left();
-            row.add(new Label(faction.accounts().size() + " members", getSkin())).width(100);
+            row.add(new Label(faction.name(), AbstractScreen.SKIN)).width(150).left();
+            row.add(new Label(faction.description(), AbstractScreen.SKIN)).width(300).left();
+            row.add(new Label(faction.accounts().size() + " members", AbstractScreen.SKIN)).width(100);
 
-            TextButton joinButton = new TextButton("Join", getSkin());
+            TextButton joinButton = new TextButton("Join", AbstractScreen.SKIN);
             joinButton.addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
@@ -178,11 +179,11 @@ public class FactionTab extends Tab {
 
     public void refreshMembers(Faction faction) {
         membersTable.clearChildren();
-        membersTable.add(new Label("Members", getSkin())).top().pad(4f).row();
+        membersTable.add(new Label("Members", AbstractScreen.SKIN)).top().pad(4f).row();
         for (Account account : faction.accounts()) {
             Table row = new Table();
 
-            row.add(new Label(account.username(), getSkin()));
+            row.add(new Label(account.username(), AbstractScreen.SKIN));
 
             membersTable.add(row).growX().pad(5f).row();
         }
@@ -199,11 +200,11 @@ public class FactionTab extends Tab {
             if (message.accountId() != -1L) {
                 Optional<Account> account = getClient().getState().getFaction().accounts().stream().filter(account1 -> account1.id() == message.accountId()).findFirst();
                 account.ifPresent(value -> {
-                    Label messageLabel = new Label(String.format("%s: %s", value.username(), message.text()), getSkin());
+                    Label messageLabel = new Label(String.format("%s: %s", value.username(), message.text()), AbstractScreen.SKIN);
                     chatTable.add(messageLabel).left().growX().row();
                 });
             } else {
-                Label messageLabel = new Label(message.text(), getSkin());
+                Label messageLabel = new Label(message.text(), AbstractScreen.SKIN);
                 messageLabel.setColor(Color.YELLOW);
                 chatTable.add(messageLabel).left().growX().row();
             }

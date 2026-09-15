@@ -4,12 +4,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.render.ui.editor.DungeonEditorScreen;
+import dev.creoii.dungeoneer.client.render.ui.element.ShaderImage;
+import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.ui.screen.game.RaidLoadingScreen;
 import dev.creoii.dungeoneer.network.c2s.raid.JoinOrCreateRaidC2S;
 
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 public class PlayTab extends Tab {
     private ClientCharacter selected;
-    private Image selectedImage;
+    private ShaderImage selectedImage;
     private TextTooltip characterTooltip;
     private TextButton raidButton;
 
@@ -29,15 +30,15 @@ public class PlayTab extends Tab {
     protected void build() {
         selected = getClient().getState().getActiveCharacter();
         TextTooltip.TextTooltipStyle tooltipStyle = new TextTooltip.TextTooltipStyle();
-        tooltipStyle.label = getSkin().get(Label.LabelStyle.class);
+        tooltipStyle.label = AbstractScreen.SKIN.get(Label.LabelStyle.class);
         tooltipStyle.background = TAB_BACKGROUND;
 
         Table statsTable = new Table();
 
         Image goldImage = new Image(getClient().getAssets().getTexture(Assets.Atlas.UI, "gold"));
-        Label goldLabel = new Label(String.format("%s", getClient().getState().getAccount().gold()), getSkin());
+        Label goldLabel = new Label(String.format("%s", getClient().getState().getAccount().gold()), AbstractScreen.SKIN);
         Image gemImage = new Image(getClient().getAssets().getTexture(Assets.Atlas.UI, "gem"));
-        Label gemsLabel = new Label(String.format("%s", getClient().getState().getAccount().gems()), getSkin());
+        Label gemsLabel = new Label(String.format("%s", getClient().getState().getAccount().gems()), AbstractScreen.SKIN);
 
         statsTable.add(goldImage).size(24f).left();
         statsTable.add(goldLabel).left().padLeft(5f).padRight(30f);
@@ -46,19 +47,19 @@ public class PlayTab extends Tab {
 
         Table accountTable = new Table();
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
-        selectedImage = new Image(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId));
+        selectedImage = new ShaderImage(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId), Assets.BORDER_SHADER);
         characterTooltip = new TextTooltip(classId, tooltipStyle);
         characterTooltip.setInstant(true);
         selectedImage.addListener(characterTooltip);
 
         accountTable.add(selectedImage).size(32f).pad(10f);
-        accountTable.add(new Label(getClient().getState().getAccount().username(), getSkin())).left().pad(10f);
+        accountTable.add(new Label(getClient().getState().getAccount().username(), AbstractScreen.SKIN)).left().pad(10f);
 
-        TextButton settingsButton = new TextButton("Settings", getSkin());
+        TextButton settingsButton = new TextButton("Settings", AbstractScreen.SKIN);
         settingsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                new SettingsDialog(getClient(), getSkin()).show(getStage());
+                new SettingsDialog(getClient(), AbstractScreen.SKIN).show(getStage());
             }
         });
         accountTable.add(settingsButton).pad(10f);
@@ -67,7 +68,7 @@ public class PlayTab extends Tab {
         add(accountTable).width(96f).height(32f).top().expandX().fillX().row();
 
         Table mainSection = new Table();
-        raidButton = new TextButton("Raid", getSkin());
+        raidButton = new TextButton("Raid", AbstractScreen.SKIN);
         raidButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -77,7 +78,7 @@ public class PlayTab extends Tab {
             }
         });
         mainSection.add(raidButton).size(120f, 80f).row();
-        TextButton buildButton = new TextButton("Build Dungeon", getSkin());
+        TextButton buildButton = new TextButton("Build Dungeon", AbstractScreen.SKIN);
         buildButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -105,7 +106,7 @@ public class PlayTab extends Tab {
         }
 
         String classId = selected.isNull() ? "" : selected.get().characterClass().id();
-        selectedImage.setDrawable(new TextureRegionDrawable(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId)));
+        selectedImage.setTexture(getClient().getAssets().getTexture(Assets.Atlas.CHARACTER, classId));
         characterTooltip.getActor().setText(classId);
         raidButton.setDisabled(selected.isNull());
     }

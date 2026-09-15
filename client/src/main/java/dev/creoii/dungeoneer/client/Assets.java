@@ -38,6 +38,12 @@ public class Assets implements Disposable {
     public static final NinePatch HEALTH_BAR_EMPTY_9PATCH = new NinePatch(new Texture("textures/ui/health_bar_empty.png"), 4, 4, 4,4);
     public static final NinePatch SECTION_9PATCH = new NinePatch(new Texture("textures/ui/section_background.png"), 1, 1, 1, 1);
 
+    public static final NinePatch COMMON_BACKGROUND_9PATCH = new NinePatch(new Texture("textures/ui/item/common_background.png"), 3, 3, 3, 3);
+    public static final NinePatch UNCOMMON_BACKGROUND_9PATCH = new NinePatch(new Texture("textures/ui/item/uncommon_background.png"), 3, 3, 3, 3);
+    public static final NinePatch RARE_BACKGROUND_9PATCH = new NinePatch(new Texture("textures/ui/item/rare_background.png"), 4, 4, 4, 4);
+    public static final NinePatch LEGENDARY_BACKGROUND_9PATCH = new NinePatch(new Texture("textures/ui/item/legendary_background.png"), 4, 4, 4, 4);
+    public static final NinePatch MYTHICAL_BACKGROUND_9PATCH = new NinePatch(new Texture("textures/ui/item/mythical_background.png"), 5, 5, 5, 5);
+
     public static final ShaderProgram BORDER_SHADER = new ShaderProgram(Gdx.files.internal("shaders/border.vert"), Gdx.files.internal("shaders/border.frag"));
 
     public static final Map<String, Model> WALLS = new HashMap<>();
@@ -159,5 +165,11 @@ public class Assets implements Disposable {
         TAB_9PATCH.scale(4f, 4f);
         TAB_SELECTED_9PATCH.scale(4f, 4f);
         SECTION_9PATCH.scale(4f, 4f);
+
+        COMMON_BACKGROUND_9PATCH.scale(4f, 4f);
+        UNCOMMON_BACKGROUND_9PATCH.scale(4f, 4f);
+        RARE_BACKGROUND_9PATCH.scale(4f, 4f);
+        LEGENDARY_BACKGROUND_9PATCH.scale(4f, 4f);
+        MYTHICAL_BACKGROUND_9PATCH.scale(4f, 4f);
     }
 }
