@@ -125,6 +125,10 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         characters.values().forEach(c -> c.setPos(spawnX, spawnY));
     }
 
+    public int getAndIncrementNextBulletId() {
+        return nextBulletId++;
+    }
+
     public void update(float dt) {
         ++raidTime;
 
@@ -177,11 +181,12 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     public BulletNode<?, ?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
         BulletNode<?, ?> poolBullet = createHierarchy(damage, x, y, dirX, dirY, bullet, index, enemy, 1);
         if (bullet instanceof SingleBulletType) {
-            return bullets.put(nextBulletId++, (B) poolBullet);
-        } else return bulletGroups.put(nextBulletId++, (BG) poolBullet);
+            bullets.put(nextBulletId++, (B) poolBullet);
+        } else bulletGroups.put(nextBulletId++, (BG) poolBullet);
+        return poolBullet;
     }
 
-    private BulletNode<?, ?> createHierarchy(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
+    public BulletNode<?, ?> createHierarchy(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {
         BulletNode<?, ?> node = createBullet(damage, x, y, dirX, dirY, bullet, index, enemy, siblings);
         if (node instanceof BulletGroup<?> group) {
             GroupBulletType def = (GroupBulletType) bullet;

@@ -44,6 +44,7 @@ public class ServerCharacter implements Character<ServerRaid> {
     private long pendingStatusEffectRemoves;
     private final List<StatusEffect> expiredEffects;
     private boolean dead;
+    private int currentAttackId;
 
     public ServerCharacter(int connectionId, CharacterDefinition character) {
         this.connectionId = connectionId;
@@ -200,6 +201,16 @@ public class ServerCharacter implements Character<ServerRaid> {
     @Override
     public boolean isDead() {
         return dead;
+    }
+
+    @Override
+    public int getCurrentAttackId() {
+        return currentAttackId;
+    }
+
+    @Override
+    public void setCurrentAttackId(int currentAttackId) {
+        this.currentAttackId = currentAttackId;
     }
 
     public long getLastAttackTime() {

@@ -1,8 +1,12 @@
 package dev.creoii.dungeoneer.server.game;
 
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
+import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.s2c.character.KillCharacterS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
@@ -20,12 +24,15 @@ import java.util.List;
 public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerCharacter, ServerDungeonMap> implements Tickable {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final DungeoneerServer server;
+    private final EntityManager<ServerRaid> entityManager;
     private final EntityCollisionManager entityCollisionManager;
     private float timer;
     private final List<MoveCharactersS2C.Entry> moveEntries;
     private final List<StatusEffectsS2C.Entry> statusEffectEntries;
     private final List<AttacksS2C.Entry> attackEntries;
     private final List<DamageCharactersS2C.Entry> damageEntries;
+    private final List<MoveEntitiesS2C.Entry> moveEntityEntries;
+    private final List<AddEntitiesS2C.Entry> addEntityEntries;
 
     private final Pool<ServerBullet> bulletPool = new Pool<>() {
         @Override
@@ -43,6 +50,7 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
     public ServerRaid(DungeoneerServer server, ServerDungeonMap dungeon, ServerCharacter character, RaidDefinition raid) {
         super(raid, dungeon);
         this.server = server;
+        entityManager = new EntityManager<>(this, 2);
         entityCollisionManager = new EntityCollisionManager(this);
         addCharacter(character.get().accountId(), character);
         character.setPos(dungeon.getTemplate().spawnPos().x * 8f, dungeon.getTemplate().spawnPos().y * 8f);
@@ -51,6 +59,8 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
         statusEffectEntries = new ArrayList<>();
         attackEntries = new ArrayList<>();
         damageEntries = new ArrayList<>();
+        moveEntityEntries = new ArrayList<>();
+        addEntityEntries = new ArrayList<>();
         set(raid);
     }
 
@@ -68,8 +78,20 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
         return server;
     }
 
+    public EntityManager<ServerRaid> getEntityManager() {
+        return entityManager;
+    }
+
     public List<MoveCharactersS2C.Entry> getMoveEntries() {
         return moveEntries;
+    }
+
+    public List<MoveEntitiesS2C.Entry> getMoveEntityEntries() {
+        return moveEntityEntries;
+    }
+
+    public List<AddEntitiesS2C.Entry> getAddEntityEntries() {
+        return addEntityEntries;
     }
 
     public List<StatusEffectsS2C.Entry> getStatusEffectEntries() {
@@ -82,6 +104,14 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
 
     public List<DamageCharactersS2C.Entry> getDamageEntries() {
         return damageEntries;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public BulletNode<?, ?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
+        BulletNode<?, ?> bulletNode = super.addBullet(damage, x, y, dirX, dirY, bullet, index, enemy);
+        entityManager.add((Entity<ServerRaid>) bulletNode);
+        return bulletNode;
     }
 
     @Override
@@ -136,6 +166,18 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
                 getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), packet));
                 damageEntries.clear();
             }
+
+            if (!moveEntityEntries.isEmpty()) {
+                MoveEntitiesS2C packet = new MoveEntitiesS2C(List.copyOf(moveEntityEntries));
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), packet));
+                moveEntityEntries.clear();
+            }
+
+            if (!addEntityEntries.isEmpty()) {
+                AddEntitiesS2C packet = new AddEntitiesS2C(List.copyOf(addEntityEntries));
+                getCharacters().values().forEach(serverCharacter -> server.get().sendToUDP(serverCharacter.getConnectionId(), packet));
+                addEntityEntries.clear();
+            }
         } else if (getStatus() == Status.WAITING && getCharacters().size() == get().requiredCharacters()) { // Start raid
             setStatus(Status.ACTIVE);
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
@@ -151,6 +193,8 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
         statusEffectEntries.clear();
         attackEntries.clear();
         damageEntries.clear();
+        moveEntityEntries.clear();
+        addEntityEntries.clear();
         timer = 0f;
         entityCollisionManager.getCollidables().clear();
     }

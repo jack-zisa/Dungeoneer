@@ -10,6 +10,12 @@ import dev.creoii.dungeoneer.util.context.ContextProvider;
 import org.jspecify.annotations.Nullable;
 
 public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextProvider {
+    long CHARACTER_ID = 0L;
+
+    long id();
+
+    void setId(long id);
+
     float[] getPos();
 
     default float getX() {

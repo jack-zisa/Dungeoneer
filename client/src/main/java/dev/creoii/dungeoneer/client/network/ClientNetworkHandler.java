@@ -5,11 +5,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.esotericsoftware.kryonet.Connection;
 import dev.creoii.dungeoneer.DataManager;
+import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.client.ClientState;
 import dev.creoii.dungeoneer.client.Dungeoneer;
-import dev.creoii.dungeoneer.client.game.AnimationState;
-import dev.creoii.dungeoneer.client.game.ClientCharacter;
-import dev.creoii.dungeoneer.client.game.ClientRaid;
+import dev.creoii.dungeoneer.client.game.*;
 import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
 import dev.creoii.dungeoneer.client.render.ui.screen.LoginScreen;
 import dev.creoii.dungeoneer.client.render.ui.editor.ClientTiles;
@@ -23,10 +22,14 @@ import dev.creoii.dungeoneer.client.render.ui.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
+import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import dev.creoii.dungeoneer.definitions.item.WeaponItem;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
@@ -35,6 +38,7 @@ import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
+import dev.creoii.dungeoneer.network.data.BulletPacketData;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
 import dev.creoii.dungeoneer.network.s2c.account.AuthenticateS2C;
@@ -54,9 +58,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -288,11 +290,34 @@ public class ClientNetworkHandler extends NetworkHandler {
                 DataManager.setDebug(client.getSettings().debug().value()); // TODO: Sync to settings option changes
                 Gdx.app.postRunnable(() -> ClientTiles.load(client));
             }
-            case AttackResultS2C(PacketResult result) -> {
+            case AttackResultS2C(PacketResult result, long clientId, List<Long> entityIds) -> {
+                if (entityIds.isEmpty()) return;
                 ClientCharacter character = client.getState().getActiveCharacter();
                 if (!character.isNull()) {
                     character.setAttackPending(false);
-                    if (result == PacketResult.SUCCESS) character.setLastAttackTime(System.currentTimeMillis());
+                    Map<Integer, BulletNode<?, ?>> map = character.getPredictedBullets().row(clientId);
+                    if (result == PacketResult.SUCCESS) {
+                        int size = map.size();
+
+                        if (size != entityIds.size())
+                            throw new IllegalStateException("Mismatch between server attack & client attack bullet counts: " + entityIds.size() + " vs " + size);
+
+                        ClientRaid raid = client.getState().getCurrentRaid();
+                        for (int i = 0; i < size; ++i) {
+                            long entityId = entityIds.get(i);
+                            BulletNode<?, ?> bulletNode = character.getPredictedBullets().remove(clientId, i);
+                            raid.getEntityManager().add((Entity<ClientRaid>) bulletNode, entityId);
+
+                            if (bulletNode.getType() instanceof SingleBulletType) {
+                                raid.getBullets().put(raid.getAndIncrementNextBulletId(), (ClientBullet) bulletNode);
+                            } else raid.getBulletGroups().put(raid.getAndIncrementNextBulletId(), (ClientBulletGroup) bulletNode);
+                        }
+
+                        character.setLastAttackTime(System.currentTimeMillis());
+                    } else {
+                        character.getPredictedBullets().rowMap().remove(clientId);
+                    }
+                    character.freeClientId(clientId);
                 }
             }
             case SyncRaidTimerS2C(long timeRemaining) -> {
@@ -367,16 +392,14 @@ public class ClientNetworkHandler extends NetworkHandler {
                 if (character == null)
                     return;
 
-                AnimationState animationState = character.getAnimationState();
-
                 WeaponItem weapon = character.getEquipment().getWeapon();
                 if (weapon == null)
                     return;
                 Attack attack = weapon.attack();
-                character.attack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
+                character.tryAttack(attack, client.getState().getCurrentRaid(), new float[]{entry.mouseDirX(), entry.mouseDirY()});
                 AttackEvents.POST.invoker().onPostAttack(character, attack, client.getState().getCurrentRaid());
 
-                character.setAnimationState(AnimationState.toAttacking(animationState));
+                character.setAnimationState(AnimationState.toAttacking(character.getAnimationState()));
             });
             case DamageCharactersS2C(List<DamageCharactersS2C.Entry> entries) -> {
                 entries.forEach(entry -> {
@@ -446,7 +469,6 @@ public class ClientNetworkHandler extends NetworkHandler {
                     if (client.getScreen() instanceof GameScreen gameScreen) {
                         ClientCharacter character = client.getState().getCharacterById((int) characterId);
                         if (character == null || character.isNull()) {
-                            System.out.println("syncing empty inventory");
                             gameScreen.getInventory().refresh(new Inventory(4));
                         } else {
                             slots.forEach(slot -> character.getEquipment().setItem(slot.getIndex(), slot.getItem(), slot.getCount()));
@@ -463,6 +485,42 @@ public class ClientNetworkHandler extends NetworkHandler {
                     ClientCharacter character1 = client.getState().getCharacterById((int) character.id());
                     if (character1 != null && !character1.isNull()) {
                         character1.set(character);
+                    }
+                }
+            }
+            case MoveEntitiesS2C(List<MoveEntitiesS2C.Entry> entries) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid.isNull()) return;
+                entries.forEach(entry -> {
+                    EntityManager<ClientRaid> entityManager = raid.getEntityManager();
+                    if (entityManager.contains(entry.entityId())) {
+                        Entity<?> entity = entityManager.get(entry.entityId());
+                        entity.setPos(entry.x(), entry.y());
+                    }
+                });
+            }
+            case AddEntitiesS2C(List<AddEntitiesS2C.Entry> entries) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid.isNull()) return;
+                for (AddEntitiesS2C.Entry entry : entries) {
+                    switch (entry.data().type()) {
+                        case BULLET -> {
+                            if (raid.getEntityManager().contains(entry.entityId())) return;
+
+                            BulletPacketData data = (BulletPacketData) entry.data();
+
+                            BulletType bullet = DataManager.getBullet(data.bulletType());
+
+                            BulletNode<?, ?> poolBullet = raid.createHierarchy(data.damage(), entry.x(), entry.y(), data.dirX(), data.dirY(), bullet, data.index(), data.enemy(), 1);
+                            raid.getEntityManager().add((Entity<ClientRaid>) poolBullet, entry.entityId());
+                            if (bullet instanceof SingleBulletType) {
+                                raid.getBullets().put(raid.getAndIncrementNextBulletId(), (ClientBullet) poolBullet);
+                            } else raid.getBulletGroups().put(raid.getAndIncrementNextBulletId(), (ClientBulletGroup) poolBullet);
+
+                            Entity<ClientRaid> entity = raid.getEntityManager().get(entry.entityId());
+                            if (entity != null)
+                                entity.setPos(entry.x(), entry.y());
+                        }
                     }
                 }
             }

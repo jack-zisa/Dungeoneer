@@ -7,6 +7,8 @@ import dev.creoii.dungeoneer.definitions.attack.Attack;
 import dev.creoii.dungeoneer.definitions.item.WeaponItem;
 import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.definitions.map.DungeonMapDefinition;
+import dev.creoii.dungeoneer.definitions.sided.BulletNode;
+import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.network.NetworkHandler;
 import dev.creoii.dungeoneer.network.PacketResult;
 import dev.creoii.dungeoneer.network.PacketSerializer;
@@ -54,6 +56,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -391,37 +395,42 @@ public class ServerNetworkHandler extends NetworkHandler {
             if (dungeonMap != null) {
                 server.get().sendToTCP(connection.getID(), new SendDungeonMapS2C(dungeonMap));
             }
-        } else if (object instanceof AttackC2S(long raidId, long accountId, float mouseDirX, float mouseDirY)) {
-            Account account = server.getDatabase().getAccounts().getById(accountId);
-            if (account != null) {
-                ServerRaid serverRaid = server.getState().getRaids().get(raidId);
-                if (serverRaid != null) {
-                    ServerCharacter character = serverRaid.getCharacterByAccountId(accountId);
-                    if (character != null) {
-                        WeaponItem weapon = character.getEquipment().getWeapon();
-                        if (weapon == null)
-                            return;
-                        Attack attack = weapon.attack();
+        } else if (object instanceof AttackC2S(long raidId, long accountId, float mouseDirX, float mouseDirY, long clientId, int attackIndex, int attackId)) {
+            ServerRaid serverRaid = server.getState().getRaids().get(raidId);
+            if (serverRaid != null) {
+                ServerCharacter character = serverRaid.getCharacterByAccountId(accountId);
+                if (character != null) {
+                    WeaponItem weapon = character.getEquipment().getWeapon();
+                    if (weapon == null)
+                        return;
+                    List<Attack> leaves = new ArrayList<>();
+                    character.collectBulletAttacks(weapon.attack(), leaves);
+                    Attack attack = leaves.get(attackIndex);
 
-                        if (!AttackEvents.PRE.invoker().onPreAttack(character, attack, serverRaid)) {
-                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
-                            return;
-                        }
-
-                        long currentTime = System.currentTimeMillis();
+                    long currentTime = System.currentTimeMillis();
+                    if (attackId != character.getCurrentAttackId()) {
                         long lastAttackTime = character.getLastAttackTime();
                         long cooldown = (long) StatUtils.getCalculatedDexterity(character, character.getStats().dexterity().value());
-                        if (currentTime - lastAttackTime >= cooldown) {
-                            character.attack(attack, serverRaid, new float[]{mouseDirX, mouseDirY});
-                            AttackEvents.POST.invoker().onPostAttack(character, attack, serverRaid);
-                            serverRaid.getAttackEntries().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
 
-                            character.setLastAttackTime(currentTime);
-                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS));
-                        } else {
-                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL));
+                        if (currentTime - lastAttackTime < cooldown) {
+                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL, clientId, List.of()));
+                            return;
                         }
+
+                        if (!AttackEvents.PRE.invoker().onPreAttack(character, weapon.attack(), serverRaid)) {
+                            server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.FAIL, clientId, List.of()));
+                            return;
+                        }
+
+                        character.setCurrentAttackId(attackId);
+                        character.setLastAttackTime(currentTime);
                     }
+
+                    List<BulletNode<?, ?>> bulletNodes = character.tryAttackLeaf(attack, serverRaid, new float[]{mouseDirX, mouseDirY}, attackIndex);
+                    server.get().sendToTCP(connection.getID(), new AttackResultS2C(PacketResult.SUCCESS, clientId, bulletNodes.stream().map(Entity::id).toList()));
+
+                    serverRaid.getAttackEntries().add(new AttacksS2C.Entry(accountId, mouseDirX, mouseDirY));
+                    AttackEvents.POST.invoker().onPostAttack(character, weapon.attack(), serverRaid);
                 }
             }
         } else if (object instanceof CancelJoinRaidC2S(long accountId, long raidId)) {

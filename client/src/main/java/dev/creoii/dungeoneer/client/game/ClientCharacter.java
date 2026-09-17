@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -16,10 +18,13 @@ import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.item.inventory.EquipmentInventory;
+import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Character;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffectInstance;
+import dev.creoii.dungeoneer.network.c2s.raid.AttackC2S;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.context.Context;
@@ -29,6 +34,9 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 public class ClientCharacter implements Character<ClientRaid>, Renderable {
@@ -49,6 +57,11 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private long statusEffects;
     private AnimationState animationState;
     private boolean dead;
+
+    private int currentAttackId;
+    private final Table<Long, Integer, BulletNode<?, ?>> predictedBullets;
+    private final PriorityQueue<Long> freeIds;
+    private long nextId;
 
     public ClientCharacter(Dungeoneer client, @Nullable CharacterDefinition character) {
         context = new Context();
@@ -77,6 +90,9 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         bounds = new Rectangle(0f, 0f, 8f, 8f);
         animationState = AnimationState.IDLE_DOWN;
         dead = false;
+
+        predictedBullets = HashBasedTable.create();
+        freeIds = new PriorityQueue<>();
     }
 
     @Override
@@ -185,6 +201,63 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         return maxStats;
     }
 
+    public int nextAttackId() {
+        return currentAttackId++;
+    }
+
+    @Override
+    public int getCurrentAttackId() {
+        return currentAttackId;
+    }
+
+    @Override
+    public void setCurrentAttackId(int currentAttackId) {
+        this.currentAttackId = currentAttackId;
+    }
+
+    public void freeClientId(long clientId) {
+        freeIds.offer(clientId);
+    }
+
+    public Table<Long, Integer, BulletNode<?, ?>> getPredictedBullets() {
+        return predictedBullets;
+    }
+
+    @Override
+    public List<BulletNode<?, ?>> attack(ClientRaid raid, int bulletCount, float baseAngle, float arcGap, float angleOffset, float x, float y, float[] mouseDir, BulletType bullet, int indexOffset, int attackIndex) {
+        List<BulletNode<?, ?>> bulletNodes = new ArrayList<>();
+
+        for (int i = 0; i < bulletCount; ++i) {
+            float angle = (baseAngle + i * arcGap) + angleOffset;
+
+            float radians = angle * MathUtils.degreesToRadians;
+            float cos = MathUtils.cos(radians);
+            float sin = MathUtils.sin(radians);
+
+            float rotatedX = mouseDir[0] * cos - mouseDir[1] * sin;
+            float rotatedY = mouseDir[1] * cos + mouseDir[0] * sin;
+
+            if (willHitWallRightAway(raid.getDungeonMap(), x, y, rotatedX, rotatedY))
+                continue;
+
+            int damage = getEquipment().getWeapon().damage().get(context()).intValue();
+
+            bulletNodes.add(raid.createHierarchy(damage, x, y, rotatedX, rotatedY, bullet, i + indexOffset, false, 1));
+        }
+
+        if (!bulletNodes.isEmpty()) {
+            long clientId = freeIds.isEmpty() ? nextId++ : freeIds.poll();
+            bulletNodes.forEach(bulletNode -> {
+                predictedBullets.put(clientId, bulletNode.getIndex() - indexOffset, bulletNode); // Standardize bullet index to be zero-based
+            });
+            if (isLocal()) {
+                client.get().sendTCP(new AttackC2S(raid.get().id(), character.accountId(), mouseDir[0], mouseDir[1], clientId, attackIndex, getCurrentAttackId()));
+            }
+        }
+
+        return bulletNodes;
+    }
+
     @Override
     public boolean addStatusEffect(StatusEffectInstance statusEffect) {
         statusEffect.statusEffect().applier().apply(getRaid(), context);
@@ -289,7 +362,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     public boolean isLocal() {
-        return character.id() == client.getState().getActiveCharacter().get().id();
+        return character.accountId() == client.getState().getAccount().id() && character.id() == client.getState().getActiveCharacter().get().id();
     }
 
     @Override

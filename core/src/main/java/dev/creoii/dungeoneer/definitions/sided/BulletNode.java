@@ -14,7 +14,8 @@ import dev.creoii.dungeoneer.util.context.Context;
 import org.jspecify.annotations.Nullable;
 
 public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?>> implements Entity<R>, Pool.Poolable {
-    private Context context;
+    private long id;
+    private final Context context;
     private T type;
     private BulletPathType.Instance<?> path;
     private final float[] pos;
@@ -35,6 +36,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
     @Nullable private BulletNode<?, ?> parent;
 
     public BulletNode() {
+        id = -1L;
         context = new Context();
         context.set(ValueType.ENTITY, this);
         context.set(ValueType.POSITION, new Vector2());
@@ -47,6 +49,16 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         offset = VectorUtils.zero();
         setDead(false);
         bounds = new Rectangle(0f, 0f, 0f, 0f);
+    }
+
+    @Override
+    public long id() {
+        return id;
+    }
+
+    @Override
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override
@@ -264,7 +276,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         return true;
     }
 
-    public void applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
+    public boolean applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
         float perpX = -dirY;
         float perpY = dirX;
 
@@ -289,7 +301,9 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
             float invLength = 1f / (float) Math.sqrt(length2);
             localDirection[0] = movementX * invLength;
             localDirection[1] = movementY * invLength;
+            return true;
         }
+        return false;
     }
 
     @Override

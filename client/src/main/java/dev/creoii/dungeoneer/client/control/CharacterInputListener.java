@@ -86,11 +86,12 @@ public class CharacterInputListener extends InputAdapter implements MousePosList
             if (!character.isAttackPending() && (currentTime - character.getLastAttackTime()) >= cooldown) {
                 character.setAttackPending(true);
 
+                character.setCurrentAttackId(character.nextAttackId());
                 float[] mouseDir = getDirectionToMouse(character.getCenterX(), character.getCenterY());
-                if (character.attack(attack, raid, mouseDir)) {
-                    AttackEvents.POST.invoker().onPostAttack(character, attack, raid);
-                    client.get().sendTCP(new AttackC2S(raid.get().id(), character.get().accountId(), mouseDir[0], mouseDir[1]));
-                } else character.setAttackPending(false);
+
+                if (character.tryAttack(attack, raid, mouseDir).isEmpty()) {
+                    character.setAttackPending(false);
+                } else AttackEvents.POST.invoker().onPostAttack(character, attack, raid);
             }
             character.setAnimationState(AnimationState.toAttacking(animationState));
         } else character.setAnimationState(character.isMoving() ? AnimationState.toMoving(animationState) : AnimationState.toIdle(animationState));
