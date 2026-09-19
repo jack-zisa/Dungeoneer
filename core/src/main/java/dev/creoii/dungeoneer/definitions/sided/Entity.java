@@ -24,6 +24,9 @@ public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextP
         getPos()[0] = x;
         getPos()[1] = y;
 
+        getBounds().x = x;
+        getBounds().y = y;
+
         if (context().has(ValueType.POSITION)) {
             ((Vector2) context().get(ValueType.POSITION)).set(x, y);
         } else context().set(ValueType.POSITION, new Vector2(x, y));

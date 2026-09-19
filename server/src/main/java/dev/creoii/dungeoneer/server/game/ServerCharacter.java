@@ -106,7 +106,6 @@ public class ServerCharacter implements Character<ServerRaid> {
 
     @Override
     public Rectangle getBounds() {
-        bounds.setPosition(getX(), getY());
         return bounds;
     }
 

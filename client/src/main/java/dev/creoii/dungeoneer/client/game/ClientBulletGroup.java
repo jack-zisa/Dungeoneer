@@ -3,6 +3,7 @@ package dev.creoii.dungeoneer.client.game;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
@@ -35,6 +36,16 @@ public class ClientBulletGroup extends BulletGroup<ClientRaid> implements Render
     @Override
     public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
         getChildren().forEach(child -> RenderUtils.renderBullet(child, client, camera, rotation, batch, dt));
+    }
+
+    @Override
+    public void renderDebug(ShapeRenderer shapeRenderer, float[] mouseDir) {
+        if (isDead()) return;
+
+        getChildren().forEach(bulletNode -> {
+            if (bulletNode instanceof ClientBullet clientBullet) clientBullet.renderDebug(shapeRenderer, mouseDir);
+            else if (bulletNode instanceof ClientBulletGroup clientBulletGroup) clientBulletGroup.renderDebug(shapeRenderer, mouseDir);
+        });
     }
 
     @Override

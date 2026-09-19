@@ -81,7 +81,7 @@ public class ClientNetworkHandler extends NetworkHandler {
         if (!PacketSerializer.INSTANCE.isValidPacket(object))
             return;
 
-        if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
+        if (client.isDebug()) Dungeoneer.LOGGER.debug("%s | Connection %s | %s", connection.getRemoteAddressTCP(), connection.getID(), object.getClass().getSimpleName());
 
         switch (object) {
             case AuthenticateS2C _ -> Gdx.app.postRunnable(() -> client.setScreen(new LoginScreen(client)));
@@ -285,7 +285,7 @@ public class ClientNetworkHandler extends NetworkHandler {
             }
             case LoadDataS2C() -> {
                 DataManager.load(Paths.get(System.getProperty("user.dir"), "cache", "data"));
-                DataManager.setDebug(client.getSettings().debug().value()); // TODO: Sync to settings option changes
+                DataManager.setDebug(client.isDebug()); // TODO: Sync to settings option changes
                 Gdx.app.postRunnable(() -> ClientTiles.load(client));
             }
             case AttackResultS2C(PacketResult result) -> {
@@ -298,7 +298,7 @@ public class ClientNetworkHandler extends NetworkHandler {
             case SyncRaidTimerS2C(long timeRemaining) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (!raid.isNull() && timeRemaining != raid.getRemainingTimeMs()) {
-                    if (client.getSettings().debug().value()) Dungeoneer.LOGGER.debug("Synced remaining raid time from %s to %s.", raid.getRemainingTimeMs(), timeRemaining);
+                    if (client.isDebug()) Dungeoneer.LOGGER.debug("Synced remaining raid time from %s to %s.", raid.getRemainingTimeMs(), timeRemaining);
                     raid.syncTimer(timeRemaining);
                 }
             }

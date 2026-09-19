@@ -249,7 +249,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     @Override
     public Rectangle getBounds() {
-        bounds.setPosition(getX(), getY());
         return bounds;
     }
 
@@ -373,8 +372,10 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     public void renderDebug(ShapeRenderer shapeRenderer, float[] mouseDir) {
         if (dead) return;
 
-        shapeRenderer.setColor(isAttackPending() ? Color.GREEN : Color.WHITE);
-        shapeRenderer.line(getCenterX(), getCenterY(), getCenterX() + mouseDir[0] * 32f, getCenterY() + mouseDir[1] * 32f);
+        if (isLocal()) {
+            shapeRenderer.setColor(isAttackPending() ? Color.GREEN : Color.WHITE);
+            shapeRenderer.line(getCenterX(), getCenterY(), getCenterX() + mouseDir[0] * 32f, getCenterY() + mouseDir[1] * 32f);
+        }
 
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(getRenderX(), getRenderY(), bounds.width, bounds.height);

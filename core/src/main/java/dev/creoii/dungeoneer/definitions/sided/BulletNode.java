@@ -14,7 +14,7 @@ import dev.creoii.dungeoneer.util.context.Context;
 import org.jspecify.annotations.Nullable;
 
 public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?>> implements Entity<R>, Pool.Poolable {
-    private Context context;
+    private final Context context;
     private T type;
     private BulletPathType.Instance<?> path;
     private final float[] pos;
@@ -226,7 +226,6 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
 
     @Override
     public Rectangle getBounds() {
-        bounds.setPosition(getX(), getY());
         return bounds;
     }
 
