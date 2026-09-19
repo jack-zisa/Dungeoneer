@@ -94,8 +94,6 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
 
             timer -= dt;
 
-            entityCollisionManager.update();
-
             // Update bullet positions
             super.update(dt);
 
@@ -112,6 +110,8 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
                 }
                 character.tick(dt);
             }
+
+            entityCollisionManager.update(); // Update collision after bullets & characters have moved
 
             if (!moveEntries.isEmpty()) {
                 MoveCharactersS2C packet = new MoveCharactersS2C(List.copyOf(moveEntries));

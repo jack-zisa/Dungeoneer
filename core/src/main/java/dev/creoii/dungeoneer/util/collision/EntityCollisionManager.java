@@ -1,6 +1,7 @@
 package dev.creoii.dungeoneer.util.collision;
 
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 
 import java.util.*;
@@ -26,10 +27,10 @@ public class EntityCollisionManager {
         List<Collidable> characters = raid.getCharacters().values().stream().collect(Collectors.toUnmodifiableList());
         collidables.put(EntityCollisionLayer.CHARACTER, characters);
 
-        List<Collidable> enemyBullets = raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet bullet1 && bullet1.isEnemy()).collect(Collectors.toUnmodifiableList());
+        List<Collidable> enemyBullets = new ArrayList<>();
+        List<Collidable> characterBullets = new ArrayList<>();
+        collectBullets(enemyBullets, characterBullets);
         collidables.put(EntityCollisionLayer.ENEMY_BULLET, enemyBullets);
-
-        List<Collidable> characterBullets = raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet bullet1 && !bullet1.isEnemy()).collect(Collectors.toUnmodifiableList());
         collidables.put(EntityCollisionLayer.CHARACTER_BULLET, characterBullets);
 
         Set<CollisionPair> currentCollisions = new HashSet<>();
@@ -92,6 +93,21 @@ public class EntityCollisionManager {
         matrix[EntityCollisionLayer.ENEMY.ordinal()][EntityCollisionLayer.CHARACTER_BULLET.ordinal()] = true;
 
         return matrix;
+    }
+
+    private void collectBullets(List<Collidable> enemyBullets, List<Collidable> characterBullets) {
+        raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet<?> bullet1 && bullet1.isEnemy()).forEach(enemyBullets::add);
+        raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet<?> bullet1 && !bullet1.isEnemy()).forEach(characterBullets::add);
+        raid.getBulletGroups().values().forEach(bulletGroup -> collectBulletGroup(bulletGroup, enemyBullets, characterBullets));
+    }
+
+    private void collectBulletGroup(BulletGroup<?> bulletGroup, List<Collidable> enemyBullets, List<Collidable> characterBullets) {
+        bulletGroup.getChildren().forEach(bulletNode -> {
+            if (bulletNode instanceof Bullet<?> bullet) {
+                if (bullet.isEnemy()) enemyBullets.add(bulletNode);
+                else characterBullets.add(bulletNode);
+            } else if (bulletNode instanceof BulletGroup<?> bulletGroup1) collectBulletGroup(bulletGroup1, enemyBullets, characterBullets);
+        });
     }
 
     public record CollisionPair(Collidable a, Collidable b) {

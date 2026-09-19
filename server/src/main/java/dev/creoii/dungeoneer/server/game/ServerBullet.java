@@ -29,6 +29,8 @@ public class ServerBullet extends Bullet<ServerRaid> {
                 return;
             if (character.damage(getDamage())) {
                 HitEvents.POST.invoker().onPostHit(character, this, raid);
+                setParent(null);
+                setDead(true);
             }
         }
     }
