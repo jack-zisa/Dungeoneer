@@ -150,8 +150,6 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
             if (willHitWallRightAway(raid.getDungeonMap(), x, y, rotatedX, rotatedY))
                 continue;
 
-            System.out.println("    adding bullet " + (i + indexOffset));
-
             entities.add(raid.addBullet(getEquipment().getWeapon().damage().get(context()).intValue(), x, y, rotatedX, rotatedY, bullet, i + indexOffset, false));
         }
 

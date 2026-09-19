@@ -106,7 +106,8 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
         });
     }
 
-    public void update(float dt) {
+    @Override
+    public void tick(float dt) {
         if (getStatus() == Status.ACTIVE) {
             long remaining = getRemainingTimeMs();
             if (remaining <= 0L) {
@@ -118,7 +119,7 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
                 gameScreen.getTimeRemainingLabel().setText(getRemainingTimeString());
             }
 
-            super.update(dt);
+            super.tick(dt);
 
             Iterator<ClientCharacter> iterator = getCharacters().values().iterator();
             while (iterator.hasNext()) {

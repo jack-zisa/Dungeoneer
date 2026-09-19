@@ -5,7 +5,7 @@ import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveEntitiesS2C;
 
 public class ServerBulletGroup extends BulletGroup<ServerRaid> implements ServerEntity {
-    private final ServerRaid raid;
+    private ServerRaid raid;
 
     public ServerBulletGroup(ServerRaid raid) {
         super();
@@ -19,6 +19,7 @@ public class ServerBulletGroup extends BulletGroup<ServerRaid> implements Server
 
     @Override
     public void setRaid(ServerRaid raid) {
+        this.raid = raid;
     }
 
     @Override

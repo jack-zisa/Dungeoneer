@@ -113,7 +113,7 @@ public class Dungeoneer extends Game {
         networkHandler.tick(dt);
 
         if (state.getStatus() == ClientState.Status.RAIDING && !state.getCurrentRaid().isNull() && !state.getActiveCharacter().isNull() && screen instanceof GameScreen gameScreen) {
-            state.getCurrentRaid().update(dt);
+            state.getCurrentRaid().tick(dt);
         }
 
         super.render();

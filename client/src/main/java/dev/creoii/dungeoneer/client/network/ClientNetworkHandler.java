@@ -510,6 +510,7 @@ public class ClientNetworkHandler extends NetworkHandler {
                             BulletPacketData data = (BulletPacketData) entry.data();
 
                             BulletType bullet = DataManager.getBullet(data.bulletType());
+                            if (bullet == null) return;
 
                             BulletNode<?, ?> poolBullet = raid.createHierarchy(data.damage(), entry.x(), entry.y(), data.dirX(), data.dirY(), bullet, data.index(), data.enemy(), 1);
                             raid.getEntityManager().add((Entity<ClientRaid>) poolBullet, entry.entityId());
@@ -523,6 +524,11 @@ public class ClientNetworkHandler extends NetworkHandler {
                         }
                     }
                 }
+            }
+            case RemoveEntitiesS2C(List<Long> entityIds) -> {
+                ClientRaid raid = client.getState().getCurrentRaid();
+                if (raid.isNull()) return;
+                entityIds.forEach(aLong -> raid.getEntityManager().remove(aLong));
             }
             default -> {
             }

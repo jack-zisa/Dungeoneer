@@ -8,7 +8,7 @@ import dev.creoii.dungeoneer.util.collision.Collidable;
 import dev.creoii.dungeoneer.util.event.HitEvents;
 
 public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
-    private final ServerRaid raid;
+    private ServerRaid raid;
 
     public ServerBullet(ServerRaid raid) {
         this.raid = raid;
@@ -21,6 +21,7 @@ public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
 
     @Override
     public void setRaid(ServerRaid raid) {
+        this.raid = raid;
     }
 
     @Override
@@ -32,6 +33,7 @@ public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
                 HitEvents.POST.invoker().onPostHit(character, this, raid);
                 setParent(null);
                 setDead(true);
+                raid.getRemoveEntityEntries().add(id());
             }
         }
     }

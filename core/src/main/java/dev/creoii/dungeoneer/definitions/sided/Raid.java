@@ -1,14 +1,13 @@
 package dev.creoii.dungeoneer.definitions.sided;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
-import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
+import dev.creoii.dungeoneer.util.Tickable;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
@@ -17,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Random;
 
-public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character, D extends DungeonMap> {
+public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character, D extends DungeonMap> implements Tickable {
     private final Random random;
     private RaidDefinition raid;
     private Status status;
@@ -129,13 +128,9 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         return nextBulletId++;
     }
 
-    public void update(float dt) {
+    @Override
+    public void tick(float dt) {
         ++raidTime;
-
-        if (getRaidTime() % 20 == 0) { // TODO: Remove as this is just testing
-            Vector2 spawnPos = getDungeonMap().getTemplate().spawnPos();
-            addBullet(10, spawnPos.x * 8f, spawnPos.y * 8f, MathUtils.cos(getRaidTime()) * .01f, MathUtils.sin(getRaidTime()) * .01f, DataManager.getBullet("fireball"), 0, true);
-        }
 
         Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();
         while (bulletIterator.hasNext()) {
