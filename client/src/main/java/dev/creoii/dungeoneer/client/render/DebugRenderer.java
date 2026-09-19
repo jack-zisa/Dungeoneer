@@ -2,7 +2,6 @@ package dev.creoii.dungeoneer.client.render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
@@ -26,7 +25,7 @@ public class DebugRenderer {
         String renderPosText = String.format("  Render Pos: %.2f, %.2f", character.getRenderX(), character.getRenderY());
         Tile tile = character.getTileOn(MapLayerType.GROUND);
         String tilePosText = String.format("  Tile: %d, %d: %s", character.getTileX(), character.getTileY(), tile == null ? "" : tile.id());
-        String statsText = character.getStats().toDebugString(character.getMaxStats());
+        String statsText = character.getStats().toDebugString(character.get().characterClass().maxStats());
 
         return new String[]{
             Gdx.graphics.getFramesPerSecond() + " FPS",

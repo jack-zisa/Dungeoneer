@@ -275,7 +275,7 @@ public class GameScreen extends AbstractScreen {
         }
 
         private void updateAmount() {
-            if (amount != null) amount.setText(character.getStats().health().value() + "/" + character.getMaxStats().health().value());
+            if (amount != null) amount.setText(character.getStats().health().value() + "/" + character.get().characterClass().maxStats());
         }
 
         @Override
@@ -313,7 +313,7 @@ public class GameScreen extends AbstractScreen {
         }
 
         public void update() {
-            float percent = (float) character.getStats().health().value() / character.getMaxStats().health().value();
+            float percent = (float) character.getStats().health().value() / character.get().characterClass().maxStats().health().value();
             setPercent(percent);
         }
     }

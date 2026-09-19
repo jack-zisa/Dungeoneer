@@ -42,10 +42,13 @@ public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode
         if (!super.update(dt))
             return false;
 
-        for (BulletNode<?, ?> child : children) {
-            if (!child.update(dt))
-                return false;
+        for (int i = children.size - 1; i >= 0; --i) {
+            BulletNode<?, ?> child = children.get(i);
+            if (!child.update(dt)) {
+                children.removeIndex(i);
+            }
         }
+
         return true;
     }
 

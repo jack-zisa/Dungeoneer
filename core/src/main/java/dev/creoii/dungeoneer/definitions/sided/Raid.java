@@ -128,9 +128,9 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     public void update(float dt) {
         ++raidTime;
 
-        if (getRaidTime() % 10 == 0) { // TODO: Remove as this is just testing
+        if (getRaidTime() % 20 == 0) { // TODO: Remove as this is just testing
             Vector2 spawnPos = getDungeonMap().getTemplate().spawnPos();
-            addBullet(10, spawnPos.x * 8f, spawnPos.y * 8f, MathUtils.cos(getRaidTime() * .5f), MathUtils.sin(getRaidTime() * .5f), DataManager.getBullet("fire_shot"), 0, true);
+            addBullet(10, spawnPos.x * 8f, spawnPos.y * 8f, MathUtils.cos(getRaidTime()) * .01f, MathUtils.sin(getRaidTime()) * .01f, DataManager.getBullet("fireball"), 0, true);
         }
 
         Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();

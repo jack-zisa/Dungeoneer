@@ -37,8 +37,6 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
 
     StatContainer getStats();
 
-    StatContainer getMaxStats();
-
     default boolean canMove() {
         return getStats().speed().value() > 0f;
     }
@@ -61,7 +59,7 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
         if (damage <= 0f)
             return false;
 
-        getStats().setHealth(getStats().health().value() - damage);
+        getStats().setHealth(getStats().health().base() - damage);
         context().set(ValueType.HEALTH, getStats().health().value());
 
         if (getStats().health().value() <= 0) {

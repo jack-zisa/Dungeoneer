@@ -34,7 +34,7 @@ public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextP
     float getCenterY();
 
     default int getTileX() {
-        return MathUtils.floor(getX() * .125f);
+        return MathUtils.floor(getCenterX() * .125f);
     }
 
     default int getTileY() {
