@@ -52,9 +52,13 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
     public boolean add(Entity<R> entity) {
         if (entity.id() == Entity.CHARACTER_ID)
             return false;
-        long id = freeIds.isEmpty() ? nextId++ : freeIds.poll();
-        entity.setId(id);
-        idToObj.put(id, entity);
+
+        if (entity.id() == -1L) {
+            long id = freeIds.isEmpty() ? nextId++ : freeIds.poll();
+            entity.setId(id);
+        }
+
+        idToObj.put(entity.id(), entity);
         return entities.add(entity);
     }
 

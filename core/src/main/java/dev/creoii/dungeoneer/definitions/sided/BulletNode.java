@@ -307,6 +307,7 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
 
     @Override
     public void reset() {
+        id = -1L;
         context.removeExcept(ValueType.ENTITY);
         setStartPos(0f, 0f);
         setLocalPos(0f, 0f);
