@@ -7,11 +7,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
-import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import org.jspecify.annotations.Nullable;
 
-public class ClientBulletGroup extends BulletGroup<ClientRaid> implements Renderable {
+public class ClientBulletGroup extends BulletGroup<ClientRaid> implements ClientEntity {
     private long id;
     private ClientRaid raid;
 

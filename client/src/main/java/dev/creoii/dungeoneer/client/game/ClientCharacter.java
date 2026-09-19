@@ -356,6 +356,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     @Override
     public void die() {
+        Character.super.die();
         if (getRaid() != null && !getRaid().isNull() && !isLocal()) {
             getRaid().removeCharacter(character.accountId(), RemovalReason.DEATH);
         }
@@ -386,12 +387,12 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
         if (!inRaid())
-            return;
+            return false;
 
         if (dead && this == client.getState().getActiveCharacter()) {
-            return;
+            return false;
         }
 
         float speed = StatUtils.getCalculatedSpeed(this, stats.speed().value());
@@ -420,6 +421,8 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             }
             toTickEffects &= ~mask;
         }
+
+        return true;
     }
 
     @Override

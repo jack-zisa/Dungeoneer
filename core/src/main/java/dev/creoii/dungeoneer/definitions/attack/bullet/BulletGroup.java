@@ -3,7 +3,6 @@ package dev.creoii.dungeoneer.definitions.attack.bullet;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
-import dev.creoii.dungeoneer.definitions.sided.DungeonMap;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 
 public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode<GroupBulletType, R> implements Pool.Poolable {
@@ -38,8 +37,8 @@ public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode
     }
 
     @Override
-    public boolean update(float dt) {
-        if (!super.update(dt)) {
+    public boolean tick(float dt) {
+        if (!super.tick(dt)) {
             children.forEach(bulletNode -> {
                 if (!bulletNode.isDead()) {
                     bulletNode.setParent(null);
@@ -50,20 +49,11 @@ public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode
 
         for (int i = children.size - 1; i >= 0; --i) {
             BulletNode<?, ?> child = children.get(i);
-            if (!child.update(dt)) {
+            if (child.isDead()) {
                 children.removeIndex(i);
             }
         }
 
         return true;
-    }
-
-    @Override
-    public boolean applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
-        boolean moved = super.applyTransform(map, originX, originY, dirX, dirY);
-        for (BulletNode<?, ?> child : children) {
-            child.applyTransform(map, getX(), getY(), getLocalDirX(), getLocalDirY());
-        }
-        return moved;
     }
 }

@@ -96,9 +96,12 @@ public class EntityCollisionManager {
     }
 
     private void collectBullets(List<Collidable> enemyBullets, List<Collidable> characterBullets) {
-        raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet<?> bullet1 && bullet1.isEnemy()).forEach(enemyBullets::add);
-        raid.getBullets().values().stream().filter(bullet -> bullet instanceof Bullet<?> bullet1 && !bullet1.isEnemy()).forEach(characterBullets::add);
-        raid.getBulletGroups().values().forEach(bulletGroup -> collectBulletGroup(bulletGroup, enemyBullets, characterBullets));
+        raid.getEntityManager().getEntities().forEach(entity -> {
+            if (entity instanceof Bullet<?> bullet) {
+                if (bullet.isEnemy()) enemyBullets.add(bullet);
+                else characterBullets.add(bullet);
+            } else if (entity instanceof BulletGroup<?> bulletGroup) collectBulletGroup(bulletGroup, enemyBullets, characterBullets);
+        });
     }
 
     private void collectBulletGroup(BulletGroup<?> bulletGroup, List<Collidable> enemyBullets, List<Collidable> characterBullets) {

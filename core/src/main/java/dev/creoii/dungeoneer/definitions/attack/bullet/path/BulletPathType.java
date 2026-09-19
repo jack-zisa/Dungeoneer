@@ -13,7 +13,6 @@ public interface BulletPathType<T extends BulletPathType.Instance<?>> extends Id
         case ORBIT -> OrbitBulletPathType.TYPE_CODEC;
         case PARAMETRIC -> ParametricBulletPathType.TYPE_CODEC;
     });
-    BulletPathType<EmptyBulletPathType.EmptyBulletPathInstance> EMPTY = new EmptyBulletPathType("empty");
 
     Type type();
 

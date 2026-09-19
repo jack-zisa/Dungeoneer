@@ -1,12 +1,17 @@
 package dev.creoii.dungeoneer.definitions.attack.bullet.path;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.util.Identifiable;
 
-public record EmptyBulletPathType(String id) implements BulletPathType<EmptyBulletPathType.EmptyBulletPathInstance> {
-    public static final MapCodec<EmptyBulletPathType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(Identifiable.idField()).apply(instance, EmptyBulletPathType::new));
+public record EmptyBulletPathType() implements BulletPathType<EmptyBulletPathType.EmptyBulletPathInstance> {
+    public static final EmptyBulletPathType TYPE_INSTANCE = new EmptyBulletPathType();
+    private static final EmptyBulletPathInstance INSTANCE = new EmptyBulletPathInstance(TYPE_INSTANCE);
+    public static final MapCodec<EmptyBulletPathType> TYPE_CODEC = MapCodec.unit(TYPE_INSTANCE);
+
+    @Override
+    public String id() {
+        return "empty";
+    }
 
     @Override
     public Type type() {
@@ -15,12 +20,12 @@ public record EmptyBulletPathType(String id) implements BulletPathType<EmptyBull
 
     @Override
     public EmptyBulletPathInstance create() {
-        return new EmptyBulletPathInstance(this);
+        return INSTANCE;
     }
 
     @Override
     public Identifiable withId(String id) {
-        return new EmptyBulletPathType(id);
+        return TYPE_INSTANCE;
     }
 
     public static class EmptyBulletPathInstance extends Instance<EmptyBulletPathType> {

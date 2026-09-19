@@ -253,11 +253,11 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
 
     @Override
     public void onTileCollision() {
-        setParent(null);
-        setDead(true);
+        die();
     }
 
-    public boolean update(float dt) {
+    @Override
+    public boolean tick(float dt) {
         if (isDead() || (lifetime -= dt) <= 0f)
             return false;
 
@@ -271,6 +271,8 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
 
         localPos[0] = pathOffset[0] + offset[0];
         localPos[1] = pathOffset[1] + offset[1];
+
+        applyTransform(getRaid().getDungeonMap(), getStartX(), getStartY(), getDirX(), getDirY());
 
         return true;
     }

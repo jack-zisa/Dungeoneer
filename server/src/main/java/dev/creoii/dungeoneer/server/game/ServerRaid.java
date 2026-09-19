@@ -7,6 +7,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
@@ -26,7 +27,7 @@ import java.util.List;
 public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerCharacter, ServerDungeonMap> {
     private static final float SYNC_INTERVAL = 5f; // 5 seconds
     private final DungeoneerServer server;
-    private final EntityManager<ServerRaid> entityManager;
+    private final EntityManager<ServerRaid, ServerEntity> entityManager;
     private final EntityCollisionManager entityCollisionManager;
     private float timer;
     private final List<MoveCharactersS2C.Entry> moveEntries;
@@ -82,7 +83,8 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
         return server;
     }
 
-    public EntityManager<ServerRaid> getEntityManager() {
+    @Override
+    public EntityManager<ServerRaid, ServerEntity> getEntityManager() {
         return entityManager;
     }
 
@@ -119,32 +121,36 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
     public BulletNode<?, ServerRaid> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
         BulletNode<?, ServerRaid> bulletNode = (BulletNode<?, ServerRaid>) super.addBullet(damage, x, y, dirX, dirY, bullet, index, enemy);
         bulletNode.setRaid(this);
-        entityManager.add(bulletNode);
-        getAddEntityEntries().add(new AddEntitiesS2C.Entry(bulletNode.id(), x, y, new BulletPacketData(damage, dirX, dirY, bullet.id(), index, enemy)));
+        entityManager.addRecursive((ServerEntity) bulletNode);
+        if (bulletNode instanceof BulletGroup<?> bulletGroup) {
+            bulletGroup.getChildren().forEach(bulletNode1 -> {
+                getAddEntityEntries().add(new AddEntitiesS2C.Entry(bulletNode1.id(), bulletNode1.getX(), bulletNode1.getY(), new BulletPacketData(damage, bulletNode1.getDirX(), bulletNode1.getDirY(), bulletNode1.getType().id(), bulletNode1.getIndex(), enemy)));
+            });
+        }
         return bulletNode;
     }
 
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
         if (getStatus() == Status.ACTIVE) {
             if (getRemainingTimeMs() <= 0L || getCharacters().isEmpty()) {
                 end();
-                return;
+                return false;
             }
 
             timer -= dt;
 
             if (getRaidTime() % 2 == 0) { // TODO: Remove as this is just testing
                 Vector2 spawnPos = getDungeonMap().getTemplate().spawnPos();
-                addBullet(10, spawnPos.x * 8f, spawnPos.y * 8f, MathUtils.cos(getRaidTime()) * .01f, MathUtils.sin(getRaidTime()) * .01f, DataManager.getBullet("fireball"), 0, true);
+                addBullet(10, (spawnPos.x - 8f) * 8f, (spawnPos.y - 8f) * 8f, MathUtils.cos(getRaidTime()) * .01f, MathUtils.sin(getRaidTime()) * .01f, DataManager.getBullet("fireball_group"), 0, true);
             }
 
             // Update bullet positions
             super.tick(dt);
 
             for (ServerCharacter character : getCharacters().values()) {
-                if (character.isDead()) {
-                    character.die();
+                if (!character.tick(dt)) {
+                    removeCharacter(character.get().accountId(), RemovalReason.DEATH);
                     continue;
                 }
 
@@ -153,7 +159,6 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
                     timer += SYNC_INTERVAL;
                     server.get().sendToUDP(character.getConnectionId(), new SyncRaidTimerS2C(getRemainingTimeMs()));
                 }
-                character.tick(dt);
             }
 
             entityCollisionManager.update(); // Update collision after bullets & characters have moved
@@ -204,6 +209,8 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
             setEndTime(System.currentTimeMillis() + Constants.RAID_DURATION_MS);
             updateSpawnPositions(getDungeonMap().getTemplate().spawnPos().x * 8f, getDungeonMap().getTemplate().spawnPos().y * 8f);
         }
+
+        return true;
     }
 
     @Override
@@ -228,7 +235,7 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
             LeaveRaidS2C packet = new LeaveRaidS2C(get().id(), accountId, reason);
             server.get().sendToTCP(removed.getConnectionId(), packet);
 
-            CharacterRepository characterRepository = server.getDatabase().getCharacters();
+            CharacterRepository characterRepository = server.getDatabase().getCharacters(); // TODO: Why are we sending a kill packet every time we remove?
             CharacterDefinition killed = characterRepository.getById(removed.get().id());
             characterRepository.updateEquipment(accountId, removed.get().id(), removed.getEquipment());
 

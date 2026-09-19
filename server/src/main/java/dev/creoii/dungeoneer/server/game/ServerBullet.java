@@ -7,6 +7,8 @@ import dev.creoii.dungeoneer.network.s2c.raid.MoveEntitiesS2C;
 import dev.creoii.dungeoneer.util.collision.Collidable;
 import dev.creoii.dungeoneer.util.event.HitEvents;
 
+import java.util.Arrays;
+
 public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
     private ServerRaid raid;
 
@@ -31,9 +33,7 @@ public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
                 return;
             if (character.damage(getDamage())) {
                 HitEvents.POST.invoker().onPostHit(character, this, raid);
-                setParent(null);
-                setDead(true);
-                raid.getRemoveEntityEntries().add(id());
+                die();
             }
         }
     }
@@ -45,5 +45,11 @@ public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void die() {
+        raid.getRemoveEntityEntries().add(id());
+        super.die();
     }
 }

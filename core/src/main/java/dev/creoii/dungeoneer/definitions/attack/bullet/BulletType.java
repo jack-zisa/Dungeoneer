@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.BulletPathType;
+import dev.creoii.dungeoneer.definitions.attack.bullet.path.EmptyBulletPathType;
 import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.function.Function;
@@ -53,7 +54,7 @@ public interface BulletType extends Identifiable {
     }
 
     static <T extends BulletType> RecordCodecBuilder<T, BulletPathType<?>> pathField() {
-        return BulletPathType.CODEC.fieldOf("path").orElse(BulletPathType.EMPTY).forGetter(BulletType::path);
+        return BulletPathType.CODEC.fieldOf("path").orElse(EmptyBulletPathType.TYPE_INSTANCE).forGetter(BulletType::path);
     }
 
     enum Type {

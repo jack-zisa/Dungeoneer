@@ -306,11 +306,7 @@ public class ClientNetworkHandler extends NetworkHandler {
                         for (int i = 0; i < size; ++i) {
                             long entityId = entityIds.get(i);
                             BulletNode<?, ?> bulletNode = character.getPredictedBullets().remove(clientId, i);
-                            raid.getEntityManager().add((Entity<ClientRaid>) bulletNode, entityId);
-
-                            if (bulletNode.getType() instanceof SingleBulletType) {
-                                raid.getBullets().put(raid.getAndIncrementNextBulletId(), (ClientBullet) bulletNode);
-                            } else raid.getBulletGroups().put(raid.getAndIncrementNextBulletId(), (ClientBulletGroup) bulletNode);
+                            raid.getEntityManager().add((ClientEntity) bulletNode, entityId);
                         }
 
                         character.setLastAttackTime(System.currentTimeMillis());
@@ -492,7 +488,7 @@ public class ClientNetworkHandler extends NetworkHandler {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (raid.isNull()) return;
                 entries.forEach(entry -> {
-                    EntityManager<ClientRaid> entityManager = raid.getEntityManager();
+                    EntityManager<ClientRaid, ClientEntity> entityManager = raid.getEntityManager();
                     if (entityManager.contains(entry.entityId())) {
                         Entity<?> entity = entityManager.get(entry.entityId());
                         entity.setPos(entry.x(), entry.y());
@@ -502,25 +498,21 @@ public class ClientNetworkHandler extends NetworkHandler {
             case AddEntitiesS2C(List<AddEntitiesS2C.Entry> entries) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (raid.isNull()) return;
+
                 for (AddEntitiesS2C.Entry entry : entries) {
                     switch (entry.data().type()) {
                         case BULLET -> {
-                            if (raid.getEntityManager().contains(entry.entityId())) return;
+                            if (raid.getEntityManager().contains(entry.entityId())) continue;
 
                             BulletPacketData data = (BulletPacketData) entry.data();
 
                             BulletType bullet = DataManager.getBullet(data.bulletType());
-                            if (bullet == null) return;
+                            if (bullet == null) continue;
 
                             BulletNode<?, ?> poolBullet = raid.createHierarchy(data.damage(), entry.x(), entry.y(), data.dirX(), data.dirY(), bullet, data.index(), data.enemy(), 1);
-                            raid.getEntityManager().add((Entity<ClientRaid>) poolBullet, entry.entityId());
-                            if (bullet instanceof SingleBulletType) {
-                                raid.getBullets().put(raid.getAndIncrementNextBulletId(), (ClientBullet) poolBullet);
-                            } else raid.getBulletGroups().put(raid.getAndIncrementNextBulletId(), (ClientBulletGroup) poolBullet);
-
-                            Entity<ClientRaid> entity = raid.getEntityManager().get(entry.entityId());
-                            if (entity != null)
-                                entity.setPos(entry.x(), entry.y());
+                            if (raid.getEntityManager().add((ClientEntity) poolBullet, entry.entityId())) {
+                                poolBullet.setPos(entry.x(), entry.y());
+                            }
                         }
                     }
                 }

@@ -203,8 +203,7 @@ public class GameScreen extends AbstractScreen {
             }
         }
 
-        renderables.addAll(raid.getBullets().values());
-        renderables.addAll(raid.getBulletGroups().values());
+        renderables.addAll(raid.getEntityManager().getEntities());
 
         renderables.sort(Comparator.comparingInt((Renderable r) -> r.renderLayer().getPriority()).thenComparingDouble(r -> -r.depth(inputListener.getRotation(), camera)));
 

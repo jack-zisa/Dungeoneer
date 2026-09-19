@@ -2,18 +2,16 @@ package dev.creoii.dungeoneer.definitions.sided;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Pool;
+import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.*;
 import dev.creoii.dungeoneer.definitions.attack.bullet.path.OrbitBulletPathType;
 import dev.creoii.dungeoneer.util.Constants;
 import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.Tickable;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Iterator;
 import java.util.Random;
 
 public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends Character, D extends DungeonMap> implements Tickable {
@@ -24,11 +22,6 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     private final Long2ObjectArrayMap<C> characters;
     private long raidTime;
     private long endTime;
-
-    private final Int2ObjectArrayMap<B> bullets = new Int2ObjectArrayMap<>();
-    private final Int2ObjectArrayMap<BG> bulletGroups = new Int2ObjectArrayMap<>();
-
-    private int nextBulletId = 0;
 
     public Raid(RaidDefinition raid, D dungeonMap) {
         random = new Random(0);
@@ -80,8 +73,8 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         character.setRaid(this);
     }
 
-    public C removeCharacter(long accountId) {
-        return removeCharacter(accountId, RemovalReason.UNKNOWN);
+    public void removeCharacter(long accountId) {
+        removeCharacter(accountId, RemovalReason.UNKNOWN);
     }
 
     @SuppressWarnings("unchecked")
@@ -92,16 +85,16 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         return character;
     }
 
+    public abstract EntityManager<?, ?> getEntityManager();
+
     public abstract Pool<B> getBulletPool();
 
     public abstract Pool<BG> getBulletGroupPool();
 
-    public Int2ObjectArrayMap<B> getBullets() {
-        return bullets;
-    }
-
-    public Int2ObjectArrayMap<BG> getBulletGroups() {
-        return bulletGroups;
+    @SuppressWarnings("unchecked")
+    public void free(Entity<?> entity) {
+        if (entity instanceof Bullet<?> bullet) getBulletPool().free((B) bullet);
+        else if (entity instanceof BulletGroup<?> bullet) getBulletGroupPool().free((BG) bullet);
     }
 
     public boolean isNull() {
@@ -124,61 +117,21 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
         characters.values().forEach(c -> c.setPos(spawnX, spawnY));
     }
 
-    public int getAndIncrementNextBulletId() {
-        return nextBulletId++;
-    }
-
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
         ++raidTime;
-
-        Iterator<Int2ObjectMap.Entry<B>> bulletIterator = bullets.int2ObjectEntrySet().iterator();
-        while (bulletIterator.hasNext()) {
-            Int2ObjectMap.Entry<B> entry = bulletIterator.next();
-            B bullet = entry.getValue();
-
-            if (!bullet.update(dt)) {
-                bulletIterator.remove();
-                getBulletPool().free(bullet);
-            } else bullet.applyTransform(dungeonMap, bullet.getStartX(), bullet.getStartY(), bullet.getDirX(), bullet.getDirY());
-        }
-
-        Iterator<Int2ObjectMap.Entry<BG>> groupIterator = bulletGroups.int2ObjectEntrySet().iterator();
-        while (groupIterator.hasNext()) {
-            Int2ObjectMap.Entry<BG> entry = groupIterator.next();
-            BG bulletGroup = entry.getValue();
-
-            if (!bulletGroup.update(dt)) {
-                groupIterator.remove();
-                getBulletGroupPool().free(bulletGroup);
-            } else bulletGroup.applyTransform(dungeonMap, bulletGroup.getStartX(), bulletGroup.getStartY(), bulletGroup.getDirX(), bulletGroup.getDirY());
-        }
+        getEntityManager().tick(dt);
+        return true;
     }
 
     public void end() {
-        if (!bullets.isEmpty()) {
-            bullets.values().forEach(b -> getBulletPool().free(b));
-            bullets.clear();
-        }
-
-        if (!bulletGroups.isEmpty()) {
-            bulletGroups.values().forEach(bg -> getBulletGroupPool().free(bg));
-            bulletGroups.clear();
-        }
-
         status = Status.WAITING;
         characters.clear();
-        nextBulletId = 0;
         endTime = -1L;
     }
 
-    @SuppressWarnings("unchecked")
     public BulletNode<?, ?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
-        BulletNode<?, ?> poolBullet = createHierarchy(damage, x, y, dirX, dirY, bullet, index, enemy, 1);
-        if (bullet instanceof SingleBulletType) {
-            bullets.put(nextBulletId++, (B) poolBullet);
-        } else bulletGroups.put(nextBulletId++, (BG) poolBullet);
-        return poolBullet;
+        return createHierarchy(damage, x, y, dirX, dirY, bullet, index, enemy, 1);
     }
 
     public BulletNode<?, ?> createHierarchy(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy, int siblings) {

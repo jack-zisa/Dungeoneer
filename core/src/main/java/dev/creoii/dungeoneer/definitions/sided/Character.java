@@ -57,8 +57,6 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
         return getRaid() != null && !getRaid().isNull();
     }
 
-    void tick(float dt);
-
     int getCurrentAttackId();
 
     void setCurrentAttackId(int currentAttackId);
@@ -75,7 +73,7 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
         context().set(ValueType.HEALTH, getStats().health().value());
 
         if (getStats().health().value() <= 0) {
-            setDead(true);
+            die();
         }
         return true;
     }
@@ -88,8 +86,6 @@ public interface Character<R extends Raid<?, ?, ?, ?>> extends LivingEntity<R> {
         getStats().setHealth(getStats().health().value() + amount);
         context().set(ValueType.HEALTH, getStats().health().value());
     }
-
-    void die();
 
     default void collectBulletAttacks(Attack attack, List<Attack> result) {
         switch (attack) {

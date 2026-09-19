@@ -10,10 +10,9 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.List;
 
-public record GroupBulletType(String id, Type type, float speed, float minSpeed, float maxSpeed, float lifetime, float acceleration, BulletPathType<?> path, List<Child> children) implements BulletType {
+public record GroupBulletType(String id, float speed, float minSpeed, float maxSpeed, float lifetime, float acceleration, BulletPathType<?> path, List<Child> children) implements BulletType {
     public static final MapCodec<GroupBulletType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Identifiable.idField(),
-        Type.CODEC.fieldOf("type").orElse(Type.GROUP).forGetter(GroupBulletType::type),
         BulletType.speedField(),
         BulletType.minSpeedField(),
         BulletType.maxSpeedField(),
@@ -24,14 +23,19 @@ public record GroupBulletType(String id, Type type, float speed, float minSpeed,
     ).apply(instance, GroupBulletType::new));
 
     @Override
+    public Type type() {
+        return Type.GROUP;
+    }
+
+    @Override
     public Identifiable withId(String id) {
-        return new GroupBulletType(id, type, speed, minSpeed, maxSpeed, lifetime, acceleration, path, children);
+        return new GroupBulletType(id, speed, minSpeed, maxSpeed, lifetime, acceleration, path, children);
     }
 
     public record Child(Vector2 offset, BulletType definition) {
         public static final Codec<Child> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codecs.VECTOR_2.fieldOf("offset").orElse(new Vector2()).forGetter(Child::offset),
-            BulletType.CODEC.fieldOf("definition").forGetter(Child::definition)
+            BulletType.EITHER_CODEC.fieldOf("definition").forGetter(Child::definition)
         ).apply(instance, Child::new));
     }
 }

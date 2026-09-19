@@ -1,15 +1,19 @@
 package dev.creoii.dungeoneer;
 
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
+import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.network.s2c.raid.AddEntitiesS2C;
+import dev.creoii.dungeoneer.util.EntityOwnable;
 import dev.creoii.dungeoneer.util.Tickable;
 
 import java.util.*;
 
-public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
+public class EntityManager<R extends Raid<?, ?, ?, ?>, E extends Entity<R>> implements Tickable {
     private final R raid;
-    private final Set<Entity<R>> entities;
-    private final Map<Long, Entity<R>> idToObj;
+    private final Set<E> entities;
+    private final Map<Long, E> idToObj;
     private final PriorityQueue<Long> freeIds;
     private long nextId;
 
@@ -25,11 +29,11 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
         return raid;
     }
 
-    public Set<Entity<R>> getEntities() {
+    public Set<E> getEntities() {
         return entities;
     }
 
-    public Map<Long, Entity<R>> getIdToObj() {
+    public Map<Long, E> getIdToObj() {
         return idToObj;
     }
 
@@ -49,7 +53,35 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
         this.nextId = nextId;
     }
 
-    public boolean add(Entity<R> entity) {
+    @SuppressWarnings("unchecked")
+    public boolean addRecursive(E entity) {
+        if (!add(entity)) return false;
+        if (entity instanceof BulletGroup<?> bulletGroup) {
+            bulletGroup.getChildren().forEach(bulletNode -> {
+                addRecursive((E) bulletNode);
+            });
+        }
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    public int addRecursive(E entity, List<AddEntitiesS2C.Entry> entries, int index) {
+        AddEntitiesS2C.Entry entry = entries.get(index);
+        if (!add(entity, entry.entityId()))
+            return -1;
+
+        index++;
+        if (entity instanceof BulletGroup<?> group) {
+            for (BulletNode<?, ?> child : group.getChildren()) {
+                index = addRecursive((E) child, entries, index);
+                if (index == -1)
+                    return -1;
+            }
+        }
+        return index;
+    }
+
+    public boolean add(E entity) {
         if (entity.id() == Entity.CHARACTER_ID)
             return false;
 
@@ -62,16 +94,16 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
         return entities.add(entity);
     }
 
-    public boolean add(Entity<R> entity, long entityId) {
-        if (entityId == Entity.CHARACTER_ID)
+    public boolean add(E entity, long entityId) {
+        if (entityId == Entity.CHARACTER_ID) {
             return false;
-        if (idToObj.containsKey(entityId)) return add(entity);
+        }
         entity.setId(entityId);
         idToObj.put(entityId, entity);
         return entities.add(entity);
     }
 
-    public boolean remove(Entity<R> entity) {
+    public boolean remove(E entity) {
         if (!entities.remove(entity)) {
             return false;
         }
@@ -81,7 +113,7 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
     }
 
     public boolean remove(long id) {
-        Entity<R> removed = idToObj.remove(id);
+        E removed = idToObj.remove(id);
         if (removed == null) {
             return false;
         }
@@ -90,7 +122,7 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
         return true;
     }
 
-    public boolean contains(Entity<R> entity) {
+    public boolean contains(E entity) {
         return idToObj.containsKey(entity.id());
     }
 
@@ -98,15 +130,31 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>> implements Tickable {
         return idToObj.containsKey(id);
     }
 
-    public Entity<R> get(long id) {
+    public E get(long id) {
         return idToObj.get(id);
     }
 
-    public Collection<Entity<R>> getValues() {
+    public Collection<E> getValues() {
         return idToObj.values();
     }
 
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
+        Iterator<E> entityIterator = entities.iterator();
+        while (entityIterator.hasNext()) {
+            E entity = entityIterator.next();
+
+            if (entity instanceof EntityOwnable ownable && ownable.getOwner() != null) // Entity owners should tick their children
+                continue;
+
+            if (!entity.tick(dt)) {
+                entityIterator.remove();
+                entity.die();
+                raid.free(entity);
+                remove(entity.id());
+            }
+        }
+
+        return true;
     }
 }

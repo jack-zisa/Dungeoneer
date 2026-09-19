@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
+import dev.creoii.dungeoneer.client.game.ClientBullet;
+import dev.creoii.dungeoneer.client.game.ClientBulletGroup;
 import dev.creoii.dungeoneer.client.game.ClientCharacter;
 import dev.creoii.dungeoneer.client.game.ClientRaid;
 import dev.creoii.dungeoneer.client.render.ui.screen.AbstractScreen;
@@ -72,11 +74,12 @@ public class DebugRenderer {
 
             ClientRaid raid = client.getState().getCurrentRaid();
             if (raid != null) {
-                raid.getBullets().values().forEach(clientBullet -> {
-                    clientBullet.renderDebug(shapeRenderer, new float[0]);
-                });
-                raid.getBulletGroups().values().forEach(bulletGroup -> {
-                    bulletGroup.renderDebug(shapeRenderer, new float[0]);
+                raid.getEntityManager().getEntities().forEach(entity -> {
+                    if (entity instanceof ClientBullet clientBullet) {
+                        clientBullet.renderDebug(shapeRenderer, new float[0]);
+                    } else if (entity instanceof ClientBulletGroup clientBulletGroup) {
+                        clientBulletGroup.renderDebug(shapeRenderer, new float[0]);
+                    }
                 });
             }
 

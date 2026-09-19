@@ -10,16 +10,14 @@ import dev.creoii.dungeoneer.client.render.ui.screen.game.RaidEndScreen;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
-import dev.creoii.dungeoneer.definitions.sided.Entity;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 import dev.creoii.dungeoneer.util.RemovalReason;
 
 import java.time.Duration;
-import java.util.Iterator;
 
 public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientCharacter, ClientDungeonMap> {
     private final Dungeoneer client;
-    private final EntityManager<ClientRaid> entityManager;
+    private final EntityManager<ClientRaid, ClientEntity> entityManager;
 
     private final Pool<ClientBullet> bulletPool = new Pool<>() {
         @Override
@@ -40,7 +38,8 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
         entityManager = new EntityManager<>(this, 2);
     }
 
-    public EntityManager<ClientRaid> getEntityManager() {
+    @Override
+    public EntityManager<ClientRaid, ClientEntity> getEntityManager() {
         return entityManager;
     }
 
@@ -73,10 +72,9 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public BulletNode<?, ?> addBullet(int damage, float x, float y, float dirX, float dirY, BulletType bullet, int index, boolean enemy) {
         BulletNode<?, ?> bulletNode = super.addBullet(damage, x, y, dirX, dirY, bullet, index, enemy);
-        entityManager.add((Entity<ClientRaid>) bulletNode);
+        entityManager.addRecursive((ClientEntity) bulletNode);
         return bulletNode;
     }
 
@@ -107,7 +105,7 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
     }
 
     @Override
-    public void tick(float dt) {
+    public boolean tick(float dt) {
         if (getStatus() == Status.ACTIVE) {
             long remaining = getRemainingTimeMs();
             if (remaining <= 0L) {
@@ -121,16 +119,9 @@ public class ClientRaid extends Raid<ClientBullet, ClientBulletGroup, ClientChar
 
             super.tick(dt);
 
-            Iterator<ClientCharacter> iterator = getCharacters().values().iterator();
-            while (iterator.hasNext()) {
-                ClientCharacter character = iterator.next();
-                if (character.isDead()) {
-                    iterator.remove();
-                    continue;
-                }
-                character.tick(dt);
-            }
+            getCharacters().values().removeIf(character -> !character.tick(dt));
         }
+        return true;
     }
 
     @Override

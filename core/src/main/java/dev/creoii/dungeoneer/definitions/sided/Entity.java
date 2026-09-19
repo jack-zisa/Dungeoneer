@@ -4,12 +4,13 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import dev.creoii.dungeoneer.definitions.map.MapLayerType;
 import dev.creoii.dungeoneer.definitions.map.tile.Tile;
+import dev.creoii.dungeoneer.util.Tickable;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
 import dev.creoii.dungeoneer.util.collision.Collidable;
 import dev.creoii.dungeoneer.util.context.ContextProvider;
 import org.jspecify.annotations.Nullable;
 
-public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextProvider {
+public interface Entity<R extends Raid<?, ?, ?, ?>> extends Tickable, Collidable, ContextProvider {
     long CHARACTER_ID = 0L;
 
     long id();
@@ -61,10 +62,18 @@ public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextP
 
     void setRaid(@Nullable R raid);
 
+    default void die() {
+        setDead(true);
+    }
+
     void setDead(boolean dead);
 
     boolean isDead();
 
     default void onTileCollision() {
+    }
+
+    default boolean tick(float dt) {
+        return true;
     }
 }
