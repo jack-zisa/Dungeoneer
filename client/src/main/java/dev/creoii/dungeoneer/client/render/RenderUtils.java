@@ -230,7 +230,7 @@ public final class RenderUtils {
             projected[0] - width * .5f, projected[1] - height * .5f,
             width * .5f, height * .5f,
             width, height,
-            1f, 1f,
+            scale, scale,
             angleDeg(bullet) + angleOffset + spin + rotation,
             0, 0,
             texture.getWidth(), texture.getHeight(),

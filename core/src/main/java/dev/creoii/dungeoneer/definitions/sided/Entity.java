@@ -30,6 +30,9 @@ public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextP
         getPos()[0] = x;
         getPos()[1] = y;
 
+        getBounds().x = x;
+        getBounds().y = y;
+
         if (context().has(ValueType.POSITION)) {
             ((Vector2) context().get(ValueType.POSITION)).set(x, y);
         } else context().set(ValueType.POSITION, new Vector2(x, y));
@@ -40,7 +43,7 @@ public interface Entity<R extends Raid<?, ?, ?, ?>> extends Collidable, ContextP
     float getCenterY();
 
     default int getTileX() {
-        return MathUtils.floor(getX() * .125f);
+        return MathUtils.floor(getCenterX() * .125f);
     }
 
     default int getTileY() {

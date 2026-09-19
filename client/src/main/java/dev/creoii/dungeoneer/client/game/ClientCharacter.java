@@ -48,7 +48,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private final float[] renderPos;
     private final float[] velocity;
     private final StatContainer stats;
-    private final StatContainer maxStats;
     private EquipmentInventory equipment;
     private final float[] correction;
     private final Rectangle bounds;
@@ -75,13 +74,11 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         velocity = VectorUtils.zero();
         if (character == null) {
             stats = StatContainer.ZERO.copy();
-            maxStats = StatContainer.ZERO.copy();
             equipment = EquipmentInventory.createEmpty(this);
             random().setSeed(0);
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             stats = character.characterClass().baseStats().copy();
-            maxStats = character.characterClass().maxStats().copy();
             equipment = new EquipmentInventory(this, character.characterClass().equipment(), character.equipment());
             random().setSeed(character.id());
             context.set(ValueType.HEALTH, stats.health().value());
@@ -129,13 +126,11 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             sprite = null;
             setEquipment(null);
             stats.set(StatContainer.ZERO.copy());
-            maxStats.set(StatContainer.ZERO.copy());
             random().setSeed(0);
         } else {
             sprite = new Sprite(client.getAssets().getTexture(Assets.Atlas.CHARACTER, character.characterClass().id()));
             setEquipment(new EquipmentInventory(this, character.characterClass().equipment(), character.equipment()));
             stats.set(character.characterClass().baseStats());
-            maxStats.set(character.characterClass().maxStats());
             random().setSeed(character.id());
             context.set(ValueType.HEALTH, stats.health().value());
         }
@@ -194,11 +189,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     @Override
     public StatContainer getStats() {
         return stats;
-    }
-
-    @Override
-    public StatContainer getMaxStats() {
-        return maxStats;
     }
 
     public int nextAttackId() {
@@ -332,7 +322,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     @Override
     public Rectangle getBounds() {
-        bounds.setPosition(getX(), getY());
         return bounds;
     }
 
@@ -456,8 +445,10 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     public void renderDebug(ShapeRenderer shapeRenderer, float[] mouseDir) {
         if (dead) return;
 
-        shapeRenderer.setColor(isAttackPending() ? Color.GREEN : Color.WHITE);
-        shapeRenderer.line(getCenterX(), getCenterY(), getCenterX() + mouseDir[0] * 32f, getCenterY() + mouseDir[1] * 32f);
+        if (isLocal()) {
+            shapeRenderer.setColor(isAttackPending() ? Color.GREEN : Color.WHITE);
+            shapeRenderer.line(getCenterX(), getCenterY(), getCenterX() + mouseDir[0] * 32f, getCenterY() + mouseDir[1] * 32f);
+        }
 
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(getRenderX(), getRenderY(), bounds.width, bounds.height);

@@ -30,6 +30,8 @@ public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
                 return;
             if (character.damage(getDamage())) {
                 HitEvents.POST.invoker().onPostHit(character, this, raid);
+                setParent(null);
+                setDead(true);
             }
         }
     }

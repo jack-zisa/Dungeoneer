@@ -35,7 +35,6 @@ public class ServerCharacter implements Character<ServerRaid> {
     private final float[] velocity;
     private final Rectangle bounds;
     private final StatContainer stats;
-    private final StatContainer maxStats;
     private final EquipmentInventory equipment;
     @Nullable private ServerRaid raid;
     private long lastAttackTime;
@@ -53,7 +52,6 @@ public class ServerCharacter implements Character<ServerRaid> {
         velocity = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
         stats = character.characterClass().baseStats().copy();
-        maxStats = character.characterClass().maxStats().copy();
         equipment = new EquipmentInventory(this, character.characterClass().equipment(), character.equipment()); // Need to init after stats as stat bonuses will apply
         raid = null;
         statusEffects = new Long2ObjectArrayMap<>();
@@ -109,7 +107,6 @@ public class ServerCharacter implements Character<ServerRaid> {
 
     @Override
     public Rectangle getBounds() {
-        bounds.setPosition(getX(), getY());
         return bounds;
     }
 
@@ -121,11 +118,6 @@ public class ServerCharacter implements Character<ServerRaid> {
     @Override
     public StatContainer getStats() {
         return stats;
-    }
-
-    @Override
-    public StatContainer getMaxStats() {
-        return maxStats;
     }
 
     public boolean hasPendingStatusEffectChanges() {

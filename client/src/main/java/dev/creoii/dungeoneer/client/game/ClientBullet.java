@@ -1,14 +1,18 @@
 package dev.creoii.dungeoneer.client.game;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.render.RenderLayer;
 import dev.creoii.dungeoneer.client.render.RenderUtils;
 import dev.creoii.dungeoneer.client.render.Renderable;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Arrays;
 
 public class ClientBullet extends Bullet<ClientRaid> implements Renderable {
     private long id;
@@ -46,6 +50,14 @@ public class ClientBullet extends Bullet<ClientRaid> implements Renderable {
     @Override
     public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
         RenderUtils.renderBullet(this, client, camera, rotation, batch, dt);
+    }
+
+    @Override
+    public void renderDebug(ShapeRenderer shapeRenderer, float[] mouseDir) {
+        if (isDead()) return;
+
+        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.rect(getX() - getBounds().width * .5f, getY() - getBounds().height * .5f, getBounds().width, getBounds().height);
     }
 
     @Override

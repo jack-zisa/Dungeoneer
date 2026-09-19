@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -42,7 +41,6 @@ public class GameScreen extends AbstractScreen {
     private CharacterInputListener inputListener;
     private OrthogonalTiledMapRenderer mapRenderer;
     private PolygonSpriteBatch polygonBatch;
-    private ShapeRenderer shapeRenderer;
     private Label timeRemainingLabel;
     private HealthBar healthBar;
     private InventoryWidget inventory;
@@ -52,8 +50,16 @@ public class GameScreen extends AbstractScreen {
         visibleCharacters = new ObjectArrayList<>();
     }
 
+    public ObjectList<ClientCharacter> getVisibleCharacters() {
+        return visibleCharacters;
+    }
+
     public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    public CharacterInputListener getInputListener() {
+        return inputListener;
     }
 
     public Label getTimeRemainingLabel() {
@@ -87,9 +93,6 @@ public class GameScreen extends AbstractScreen {
         polygonBatch = new PolygonSpriteBatch();
 
         mapRenderer = new OrthogonalTiledMapRenderer(getClient().getState().getCurrentRaid().getDungeonMap().getMap());
-
-        shapeRenderer = new ShapeRenderer();
-        shapeRenderer.setAutoShapeType(true);
 
         ClientRaid currentRaid = getClient().getState().getCurrentRaid();
         if (currentRaid.isNull()) {
@@ -226,15 +229,6 @@ public class GameScreen extends AbstractScreen {
 
         polygonBatch.end();
 
-        if (getClient().getSettings().debug().value()) {
-            shapeRenderer.setProjectionMatrix(camera.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-
-            character.renderDebug(shapeRenderer, inputListener.getDirectionToMouse(character.getCenterX(), character.getCenterY()));
-
-            shapeRenderer.end();
-        }
-
         super.render(dt);
     }
 
@@ -275,7 +269,7 @@ public class GameScreen extends AbstractScreen {
         }
 
         private void updateAmount() {
-            if (amount != null) amount.setText(character.getStats().health().value() + "/" + character.getMaxStats().health().value());
+            if (amount != null) amount.setText(character.getStats().health().value() + "/" + character.get().characterClass().maxStats());
         }
 
         @Override
@@ -313,7 +307,7 @@ public class GameScreen extends AbstractScreen {
         }
 
         public void update() {
-            float percent = (float) character.getStats().health().value() / character.getMaxStats().health().value();
+            float percent = (float) character.getStats().health().value() / character.get().characterClass().maxStats().health().value();
             setPercent(percent);
         }
     }

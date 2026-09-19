@@ -74,6 +74,10 @@ public class Dungeoneer extends Game {
         return commandManager;
     }
 
+    public boolean isDebug() {
+        return debug;
+    }
+
     @Override
     public void create() {
         Gdx.input.setInputProcessor(inputMultiplexer);
@@ -92,6 +96,7 @@ public class Dungeoneer extends Game {
 
         state.setStatus(ClientState.Status.LOADING);
 
+        debugRenderer.create();
         settings.load();
         assets = new Assets();
         assets.load();

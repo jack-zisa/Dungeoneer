@@ -238,7 +238,6 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
 
     @Override
     public Rectangle getBounds() {
-        bounds.setPosition(getX(), getY());
         return bounds;
     }
 

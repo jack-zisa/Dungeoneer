@@ -1,15 +1,13 @@
 {
   "type": "group",
-  "speed": 0,
+  "speed": 5000,
   "lifetime": 16,
-  "acceleration": 75,
-  "rotation_speed": 100,
   "path": {
-    "id": "fireball_wavy",
+    "id": "fireball_arc",
     "type": "wavy",
-    "wave_type": "triangle",
-    "amplitude": 16,
-    "frequency": 0.015
+    "wave_type": "sin",
+    "amplitude": 24,
+    "frequency": 0.001
   },
   "children": [
     {
@@ -25,7 +23,7 @@
       }
     },
     {
-      "offset": [15, 0],
+      "offset": [12.5, 0],
       "definition": {
         "id": "fireball",
         "type": "single",
@@ -37,7 +35,7 @@
       }
     },
     {
-      "offset": [0, 15],
+      "offset": [0, 12.5],
       "definition": {
         "id": "fireball",
         "type": "single",
@@ -49,7 +47,7 @@
       }
     },
     {
-      "offset": [-15, 0],
+      "offset": [-12.5, 0],
       "definition": {
         "id": "fireball",
         "type": "single",
@@ -61,7 +59,7 @@
       }
     },
     {
-      "offset": [0, -15],
+      "offset": [0, -12.5],
       "definition": {
         "id": "fireball",
         "type": "single",

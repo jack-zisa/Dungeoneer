@@ -22,7 +22,6 @@ public class SettingsDialog extends Dialog {
     private final Slider cameraRotationSpeedButton;
     private final TextButton debugKeyButton;
     private final TextButton commandKeyButton;
-    private final CheckBox debugButton;
 
     private IntegerOption listeningFor;
 
@@ -41,7 +40,6 @@ public class SettingsDialog extends Dialog {
         cameraRotationSpeedButton = createSlider(client.getSettings().cameraRotationSpeed(), 0f, 3f, 1f, skin);
         debugKeyButton = createKeyButton(client.getSettings().debugKey(), skin);
         commandKeyButton = createKeyButton(client.getSettings().commandKey(), skin);
-        debugButton = createToggleButton(client.getSettings().debug(), skin);
 
         content.add("Move Up");
         content.add(upButton).padTop(5f).row();
@@ -69,9 +67,6 @@ public class SettingsDialog extends Dialog {
 
         content.add("Enter Command");
         content.add(commandKeyButton).padTop(5f).row();
-
-        content.add("Debug");
-        content.add(debugButton).padTop(5f).row();
 
         button("Apply", true);
         button("Cancel", false);

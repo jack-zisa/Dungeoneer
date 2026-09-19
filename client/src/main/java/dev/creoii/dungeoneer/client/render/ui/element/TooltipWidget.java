@@ -47,7 +47,7 @@ public class TooltipWidget extends Table {
         if (damage != null) add(damage).padBottom(8f).padTop(8f).colspan(2).row();
         if (statBonus != null) add(statBonus).padBottom(8f).padTop(8f).colspan(2);
 
-        if (client.getSettings().debug().value()) {
+        if (client.isDebug()) {
             row();
             Label rawId = new Label(item.id(), AbstractScreen.SKIN);
             add(rawId).left().colspan(1);
