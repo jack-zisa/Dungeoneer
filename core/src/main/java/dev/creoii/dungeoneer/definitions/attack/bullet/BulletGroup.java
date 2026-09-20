@@ -5,6 +5,8 @@ import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
 
+import java.util.Arrays;
+
 public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode<GroupBulletType, R> implements Pool.Poolable {
     private final Array<BulletNode<?, ?>> children;
 
@@ -49,7 +51,7 @@ public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode
 
         for (int i = children.size - 1; i >= 0; --i) {
             BulletNode<?, ?> child = children.get(i);
-            if (child.isDead()) {
+            if (!child.tick(dt)) {
                 children.removeIndex(i);
             }
         }

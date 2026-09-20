@@ -7,11 +7,12 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.EntityManager;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.RaidDefinition;
-import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
+import dev.creoii.dungeoneer.network.data.BulletGroupPacketData;
 import dev.creoii.dungeoneer.network.data.BulletPacketData;
+import dev.creoii.dungeoneer.network.data.EntityPacketData;
 import dev.creoii.dungeoneer.network.s2c.character.KillCharacterS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.*;
 import dev.creoii.dungeoneer.server.DungeoneerServer;
@@ -122,11 +123,20 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
         BulletNode<?, ServerRaid> bulletNode = (BulletNode<?, ServerRaid>) super.addBullet(damage, x, y, dirX, dirY, bullet, index, enemy);
         bulletNode.setRaid(this);
         entityManager.addRecursive((ServerEntity) bulletNode);
-        if (bulletNode instanceof BulletGroup<?> bulletGroup) {
-            bulletGroup.getChildren().forEach(bulletNode1 -> {
-                getAddEntityEntries().add(new AddEntitiesS2C.Entry(bulletNode1.id(), bulletNode1.getX(), bulletNode1.getY(), new BulletPacketData(damage, bulletNode1.getDirX(), bulletNode1.getDirY(), bulletNode1.getType().id(), bulletNode1.getIndex(), enemy)));
-            });
+
+        EntityPacketData packetData = null;
+        if (bulletNode instanceof ServerBullet) {
+            packetData = new BulletPacketData(damage, dirX, dirY, bullet.id(), index, enemy);
+        } else if (bulletNode instanceof ServerBulletGroup bulletGroup) {
+            long[] children = new long[bulletGroup.getChildren().size];
+            for (int i = 0; i < bulletGroup.getChildren().size; ++i) {
+                children[i] = bulletGroup.getChildren().get(i).id();
+            }
+            packetData = new BulletGroupPacketData(damage, dirX, dirY, bullet.id(), index, enemy, children);
         }
+
+        if (packetData != null) getAddEntityEntries().add(new AddEntitiesS2C.Entry(bulletNode.id(), x, y, packetData));
+
         return bulletNode;
     }
 

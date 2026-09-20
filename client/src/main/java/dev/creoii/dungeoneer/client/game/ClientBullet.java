@@ -46,6 +46,7 @@ public class ClientBullet extends Bullet<ClientRaid> implements ClientEntity {
 
     @Override
     public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
+        if (isDead()) return;
         RenderUtils.renderBullet(this, client, camera, rotation, batch, dt);
     }
 

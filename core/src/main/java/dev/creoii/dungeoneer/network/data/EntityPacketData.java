@@ -8,6 +8,7 @@ public interface EntityPacketData {
     void write(Output output);
 
     enum Type {
-        BULLET
+        BULLET,
+        BULLET_GROUP
     }
 }

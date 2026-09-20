@@ -50,8 +50,6 @@ public class ClientBulletGroup extends BulletGroup<ClientRaid> implements Client
 
     @Override
     public void renderDebug(ShapeRenderer shapeRenderer, float[] mouseDir) {
-        if (isDead()) return;
-
         getChildren().forEach(bulletNode -> {
             if (bulletNode instanceof ClientBullet clientBullet) clientBullet.renderDebug(shapeRenderer, mouseDir);
             else if (bulletNode instanceof ClientBulletGroup clientBulletGroup) clientBulletGroup.renderDebug(shapeRenderer, mouseDir);

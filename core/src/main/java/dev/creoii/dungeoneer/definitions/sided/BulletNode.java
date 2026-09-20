@@ -267,27 +267,36 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         speed = MathUtils.clamp(speed, minSpeed, maxSpeed);
         distanceTravelled += speed * dt;
 
-        float[] pathOffset = path.getOffset(this, distanceTravelled);
-
-        localPos[0] = pathOffset[0] + offset[0];
-        localPos[1] = pathOffset[1] + offset[1];
-
-        applyTransform(getRaid().getDungeonMap(), getStartX(), getStartY(), getDirX(), getDirY());
+        applyTransform();
 
         return true;
     }
 
-    public boolean applyTransform(DungeonMap map, float originX, float originY, float dirX, float dirY) {
+    public boolean applyTransform() {
+        float[] pathOffset = path.getOffset(this, distanceTravelled);
+
+        localPos[0] = pathOffset[0] + getOffsetX();
+        localPos[1] = pathOffset[1] + getOffsetY();
+
+        float originX = getParent() != null ? getParent().getX() : getStartX();
+        float originY = getParent() != null ? getParent().getY() : getStartY();
+
+        float dirX = getParent() != null ? getParent().getDirX() : getDirX();
+        float dirY = getParent() != null ? getParent().getDirY() : getDirY();
+
         float perpX = -dirY;
         float perpY = dirX;
 
-        float worldOffsetX = dirX * localPos[1] + perpX * localPos[0];
-        float worldOffsetY = dirY * localPos[1] + perpY * localPos[0];
+        float pathX = dirX * localPos[1] + perpX * localPos[0];
+        float pathY = dirY * localPos[1] + perpY * localPos[0];
 
-        float targetX = originX + worldOffsetX;
-        float targetY = originY + worldOffsetY;
+        float offsetX = dirX * offset[1] + perpX * offset[0];
+        float offsetY = dirY * offset[1] + perpY * offset[0];
 
-        Vector2 modified = MovementCollisionManager.modifyMove(map, this, targetX, targetY);
+        float targetX = originX + pathX + offsetX;
+        float targetY = originY + pathY + offsetY;
+
+        Vector2 modified = MovementCollisionManager.modifyMove(getRaid().getDungeonMap(), this, targetX, targetY);
 
         float previousX = pos[0];
         float previousY = pos[1];

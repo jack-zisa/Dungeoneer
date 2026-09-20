@@ -22,6 +22,8 @@ import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.VectorUtils;
 
+import java.util.Arrays;
+
 public final class RenderUtils {
     private static final float[] WALL_VERTS = new float[20];
     private static final short[] QUAD_INDICES = {
@@ -207,6 +209,10 @@ public final class RenderUtils {
         }
 
         Bullet<?> bullet = (Bullet<?>) node;
+
+        if (bullet.getType() == null) {
+            return; // Occasionally happens when bullet is reset before removing
+        }
 
         Texture texture = client.getAssets().getTexture(Assets.Atlas.BULLET, bullet.getType().id());
 

@@ -22,8 +22,8 @@ import dev.creoii.dungeoneer.client.render.ui.screen.main.VaultThroneTab;
 import dev.creoii.dungeoneer.definitions.*;
 import dev.creoii.dungeoneer.definitions.CharacterDefinition;
 import dev.creoii.dungeoneer.definitions.attack.Attack;
+import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletType;
-import dev.creoii.dungeoneer.definitions.attack.bullet.SingleBulletType;
 import dev.creoii.dungeoneer.definitions.item.inventory.Inventory;
 import dev.creoii.dungeoneer.definitions.item.inventory.Slot;
 import dev.creoii.dungeoneer.definitions.item.WeaponItem;
@@ -38,6 +38,7 @@ import dev.creoii.dungeoneer.network.c2s.account.RequestLoginC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestCharactersC2S;
 import dev.creoii.dungeoneer.network.c2s.character.RequestFactionC2S;
 import dev.creoii.dungeoneer.network.c2s.dungeon.RequestDungeonMapC2S;
+import dev.creoii.dungeoneer.network.data.BulletGroupPacketData;
 import dev.creoii.dungeoneer.network.data.BulletPacketData;
 import dev.creoii.dungeoneer.network.s2c.LoadDataS2C;
 import dev.creoii.dungeoneer.network.s2c.SyncDataS2C;
@@ -514,13 +515,39 @@ public class ClientNetworkHandler extends NetworkHandler {
                                 poolBullet.setPos(entry.x(), entry.y());
                             }
                         }
+                        case BULLET_GROUP -> {
+                            if (raid.getEntityManager().contains(entry.entityId())) continue;
+
+                            BulletGroupPacketData data = (BulletGroupPacketData) entry.data();
+
+                            BulletType bullet = DataManager.getBullet(data.bulletType());
+                            if (bullet == null) continue;
+
+                            BulletNode<?, ?> poolBullet = raid.createHierarchy(data.damage(), entry.x(), entry.y(), data.dirX(), data.dirY(), bullet, data.index(), data.enemy(), data.children().length);
+
+                            if (!(poolBullet instanceof BulletGroup<?> group)) continue;
+
+                            group.setPos(entry.x(), entry.y());
+                            raid.getEntityManager().add((ClientEntity) group, entry.entityId());
+
+                            for (int i = 0; i < group.getChildren().size; ++i) {
+                                BulletNode<?, ?> child = group.getChildren().get(i);
+                                raid.getEntityManager().add((ClientEntity) child, data.children()[i]);
+                            }
+                        }
                     }
                 }
             }
             case RemoveEntitiesS2C(List<Long> entityIds) -> {
                 ClientRaid raid = client.getState().getCurrentRaid();
                 if (raid.isNull()) return;
-                entityIds.forEach(aLong -> raid.getEntityManager().remove(aLong));
+                entityIds.forEach(aLong -> {
+                    if (raid.getEntityManager().contains(aLong)) {
+                        ClientEntity entity = raid.getEntityManager().get(aLong);
+                        entity.die();
+                        raid.getEntityManager().remove(aLong);
+                    }
+                });
             }
             default -> {
             }

@@ -2,6 +2,7 @@ package dev.creoii.dungeoneer.network.s2c.raid;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import dev.creoii.dungeoneer.network.data.BulletGroupPacketData;
 import dev.creoii.dungeoneer.network.data.BulletPacketData;
 import dev.creoii.dungeoneer.network.data.EntityPacketData;
 
@@ -37,6 +38,7 @@ public record AddEntitiesS2C(List<Entry> entries) {
         public static Entry read(Input input) {
             return new Entry(input.readLong(), input.readFloat(), input.readFloat(), switch (EntityPacketData.Type.values()[input.readInt()]) {
                 case BULLET -> BulletPacketData.read(input);
+                case BULLET_GROUP -> BulletGroupPacketData.read(input);
             });
         }
     }
