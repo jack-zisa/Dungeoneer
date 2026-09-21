@@ -2,6 +2,7 @@
   "type": "group",
   "speed": 5000,
   "lifetime": 16,
+  "rotation_speed": 100,
   "path": {
     "id": "fireball_arc",
     "type": "wavy",

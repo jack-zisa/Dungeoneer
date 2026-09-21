@@ -1,11 +1,12 @@
 package dev.creoii.dungeoneer.definitions.attack.bullet;
 
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import dev.creoii.dungeoneer.definitions.sided.BulletNode;
 import dev.creoii.dungeoneer.definitions.sided.Raid;
-
-import java.util.Arrays;
+import dev.creoii.dungeoneer.util.collision.MovementCollisionManager;
 
 public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode<GroupBulletType, R> implements Pool.Poolable {
     private final Array<BulletNode<?, ?>> children;
@@ -57,5 +58,13 @@ public abstract class BulletGroup<R extends Raid<?, ?, ?, ?>> extends BulletNode
         }
 
         return true;
+    }
+
+    @Override
+    public boolean applyTransform(float dt) {
+        float rotationSpeed = getType().rotationSpeed();
+        if (rotationSpeed != 0f)
+            incrementAngle(rotationSpeed * dt);
+        return super.applyTransform(dt);
     }
 }

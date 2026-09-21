@@ -12,6 +12,7 @@ import dev.creoii.dungeoneer.network.s2c.character.CharacterMoveS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.DamageCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.MoveCharactersS2C;
 import dev.creoii.dungeoneer.network.s2c.raid.StatusEffectsS2C;
+import dev.creoii.dungeoneer.util.RemovalReason;
 import dev.creoii.dungeoneer.util.VectorUtils;
 import dev.creoii.dungeoneer.util.context.Context;
 import dev.creoii.dungeoneer.util.action.value.ValueType;
@@ -222,6 +223,14 @@ public class ServerCharacter implements Character<ServerRaid> {
     }
 
     @Override
+    public void die() {
+        Character.super.die();
+        if (getRaid() != null && !getRaid().isNull()) {
+            getRaid().removeCharacter(character.accountId(), RemovalReason.DEATH);
+        }
+    }
+
+    @Override
     public boolean tick(float dt) {
         if (dead) {
             return false;
@@ -253,9 +262,11 @@ public class ServerCharacter implements Character<ServerRaid> {
                 pendingStatusEffectRemoves = 0L;
             }
         }
+/*
 
         float regeneration = StatUtils.getCalculatedVitality(this, stats.vitality().value());
         heal((int) (regeneration * dt));
+*/
 
         statusEffects.values().forEach(instance -> {
             if (instance.isExpired()) {

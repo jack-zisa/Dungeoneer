@@ -36,8 +36,8 @@ public class ServerBullet extends Bullet<ServerRaid> implements ServerEntity {
     }
 
     @Override
-    public boolean applyTransform() {
-        if (super.applyTransform()) {
+    public boolean applyTransform(float dt) {
+        if (super.applyTransform(dt)) {
             raid.getMoveEntityEntries().add(new MoveEntitiesS2C.Entry(id(), getX(), getY()));
             return true;
         }

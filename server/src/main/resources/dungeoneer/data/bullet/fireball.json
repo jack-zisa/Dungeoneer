@@ -5,5 +5,9 @@
   "speed": 0,
   "acceleration": 75,
   "scale": 1.5,
-  "rotation_speed": 100
+  "path": {
+    "id": "fireball_orbit",
+    "type": "orbit",
+    "orbit_radius": 16
+  }
 }

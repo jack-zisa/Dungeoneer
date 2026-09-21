@@ -141,17 +141,17 @@ public class EntityManager<R extends Raid<?, ?, ?, ?>, E extends Entity<R>> impl
     @Override
     public boolean tick(float dt) {
         Iterator<E> entityIterator = entities.iterator();
+
         while (entityIterator.hasNext()) {
             E entity = entityIterator.next();
 
-            if (entity instanceof EntityOwnable ownable && ownable.getOwner() != null) // Entity owners should tick their children
+            if (entity instanceof EntityOwnable ownable && ownable.getOwner() != null)
                 continue;
 
             if (!entity.tick(dt)) {
                 entityIterator.remove();
                 entity.die();
                 raid.free(entity);
-                remove(entity.id());
             }
         }
 

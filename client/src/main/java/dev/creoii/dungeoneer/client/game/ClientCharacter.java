@@ -34,10 +34,7 @@ import dev.creoii.dungeoneer.util.stat.StatContainer;
 import dev.creoii.dungeoneer.util.stat.StatUtils;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Random;
+import java.util.*;
 
 public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private final Context context;
@@ -55,6 +52,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     private boolean attackPending;
     private long statusEffects;
     private AnimationState animationState;
+    private final Queue<StatusText> statusTexts;
     private boolean dead;
 
     private int currentAttackId;
@@ -86,6 +84,7 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
         correction = VectorUtils.zero();
         bounds = new Rectangle(0f, 0f, 8f, 8f);
         animationState = AnimationState.IDLE_DOWN;
+        statusTexts = new ArrayDeque<>(1);
         dead = false;
 
         predictedBullets = HashBasedTable.create();
@@ -302,6 +301,21 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     }
 
     @Override
+    public boolean damage(int damage) {
+        boolean damaged = Character.super.damage(damage);
+        if (damaged) {
+            statusTexts.add(new StatusText(String.valueOf(damage), Color.RED, 1000, System.currentTimeMillis()));
+        }
+        return damaged;
+    }
+
+    @Override
+    public void heal(int amount) {
+        Character.super.heal(amount);
+        statusTexts.add(new StatusText(String.valueOf(amount), Color.GREEN, 1000, System.currentTimeMillis()));
+    }
+
+    @Override
     public void setDead(boolean dead) {
         this.dead = dead;
     }
@@ -422,6 +436,8 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
             toTickEffects &= ~mask;
         }
 
+        statusTexts.removeIf(StatusText::isExpired);
+
         return true;
     }
 
@@ -434,14 +450,13 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
     public void render(Dungeoneer client, PolygonSpriteBatch batch, Camera camera, float rotation, float dt) {
         if (dead) return;
 
-        float cx = getRenderX() + sprite.getWidth() * .5f;
-        float cy = getRenderY() + sprite.getHeight() * .5f;
-        float[] pos = {cx, cy};
+        float[] pos = {getRenderX(), getRenderY()};
         VectorUtils.prj2(pos, 0f, rotation, camera.position.x, camera.position.y);
-        sprite.setPosition(pos[0] - sprite.getWidth() * .5f, pos[1] - sprite.getHeight() * .5f);
+        sprite.setPosition(pos[0], pos[1]);
         sprite.draw(batch);
 
         RenderUtils.renderStatusEffects(this, renderPos, sprite.getHeight() * .8f, client, batch);
+        // RenderUtils.renderStatusTexts(renderPos, statusTexts, sprite.getHeight(), batch); // TODO: Fix large font
     }
 
     @Override
@@ -461,6 +476,6 @@ public class ClientCharacter implements Character<ClientRaid>, Renderable {
 
     @Override
     public float depth(float rotation, OrthographicCamera camera) {
-        return ClientDungeonMap.project(getRenderX() + sprite.getWidth() * .5f, getRenderY() + sprite.getHeight() * .5f, 0f, rotation, camera.position.x, camera.position.y).y;
+        return ClientDungeonMap.project(getRenderX(), getRenderY(), 0f, rotation, camera.position.x, camera.position.y).y;
     }
 }

@@ -117,8 +117,6 @@ public class GameScreen extends AbstractScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 getClient().get().sendTCP(new LeaveRaidC2S(getClient().getState().getCurrentRaid().get().id(), getClient().getState().getAccount().id(), RemovalReason.SURRENDER));
                 getClient().setScreen(new MainScreen(getClient()));
-                getClient().getState().getActiveCharacter().setPos(0f, 0f);
-                getClient().getState().getActiveCharacter().setRenderPos(0f, 0f);
                 getClient().getState().setStatus(ClientState.Status.LOBBY);
                 getClient().getState().getCurrentRaid().end();
             }

@@ -22,8 +22,8 @@ public class ServerBulletGroup extends BulletGroup<ServerRaid> implements Server
     }
 
     @Override
-    public boolean applyTransform() {
-        if (super.applyTransform()) {
+    public boolean applyTransform(float dt) {
+        if (super.applyTransform(dt)) {
             raid.getMoveEntityEntries().add(new MoveEntitiesS2C.Entry(id(), getX(), getY()));
             return true;
         }

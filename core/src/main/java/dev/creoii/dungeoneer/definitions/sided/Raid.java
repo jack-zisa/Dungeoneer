@@ -125,7 +125,7 @@ public abstract class Raid<B extends Bullet, BG extends BulletGroup, C extends C
     }
 
     public void end() {
-        status = Status.WAITING;
+        status = Status.END;
         characters.clear();
         endTime = -1L;
     }

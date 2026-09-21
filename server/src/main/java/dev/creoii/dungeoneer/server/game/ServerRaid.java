@@ -150,7 +150,7 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
 
             timer -= dt;
 
-            if (getRaidTime() % 2 == 0) { // TODO: Remove as this is just testing
+            if (getRaidTime() % 5 == 0) { // TODO: Remove as this is just testing
                 Vector2 spawnPos = getDungeonMap().getTemplate().spawnPos();
                 addBullet(10, (spawnPos.x - 8f) * 8f, (spawnPos.y - 8f) * 8f, MathUtils.cos(getRaidTime()) * .01f, MathUtils.sin(getRaidTime()) * .01f, DataManager.getBullet("fireball_group"), 0, true);
             }
@@ -245,11 +245,11 @@ public class ServerRaid extends Raid<ServerBullet, ServerBulletGroup, ServerChar
             LeaveRaidS2C packet = new LeaveRaidS2C(get().id(), accountId, reason);
             server.get().sendToTCP(removed.getConnectionId(), packet);
 
-            CharacterRepository characterRepository = server.getDatabase().getCharacters(); // TODO: Why are we sending a kill packet every time we remove?
-            CharacterDefinition killed = characterRepository.getById(removed.get().id());
-            characterRepository.updateEquipment(accountId, removed.get().id(), removed.getEquipment());
-
-            server.get().sendToTCP(removed.getConnectionId(), new KillCharacterS2C(killed));
+            if (reason == RemovalReason.DEATH) {
+                CharacterRepository characterRepository = server.getDatabase().getCharacters();
+                characterRepository.kill(accountId);
+                server.get().sendToTCP(removed.getConnectionId(), new KillCharacterS2C(removed.get()));
+            }
 
             getCharacters().values().forEach(serverCharacter -> {
                 server.get().sendToTCP(serverCharacter.getConnectionId(), packet);

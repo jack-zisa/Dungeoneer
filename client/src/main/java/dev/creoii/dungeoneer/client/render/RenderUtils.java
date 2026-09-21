@@ -12,6 +12,7 @@ import dev.creoii.dungeoneer.DataManager;
 import dev.creoii.dungeoneer.client.Assets;
 import dev.creoii.dungeoneer.client.Dungeoneer;
 import dev.creoii.dungeoneer.client.game.ClientDungeonMap;
+import dev.creoii.dungeoneer.client.game.StatusText;
 import dev.creoii.dungeoneer.client.render.object.WallFaceRenderable;
 import dev.creoii.dungeoneer.definitions.attack.bullet.Bullet;
 import dev.creoii.dungeoneer.definitions.attack.bullet.BulletGroup;
@@ -22,7 +23,7 @@ import dev.creoii.dungeoneer.definitions.statuseffect.StatusEffect;
 import dev.creoii.dungeoneer.util.Identifiable;
 import dev.creoii.dungeoneer.util.VectorUtils;
 
-import java.util.Arrays;
+import java.util.Queue;
 
 public final class RenderUtils {
     private static final float[] WALL_VERTS = new float[20];
@@ -265,6 +266,18 @@ public final class RenderUtils {
                 ++i;
             }
         }
+    }
+
+    public static void renderStatusTexts(float[] position, Queue<StatusText> statusTexts, float scale, PolygonSpriteBatch batch) {
+        float baseX = position[0] - (scale / 2f) - 4f;
+        float baseY = position[1] + scale;
+
+        Color prevColor = Assets.FONT.getColor();
+        statusTexts.forEach(statusText -> {
+            Assets.FONT.setColor(statusText.color());
+            Assets.FONT.draw(batch, statusText.text(), baseX, baseY + (statusText.getAge() * .01f));
+        });
+        Assets.FONT.setColor(prevColor);
     }
 
     public static float angleDeg(Bullet<?> bullet) {

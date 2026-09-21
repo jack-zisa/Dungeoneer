@@ -10,7 +10,7 @@ import dev.creoii.dungeoneer.util.Identifiable;
 
 import java.util.List;
 
-public record GroupBulletType(String id, float speed, float minSpeed, float maxSpeed, float lifetime, float acceleration, BulletPathType<?> path, List<Child> children) implements BulletType {
+public record GroupBulletType(String id, float speed, float minSpeed, float maxSpeed, float lifetime, float acceleration, float rotationSpeed, BulletPathType<?> path, List<Child> children) implements BulletType {
     public static final MapCodec<GroupBulletType> TYPE_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Identifiable.idField(),
         BulletType.speedField(),
@@ -18,6 +18,7 @@ public record GroupBulletType(String id, float speed, float minSpeed, float maxS
         BulletType.maxSpeedField(),
         BulletType.lifetimeField(),
         BulletType.accelerationField(),
+        Codec.FLOAT.fieldOf("rotation_speed").orElse(0f).forGetter(GroupBulletType::rotationSpeed),
         BulletType.pathField(),
         Child.CODEC.listOf().fieldOf("children").forGetter(GroupBulletType::children)
     ).apply(instance, GroupBulletType::new));
@@ -29,7 +30,7 @@ public record GroupBulletType(String id, float speed, float minSpeed, float maxS
 
     @Override
     public Identifiable withId(String id) {
-        return new GroupBulletType(id, speed, minSpeed, maxSpeed, lifetime, acceleration, path, children);
+        return new GroupBulletType(id, speed, minSpeed, maxSpeed, lifetime, acceleration, rotationSpeed, path, children);
     }
 
     public record Child(Vector2 offset, BulletType definition) {

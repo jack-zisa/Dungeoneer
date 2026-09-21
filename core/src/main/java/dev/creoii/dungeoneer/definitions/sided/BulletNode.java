@@ -267,12 +267,12 @@ public abstract class BulletNode<T extends BulletType, R extends Raid<?, ?, ?, ?
         speed = MathUtils.clamp(speed, minSpeed, maxSpeed);
         distanceTravelled += speed * dt;
 
-        applyTransform();
+        applyTransform(dt);
 
         return true;
     }
 
-    public boolean applyTransform() {
+    public boolean applyTransform(float dt) {
         float[] pathOffset = path.getOffset(this, distanceTravelled);
 
         localPos[0] = pathOffset[0] + getOffsetX();

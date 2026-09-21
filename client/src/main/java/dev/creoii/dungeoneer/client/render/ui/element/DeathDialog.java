@@ -25,7 +25,7 @@ public class DeathDialog extends Dialog {
                 client.getState().getCurrentRaid().end();
                 client.getState().getCurrentRaid().setStatus(Raid.Status.WAITING);
                 client.getState().setStatus(ClientState.Status.LOBBY);
-                client.getState().setActiveCharacter(-1);
+                client.getState().setActiveCharacter(0);
                 Gdx.app.postRunnable(() -> client.setScreen(new MainScreen(client)));
             }
         });

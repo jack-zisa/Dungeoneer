@@ -448,11 +448,8 @@ public class ClientNetworkHandler extends NetworkHandler {
                                     });
                                 }
                             });
-                        } else {
-                            raid.getCharacters().get(accountId).die();
-                        }
-                    }
-                    else raid.removeCharacter(accountId, reason);
+                        } else raid.getCharacters().get(accountId).die();
+                    } else client.getState().getActiveCharacter().die();
                 }
             }
             case StatUpdatesS2C(long accountId, StatContainer stats) -> {
