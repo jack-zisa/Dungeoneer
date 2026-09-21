@@ -170,7 +170,6 @@ public class ServerNetworkHandler extends NetworkHandler {
                 if (clientSession != null) {
                     server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.SUCCESS, account));
                 } else {
-                    connection.close();
                     server.get().sendToUDP(connection.getID(), new LoginResultS2C(PacketResult.FAIL, null));
                 }
             }

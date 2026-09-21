@@ -96,6 +96,14 @@ public class ClientNetworkHandler extends NetworkHandler {
                     client.get().sendTCP(new RequestFactionC2S(account.id()));
                     Gdx.app.postRunnable(() -> client.setScreen(new MainScreen(client)));
                     client.getState().setStatus(ClientState.Status.LOBBY);
+                } else {
+                    Gdx.app.postRunnable(() -> {
+                        if (client.getScreen() instanceof LoginScreen loginScreen) {
+                            loginScreen.getPasswordField().setText("");
+                            loginScreen.getUsernameField().setText("");
+                            loginScreen.getStatusLabel().setText("Login Failed.");
+                        }
+                    });
                 }
                 Dungeoneer.LOGGER.info("Login result: %s", result.name());
             }

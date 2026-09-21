@@ -62,4 +62,16 @@ public class LoginScreen extends AbstractScreen {
     public void hide() {
         getClient().getInputMultiplexer().removeProcessor(getStage());
     }
+
+    public TextField getUsernameField() {
+        return usernameField;
+    }
+
+    public TextField getPasswordField() {
+        return passwordField;
+    }
+
+    public Label getStatusLabel() {
+        return statusLabel;
+    }
 }
